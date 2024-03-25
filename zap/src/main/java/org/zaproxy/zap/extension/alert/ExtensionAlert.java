@@ -185,11 +185,20 @@ public class ExtensionAlert extends ExtensionAdaptor
                 ref = alert.getHistoryRef();
             }
             if (ref == null) {
-                ref =
-                        new HistoryReference(
-                                getModel().getSession(),
-                                HistoryReference.TYPE_SCANNER,
-                                alert.getMessage());
+                ref = createHistoryReference(HistoryReference.TYPE_SCANNER, alert.getMessage());
+                alert.setHistoryRef(ref);
+            } else if (HistoryReference.getTemporaryTypes().contains(ref.getHistoryType())) {
+                int tempType = ref.getHistoryType();
+                int permanentType = getPermanentType(tempType);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "Attempting to create an alert for temporary message {}, type will be changed to permanent: {}",
+                            tempType,
+                            permanentType,
+                            new Exception());
+                }
+
+                ref = createHistoryReference(permanentType, alert.getMessage());
                 alert.setHistoryRef(ref);
             }
 
@@ -248,6 +257,34 @@ public class ExtensionAlert extends ExtensionAdaptor
             return true;
         }
         return false;
+    }
+
+    private HistoryReference createHistoryReference(int historyType, HttpMessage message)
+            throws HttpMalformedHeaderException, DatabaseException {
+        return new HistoryReference(getModel().getSession(), historyType, message);
+    }
+
+    private static int getPermanentType(int historyType) {
+        switch (historyType) {
+            case HistoryReference.TYPE_TEMPORARY:
+                return HistoryReference.TYPE_ZAP_USER;
+            case HistoryReference.TYPE_SCANNER_TEMPORARY:
+                return HistoryReference.TYPE_SCANNER;
+            case HistoryReference.TYPE_AUTHENTICATION:
+                return HistoryReference.TYPE_ZAP_USER;
+            case HistoryReference.TYPE_SPIDER_TASK:
+                return HistoryReference.TYPE_SPIDER;
+            case HistoryReference.TYPE_SEQUENCE_TEMPORARY:
+                return HistoryReference.TYPE_ZAP_USER;
+            case HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY:
+                return HistoryReference.TYPE_SPIDER_AJAX;
+            case HistoryReference.TYPE_SPIDER_TEMPORARY:
+                return HistoryReference.TYPE_SPIDER;
+            case HistoryReference.TYPE_FUZZER_TEMPORARY:
+                return HistoryReference.TYPE_FUZZER;
+            default:
+                return HistoryReference.TYPE_SCANNER;
+        }
     }
 
     /*
