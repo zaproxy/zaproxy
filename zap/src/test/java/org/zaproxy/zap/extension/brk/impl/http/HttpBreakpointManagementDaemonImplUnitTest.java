@@ -30,6 +30,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.WithConfigsTest;
 
+@SuppressWarnings("removal")
 class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest {
 
     private static String OK_RESPONSE =

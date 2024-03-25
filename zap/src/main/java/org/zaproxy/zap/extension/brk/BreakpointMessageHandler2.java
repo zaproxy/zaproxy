@@ -28,6 +28,11 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.utils.Stats;
 
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class BreakpointMessageHandler2 {
 
     private static final Logger LOGGER = LogManager.getLogger(BreakpointMessageHandler2.class);

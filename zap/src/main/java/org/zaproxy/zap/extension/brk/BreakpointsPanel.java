@@ -38,7 +38,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class BreakpointsPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;

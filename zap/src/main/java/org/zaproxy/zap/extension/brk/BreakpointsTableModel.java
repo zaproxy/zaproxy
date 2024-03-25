@@ -27,7 +27,11 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class BreakpointsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -8160051343126299124L;

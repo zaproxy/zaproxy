@@ -22,12 +22,16 @@ package org.zaproxy.zap.extension.brk.impl.http;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.brk.BreakpointManagementInterface;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.utils.Stats;
 
-public class HttpBreakpointManagementDaemonImpl implements BreakpointManagementInterface {
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
+public class HttpBreakpointManagementDaemonImpl
+        implements org.zaproxy.zap.extension.brk.BreakpointManagementInterface {
 
     private boolean breakRequest;
     private boolean breakResponse;
@@ -195,7 +199,7 @@ public class HttpBreakpointManagementDaemonImpl implements BreakpointManagementI
     public void step() {
         this.step = true;
         this.stepping = true;
-        Stats.incCounter(ExtensionBreak.BREAK_POINT_STEP_STATS);
+        Stats.incCounter(org.zaproxy.zap.extension.brk.ExtensionBreak.BREAK_POINT_STEP_STATS);
     }
 
     @Override
@@ -209,7 +213,7 @@ public class HttpBreakpointManagementDaemonImpl implements BreakpointManagementI
     @Override
     public void drop() {
         this.drop = true;
-        Stats.incCounter(ExtensionBreak.BREAK_POINT_DROP_STATS);
+        Stats.incCounter(org.zaproxy.zap.extension.brk.ExtensionBreak.BREAK_POINT_DROP_STATS);
     }
 
     @Override

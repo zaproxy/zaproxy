@@ -28,8 +28,9 @@ import org.zaproxy.zap.eventBus.EventPublisher;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
- * @since 2.8.0
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
  */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class BreakEventPublisher implements EventPublisher {
 
     private static BreakEventPublisher publisher = null;

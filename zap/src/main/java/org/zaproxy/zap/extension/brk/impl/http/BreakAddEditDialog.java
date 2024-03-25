@@ -25,11 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class BreakAddEditDialog extends StandardFieldsDialog {
 
     private static final String FIELD_LOCATION = "brk.brkpoint.location.label";
@@ -74,18 +76,22 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 
     private List<String> getLocations() {
         ArrayList<String> list = new ArrayList<>();
-        for (Location loc : HttpBreakpointMessage.Location.values()) {
+        for (org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location loc :
+                HttpBreakpointMessage.Location.values()) {
             list.add(this.locToStr(loc));
         }
         return list;
     }
 
-    private String locToStr(Location loc) {
+    private String locToStr(
+            org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location loc) {
         return Constant.messages.getString("brk.brkpoint.location." + loc.name());
     }
 
-    private Location strToLoc(String str) {
-        for (Location loc : HttpBreakpointMessage.Location.values()) {
+    private org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location strToLoc(
+            String str) {
+        for (org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location loc :
+                HttpBreakpointMessage.Location.values()) {
             if (this.locToStr(loc).equals(str)) {
                 return loc;
             }
@@ -95,18 +101,22 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 
     private List<String> getMatches() {
         ArrayList<String> list = new ArrayList<>();
-        for (Match match : HttpBreakpointMessage.Match.values()) {
+        for (org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match match :
+                HttpBreakpointMessage.Match.values()) {
             list.add(this.matchToStr(match));
         }
         return list;
     }
 
-    private String matchToStr(Match match) {
+    private String matchToStr(
+            org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match match) {
         return Constant.messages.getString("brk.brkpoint.match." + match.name());
     }
 
-    private Match strToMatch(String str) {
-        for (Match match : HttpBreakpointMessage.Match.values()) {
+    private org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match strToMatch(
+            String str) {
+        for (org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match match :
+                HttpBreakpointMessage.Match.values()) {
             if (this.matchToStr(match).equals(str)) {
                 return match;
             }
@@ -139,7 +149,8 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
         if (this.isEmptyField(FIELD_STRING)) {
             return Constant.messages.getString("brk.brkpoint.error.nostr");
         }
-        if (Match.regex.equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
+        if (org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match.regex.equals(
+                this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
             try {
                 Pattern.compile(this.getStringValue(FIELD_STRING));
             } catch (Exception e) {
@@ -147,8 +158,10 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
             }
         }
         if (this.getStringValue(FIELD_STRING).contains("#")
-                && Location.url.equals(this.strToLoc(this.getStringValue(FIELD_LOCATION)))
-                && Match.contains.equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
+                && org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location.url
+                        .equals(this.strToLoc(this.getStringValue(FIELD_LOCATION)))
+                && org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match.contains
+                        .equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
             return Constant.messages.getString("brk.brkpoint.warn.urlfragment");
         }
         return null;

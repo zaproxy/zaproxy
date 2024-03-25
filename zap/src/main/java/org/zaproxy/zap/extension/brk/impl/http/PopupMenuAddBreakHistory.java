@@ -25,21 +25,24 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -1984801437717248474L;
 
     private static final Logger LOGGER = LogManager.getLogger(PopupMenuAddBreakHistory.class);
 
-    private final ExtensionBreak extension;
+    private final org.zaproxy.zap.extension.brk.ExtensionBreak extension;
 
-    public PopupMenuAddBreakHistory(ExtensionBreak extension) {
+    public PopupMenuAddBreakHistory(org.zaproxy.zap.extension.brk.ExtensionBreak extension) {
         super(Constant.messages.getString("brk.add.popup"));
 
         this.extension = extension;

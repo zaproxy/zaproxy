@@ -28,7 +28,6 @@ import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.model.SiteMapEventPublisher;
 import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
-import org.zaproxy.zap.extension.brk.BreakEventPublisher;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 /**
@@ -55,7 +54,6 @@ public final class CoreFunctionality {
         // Register core event bus publishers asap
         ActiveScanEventPublisher.getPublisher();
         AlertEventPublisher.getPublisher();
-        BreakEventPublisher.getPublisher();
         HistoryReferenceEventPublisher.getPublisher();
         ProxyListenerLogEventPublisher.getPublisher();
         SiteMapEventPublisher.getPublisher();
@@ -87,7 +85,6 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.authentication.ExtensionAuthentication());
             extensions.add(new org.zaproxy.zap.extension.authorization.ExtensionAuthorization());
             extensions.add(new org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate());
-            extensions.add(new org.zaproxy.zap.extension.brk.ExtensionBreak());
             extensions.add(new org.zaproxy.zap.extension.compare.ExtensionCompare());
             extensions.add(new org.zaproxy.zap.extension.ext.ExtensionExtension());
             extensions.add(new org.zaproxy.zap.extension.forceduser.ExtensionForcedUser());
