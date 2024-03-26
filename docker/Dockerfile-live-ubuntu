@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
-FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+FROM --platform=linux/amd64 ubuntu:22.04 AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -8,18 +8,19 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
 	unzip \
+        openjdk-11-jdk \
 	git
 
-RUN mkdir -p /etc/apt/keyrings && \
-	curl -s https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/keyrings/adoptium.asc && \
-	echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
-
-RUN apt-get update && apt-get install -q -y --fix-missing \
-	temurin-11-jdk \
-	java-common
-
-# Set java binaries in /usr/bin to the correct java install
-RUN update-java-alternatives -v -s temurin-11-jdk-amd64
+#RUN mkdir -p /etc/apt/keyrings && \
+#	curl -s https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/keyrings/adoptium.asc && \
+#	echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+#
+#RUN apt-get update && apt-get install -q -y --fix-missing \
+#	temurin-11-jdk \
+#	java-common
+#
+## Set java binaries in /usr/bin to the correct java install
+#RUN update-java-alternatives -v -s temurin-11-jdk-amd64
 
 # Cleanup apt cache to save space
 RUN rm -rf /var/lib/apt/lists/*
@@ -38,7 +39,7 @@ RUN ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 23.2.2
+ENV WEBSWING_VERSION 22.2.4
 RUN --mount=type=secret,id=webswing_url \
 	if [ -s /run/secrets/webswing_url ] ; \
 	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
@@ -49,23 +50,27 @@ RUN --mount=type=secret,id=webswing_url \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:bookworm-slim AS final
+FROM ubuntu:22.04 AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -q -y --fix-missing \
-	curl
+# Add repo for mozilla / firefox-esr
+RUN apt-get update && apt-get install -q -y --fix-missing software-properties-common
 
-RUN mkdir -p /etc/apt/keyrings && \
-	curl -s https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/keyrings/adoptium.asc && \
-	echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
-
-RUN apt-get update && apt-get install -q -y --fix-missing \
-	temurin-11-jdk \
-	java-common
-
-RUN update-java-alternatives -v -s temurin-11-jdk-amd64
+RUN add-apt-repository -n -d -y ppa:mozillateam/ppa
+#RUN apt-get update && apt-get install -q -y --fix-missing \
+#	curl
+#
+#RUN mkdir -p /etc/apt/keyrings && \
+#	curl -s https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/keyrings/adoptium.asc && \
+#	echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+#
+#RUN apt-get update && apt-get install -q -y --fix-missing \
+#	temurin-11-jdk \
+#	java-common
+#
+#RUN update-java-alternatives -v -s temurin-11-jdk-amd64
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -78,6 +83,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	unzip \
 	git \
 	openbox \
+        openjdk-11-jdk \
 	xterm \
 	net-tools \
 	python3-pip \
@@ -85,15 +91,18 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	firefox-esr \
 	vim \
 	xvfb \
-	x11vnc && \
-	rm -rf /var/lib/apt/lists/*  && \
-	useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
+	x11vnc
+
+RUN rm -rf /var/lib/apt/lists/*
+
+RUN apt-get -y autoremove
+
+RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
 	mkdir /zap  && \
 	chown zap:zap /zap
 
 RUN pip3 install \
-	--break-system-packages \
 	--no-cache-dir \
 	--upgrade \
 	awscli \
@@ -109,7 +118,7 @@ USER zap
 RUN mkdir /home/zap/.vnc
 
 ARG TARGETARCH
-ENV JAVA_HOME /usr/lib/jvm/temurin-11-jdk-$TARGETARCH
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
 ENV ZAP_PATH /zap/zap.sh
