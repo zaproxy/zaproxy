@@ -8,6 +8,7 @@
       ":addOns:ascanrulesBeta",
       ":addOns:authhelper",
       ":addOns:automation",
+      ":addOns:brk",
       ":addOns:bruteforce",
       ":addOns:callhome",
       ":addOns:commonlib",

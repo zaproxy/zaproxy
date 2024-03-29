@@ -24,23 +24,27 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
-import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.model.StructuralSiteNode;
 
-public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
+public class HttpBreakpointsUiManagerInterface
+        implements org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface {
 
     private BreakAddEditDialog breakDialog = null;
 
-    private ExtensionBreak extensionBreak;
+    private org.zaproxy.zap.extension.brk.ExtensionBreak extensionBreak;
 
     private PopupMenuAddBreakSites popupMenuAddBreakSites = null;
     private PopupMenuAddBreakHistory popupMenuAddBreakHistory = null;
 
     public HttpBreakpointsUiManagerInterface(
-            ExtensionHookMenu hookMenu, ExtensionBreak extensionBreak) {
+            ExtensionHookMenu hookMenu,
+            org.zaproxy.zap.extension.brk.ExtensionBreak extensionBreak) {
         this.extensionBreak = extensionBreak;
 
         hookMenu.addPopupMenuItem(getPopupMenuAddBreakSites());
@@ -76,17 +80,20 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     }
 
     @Override
-    public void handleEditBreakpoint(BreakpointMessageInterface breakpoint) {
+    public void handleEditBreakpoint(
+            org.zaproxy.zap.extension.brk.BreakpointMessageInterface breakpoint) {
         showEditDialog((HttpBreakpointMessage) breakpoint);
     }
 
     void editBreakpoint(
-            BreakpointMessageInterface oldBreakpoint, BreakpointMessageInterface newBreakpoint) {
+            org.zaproxy.zap.extension.brk.BreakpointMessageInterface oldBreakpoint,
+            org.zaproxy.zap.extension.brk.BreakpointMessageInterface newBreakpoint) {
         extensionBreak.editBreakpoint(oldBreakpoint, newBreakpoint);
     }
 
     @Override
-    public void handleRemoveBreakpoint(BreakpointMessageInterface breakpoint) {
+    public void handleRemoveBreakpoint(
+            org.zaproxy.zap.extension.brk.BreakpointMessageInterface breakpoint) {
         extensionBreak.removeBreakpoint(breakpoint);
     }
 

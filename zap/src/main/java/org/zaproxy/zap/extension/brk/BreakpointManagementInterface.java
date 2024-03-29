@@ -22,6 +22,10 @@ package org.zaproxy.zap.extension.brk;
 import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.extension.httppanel.Message;
 
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public interface BreakpointManagementInterface {
 
     boolean isBreakRequest();
