@@ -40,7 +40,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
-import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -54,6 +53,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 class DefaultRegexAutoTagScannerTest {
 
     private static final String BASE_STRING = "lorem ipsum < type= href= ";
+    private static final String DEFAULT_EXPECTED_SITE = "http://example.com";
 
     private static Source source;
     private static HttpMessage message;
@@ -115,22 +115,77 @@ class DefaultRegexAutoTagScannerTest {
                 "aPPlication/json",
                 "application/json; charset=utf-8"
             })
-    void shouldCountWhenHeaderContainsJsonMatch(String contentType)
-            throws URIException, HttpMalformedHeaderException, DatabaseException {
+    void shouldCountWhenHeaderMatchesJsonTag(String contentType)
+            throws URIException, HttpMalformedHeaderException, NullPointerException {
+        shouldCountWhenHeaderMatchesExpectedTag(contentType, "response_json", "JSON");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+            strings = {
+                // Response overlap
+                "application/json",
+                "application/json; charset=utf-8",
+                "application/hal+json",
+                "application/health+json",
+                "application/problem+json",
+                "application/vnd.api+json",
+                "application/x-ndjson",
+                "text/x-json",
+                "text/json",
+                "text/json; charset=utf-8"
+            })
+    void shouldCountWhenHeaderMatchesJsonExtendedTag(String contentType)
+            throws URIException, HttpMalformedHeaderException, NullPointerException {
+        shouldCountWhenHeaderMatchesExpectedTag(contentType, "json_extended", "JSON");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+            strings = {
+                "application/yaml",
+                "application/yaml; charset=utf-8",
+                "text/yaml",
+                "text/yaml; charset=utf-8",
+                "application/x-yaml"
+            })
+    void shouldCountWhenHeaderMatchesYamlTag(String contentType)
+            throws URIException, HttpMalformedHeaderException, NullPointerException {
+        shouldCountWhenHeaderMatchesExpectedTag(contentType, "response_yaml", "YAML");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+            strings = {
+                "application/xml; charset=utf-8",
+                "text/xml",
+                "application/problem+xml",
+                "application/soap+xml"
+            })
+    void shouldCountWhenHeaderMatchesXmlTag(String contentType)
+            throws URIException, HttpMalformedHeaderException, NullPointerException {
+        shouldCountWhenHeaderMatchesExpectedTag(contentType, "response_xml", "XML");
+    }
+
+    private void shouldCountWhenHeaderMatchesExpectedTag(
+            String contentType, String regexRuleName, String expectedConf)
+            throws URIException, HttpMalformedHeaderException, NullPointerException {
         // Given
-        RegexAutoTagScanner rule = getRegexRuleByName("response_json");
-        HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
-        msg.setHistoryRef(mock(HistoryReference.class));
-        msg.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
+        HttpMessage tagMessage = new HttpMessage(new URI("http://example.com/", true));
+        RegexAutoTagScanner rule = getRegexRuleByName(regexRuleName);
+        rule.setEnabled(true);
+        tagMessage.setHistoryRef(mock(HistoryReference.class));
+        tagMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
         // When
-        rule.scanHttpResponseReceive(msg, -1, new Source(msg.getResponseBody().toString()));
+        rule.scanHttpResponseReceive(
+                tagMessage, -1, new Source(tagMessage.getResponseBody().toString()));
         // Then
         ArgumentCaptor<String> siteCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
 
         verify(listener).counterInc(siteCaptor.capture(), keyCaptor.capture());
-        assertThat(siteCaptor.getValue(), is(equalTo("http://example.com")));
-        assertThat(rule.getConf(), is(equalTo("JSON")));
+        assertThat(siteCaptor.getValue(), is(equalTo(DEFAULT_EXPECTED_SITE)));
+        assertThat(rule.getConf(), is(equalTo(expectedConf)));
         assertThat(
                 keyCaptor.getValue(),
                 is(equalTo(RegexAutoTagScanner.TAG_STATS_PREFIX + rule.getConf())));
