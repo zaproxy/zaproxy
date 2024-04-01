@@ -1044,59 +1044,12 @@ public class AddOn {
      * @return an unmodifiable {@code List} with the passive scan rules of this add-on that were
      *     loaded, never {@code null}
      * @since 2.4.3
-     * @see #setLoadedPscanrules(List)
+     * @deprecated (2.15.0) Returns an empty list always. The scan rules are loaded by the
+     *     corresponding extension.
      */
+    @Deprecated(since = "2.15.0", forRemoval = true)
     public List<PluginPassiveScanner> getLoadedPscanrules() {
-        return loadedPscanrules;
-    }
-
-    /**
-     * Sets the loaded passive scan rules of the add-on, allowing to set the status of the passive
-     * scan rules appropriately and keep track of the passive scan rules loaded so that they can be
-     * removed during uninstallation.
-     *
-     * <p><strong>Note:</strong> Helper method to be used (only) by/during (un)installation process
-     * and loading of the add-on. Should be called when installing/loading the add-on, by setting
-     * the loaded passive scan rules, and when uninstalling by setting an empty list. The method
-     * {@code setLoadedPscanrulesSet(boolean)} should also be called.
-     *
-     * @param pscanrules the passive scan rules loaded, might be empty if none were actually loaded
-     * @throws IllegalArgumentException if {@code pscanrules} is {@code null}.
-     * @since 2.4.3
-     * @see #setLoadedPscanrulesSet(boolean)
-     * @see PluginPassiveScanner#setStatus(Status)
-     */
-    void setLoadedPscanrules(List<PluginPassiveScanner> pscanrules) {
-        if (pscanrules == null) {
-            throw new IllegalArgumentException("Parameter pscanrules must not be null.");
-        }
-
-        if (pscanrules.isEmpty()) {
-            loadedPscanrules = Collections.emptyList();
-            return;
-        }
-
-        for (PluginPassiveScanner pscanrule : pscanrules) {
-            pscanrule.setStatus(getStatus());
-        }
-        loadedPscanrules = Collections.unmodifiableList(new ArrayList<>(pscanrules));
-    }
-
-    /**
-     * Tells whether or not the loaded passive scan rules of the add-on, if any, were already set to
-     * the add-on.
-     *
-     * <p><strong>Note:</strong> Helper method to be used (only) by/during (un)installation process
-     * and loading of the add-on.
-     *
-     * @return {@code true} if the loaded passive scan rules were already set, {@code false}
-     *     otherwise
-     * @since 2.4.3
-     * @see #setLoadedPscanrules(List)
-     * @see #setLoadedPscanrulesSet(boolean)
-     */
-    boolean isLoadedPscanrulesSet() {
-        return loadedPscanRulesSet;
+        return List.of();
     }
 
     /**

@@ -69,6 +69,8 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.Version;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOn.ExtensionRunRequirements;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate.Status;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -495,9 +497,14 @@ public class AddOnLoader extends URLClassLoader {
             return;
         }
 
+        Control.getSingleton()
+                .getExtensionLoader()
+                .addOnStatusUpdate(new AddOnStatusUpdate(ao, Status.INSTALL, true));
         AddOnInstaller.install(createAndAddAddOnClassLoader(ao), ao);
         ao.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
-        Control.getSingleton().getExtensionLoader().addOnInstalled(ao);
+        Control.getSingleton()
+                .getExtensionLoader()
+                .addOnStatusUpdate(new AddOnStatusUpdate(ao, Status.INSTALLED, true));
 
         if (runnableAddOns.get(ao) == null) {
             runnableAddOns.put(ao, getRunnableExtensionsWithDeps(reqs));
@@ -645,7 +652,9 @@ public class AddOnLoader extends URLClassLoader {
             removeAddOnClassLoader(ao);
             deleteAddOn(ao, upgrading);
             ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
-            Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, false);
+            Control.getSingleton()
+                    .getExtensionLoader()
+                    .addOnStatusUpdate(new AddOnStatusUpdate(ao, Status.UNINSTALLED, false));
             return false;
         }
 
@@ -670,6 +679,10 @@ public class AddOnLoader extends URLClassLoader {
             postponedTasks.addUninstallAddOnTask(ao);
             return false;
         }
+
+        Control.getSingleton()
+                .getExtensionLoader()
+                .addOnStatusUpdate(new AddOnStatusUpdate(ao, Status.UNINSTALL, true));
 
         unloadDependentExtensions(ao);
         softUninstallDependentAddOns(ao);
@@ -696,7 +709,10 @@ public class AddOnLoader extends URLClassLoader {
                         ? AddOn.InstallationStatus.AVAILABLE
                         : AddOn.InstallationStatus.UNINSTALLATION_FAILED);
 
-        Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, uninstalledWithoutErrors);
+        Control.getSingleton()
+                .getExtensionLoader()
+                .addOnStatusUpdate(
+                        new AddOnStatusUpdate(ao, Status.UNINSTALLED, uninstalledWithoutErrors));
         return uninstalledWithoutErrors;
     }
 
@@ -834,6 +850,9 @@ public class AddOnLoader extends URLClassLoader {
             return;
         }
 
+        Control.getSingleton()
+                .getExtensionLoader()
+                .addOnStatusUpdate(new AddOnStatusUpdate(addOn, Status.SOFT_UNINSTALL, true));
         AddOn.InstallationStatus status;
         if (isDynamicallyInstallable(addOn) && AddOnInstaller.softUninstall(addOn, NULL_CALLBACK)) {
             removeAddOnClassLoader(addOn);
@@ -843,9 +862,14 @@ public class AddOnLoader extends URLClassLoader {
         }
 
         addOn.setInstallationStatus(status);
+
         Control.getSingleton()
                 .getExtensionLoader()
-                .addOnSoftUninstalled(addOn, status == AddOn.InstallationStatus.NOT_INSTALLED);
+                .addOnStatusUpdate(
+                        new AddOnStatusUpdate(
+                                addOn,
+                                Status.SOFT_UNINSTALLED,
+                                status == AddOn.InstallationStatus.NOT_INSTALLED));
     }
 
     private void loadBlockList() {
@@ -999,14 +1023,10 @@ public class AddOnLoader extends URLClassLoader {
         return Collections.unmodifiableList(list);
     }
 
-    private void validateNames(List<?> scanRules) {
+    private static void validateNames(List<AbstractPlugin> scanRules) {
         scanRules.forEach(
                 rule -> {
-                    String name =
-                            rule instanceof AbstractPlugin
-                                    ? ((AbstractPlugin) rule).getName()
-                                    : ((PluginPassiveScanner) rule).getName();
-                    if (StringUtils.isBlank(name)) {
+                    if (StringUtils.isBlank(rule.getName())) {
                         LOGGER.log(
                                 Constant.isDevBuild() ? Level.ERROR : Level.WARN,
                                 "Scan rule {} does not have a name.",
@@ -1024,18 +1044,11 @@ public class AddOnLoader extends URLClassLoader {
      * @return an unmodifiable {@code List} with all the passive scan rules, never {@code null}
      * @since 2.4.0
      * @see PluginPassiveScanner
+     * @deprecated (2.15.0) The scan rules are loaded by the corresponding extension.
      */
+    @Deprecated(since = "2.15.0", forRemoval = true)
     public List<PluginPassiveScanner> getPassiveScanRules() {
-        ArrayList<PluginPassiveScanner> list = new ArrayList<>();
-        for (AddOn addOn : getAddOnCollection().getAddOns()) {
-            AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
-            if (addOnClassLoader != null) {
-                list.addAll(AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader));
-            }
-        }
-        list.trimToSize();
-        validateNames(list);
-        return Collections.unmodifiableList(list);
+        return List.of();
     }
 
     /**
@@ -1461,6 +1474,34 @@ public class AddOnLoader extends URLClassLoader {
 
         public List<String> getExtensions() {
             return extensions;
+        }
+    }
+
+    private static class AddOnStatusUpdate implements AddOnInstallationStatusListener.StatusUpdate {
+
+        private final AddOn addOn;
+        private final Status status;
+        private final boolean successful;
+
+        private AddOnStatusUpdate(AddOn addOn, Status status, boolean successful) {
+            this.addOn = addOn;
+            this.status = status;
+            this.successful = successful;
+        }
+
+        @Override
+        public boolean isSuccessful() {
+            return successful;
+        }
+
+        @Override
+        public Status getStatus() {
+            return status;
+        }
+
+        @Override
+        public AddOn getAddOn() {
+            return addOn;
         }
     }
 }

@@ -29,11 +29,75 @@ import org.zaproxy.zap.control.AddOn;
 public interface AddOnInstallationStatusListener {
 
     /**
+     * The status update.
+     *
+     * @since 2.15.0
+     */
+    public interface StatusUpdate {
+
+        /** The status of the add-on. */
+        public enum Status {
+            INSTALL,
+            INSTALLED,
+            SOFT_UNINSTALL,
+            SOFT_UNINSTALLED,
+            UNINSTALL,
+            UNINSTALLED,
+        }
+
+        /**
+         * Tells whether or not the update is successful, that is, no errors occurred.
+         *
+         * @return {@code true} if the update is successful, {@code false} otherwise.
+         */
+        boolean isSuccessful();
+
+        /**
+         * Gets the status.
+         *
+         * @return the status, never {@code null}.
+         */
+        Status getStatus();
+
+        /**
+         * Gets the add-on.
+         *
+         * @return the add-on, never {@code null}.
+         */
+        AddOn getAddOn();
+    }
+
+    /**
+     * Notifies of an add-on status update.
+     *
+     * @param statusUpdate the status update, never {@code null}.
+     * @since 2.15.0
+     */
+    default void update(StatusUpdate statusUpdate) {
+        switch (statusUpdate.getStatus()) {
+            case INSTALLED:
+                addOnInstalled(statusUpdate.getAddOn());
+                break;
+
+            case SOFT_UNINSTALLED:
+                addOnSoftUninstalled(statusUpdate.getAddOn(), statusUpdate.isSuccessful());
+                break;
+
+            case UNINSTALLED:
+                addOnUninstalled(statusUpdate.getAddOn(), statusUpdate.isSuccessful());
+                break;
+
+            default:
+        }
+    }
+
+    /**
      * Notifies that the given add-on was installed.
      *
      * @param addOn the add-on that was installed, never {@code null}
      */
-    void addOnInstalled(AddOn addOn);
+    @Deprecated(since = "2.15.0", forRemoval = true)
+    default void addOnInstalled(AddOn addOn) {}
 
     /**
      * Notifies that the given add-on was soft uninstalled.
@@ -46,7 +110,8 @@ public interface AddOnInstallationStatusListener {
      * @param successfully if the soft uninstallation was successful, that is, no errors occurred
      *     while uninstalling it
      */
-    void addOnSoftUninstalled(AddOn addOn, boolean successfully);
+    @Deprecated(since = "2.15.0", forRemoval = true)
+    default void addOnSoftUninstalled(AddOn addOn, boolean successfully) {}
 
     /**
      * Notifies that the given add-on was uninstalled.
@@ -55,5 +120,6 @@ public interface AddOnInstallationStatusListener {
      * @param successfully if the uninstallation was successful, that is, no errors occurred while
      *     uninstalling it
      */
-    void addOnUninstalled(AddOn addOn, boolean successfully);
+    @Deprecated(since = "2.15.0", forRemoval = true)
+    default void addOnUninstalled(AddOn addOn, boolean successfully) {}
 }
