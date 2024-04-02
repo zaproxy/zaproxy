@@ -499,7 +499,23 @@ public class ExtensionHelp extends ExtensionAdaptor {
     private class AddOnInstallationStatusListenerImpl implements AddOnInstallationStatusListener {
 
         @Override
-        public void addOnInstalled(AddOn addOn) {
+        public void update(StatusUpdate statusUpdate) {
+            switch (statusUpdate.getStatus()) {
+                case INSTALLED:
+                    installed(statusUpdate.getAddOn());
+                    break;
+
+                case SOFT_UNINSTALLED:
+                case UNINSTALLED:
+                    uninstalled(statusUpdate.getAddOn());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void installed(AddOn addOn) {
             if (hb == null) {
                 if (findHelpSetUrl() != null) {
                     setHelpEnabled(true);
@@ -509,13 +525,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
             }
         }
 
-        @Override
-        public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
-            addOnUninstalled(addOn, successfully);
-        }
-
-        @Override
-        public void addOnUninstalled(AddOn addOn, boolean successfully) {
+        private void uninstalled(AddOn addOn) {
             HelpBroker hbLocal = hb;
             if (hbLocal == null) {
                 return;

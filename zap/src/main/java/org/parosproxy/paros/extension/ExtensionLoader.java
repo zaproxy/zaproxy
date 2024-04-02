@@ -690,12 +690,38 @@ public class ExtensionLoader {
     }
 
     /**
+     * Notifies of an add-on's installation status update.
+     *
+     * @param statusUpdate the status update, must not be {@code null}.
+     * @since 2.15.0
+     */
+    public void addOnStatusUpdate(AddOnInstallationStatusListener.StatusUpdate statusUpdate) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener :
+                    hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.update(statusUpdate);
+                } catch (Exception e) {
+                    LOGGER.error(
+                            "An error occurred while notifying: {}",
+                            listener.getClass().getCanonicalName(),
+                            e);
+                }
+            }
+        }
+    }
+
+    /**
      * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
      * was installed.
      *
      * @param addOn the add-on that was installed, must not be {@code null}
      * @since 2.5.0
+     * @deprecated (2.15.0) Replaced by {@link
+     *     #addOnStatusUpdate(org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate)}.
      */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.15.0", forRemoval = true)
     public void addOnInstalled(AddOn addOn) {
         for (ExtensionHook hook : extensionHooks.values()) {
             for (AddOnInstallationStatusListener listener :
@@ -720,7 +746,11 @@ public class ExtensionLoader {
      * @param successfully if the soft uninstallation was successful, that is, no errors occurred
      *     while uninstalling it
      * @since 2.5.0
+     * @deprecated (2.15.0) Replaced by {@link
+     *     #addOnStatusUpdate(org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate)}.
      */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.15.0", forRemoval = true)
     public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
             for (AddOnInstallationStatusListener listener :
@@ -745,7 +775,11 @@ public class ExtensionLoader {
      * @param successfully if the uninstallation was successful, that is, no errors occurred while
      *     uninstalling it
      * @since 2.5.0
+     * @deprecated (2.15.0) Replaced by {@link
+     *     #addOnStatusUpdate(org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate)}.
      */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.15.0", forRemoval = true)
     public void addOnUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
             for (AddOnInstallationStatusListener listener :

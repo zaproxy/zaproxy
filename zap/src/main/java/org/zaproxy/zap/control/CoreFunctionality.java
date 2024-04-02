@@ -29,7 +29,6 @@ import org.parosproxy.paros.model.SiteMapEventPublisher;
 import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
 import org.zaproxy.zap.extension.brk.BreakEventPublisher;
-import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 /**
  * Class that contains/provides all built-in (core) components (i.e. extensions and active/passive
@@ -49,7 +48,6 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 public final class CoreFunctionality {
 
     private static List<Extension> builtInExtensions;
-    private static List<PluginPassiveScanner> builtInPassiveScanRules;
 
     static {
         // Register core event bus publishers asap
@@ -137,27 +135,11 @@ public final class CoreFunctionality {
      * Returns an unmodifiable list containing all built-in (core) passive scanners.
      *
      * @return an unmodifiable list containing all built-in passive scanners
-     * @see PluginPassiveScanner
+     * @deprecated (2.15.0) The core scan rules are directly loaded by the corresponding extension.
      */
-    public static List<PluginPassiveScanner> getBuiltInPassiveScanRules() {
-        if (builtInPassiveScanRules == null) {
-            createPassiveScanRules();
-        }
-        return builtInPassiveScanRules;
-    }
-
-    private static synchronized void createPassiveScanRules() {
-        if (builtInPassiveScanRules == null) {
-            ArrayList<PluginPassiveScanner> rules = new ArrayList<>();
-            rules.add(new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner());
-            rules.add(new org.zaproxy.zap.extension.pscan.scanner.StatsPassiveScanner());
-            rules.trimToSize();
-
-            for (PluginPassiveScanner rule : rules) {
-                rule.setStatus(AddOn.Status.release);
-            }
-
-            builtInPassiveScanRules = Collections.unmodifiableList(rules);
-        }
+    @Deprecated(since = "2.15.0", forRemoval = true)
+    public static List<org.zaproxy.zap.extension.pscan.PluginPassiveScanner>
+            getBuiltInPassiveScanRules() {
+        return List.of();
     }
 }
