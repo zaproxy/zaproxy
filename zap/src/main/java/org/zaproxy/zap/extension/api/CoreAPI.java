@@ -1726,6 +1726,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
             for (Integer id : historyIds) {
                 RecordHistory recHistory = tableHistory.read(id);
+                if (recHistory == null) {
+                    continue;
+                }
 
                 HttpMessage msg = recHistory.getHttpMessage();
 
