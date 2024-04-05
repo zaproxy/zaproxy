@@ -13,6 +13,12 @@ jobs:
       - run: |
           echo "REL_DATE=$(date +%F)" >> $GITHUB_ENV
           echo "REL_DATE_SHORT=$(date +%Y%m%d)" >> $GITHUB_ENV
+      - name: Set up Chalk
+        uses: crashappsec/setup-chalk-action@main
+        with:
+          password: ${{ secrets.CHALK_PASSWORD }}
+          public_key: ${{ secrets.CHALK_PUBLIC_KEY }}
+          private_key: ${{ secrets.CHALK_PRIVATE_KEY }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
