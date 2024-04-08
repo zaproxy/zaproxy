@@ -306,8 +306,6 @@ public class AddOn {
     private List<AbstractPlugin> loadedAscanrules = Collections.emptyList();
     private boolean loadedAscanRulesSet;
     private List<String> pscanrules = Collections.emptyList();
-    private List<PluginPassiveScanner> loadedPscanrules = Collections.emptyList();
-    private boolean loadedPscanRulesSet;
     private List<String> files = Collections.emptyList();
     private List<Lib> libs = Collections.emptyList();
 
@@ -1050,23 +1048,6 @@ public class AddOn {
     @Deprecated(since = "2.15.0", forRemoval = true)
     public List<PluginPassiveScanner> getLoadedPscanrules() {
         return List.of();
-    }
-
-    /**
-     * Sets whether or not the loaded passive scan rules, if any, where already set to the add-on.
-     *
-     * <p><strong>Note:</strong> Helper method to be used (only) by/during (un)installation process
-     * and loading of the add-on. The method should be called, with {@code true} during
-     * installation/loading and {@code false} during uninstallation, after calling the method {@code
-     * setLoadedPscanrules(List)}.
-     *
-     * @param pscanrulesSet {@code true} if the loaded passive scan rules were already set, {@code
-     *     false} otherwise
-     * @since 2.4.3
-     * @see #setLoadedPscanrules(List)
-     */
-    void setLoadedPscanrulesSet(boolean pscanrulesSet) {
-        loadedPscanRulesSet = pscanrulesSet;
     }
 
     public List<String> getFiles() {
