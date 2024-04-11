@@ -127,8 +127,8 @@ public interface ExtensionPopupMenuComponent {
     boolean isSafe();
 
     /**
-     * Called after the pop up menu in which this pop up menu component is is dismissed, indicating
-     * the menu component that was selected or {@code null} if none.
+     * Called after the pop up menu in which this pop up menu component is dismissed, indicating the
+     * menu component that was selected or {@code null} if none.
      *
      * <p>Can be used to free any resources no longer needed (e.g. references to UI components)
      * after being shown in the pop up menu.
