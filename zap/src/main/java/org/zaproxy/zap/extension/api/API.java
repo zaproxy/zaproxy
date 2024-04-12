@@ -287,7 +287,7 @@ public class API {
      * @param requestHeader the request header
      * @param httpIn the HTTP input stream
      * @param httpOut the HTTP output stream
-     * @param force if set then always handle an an API request (will not return null)
+     * @param force if set then always handle an API request (will not return null)
      * @return null if its not an API request, an empty message if it was silently dropped or the
      *     API response sent.
      * @throws IOException
