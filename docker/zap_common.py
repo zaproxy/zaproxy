@@ -268,7 +268,7 @@ def cp_to_docker(cid, file, dir):
 
 def cp_to_docker_dest(cid, file, dir, dest):
     logging.debug ('Copy ' + file)
-    params = ['docker', 'cp', file, cid + ':' + dest]
+    params = ['docker', 'cp', file, cid + ':' + dir + dest]
     logging.debug (subprocess.check_output(params))
 
 def running_in_docker():
