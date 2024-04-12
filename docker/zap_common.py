@@ -266,6 +266,10 @@ def cp_to_docker(cid, file, dir):
     params = ['docker', 'cp', file, cid + ':' + dir + file]
     logging.debug (subprocess.check_output(params))
 
+def cp_to_docker_dest(cid, file, dir, dest):
+    logging.debug ('Copy ' + file)
+    params = ['docker', 'cp', file, cid + ':' + dest]
+    logging.debug (subprocess.check_output(params))
 
 def running_in_docker():
     return os.path.exists('/.dockerenv') or os.path.exists('/run/.containerenv') or os.environ.get("IS_CONTAINERIZED") == "true"

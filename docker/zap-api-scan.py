@@ -58,6 +58,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 
 from six.moves.urllib.parse import urljoin, urlparse
 from zapv2 import ZAPv2
@@ -380,7 +381,8 @@ def main(argv):
                 cp_to_docker(cid, 'scripts/scripts/httpsender/Alert_on_Unexpected_Content_Types.js', '/home/zap/.ZAP_D/')
                 cp_to_docker(cid, 'policies/API-Minimal.policy', '/home/zap/.ZAP_D/')
                 if target_file:
-                    cp_to_docker(cid, target_file, '/zap/')
+                    # support relative or absolute file paths for the target file
+                    cp_to_docker_dest(cid, target_file, '/zap/', Path(target_file).name)
 
             except OSError:
                 logging.warning('Failed to copy one of the required files')
@@ -412,7 +414,7 @@ def main(argv):
         zap.script.load('Alert_on_Unexpected_Content_Types.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_Unexpected_Content_Types.js')
         zap.script.enable('Alert_on_Unexpected_Content_Types.js')
 
-        # Import the API defn
+        # Import the API definition
         if format == 'openapi':
             trigger_hook('importing_openapi', target_url, target_file)
             if target_url:
@@ -431,7 +433,14 @@ def main(argv):
                 logging.debug('Import OpenAPI File ' + target_file)
                 res = zap.openapi.import_file(target_file)
                 urls = zap.core.urls()
-                if len(urls) > 0:
+                if host_override:
+                    if urlparse(host_override).scheme:
+                        target = host_override
+                    else:
+                        target = urljoin(target_url, '//' + host_override)
+                    logging.info(
+                        'Using override, new target: {0}'.format(target))
+                elif len(urls) > 0:
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
