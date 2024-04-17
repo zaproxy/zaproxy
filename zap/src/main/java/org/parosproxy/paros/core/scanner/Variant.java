@@ -102,4 +102,6 @@ public interface Variant {
     default List<String> getTreePath(HttpMessage msg) throws URIException {
         return null;
     }
+
+    default void decodeResponseBody(HttpMessage msg) {}
 }
