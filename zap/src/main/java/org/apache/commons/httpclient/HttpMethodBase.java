@@ -1563,7 +1563,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * </p>
      *
      * <p>
-     * Subclasses may want to override this method to to add additional
+     * Subclasses may want to override this method to add additional
      * headers, and may choose to invoke this implementation (via
      * <tt>super</tt>) to add the "standard" headers.
      * </p>
@@ -1926,7 +1926,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * </p>
      *
      * <p>
-     * Subclasses may want to override this method to to customize the
+     * Subclasses may want to override this method to customize the
      * processing.
      * </p>
      *
@@ -2069,7 +2069,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * Reads the response headers from the given {@link HttpConnection connection}.
      *
      * <p>
-     * Subclasses may want to override this method to to customize the
+     * Subclasses may want to override this method to customize the
      * processing.
      * </p>
      *
@@ -2111,7 +2111,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * text}.
      *
      * <p>
-     * Subclasses may want to override this method to to customize the
+     * Subclasses may want to override this method to customize the
      * processing.
      * </p>
      *
@@ -2318,7 +2318,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * </p>
      *
      * <p>
-     * Subclasses may want to override this method to to customize the
+     * Subclasses may want to override this method to customize the
      * processing.
      * </p>
      *
@@ -2356,7 +2356,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * Writes the request line to the given {@link HttpConnection connection}.
      *
      * <p>
-     * Subclasses may want to override this method to to customize the
+     * Subclasses may want to override this method to customize the
      * processing.
      * </p>
      *
