@@ -364,6 +364,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 AlertEventPublisher.HISTORY_REFERENCE_ID,
                 Integer.toString(alert.getSourceHistoryId()));
         map.put(AlertEventPublisher.NAME, alert.getName());
+        map.put(AlertEventPublisher.PLUGIN_ID, Integer.toString(alert.getPluginId()));
         map.put(AlertEventPublisher.URI, alert.getUri().toString());
         map.put(AlertEventPublisher.PARAM, alert.getParam());
         map.put(AlertEventPublisher.RISK, Integer.toString(alert.getRisk()));
