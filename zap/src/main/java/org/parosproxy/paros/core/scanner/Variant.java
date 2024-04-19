@@ -111,5 +111,4 @@ public interface Variant {
      * @since 2.15.0
      */
     default void decodeResponseBody(HttpMessage msg) {}
-    ;
 }
