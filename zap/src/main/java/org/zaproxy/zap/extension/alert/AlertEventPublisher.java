@@ -43,6 +43,7 @@ public class AlertEventPublisher implements EventPublisher {
     public static final String HISTORY_REFERENCE_ID = "historyId";
 
     public static final String NAME = "name";
+    public static final String PLUGIN_ID = "pluginId";
     public static final String URI = "uri";
     public static final String PARAM = "param";
     public static final String RISK = "risk";
