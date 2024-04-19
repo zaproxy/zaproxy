@@ -46,7 +46,6 @@
 // ZAP: 2023/01/10 Use logger provided by base class.
 package org.parosproxy.paros.core.scanner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -139,11 +138,6 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
 
     @Override
-    protected void sendAndReceive(HttpMessage message) throws IOException {
-        sendAndReceive(message, true);
-        decodeResponseBody(message);
-    }
-
     protected void decodeResponseBody(HttpMessage message) {
         variant.decodeResponseBody(message);
     }
