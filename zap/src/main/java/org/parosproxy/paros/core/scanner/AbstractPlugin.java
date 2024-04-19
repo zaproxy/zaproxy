@@ -329,6 +329,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * payload to clear text to allow to do text/string comparisons of the content.
      *
      * @param message the HTTP message whose response body will be decoded
+     * @since 2.15.0
      */
     protected void decodeResponseBody(HttpMessage message) {}
 

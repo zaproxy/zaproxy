@@ -110,5 +110,6 @@ public interface Variant {
      * @param msg the HTTP message whose response body will be decoded
      * @since 2.15.0
      */
-    void decodeResponseBody(HttpMessage msg);
+    default void decodeResponseBody(HttpMessage msg) {}
+    ;
 }
