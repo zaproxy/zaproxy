@@ -141,6 +141,10 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     @Override
     protected void sendAndReceive(HttpMessage message) throws IOException {
         sendAndReceive(message, true);
+        decodeResponseBody(message);
+    }
+
+    protected void decodeResponseBody(HttpMessage message) {
         variant.decodeResponseBody(message);
     }
 
