@@ -50,6 +50,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOn.InstallationStatus;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -140,9 +141,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     @Override
     public void postInit() {
-        ExtensionFactory.getAddOnLoader()
-                .getAddOnCollection()
-                .getAddOns()
+        ExtensionFactory.getAddOnLoader().getAddOnCollection().getAddOns().stream()
+                .filter(addOn -> addOn.getInstallationStatus() == InstallationStatus.INSTALLED)
                 .forEach(this::loadScanRules);
     }
 
