@@ -270,6 +270,15 @@ public class SearchThread extends Thread {
                             }
                         }
                     }
+                    if (Type.Tag.equals(reqType) && !pcc.allMatchesProcessed()) {
+                        for (String tag : message.getHistoryRef().getTags()) {
+                            matcher = pattern.matcher(tag);
+                            if (matcher.find()) {
+                                notifyMatchFound(currentRecordId, tag, message, null, 0, 0);
+                                break;
+                            }
+                        }
+                    }
                     if (Type.Header.equals(reqType)) {
                         // Header
                         // Request header
