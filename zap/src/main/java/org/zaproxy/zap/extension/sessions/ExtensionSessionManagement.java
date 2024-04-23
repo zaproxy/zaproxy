@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
@@ -123,6 +124,15 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         return sessionManagementMethodTypes;
     }
 
+    public SessionManagementMethodType getSessionManagementMethodType(String name) {
+        for (SessionManagementMethodType t : sessionManagementMethodTypes) {
+            if (t.getName().equals(name)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
     /**
      * Loads session management method types and hooks them up.
      *
@@ -135,6 +145,11 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         this.sessionManagementMethodTypes.add(new ScriptBasedSessionManagementMethodType());
 
         for (SessionManagementMethodType t : sessionManagementMethodTypes) {
+            t.hook(extensionHook);
+        }
+
+        for (SessionManagementMethodType t : extensionHook.getSessionManagementMethodTypes()) {
+            this.sessionManagementMethodTypes.add(t);
             t.hook(extensionHook);
         }
 
@@ -163,6 +178,26 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         return null;
     }
 
+    public void addSessionManagementMethodType(SessionManagementMethodType type) {
+        this.sessionManagementMethodTypes.add(type);
+        for (Entry<Integer, ContextSessionManagementPanel> entry : contextPanelsMap.entrySet()) {
+            entry.getValue().refreshSessionManagementMethodsComboBox();
+        }
+    }
+
+    public void removeSessionManagementMethodType(SessionManagementMethodType type) {
+        for (SessionManagementMethodType t : this.sessionManagementMethodTypes) {
+            if (t.getName().equals(type.getName())) {
+                this.sessionManagementMethodTypes.remove(t);
+                for (Entry<Integer, ContextSessionManagementPanel> entry :
+                        contextPanelsMap.entrySet()) {
+                    entry.getValue().refreshSessionManagementMethodsComboBox();
+                }
+                return;
+            }
+        }
+    }
+
     @Override
     public void loadContextData(Session session, Context context) {
         try {
@@ -184,24 +219,28 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
 
     @Override
     public void persistContextData(Session session, Context context) {
-        try {
-            SessionManagementMethodType t = context.getSessionManagementMethod().getType();
-            session.setContextData(
-                    context.getId(),
-                    RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
-                    Integer.toString(t.getUniqueIdentifier()));
-            t.persistMethodToSession(
-                    session, context.getId(), context.getSessionManagementMethod());
-        } catch (DatabaseException e) {
-            LOGGER.error("Unable to persist Session Management method.", e);
+        if (context.getSessionManagementMethod() != null) {
+            try {
+                SessionManagementMethodType t = context.getSessionManagementMethod().getType();
+                session.setContextData(
+                        context.getId(),
+                        RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
+                        Integer.toString(t.getUniqueIdentifier()));
+                t.persistMethodToSession(
+                        session, context.getId(), context.getSessionManagementMethod());
+            } catch (DatabaseException e) {
+                LOGGER.error("Unable to persist Session Management method.", e);
+            }
         }
     }
 
     @Override
     public void exportContextData(Context ctx, Configuration config) {
-        SessionManagementMethodType type = ctx.getSessionManagementMethod().getType();
-        config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, type.getUniqueIdentifier());
-        type.exportData(config, ctx.getSessionManagementMethod());
+        if (ctx.getSessionManagementMethod() != null) {
+            SessionManagementMethodType type = ctx.getSessionManagementMethod().getType();
+            config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, type.getUniqueIdentifier());
+            type.exportData(config, ctx.getSessionManagementMethod());
+        }
     }
 
     @Override

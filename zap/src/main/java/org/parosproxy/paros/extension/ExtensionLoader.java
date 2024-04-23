@@ -102,6 +102,7 @@
 // ZAP: 2023/04/28 Deprecate Proxy and ProxyServer related methods.
 // ZAP: 2023/08/25 Set view to ExtensionAdaptor.
 // ZAP: 2023/11/14 Hook AbstractParamPanel with parents.
+// ZAP: 2024/04/23 Added support for plugable SessionManagementMethodTypes
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -125,6 +126,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
@@ -152,8 +154,10 @@ import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
+import org.zaproxy.zap.extension.sessions.ExtensionSessionManagement;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.MainToolbarPanel;
@@ -893,6 +897,7 @@ public class ExtensionLoader {
             hookHttpSenderListeners(ext, extHook);
             hookVariant(ext, extHook);
             hookHrefTypeInfo(ext, extHook);
+            hookSessionManagementMethod(ext, extHook);
 
             if (hasView()) {
                 // no need to hook view if no GUI
@@ -1094,6 +1099,26 @@ public class ExtensionLoader {
                         "Error while adding a HrefTypeInfo from {}",
                         extension.getClass().getCanonicalName(),
                         e);
+            }
+        }
+    }
+
+    private void hookSessionManagementMethod(Extension extension, ExtensionHook extHook) {
+        ExtensionSessionManagement extSessMgmt =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionSessionManagement.class);
+        if (extSessMgmt != null) {
+            for (SessionManagementMethodType smmt : extHook.getSessionManagementMethodTypes()) {
+                try {
+                    extSessMgmt.addSessionManagementMethodType(smmt);
+                    smmt.hook(extHook);
+                } catch (Exception e) {
+                    LOGGER.error(
+                            "Error while adding a SessionManagementMethodType from "
+                                    + extension.getClass().getCanonicalName(),
+                            e);
+                }
             }
         }
     }
@@ -1640,6 +1665,23 @@ public class ExtensionLoader {
                         "Error while removing a HrefTypeInfo from {}",
                         extension.getClass().getCanonicalName(),
                         e);
+            }
+        }
+
+        ExtensionSessionManagement extSessMgmt =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionSessionManagement.class);
+        if (extSessMgmt != null) {
+            for (SessionManagementMethodType smmt : hook.getSessionManagementMethodTypes()) {
+                try {
+                    extSessMgmt.removeSessionManagementMethodType(smmt);
+                } catch (Exception e) {
+                    LOGGER.error(
+                            "Error while adding a SessionManagementMethodType from "
+                                    + extension.getClass().getCanonicalName(),
+                            e);
+                }
             }
         }
 

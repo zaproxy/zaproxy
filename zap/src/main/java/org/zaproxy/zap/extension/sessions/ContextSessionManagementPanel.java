@@ -205,6 +205,19 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
         return sessionManagementMethodsComboBox;
     }
 
+    public void refreshSessionManagementMethodsComboBox() {
+        if (sessionManagementMethodsComboBox != null) {
+            Object selectedItem = sessionManagementMethodsComboBox.getSelectedItem();
+            Vector<SessionManagementMethodType> methods =
+                    new Vector<>(extension.getSessionManagementMethodTypes());
+            sessionManagementMethodsComboBox.removeAllItems();
+            for (SessionManagementMethodType method : methods) {
+                sessionManagementMethodsComboBox.addItem(method);
+            }
+            sessionManagementMethodsComboBox.setSelectedItem(selectedItem);
+        }
+    }
+
     /**
      * Gets the configuration container panel.
      *
