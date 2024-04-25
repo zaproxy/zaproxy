@@ -20,7 +20,9 @@
 package org.zaproxy.zap.extension.script;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -28,13 +30,58 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link ScriptParam}. */
 class ScriptParamUnitTest {
+
+    private ScriptParam param;
+    private ZapXmlConfiguration configuration;
+
+    @BeforeAll
+    static void beforeAll() {
+        Constant.messages = mock(I18N.class);
+    }
+
+    @AfterAll
+    static void afterAll() {
+        Constant.messages = null;
+    }
+
+    @BeforeEach
+    void setUp() {
+        param = new ScriptParam();
+        configuration = new ZapXmlConfiguration();
+        param.load(configuration);
+    }
+
+    @Test
+    void shouldMigrateOldOptions(@TempDir File dir1, @TempDir File dir2) throws IOException {
+        // Given
+        List<File> dirs = Arrays.asList(dir1, dir2);
+
+        configuration.setProperty("confRemdir", true);
+        configuration.setProperty("dirs", new String[] {dir1.toString(), dir2.toString()});
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.isConfirmRemoveDir(), is(equalTo(true)));
+        assertThat(param.getScriptDirs(), is(equalTo(dirs)));
+        assertNull(configuration.getProperty("dirs"));
+        assertNull(configuration.getProperty("confRemdir"));
+    }
 
     @Test
     void shouldSaveScriptProperties() throws Exception {
