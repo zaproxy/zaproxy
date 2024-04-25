@@ -102,4 +102,13 @@ public interface Variant {
     default List<String> getTreePath(HttpMessage msg) throws URIException {
         return null;
     }
+
+    /**
+     * Decodes the response body of the given {@code HttpMessage}. for example, to change a binary
+     * payload to clear text to allow to do text/string comparisons of the content.
+     *
+     * @param msg the HTTP message whose response body will be decoded
+     * @since 2.15.0
+     */
+    default void decodeResponseBody(HttpMessage msg) {}
 }

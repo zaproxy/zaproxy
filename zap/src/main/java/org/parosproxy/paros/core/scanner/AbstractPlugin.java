@@ -316,12 +316,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             parent.getHttpSender().sendAndReceive(message, false);
         }
 
+        decodeResponseBody(message);
         // ZAP: Notify parent
         parent.notifyNewMessage(this, message);
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
     }
+
+    /**
+     * Decodes the response body of the given {@code HttpMessage}. for example, to change a binary
+     * payload to clear text to allow to do text/string comparisons of the content.
+     *
+     * @param message the HTTP message whose response body will be decoded
+     * @since 2.15.0
+     */
+    protected void decodeResponseBody(HttpMessage message) {}
 
     @SuppressWarnings("removal")
     private void delayRequest() {
