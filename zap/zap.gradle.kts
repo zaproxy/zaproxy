@@ -84,16 +84,16 @@ tasks.withType<JavaCompile>().configureEach {
 
 dependencies {
     api("com.fifesoft:rsyntaxtextarea:3.4.0")
-    api("com.github.zafarkhaja:java-semver:0.9.0")
+    api("com.github.zafarkhaja:java-semver:0.10.2")
     api("commons-beanutils:commons-beanutils:1.9.4")
-    api("commons-codec:commons-codec:1.16.0")
+    api("commons-codec:commons-codec:1.16.1")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.15.0")
+    api("commons-io:commons-io:2.16.1")
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.14.0")
-    api("org.apache.commons:commons-text:1.11.0")
+    api("org.apache.commons:commons-text:1.12.0")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
     val log4jVersion = "2.20.0"
@@ -111,12 +111,12 @@ dependencies {
 
     implementation("com.formdev:flatlaf:3.4.1")
 
-    runtimeOnly("commons-logging:commons-logging:1.2")
+    runtimeOnly("commons-logging:commons-logging:1.3.1")
     runtimeOnly("xom:xom:1.3.9") {
         setTransitive(false)
     }
 
-    testImplementation("net.bytebuddy:byte-buddy:1.14.10")
+    testImplementation("net.bytebuddy:byte-buddy:1.14.14")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
