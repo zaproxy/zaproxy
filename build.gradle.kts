@@ -2,7 +2,7 @@ import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
     id("com.diffplug.spotless")
-    id("org.sonarqube") version "4.3.0.3225"
+    id("org.sonarqube") version "5.0.0.4638"
     id("com.github.ben-manes.versions") version "0.50.0"
     id("net.ltgt.errorprone") version "3.1.0"
 }
@@ -22,7 +22,7 @@ subprojects {
 
     project.plugins.withType(JavaPlugin::class) {
         dependencies {
-            "errorprone"("com.google.errorprone:error_prone_core:2.23.0")
+            "errorprone"("com.google.errorprone:error_prone_core:2.26.1")
         }
     }
 
