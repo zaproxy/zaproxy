@@ -48,6 +48,7 @@ jobs:
           tags: |
             ghcr.io/zaproxy/zaproxy:nightly
             softwaresecurityproject/zap-nightly:latest
+            zaproxy/zap-nightly:latest
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           annotations: |
