@@ -52,6 +52,8 @@ jobs:
             ghcr.io/zaproxy/zaproxy:weekly
             softwaresecurityproject/zap-weekly:${{ env.REL_DATE_SHORT }}
             softwaresecurityproject/zap-weekly:latest
+            zaproxy/zap-weekly:${{ env.REL_DATE_SHORT }}
+            zaproxy/zap-weekly:latest
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           annotations: |
