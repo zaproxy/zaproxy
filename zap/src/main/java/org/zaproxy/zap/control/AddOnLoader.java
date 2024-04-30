@@ -52,6 +52,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import org.apache.commons.collections.iterators.EnumerationIterator;
+import org.apache.commons.collections.iterators.IteratorChain;
+import org.apache.commons.collections.iterators.IteratorEnumeration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
@@ -417,6 +420,18 @@ public class AddOnLoader extends URLClassLoader {
             }
         }
         return url;
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        IteratorChain urls = new IteratorChain();
+        urls.addIterator(new EnumerationIterator(super.getResources(name)));
+        for (AddOnClassLoader loader : addOnLoaders.values()) {
+            urls.addIterator(new EnumerationIterator(loader.getResources(name)));
+        }
+        @SuppressWarnings("unchecked")
+        Enumeration<URL> result = new IteratorEnumeration(urls);
+        return result;
     }
 
     public AddOnCollection getAddOnCollection() {
