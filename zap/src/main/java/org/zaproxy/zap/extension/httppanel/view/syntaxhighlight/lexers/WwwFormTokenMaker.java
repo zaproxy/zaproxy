@@ -367,7 +367,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      * Resets the scanner to read from a new input stream. Does not close the old reader.
      *
      * <p>All internal variables are reset, the old input stream <b>cannot</b> be reused (internal
-     * buffer is discarded and lost). Lexical state is set to <tt>YY_INITIAL</tt>.
+     * buffer is discarded and lost). Lexical state is set to <code>YY_INITIAL</code>.
      *
      * @param reader the new input stream
      */
