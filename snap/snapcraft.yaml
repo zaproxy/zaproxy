@@ -1,5 +1,5 @@
 name: zaproxy
-version: '2.14.0'
+version: '2.15.0'
 summary: ZAP, a tool for finding vulnerabilities in web applications
 description: |
   The Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools
@@ -25,7 +25,7 @@ apps:
 
 parts:
   zaproxy:
-    source: https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2.14.0_Linux.tar.gz
+    source: https://github.com/zaproxy/zaproxy/releases/download/v2.15.0/ZAP_2.15.0_Linux.tar.gz
     plugin: dump
     filesets:
       pkg-contents: [ ./* ]
