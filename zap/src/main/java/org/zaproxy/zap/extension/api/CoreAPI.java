@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
@@ -47,8 +49,12 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -132,6 +138,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String ACTION_DISABLE_CLIENT_CERTIFICATE = "disableClientCertificate";
     private static final String ACTION_CREATE_SBOM_ZIP = "createSbomZip";
 
+    private static final String ACTION_LOGGING = "setLogLevel";
+
     private static final String VIEW_ALERT = "alert";
     private static final String VIEW_ALERTS = "alerts";
     private static final String VIEW_ALERTS_SUMMARY = "alertsSummary";
@@ -160,6 +168,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String VIEW_OPTION_MERGE_RELATED_ALERTS = "optionMergeRelatedAlerts";
     private static final String VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH =
             "optionAlertOverridesFilePath";
+
+    private static final String VIEW_LOGGING = "getLogLevel";
 
     private static final String OTHER_PROXY_PAC = "proxy.pac";
     private static final String OTHER_SET_PROXY = "setproxy";
@@ -204,6 +214,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String PARAM_INDEX = "index";
     private static final String PARAM_FILENAME = "fileName";
     private static final String PARAM_CONTENTS = "fileContents";
+    private static final String PARAM_NAME = "name";
+    private static final String PARAM_LEVEL = "logLevel";
 
     private static final List<String> PARAMS_STRING = Collections.singletonList("String");
     private static final List<String> PARAMS_BOOLEAN = Collections.singletonList("Boolean");
@@ -341,6 +353,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiAction(
                 depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID})));
 
+        this.addApiAction(new ApiAction(ACTION_LOGGING, new String[] {PARAM_NAME, PARAM_LEVEL}));
+
         this.addApiView(new ApiView(VIEW_HOSTS));
         this.addApiView(new ApiView(VIEW_SITES));
         this.addApiView(new ApiView(VIEW_URLS, null, new String[] {PARAM_BASE_URL}));
@@ -391,7 +405,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 VIEW_NUMBER_OF_ALERTS,
                                 null,
                                 new String[] {PARAM_BASE_URL, PARAM_RISK}))));
-
+        this.addApiView(new ApiView(VIEW_LOGGING, new String[] {}, new String[] {PARAM_NAME}));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
         this.addApiOthers(
@@ -901,7 +915,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             } catch (IOException e) {
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
             }
-
+        } else if (ACTION_LOGGING.equals(name)) {
+            String logName = ApiUtils.getNonEmptyStringParam(params, PARAM_NAME);
+            String newLevel = ApiUtils.getNonEmptyStringParam(params, PARAM_LEVEL);
+            Level logLevel = Level.toLevel(newLevel, null);
+            if (logLevel == null) {
+                throw new ApiException(
+                        ApiException.Type.ILLEGAL_PARAMETER,
+                        "Invalid log level: \"" + newLevel + "\"");
+            }
+            Configurator.setLevel(logName, logLevel);
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
@@ -1294,6 +1317,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             result =
                     new ApiResponseElement(
                             name, getAlertParam(ApiException.Type.BAD_VIEW).getOverridesFilename());
+        } else if (VIEW_LOGGING.equals(name)) {
+            String logName = getParam(params, PARAM_NAME, "");
+            SortedMap<String, String> loggerDetails = new TreeMap<>();
+            for (Logger logger : LoggerContext.getContext().getLoggers()) {
+                if (logName.isEmpty()
+                        || (!logName.isEmpty()
+                                && StringUtils.startsWithIgnoreCase(logger.getName(), logName))) {
+                    loggerDetails.put(logger.getName(), logger.getLevel().name());
+                }
+            }
+            result = new ApiResponseSet<String>(name, loggerDetails);
         } else {
             throw new ApiException(ApiException.Type.BAD_VIEW);
         }
