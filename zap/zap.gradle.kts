@@ -14,7 +14,7 @@ plugins {
     id("me.champeau.gradle.japicmp")
     id("org.cyclonedx.bom")
     id("org.zaproxy.common")
-    id("org.zaproxy.crowdin") version "0.3.1"
+    id("org.zaproxy.crowdin") version "0.4.0"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
