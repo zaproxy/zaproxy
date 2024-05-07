@@ -5,8 +5,4 @@
 packageExcludes: []
 fieldExcludes: []
 classExcludes: []
-methodExcludes:
-  - "org.parosproxy.paros.core.scanner.Variant#decodeResponseBody(org.parosproxy.paros.network.HttpMessage)"
-  - "org.zaproxy.zap.control.CoreFunctionality#getBuiltInActiveScanRules()"
-  - "org.zaproxy.zap.extension.AddOnInstallationStatusListener#update(org.zaproxy.zap.extension.AddOnInstallationStatusListener$StatusUpdate)"
-  - "org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent#getWeight()"
+methodExcludes: []
