@@ -96,7 +96,7 @@ dependencies {
     api("org.apache.commons:commons-text:1.12.0")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.20.0"
+    val log4jVersion = "2.23.1"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
@@ -115,6 +115,12 @@ dependencies {
     runtimeOnly("xom:xom:1.3.9") {
         setTransitive(false)
     }
+
+    // Include annotations used by Log4j2 Core library to avoid compiler warnings.
+    compileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:6.4.1")
+    compileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
+    testCompileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:6.4.1")
+    testCompileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
 
     testImplementation("net.bytebuddy:byte-buddy:1.14.14")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
