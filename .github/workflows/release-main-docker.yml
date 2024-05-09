@@ -63,10 +63,10 @@ jobs:
             zaproxy/zap-stable:latest
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
-          outputs: "type=image,name=target,\
-            annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
-            annotation-index.org.opencontainers.image.description=The stable Docker image for the world’s most widely used web app scanner.,\
-            annotation-index.org.opencontainers.image.licenses=Apache-2.0"
+          annotations: |
+            index:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
+            index:org.opencontainers.image.description=The stable Docker image for the world’s most widely used web app scanner.
+            index:org.opencontainers.image.licenses=Apache-2.0
       -
         name: Build and push bare Docker image
         uses: docker/build-push-action@v5
@@ -87,6 +87,6 @@ jobs:
             zaproxy/zap-bare:${{ env.REL_VERSION }}
             zaproxy/zap-bare:latest
           annotations: |
-            index:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
-            index:org.opencontainers.image.description=The bare Docker image for the world’s most widely used web app scanner.
-            index:org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
+            org.opencontainers.image.description=The bare Docker image for the world’s most widely used web app scanner.
+            org.opencontainers.image.licenses=Apache-2.0
