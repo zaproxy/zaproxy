@@ -34,7 +34,7 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ghcr.io/zaproxy/zaproxy:tests
+            ghcr.io/zaproxy/zaproxy-tests
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           annotations: |
@@ -43,17 +43,17 @@ jobs:
             index:org.opencontainers.image.licenses=Apache-2.0
       - 
         name: Run install tests
-        run: docker run --rm -t ghcr.io/zaproxy/zaproxy:tests wrk/install_tests.sh
+        run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/install_tests.sh
       - 
         name: Run python tests
-        run: docker run --rm -t ghcr.io/zaproxy/zaproxy:tests wrk/python_tests.sh
+        run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/python_tests.sh
       - 
         name: Automation Framework context tests
-        run: docker run --rm -t ghcr.io/zaproxy/zaproxy:tests wrk/af_context_tests.sh
+        run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/af_context_tests.sh
       - 
         name: Automation Framework plan tests
-        run: docker run --rm -t ghcr.io/zaproxy/zaproxy:tests wrk/af_plan_tests.sh
+        run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/af_plan_tests.sh
       -
         # Run these last as they are most likely to fail
         name: Run baseline tests
-        run: docker run --rm -t ghcr.io/zaproxy/zaproxy:tests wrk/baseline_tests.sh
+        run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/baseline_tests.sh
