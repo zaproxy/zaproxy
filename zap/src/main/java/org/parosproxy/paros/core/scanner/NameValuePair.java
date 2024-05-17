@@ -85,7 +85,7 @@ public class NameValuePair implements Comparable<NameValuePair> {
     /**
      * The application/grpc-web-text content-type of a web application
      *
-     * @since 2.15.0
+     * @since 2.16.0
      */
     public static final int TYPE_GRPC_WEB_TEXT = 39;
 
