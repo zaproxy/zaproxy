@@ -82,6 +82,13 @@ public class NameValuePair implements Comparable<NameValuePair> {
      */
     public static final int TYPE_GRAPHQL_INLINE = 38;
 
+    /**
+     * The application/grpc-web-text content-type of a web application
+     *
+     * @since 2.16.0
+     */
+    public static final int TYPE_GRPC_WEB_TEXT = 39;
+
     public static final int TYPE_UNDEFINED = -1;
 
     private final int targetType;
