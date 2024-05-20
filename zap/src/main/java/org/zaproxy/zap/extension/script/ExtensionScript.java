@@ -231,8 +231,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             // No GUI so add stdout as a writer
             this.addWriter(new PrintWriter(System.out));
         }
-
-        extensionHook.addApiImplementor(new ScriptAPI(this));
     }
 
     /**

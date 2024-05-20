@@ -36,7 +36,6 @@ import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
 import org.zaproxy.zap.extension.pscan.PassiveScanAPI;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigAPI;
-import org.zaproxy.zap.extension.script.ScriptAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
 import org.zaproxy.zap.extension.stats.StatsAPI;
@@ -100,8 +99,6 @@ public class ApiGeneratorUtils {
         imps.add(new UsersAPI(null));
 
         imps.add(new ForcedUserAPI(null));
-
-        imps.add(new ScriptAPI(null));
 
         api = new StatsAPI(null);
         api.addApiOptions(new StatsParam());
