@@ -104,6 +104,20 @@ class VariantURLPathUnitTest {
                         parameter("", 6)));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"", "/"})
+    void shouldInjectSegmentModificationToNoPathAndEmptyPath(String path) {
+        // Given
+        VariantURLPath variantUrlPath = new VariantURLPath();
+        HttpMessage message = createMessageWithPath(path);
+        variantUrlPath.setMessage(message);
+        // When
+        String injectedValue = variantUrlPath.setParameter(message, parameter("", 1), "", "Value");
+        // Then
+        assertThat(injectedValue, is(equalTo("Value")));
+        assertThat(message, containsPath("/Value"));
+    }
+
     @Test
     void shouldInjectSegmentModification() {
         // Given
