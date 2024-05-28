@@ -170,7 +170,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
                                 userCredentials.getUsername(),
                                 userCredentials.getPassword(),
                                 InetAddress.getLocalHost().getCanonicalHostName(),
-                                this.realm);
+                                realm == null ? "" : realm);
                 session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
             } catch (UnknownHostException e1) {
                 user.getAuthenticationState().setLastAuthFailure(e1.getMessage());
