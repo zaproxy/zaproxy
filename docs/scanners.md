@@ -257,6 +257,9 @@ Scan rules:
 100031  DNS Email Spoofing [Script]
 100032  WordPress Username Enumeration [Script]
 100033  Server Side Template Injection [Script]
+100034  Information Disclosure - Google API Key [Script]
+100035  Information Disclosure - Java Stack Trace [Script]
+100035  Information Disclosure - Amazon S3 Bucket URL [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
