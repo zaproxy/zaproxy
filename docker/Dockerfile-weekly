@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 23.2.2
+ENV WEBSWING_VERSION 24.1.1
 RUN --mount=type=secret,id=webswing_url \
 	if [ -s /run/secrets/webswing_url ] ; \
 	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
