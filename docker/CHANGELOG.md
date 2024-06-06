@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-06-06
+- Updated to use Webswing 24.
+
 ### 2024-04-30
 - Push Docker images to https://hub.docker.com/u/zaproxy
 
