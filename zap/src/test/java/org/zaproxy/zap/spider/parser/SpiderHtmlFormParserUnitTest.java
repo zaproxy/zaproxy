@@ -39,12 +39,10 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.model.DefaultValueGenerator;
-import org.zaproxy.zap.model.ValueGenerator;
 import org.zaproxy.zap.utils.Pair;
 
 /** Unit test for {@link SpiderHtmlFormParser}. */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "removal"})
 class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
     private static final String FORM_METHOD_TOKEN = "%%METHOD%%";
@@ -66,7 +64,8 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                 NullPointerException.class,
                 () ->
                         new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                                undefinedSpiderOptions, new DefaultValueGenerator()));
+                                undefinedSpiderOptions,
+                                new org.zaproxy.zap.model.DefaultValueGenerator()));
     }
 
     @Test
@@ -164,7 +163,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         spiderOptions.setProcessForm(false);
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                        spiderOptions, new DefaultValueGenerator());
+                        spiderOptions, new org.zaproxy.zap.model.DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("PostGetForms.html");
@@ -407,7 +406,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         spiderOptions.setPostForm(false);
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                        spiderOptions, new DefaultValueGenerator());
+                        spiderOptions, new org.zaproxy.zap.model.DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("POST", "Form.html");
@@ -428,7 +427,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         spiderOptions.setPostForm(false);
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                        spiderOptions, new DefaultValueGenerator());
+                        spiderOptions, new org.zaproxy.zap.model.DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("GET", "Form.html");
@@ -492,7 +491,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         spiderOptions.setPostForm(false);
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                        spiderOptions, new DefaultValueGenerator());
+                        spiderOptions, new org.zaproxy.zap.model.DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("NoMethodForm.html");
@@ -850,7 +849,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         spiderOptions.setPostForm(false);
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                        spiderOptions, new DefaultValueGenerator());
+                        spiderOptions, new org.zaproxy.zap.model.DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage msg = createMessageWith("GET", "OverriddenMethodByButtonForms.html");
@@ -879,7 +878,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Disable POST handling, we need just to retrieve the forms with GET methods
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
-                        spiderOptions, new DefaultValueGenerator());
+                        spiderOptions, new org.zaproxy.zap.model.DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage msg = createMessageWith("GET", "OverriddenMethodByButtonForms.html");
@@ -1205,7 +1204,8 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldSetValuesToFieldsWithNoValueWhenParsingGetForm() {
         // Given
-        DefaultValueGenerator valueGenerator = new DefaultValueGenerator();
+        org.zaproxy.zap.model.DefaultValueGenerator valueGenerator =
+                new org.zaproxy.zap.model.DefaultValueGenerator();
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 createSpiderHtmlFormParser(valueGenerator);
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1247,7 +1247,8 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldSetValuesToFieldsWithNoValueWhenParsingPostForm() {
         // Given
-        DefaultValueGenerator valueGenerator = new DefaultValueGenerator();
+        org.zaproxy.zap.model.DefaultValueGenerator valueGenerator =
+                new org.zaproxy.zap.model.DefaultValueGenerator();
         org.zaproxy.zap.spider.parser.SpiderHtmlFormParser htmlParser =
                 createSpiderHtmlFormParser(valueGenerator);
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1577,11 +1578,11 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     private static org.zaproxy.zap.spider.parser.SpiderHtmlFormParser createSpiderHtmlFormParser() {
-        return createSpiderHtmlFormParser(new DefaultValueGenerator());
+        return createSpiderHtmlFormParser(new org.zaproxy.zap.model.DefaultValueGenerator());
     }
 
     private static org.zaproxy.zap.spider.parser.SpiderHtmlFormParser createSpiderHtmlFormParser(
-            ValueGenerator valueGenerator) {
+            org.zaproxy.zap.model.ValueGenerator valueGenerator) {
         org.zaproxy.zap.spider.SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(true);
@@ -1633,7 +1634,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         return message;
     }
 
-    private static class TestValueGenerator implements ValueGenerator {
+    private static class TestValueGenerator implements org.zaproxy.zap.model.ValueGenerator {
 
         private final List<FormField> fields;
 
