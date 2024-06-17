@@ -259,7 +259,7 @@ Scan rules:
 100033  Server Side Template Injection [Script]
 100034  Information Disclosure - Google API Key [Script]
 100035  Information Disclosure - Java Stack Trace [Script]
-100035  Information Disclosure - Amazon S3 Bucket URL [Script]
+100036  Information Disclosure - Amazon S3 Bucket URL [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
