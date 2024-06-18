@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-06-19
+- Alert_on_Unexpected_Content_Types.js > Now handles JSON, YAML, and XML related types more generically (Issue 8522).
+
 ### 2024-06-06
 - Updated to use Webswing 24.
 
