@@ -16,7 +16,7 @@ var install4jHomeDirValidated = false
 val install4jHomeDir: String? by project
 val install4jLicense: String? by project
 
-val install4jVersion = "10.0.6"
+val install4jVersion = "10.0.8"
 
 install4j {
     installDir = file("$install4jHomeDir")
@@ -143,7 +143,7 @@ if (install4jHomeDir == null && Os.isFamily(Os.FAMILY_UNIX)) {
         dependsOn(downloadInstall4jBin)
         src(install4jBinFile)
         algorithm("SHA-256")
-        checksum("db8144cfcb442f98dfb12fa4ce05330964104a6c65159a7d8358f9f5c5da8e55")
+        checksum("3d64c4a28d2b11ea26ae3cb8f1b0288de76811c1e0f37e06a2a4d8498b8130e7")
     }
 
     val unpackInstall4jBin by tasks.registering(Copy::class) {

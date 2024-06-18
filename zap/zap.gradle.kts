@@ -122,11 +122,11 @@ dependencies {
     testCompileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:6.4.1")
     testCompileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
 
-    testImplementation("net.bytebuddy:byte-buddy:1.14.14")
+    testImplementation("net.bytebuddy:byte-buddy:1.14.17")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.7.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.12.0")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
     testRuntimeOnly(files(distDir))
@@ -147,15 +147,26 @@ listOf("jar", "jarDaily", "jarWithBom").forEach {
     tasks.named<Jar>(it) {
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
-        dirMode = "0755".toIntOrNull(8)
-        fileMode = "0644".toIntOrNull(8)
+        dirPermissions {
+            unix("0755")
+        }
+        filePermissions {
+            unix("0644")
+        }
 
-        val attrs = mapOf(
-            "Main-Class" to "org.zaproxy.zap.ZAP",
-            "Implementation-Version" to ToString({ archiveVersion.get() }),
-            "Create-Date" to creationDate,
-            "Class-Path" to ToString({ configurations.runtimeClasspath.get().files.stream().map { file -> "lib/${file.name}" }.sorted().collect(Collectors.joining(" ")) }),
-        )
+        val attrs =
+            mapOf(
+                "Main-Class" to "org.zaproxy.zap.ZAP",
+                "Implementation-Version" to ToString({ archiveVersion.get() }),
+                "Create-Date" to creationDate,
+                "Class-Path" to
+                    ToString({
+                        configurations.runtimeClasspath.get().files.stream().map {
+                                file ->
+                            "lib/${file.name}"
+                        }.sorted().collect(Collectors.joining(" "))
+                    }),
+            )
 
         manifest {
             attributes(attrs)
@@ -204,10 +215,11 @@ tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
 
 tasks.named<Javadoc>("javadoc") {
     title = "Zed Attack Proxy"
-    source = sourceSets["main"].allJava.matching {
-        include("org/parosproxy/**")
-        include("org/zaproxy/**")
-    }
+    source =
+        sourceSets["main"].allJava.matching {
+            include("org/parosproxy/**")
+            include("org/zaproxy/**")
+        }
     (options as StandardJavadocDocletOptions).run {
         links("https://docs.oracle.com/javase/8/docs/api/")
         encoding = "UTF-8"
@@ -219,7 +231,9 @@ val langPack by tasks.registering(Zip::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Assembles the language pack for the Core Language Files add-on."
 
-    archiveFileName.set(layout.buildDirectory.file("langpack/ZAP_${project.version}_language_pack.$versionLangFile.zaplang").get().asFile.absolutePath)
+    archiveFileName.set(
+        layout.buildDirectory.file("langpack/ZAP_${project.version}_language_pack.$versionLangFile.zaplang").get().asFile.absolutePath,
+    )
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 
@@ -233,7 +247,10 @@ val langPack by tasks.registering(Zip::class) {
 
 tasks.register<Copy>("copyLangPack") {
     group = "ZAP Misc"
-    description = "Copies the language pack into the Core Language Files add-on (assumes zap-extensions repo is in same directory as zaproxy)."
+    description = (
+        "Copies the language pack into the Core Language Files add-on " +
+            "(assumes zap-extensions repo is in same directory as zaproxy)."
+    )
 
     from(langPack)
     into("$rootDir/../zap-extensions/addOns/coreLang/src/main/zapHomeFiles/lang/")
@@ -272,14 +289,15 @@ listOf(
     "org.zaproxy.zap.extension.api.WikiAPIGenerator",
 ).forEach {
     val langName = it.removePrefix("org.zaproxy.zap.extension.api.").removeSuffix("APIGenerator")
-    val task = tasks.register<JavaExec>("generate${langName}ApiEndpoints") {
-        group = "ZAP Misc"
-        description = "Generates (and copies) the ZAP API endpoints for $langName."
+    val task =
+        tasks.register<JavaExec>("generate${langName}ApiEndpoints") {
+            group = "ZAP Misc"
+            description = "Generates (and copies) the ZAP API endpoints for $langName."
 
-        mainClass.set(it)
-        classpath = sourceSets["main"].runtimeClasspath
-        workingDir = file("$rootDir")
-    }
+            mainClass.set(it)
+            classpath = sourceSets["main"].runtimeClasspath
+            workingDir = file("$rootDir")
+        }
 
     generateAllApiEndpoints {
         dependsOn(task)
