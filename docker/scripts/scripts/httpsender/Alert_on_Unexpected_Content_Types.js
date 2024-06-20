@@ -9,24 +9,11 @@ var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/main/docs/scann
 var extensionAlert = control.getExtensionLoader().getExtension(org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
 
 var expectedTypes = [
-		"application/hal+json",
-		"application/health+json",
-		"application/json",
 		"application/octet-stream",
-		"application/problem+json",
-		"application/problem+xml",
-		"application/soap+xml",
-		"application/vnd.api+json",
-		"application/xml",
-		"application/x-ndjson",
-		"application/x-yaml",
-		"application/yaml",
-		"text/x-json",
-		"text/json",
-		"text/yaml",
-		"text/plain",
-		"text/xml"
+		"text/plain"
 	]
+
+var expectedTypeGroups = ["json", "yaml", "xml"]
 
 function sendingRequest(msg, initiator, helper) {
 	// Nothing to do
@@ -44,7 +31,7 @@ function responseReceived(msg, initiator, helper) {
 			if (ctype.indexOf(";") > 0) {
 				ctype = ctype.substring(0, ctype.indexOf(";"))
 			}
-			if (expectedTypes.indexOf(ctype) < 0) {
+			if (!msg.getResponseHeader().hasContentType(expectedTypeGroups) && expectedTypes.indexOf(ctype) < 0) {
 				// Another rule will complain if theres no type
 		
 				var risk = 1	// Low
