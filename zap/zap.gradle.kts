@@ -83,7 +83,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.4.0")
+    api("com.fifesoft:rsyntaxtextarea:3.4.1")
     api("com.github.zafarkhaja:java-semver:0.10.2")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.16.1")
