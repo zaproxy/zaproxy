@@ -31,6 +31,7 @@
       ":addOns:openapi",
       ":addOns:postman",
       ":addOns:plugnhack",
+      ":addOns:pscan",
       ":addOns:pscanrules",
       ":addOns:pscanrulesBeta",
       ":addOns:quickstart",
