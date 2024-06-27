@@ -709,6 +709,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                     loadScanRules(statusUpdate.getAddOn());
                     break;
 
+                case SOFT_UNINSTALL:
                 case UNINSTALL:
                     AddOn addOn = statusUpdate.getAddOn();
 
