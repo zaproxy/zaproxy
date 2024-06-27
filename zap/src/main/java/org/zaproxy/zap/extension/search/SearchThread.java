@@ -279,6 +279,13 @@ public class SearchThread extends Thread {
                             }
                         }
                     }
+                    if (Type.Note.equals(reqType) && !pcc.allMatchesProcessed()) {
+                        String note = message.getNote();
+                        matcher = pattern.matcher(note);
+                        if (matcher.find()) {
+                            notifyMatchFound(currentRecordId, note, message, null, 0, 0);
+                        }
+                    }
                     if (Type.Header.equals(reqType)) {
                         // Header
                         // Request header
