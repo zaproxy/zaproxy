@@ -667,11 +667,8 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
                 e -> {
                     ExtensionSearch.Type selectedopt =
                             ((SearchOption) searchType.getSelectedItem()).getType();
-                    // Inverse matching not enabled for Tags and Notes
-                    getChkInverse()
-                            .setEnabled(
-                                    !selectedopt.equals(ExtensionSearch.Type.Tag)
-                                            && !selectedopt.equals(ExtensionSearch.Type.Note));
+                    // Inverse matching not enabled for Tags
+                    getChkInverse().setEnabled(!selectedopt.equals(ExtensionSearch.Type.Tag));
                 });
         return searchType;
     }

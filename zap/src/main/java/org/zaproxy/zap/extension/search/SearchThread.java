@@ -282,8 +282,18 @@ public class SearchThread extends Thread {
                     if (Type.Note.equals(reqType) && !pcc.allMatchesProcessed()) {
                         String note = message.getNote();
                         matcher = pattern.matcher(note);
-                        if (matcher.find()) {
-                            notifyMatchFound(currentRecordId, note, message, null, 0, 0);
+
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            if (!matcher.find()) {
+                                notifyMatchFound(currentRecordId, note, message, null, 0, 0);
+                            }
+                        } else {
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(currentRecordId, note, message, null, 0, 0);
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
                         }
                     }
                     if (Type.Header.equals(reqType)) {
