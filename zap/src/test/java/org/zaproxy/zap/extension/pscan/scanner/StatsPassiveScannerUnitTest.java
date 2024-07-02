@@ -36,6 +36,8 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
+@Deprecated
+@SuppressWarnings("removal")
 class StatsPassiveScannerUnitTest {
     private StatsListener listener;
     private PluginPassiveScanner scanner;
