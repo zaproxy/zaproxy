@@ -135,8 +135,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                             createScriptIcon(),
                             true));
         }
-
-        extensionHook.addApiImplementor(new PassiveScanAPI(this));
     }
 
     @Override
