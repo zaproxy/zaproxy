@@ -658,6 +658,10 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
                     new SearchOption(
                             Constant.messages.getString("search.toolbar.label.type.tag"),
                             ExtensionSearch.Type.Tag));
+            searchType.addItem(
+                    new SearchOption(
+                            Constant.messages.getString("search.toolbar.label.type.note"),
+                            ExtensionSearch.Type.Note));
         }
         searchType.addActionListener(
                 e -> {

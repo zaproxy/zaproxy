@@ -39,6 +39,8 @@ public class SearchThread extends Thread {
 
     private static final String THREAD_NAME = "ZAP-SearchThread";
 
+    private static final int NOTE_EXTRACT_INDEX_OFFSET = 30;
+
     private String filter;
     private Pattern pattern;
     private Type reqType;
@@ -276,6 +278,38 @@ public class SearchThread extends Thread {
                             if (matcher.find()) {
                                 notifyMatchFound(currentRecordId, tag, message, null, 0, 0);
                                 break;
+                            }
+                        }
+                    }
+                    if (Type.Note.equals(reqType) && !pcc.allMatchesProcessed()) {
+                        String note = message.getNote();
+                        matcher = pattern.matcher(note);
+
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            if (!matcher.find()) {
+                                notifyMatchFound(currentRecordId, note, message, null, 0, 0);
+                            }
+                        } else {
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                int note_extract_start =
+                                        matcher.start() - NOTE_EXTRACT_INDEX_OFFSET;
+                                int note_extract_end = matcher.end() + NOTE_EXTRACT_INDEX_OFFSET;
+
+                                if (note_extract_start < 0) {
+                                    note_extract_start = 0;
+                                }
+                                if (note_extract_end > note.length() - 1) {
+                                    note_extract_end = note.length() - 1;
+                                }
+
+                                String note_extract =
+                                        note.substring(note_extract_start, note_extract_end);
+
+                                notifyMatchFound(
+                                        currentRecordId, note_extract, message, null, 0, 0);
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
                             }
                         }
                     }

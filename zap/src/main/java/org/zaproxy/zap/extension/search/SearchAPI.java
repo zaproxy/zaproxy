@@ -57,18 +57,21 @@ public class SearchAPI extends ApiImplementor {
 
     private static final String VIEW_URLS_BY_URL_REGEX = "urlsByUrlRegex";
     private static final String VIEW_URLS_BY_TAG_REGEX = "urlsByTagRegex";
+    private static final String VIEW_URLS_BY_NOTE_REGEX = "urlsByNoteRegex";
     private static final String VIEW_URLS_BY_REQUEST_REGEX = "urlsByRequestRegex";
     private static final String VIEW_URLS_BY_RESPONSE_REGEX = "urlsByResponseRegex";
     private static final String VIEW_URLS_BY_HEADER_REGEX = "urlsByHeaderRegex";
 
     private static final String VIEW_MESSAGES_BY_URL_REGEX = "messagesByUrlRegex";
     private static final String VIEW_MESSAGES_BY_TAG_REGEX = "messagesByTagRegex";
+    private static final String VIEW_MESSAGES_BY_NOTE_REGEX = "messagesByNoteRegex";
     private static final String VIEW_MESSAGES_BY_REQUEST_REGEX = "messagesByRequestRegex";
     private static final String VIEW_MESSAGES_BY_RESPONSE_REGEX = "messagesByResponseRegex";
     private static final String VIEW_MESSAGES_BY_HEADER_REGEX = "messagesByHeaderRegex";
 
     private static final String OTHER_HAR_BY_URL_REGEX = "harByUrlRegex";
     private static final String OTHER_HAR_BY_TAG_REGEX = "harByTagRegex";
+    private static final String OTHER_HAR_BY_NOTE_REGEX = "harByNoteRegex";
     private static final String OTHER_HAR_BY_REQUEST_REGEX = "harByRequestRegex";
     private static final String OTHER_HAR_BY_RESPONSE_REGEX = "harByResponseRegex";
     private static final String OTHER_HAR_BY_HEADER_REGEX = "harByHeaderRegex";
@@ -98,6 +101,8 @@ public class SearchAPI extends ApiImplementor {
         this.addApiView(
                 new ApiView(VIEW_URLS_BY_TAG_REGEX, searchMandatoryParams, searchOptionalParams));
         this.addApiView(
+                new ApiView(VIEW_URLS_BY_NOTE_REGEX, searchMandatoryParams, searchOptionalParams));
+        this.addApiView(
                 new ApiView(
                         VIEW_URLS_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
         this.addApiView(
@@ -113,6 +118,9 @@ public class SearchAPI extends ApiImplementor {
         this.addApiView(
                 new ApiView(
                         VIEW_MESSAGES_BY_TAG_REGEX, searchMandatoryParams, searchOptionalParams));
+        this.addApiView(
+                new ApiView(
+                        VIEW_MESSAGES_BY_NOTE_REGEX, searchMandatoryParams, searchOptionalParams));
         this.addApiView(
                 new ApiView(
                         VIEW_MESSAGES_BY_REQUEST_REGEX,
@@ -133,6 +141,8 @@ public class SearchAPI extends ApiImplementor {
                 new ApiOther(OTHER_HAR_BY_URL_REGEX, searchMandatoryParams, searchOptionalParams));
         this.addApiOthers(
                 new ApiOther(OTHER_HAR_BY_TAG_REGEX, searchMandatoryParams, searchOptionalParams));
+        this.addApiOthers(
+                new ApiOther(OTHER_HAR_BY_NOTE_REGEX, searchMandatoryParams, searchOptionalParams));
         this.addApiOthers(
                 new ApiOther(
                         OTHER_HAR_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
@@ -170,6 +180,14 @@ public class SearchAPI extends ApiImplementor {
                 break;
             case VIEW_MESSAGES_BY_TAG_REGEX:
                 searchType = ExtensionSearch.Type.Tag;
+                responseType = SearchViewResponseType.MESSAGE;
+                break;
+            case VIEW_URLS_BY_NOTE_REGEX:
+                searchType = ExtensionSearch.Type.Note;
+                responseType = SearchViewResponseType.URL;
+                break;
+            case VIEW_MESSAGES_BY_NOTE_REGEX:
+                searchType = ExtensionSearch.Type.Note;
                 responseType = SearchViewResponseType.MESSAGE;
                 break;
             case VIEW_URLS_BY_REQUEST_REGEX:
@@ -269,6 +287,9 @@ public class SearchAPI extends ApiImplementor {
                 break;
             case OTHER_HAR_BY_TAG_REGEX:
                 searchType = ExtensionSearch.Type.Tag;
+                break;
+            case OTHER_HAR_BY_NOTE_REGEX:
+                searchType = ExtensionSearch.Type.Note;
                 break;
             case OTHER_HAR_BY_REQUEST_REGEX:
                 searchType = ExtensionSearch.Type.Request;
