@@ -55,7 +55,6 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
-import org.zaproxy.zap.extension.pscan.scanner.StatsPassiveScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.ScanStatus;
@@ -310,20 +309,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
             // Read from the configs
             scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
-
-            // Load the  'switchable' plugins
-            List<PluginPassiveScanner> listTest =
-                    List.of(new RegexAutoTagScanner(), new StatsPassiveScanner());
-            listTest.forEach(e -> e.setStatus(AddOn.Status.release));
-
-            for (PluginPassiveScanner scanner : listTest) {
-                if (scanner instanceof RegexAutoTagScanner) {
-                    continue;
-                }
-                if (!addPluginPassiveScannerImpl(scanner)) {
-                    LOGGER.error("Failed to install pscanrule: {}", scanner.getName());
-                }
-            }
         }
         return scannerList;
     }
