@@ -32,6 +32,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
 
+@Deprecated(since = "2.16.0", forRemoval = true)
 public class StatsPassiveScanner extends PluginPassiveScanner {
 
     public static final String CODE_STATS_PREFIX = "stats.code.";
