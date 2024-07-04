@@ -50,7 +50,6 @@ public class PassiveScanController extends Thread implements ProxyListener {
     private PassiveScanParam pscanOptions;
     private PassiveScanTaskHelper helper;
     private Session session;
-    private ScanStatus scanStatus;
 
     private ThreadPoolExecutor executor;
 
@@ -69,7 +68,6 @@ public class PassiveScanController extends Thread implements ProxyListener {
         setName("ZAP-PassiveScanController");
         this.extHist = extHistory;
         this.pscanOptions = passiveScanParam;
-        this.scanStatus = scanStatus;
 
         helper = new PassiveScanTaskHelper(extPscan, extAlert, passiveScanParam);
 
@@ -136,9 +134,6 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
                 int recordsToScan = this.getRecordsToScan();
                 Stats.setHighwaterMark("stats.pscan.recordsToScan", recordsToScan);
-                if (scanStatus != null) {
-                    scanStatus.setScanCount(recordsToScan);
-                }
 
             } catch (Exception e) {
                 if (shutDown) {
