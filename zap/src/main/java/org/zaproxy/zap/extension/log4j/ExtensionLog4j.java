@@ -48,6 +48,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
  *
  * @author Psiinon
  */
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class ExtensionLog4j extends ExtensionAdaptor {
 
     private static final String NAME = "ExtensionLog4j";

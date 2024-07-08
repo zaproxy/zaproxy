@@ -44,7 +44,6 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
 import org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.Context;
@@ -74,7 +73,7 @@ public class AttackModeScanner implements EventConsumer {
             scanStatus =
                     new ScanStatus(
                             new ImageIcon(
-                                    ExtensionLog4j.class.getResource(
+                                    AttackModeScanner.class.getResource(
                                             "/resource/icon/fugue/target.png")),
                             Constant.messages.getString("ascan.attack.icon.title"));
         }

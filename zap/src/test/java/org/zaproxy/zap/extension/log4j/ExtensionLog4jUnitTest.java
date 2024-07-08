@@ -36,9 +36,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.zaproxy.zap.extension.log4j.ExtensionLog4j.ErrorAppender;
 
 /** Unit test for {@link ExtensionLog4j}. */
+@Deprecated
+@SuppressWarnings("removal")
 class ExtensionLog4jUnitTest {
 
     /** Unit test for {@link ErrorAppender}. */
@@ -47,12 +48,14 @@ class ExtensionLog4jUnitTest {
         private Logger logger;
         private List<String> logEvents;
 
-        private ErrorAppender errorAppender;
+        private org.zaproxy.zap.extension.log4j.ExtensionLog4j.ErrorAppender errorAppender;
 
         @BeforeEach
         void setup() {
             logEvents = new ArrayList<>();
-            errorAppender = new ErrorAppender(logEvents::add);
+            errorAppender =
+                    new org.zaproxy.zap.extension.log4j.ExtensionLog4j.ErrorAppender(
+                            logEvents::add);
 
             LoggerContext context = LoggerContext.getContext();
             LoggerConfig rootLoggerconfig = context.getConfiguration().getRootLogger();
