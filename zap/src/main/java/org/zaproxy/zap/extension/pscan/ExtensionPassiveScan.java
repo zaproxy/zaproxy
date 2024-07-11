@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.pscan;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.ImageIcon;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -45,13 +44,13 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
-import org.zaproxy.zap.extension.script.ExtensionScript;
-import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.ScanStatus;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
     public static final String NAME = "ExtensionPassiveScan";
+
+    @Deprecated(forRemoval = true, since = "2.16.0")
     public static final String SCRIPT_TYPE_PASSIVE = "passive";
 
     // Should be after the last one that saves the HttpMessage, as this ProxyListener doesn't change
@@ -100,25 +99,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan());
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
         }
-
-        ExtensionScript extScript =
-                Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
-        if (extScript != null) {
-            extScript.registerScriptType(
-                    new ScriptType(
-                            SCRIPT_TYPE_PASSIVE,
-                            "pscan.scripts.type.passive",
-                            createScriptIcon(),
-                            true));
-        }
-    }
-
-    private ImageIcon createScriptIcon() {
-        if (getView() == null) {
-            return null;
-        }
-        return new ImageIcon(
-                ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
     }
 
     @Override
