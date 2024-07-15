@@ -291,22 +291,20 @@ public class SearchThread extends Thread {
                             }
                         } else {
                             while (matcher.find()) {
-                                int note_extract_start =
-                                        matcher.start() - NOTE_EXTRACT_INDEX_OFFSET;
-                                int note_extract_end = matcher.end() + NOTE_EXTRACT_INDEX_OFFSET;
+                                int noteExtractStart = matcher.start() - NOTE_EXTRACT_INDEX_OFFSET;
+                                int noteExtractEnd = matcher.end() + NOTE_EXTRACT_INDEX_OFFSET;
 
-                                if (note_extract_start < 0) {
-                                    note_extract_start = 0;
+                                if (noteExtractStart < 0) {
+                                    noteExtractStart = 0;
                                 }
-                                if (note_extract_end > note.length() - 1) {
-                                    note_extract_end = note.length() - 1;
+                                if (noteExtractEnd > note.length() - 1) {
+                                    noteExtractEnd = note.length() - 1;
                                 }
 
-                                String note_extract =
-                                        note.substring(note_extract_start, note_extract_end);
+                                String noteExtract =
+                                        note.substring(noteExtractStart, noteExtractEnd);
 
-                                notifyMatchFound(
-                                        currentRecordId, note_extract, message, null, 0, 0);
+                                notifyMatchFound(currentRecordId, noteExtract, message, null, 0, 0);
                                 if (!searchAllOccurrences) {
                                     break;
                                 }
