@@ -291,15 +291,12 @@ public class SearchThread extends Thread {
                             }
                         } else {
                             while (matcher.find()) {
-                                int noteExtractStart = matcher.start() - NOTE_EXTRACT_INDEX_OFFSET;
-                                int noteExtractEnd = matcher.end() + NOTE_EXTRACT_INDEX_OFFSET;
-
-                                if (noteExtractStart < 0) {
-                                    noteExtractStart = 0;
-                                }
-                                if (noteExtractEnd > note.length() - 1) {
-                                    noteExtractEnd = note.length() - 1;
-                                }
+                                int noteExtractStart =
+                                        Math.max(matcher.start() - NOTE_EXTRACT_INDEX_OFFSET, 0);
+                                int noteExtractEnd =
+                                        Math.min(
+                                                matcher.end() + NOTE_EXTRACT_INDEX_OFFSET,
+                                                note.length() - 1);
 
                                 String noteExtract =
                                         note.substring(noteExtractStart, noteExtractEnd);
