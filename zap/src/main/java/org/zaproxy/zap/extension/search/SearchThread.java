@@ -290,7 +290,7 @@ public class SearchThread extends Thread {
                                 notifyMatchFound(currentRecordId, note, message, null, 0, 0);
                             }
                         } else {
-                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                            while (matcher.find()) {
                                 int note_extract_start =
                                         matcher.start() - NOTE_EXTRACT_INDEX_OFFSET;
                                 int note_extract_end = matcher.end() + NOTE_EXTRACT_INDEX_OFFSET;
