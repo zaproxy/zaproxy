@@ -119,6 +119,16 @@ def usage():
     print('For more details see https://www.zaproxy.org/docs/docker/api-scan/')
 
 
+def get_script_engine(zap, wanted):
+    available = list(map(lambda e: e.split(' : ')[1], zap.script.list_engines))
+    found = list(filter(lambda e: e in available, wanted))
+
+    if len(found) > 0:
+       return found[0]
+
+    return None
+
+
 def main(argv):
 
     global min_level
@@ -407,9 +417,10 @@ def main(argv):
                 zap_set_scan_user(zap, user)
 
         # Enable scripts
-        zap.script.load('Alert_on_HTTP_Response_Code_Errors.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_HTTP_Response_Code_Errors.js')
+        script_engine = get_script_engine(zap, ['Oracle Nashorn', 'Graal.js'])
+        zap.script.load('Alert_on_HTTP_Response_Code_Errors.js', 'httpsender', script_engine, '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_HTTP_Response_Code_Errors.js')
         zap.script.enable('Alert_on_HTTP_Response_Code_Errors.js')
-        zap.script.load('Alert_on_Unexpected_Content_Types.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_Unexpected_Content_Types.js')
+        zap.script.load('Alert_on_Unexpected_Content_Types.js', 'httpsender', script_engine, '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_Unexpected_Content_Types.js')
         zap.script.enable('Alert_on_Unexpected_Content_Types.js')
 
         # Import the API defn
