@@ -176,9 +176,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         ScriptEngine se = mgr.getEngineByName("ECMAScript");
         if (se != null) {
             this.registerScriptEngineWrapper(new JavascriptEngineWrapper(se.getFactory()));
-        } else {
-            LOGGER.warn(
-                    "No default JavaScript/ECMAScript engine found, some scripts might no longer work.");
         }
     }
 
