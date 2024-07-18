@@ -312,7 +312,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 
     @Override
     public boolean isTypeForMethod(AuthenticationMethod method) {
-        return (method instanceof HttpAuthenticationMethod);
+        return method != null && HttpAuthenticationMethod.class.equals(method.getClass());
     }
 
     @Override
