@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 24.1.1
+ENV WEBSWING_VERSION=24.1.1
 RUN --mount=type=secret,id=webswing_url \
 	if [ -s /run/secrets/webswing_url ] ; \
 	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
@@ -66,14 +66,14 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 	rm -R ZAP*
 
 ARG TARGETARCH
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
-ENV PATH $JAVA_HOME/bin:/zap/:$PATH
-ENV ZAP_PATH /zap/zap.sh
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$TARGETARCH
+ENV PATH=$JAVA_HOME/bin:/zap/:$PATH
+ENV ZAP_PATH=/zap/zap.sh
 
 # Default port for use with health check
-ENV ZAP_PORT 8080
-ENV IS_CONTAINERIZED true
-ENV HOME /home/zap/
+ENV ZAP_PORT=8080
+ENV IS_CONTAINERIZED=true
+ENV HOME=/home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
