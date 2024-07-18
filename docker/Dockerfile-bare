@@ -40,9 +40,9 @@ RUN /usr/sbin/adduser -u 1000 -h /home/zap -s /bin/bash -D zap
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
 
-ENV PATH $JAVA_HOME/bin:/zap/:$PATH
-ENV ZAP_PATH /zap/zap.sh
-ENV HOME /home/zap/
-ENV ZAP_PORT 8080
+ENV PATH=$JAVA_HOME/bin:/zap/:$PATH
+ENV ZAP_PATH=/zap/zap.sh
+ENV HOME=/home/zap/
+ENV ZAP_PORT=8080
 
 HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1
