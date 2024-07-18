@@ -109,7 +109,7 @@ dependencies {
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
-    implementation("com.formdev:flatlaf:3.4.1")
+    implementation("com.formdev:flatlaf:3.5")
 
     runtimeOnly("commons-logging:commons-logging:1.3.1")
     runtimeOnly("xom:xom:1.3.9") {
