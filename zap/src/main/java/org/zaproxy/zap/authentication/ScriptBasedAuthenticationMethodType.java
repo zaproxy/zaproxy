@@ -636,7 +636,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
     @Override
     public boolean isTypeForMethod(AuthenticationMethod method) {
-        return (method instanceof ScriptBasedAuthenticationMethod);
+        return method != null && ScriptBasedAuthenticationMethod.class.equals(method.getClass());
     }
 
     @Override

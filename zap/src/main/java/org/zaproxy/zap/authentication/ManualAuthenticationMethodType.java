@@ -355,7 +355,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
     @Override
     public boolean isTypeForMethod(AuthenticationMethod method) {
-        return (method instanceof ManualAuthenticationMethod);
+        return method != null && ManualAuthenticationMethod.class.equals(method.getClass());
     }
 
     @Override
