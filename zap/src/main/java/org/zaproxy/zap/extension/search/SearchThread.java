@@ -296,7 +296,7 @@ public class SearchThread extends Thread {
                                 int noteExtractEnd =
                                         Math.min(
                                                 matcher.end() + NOTE_EXTRACT_INDEX_OFFSET,
-                                                note.length() - 1);
+                                                note.length());
 
                                 String noteExtract =
                                         note.substring(noteExtractStart, noteExtractEnd);
