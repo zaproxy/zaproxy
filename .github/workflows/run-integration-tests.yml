@@ -43,17 +43,22 @@ jobs:
             index:org.opencontainers.image.licenses=Apache-2.0
       - 
         name: Run install tests
+        if: ${{ ! cancelled() }}
         run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/install_tests.sh
       - 
         name: Run python tests
+        if: ${{ ! cancelled() }}
         run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/python_tests.sh
       - 
         name: Automation Framework context tests
+        if: ${{ ! cancelled() }}
         run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/af_context_tests.sh
       - 
         name: Automation Framework plan tests
+        if: ${{ ! cancelled() }}
         run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/af_plan_tests.sh
       -
         # Run these last as they are most likely to fail
         name: Run baseline tests
+        if: ${{ ! cancelled() }}
         run: docker run --rm -t ghcr.io/zaproxy/zaproxy-tests wrk/baseline_tests.sh
