@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Check For Errors"
-        run: docker run --rm -v $(pwd)/.github/workflows/conf:/zap/wrk/:rw -t zaproxy/zap-stable:latest zap.sh -addonupdate -cmd -autorun /zap/wrk/check-zap-errors.yaml
+        run: docker run --rm -v $(pwd)/.github/workflows/conf:/zap/wrk/:rw -t zaproxy/zap-stable:latest zap.sh -addonupdate -cmd -autorun /zap/wrk/af-check-errors.yml
