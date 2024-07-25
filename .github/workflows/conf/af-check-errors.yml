@@ -1,0 +1,44 @@
+---
+env:
+  contexts:
+  - name: "test"
+    urls:
+    - "http://localhost:8080/"
+jobs:
+  - type: script
+    parameters:
+      action: "add"
+      type: "standalone"
+      engine: "ECMAScript : Graal.js"
+      name: "error-test"
+      inline: |
+        var extAF = control.getExtensionLoader().getExtension("ExtensionAutomation");
+        var plans = extAF.getRunningPlans();
+        var File = Java.type("java.io.File");
+        var Scanner = Java.type("java.util.Scanner");
+        var zaplog = new File("/home/zap/.ZAP/zap.log")
+        if (!zaplog.exists()) {
+          // Not stable so check for nightly/weekly
+          zaplog = new File("/home/zap/.ZAP_D/zap.log")
+        }
+        if (!zaplog.exists()) {
+          plans.get(0).getProgress().error("Failed to read zap.log file");
+        } else {
+          var scan = new Scanner(zaplog);
+          var errors = [];
+          while(scan.hasNext()){
+            var line = scan.nextLine().toString();
+            // String is split as scripts are shown in the log file
+            if (line.contains("ERR" + "OR")){
+              errors.push(line);
+            }
+          }
+          errors.forEach((item, index) => {
+            plans.get(0).getProgress().error(item);
+          });
+        }
+  - type: script
+    parameters:
+      action: "run"
+      type: "standalone"
+      name: "error-test"
