@@ -1,0 +1,13 @@
+name: Check For ZAP Errors
+on:
+  workflow_dispatch:
+  schedule:
+    # Every day at 2am
+    - cron:  '0 2 * * *'
+
+jobs:
+  CheckForErrors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check For Errors"
+        run: docker run --rm -v .github/workflows/conf:/zap/wrk/:rw -t ghcr.io/zaproxy/zap-stable zap.sh -addonupdate -cmd -autorun /zap/wrk/check-zap-errors.yaml
