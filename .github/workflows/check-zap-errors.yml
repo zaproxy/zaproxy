@@ -12,4 +12,4 @@ jobs:
       - uses: actions/checkout@v4
       - name: "Check For Errors"
         run: |
-          docker run --rm -v $(pwd)/.github/workflows/conf:/zap/wrk/:rw -t zaproxy/zap-stable:latest zap.sh -addonupdate -cmd -autorun /zap/wrk/af-check-errors.yml
+          docker run --rm -v $(pwd)/.github/workflows/conf:/zap/wrk/:rw -t zaproxy/zap-stable:latest zap.sh -addonupdate -addoninstall dev -dev -cmd -autorun /zap/wrk/af-check-errors.yml

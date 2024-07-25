@@ -3,7 +3,7 @@ env:
   contexts:
   - name: "test"
     urls:
-    - "http://localhost:8080/"
+    - "http://localhost:9091/auth/simple-json/"
 jobs:
   - type: script
     parameters:
@@ -29,7 +29,8 @@ jobs:
           while(scan.hasNext()){
             var line = scan.nextLine().toString();
             // String is split as scripts are shown in the log file
-            if (line.contains("ERR" + "OR")){
+            if (line.contains("ERR" + "OR") && 
+                ! line.contains("Adding message bundle with duplicate prefix: dev")){ // Fixed in main
               errors.push(line);
             }
           }
@@ -37,6 +38,24 @@ jobs:
             plans.get(0).getProgress().error(item);
           });
         }
+  - type: spider
+    tests:
+      - name: 'At least 3 URLs found'
+        type: 'stats'
+        statistic: 'automation.spider.urls.added'
+        operator: '>='
+        value: 3
+        onFail: 'error'
+  - type: spiderAjax
+    tests:
+      - name: 'At least 10 URLs found'
+        type: 'stats'
+        statistic: 'spiderAjax.urls.added'
+        operator: '>='
+        value: 10
+        onFail: 'error'
+  - type: activeScan
+  - type: passiveScan-wait
   - type: script
     parameters:
       action: "run"
