@@ -87,3 +87,18 @@ jobs:
     value: 2
     type: "stats"
     name: "wait2 stats.auth.state.loggedin == 2"
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"
