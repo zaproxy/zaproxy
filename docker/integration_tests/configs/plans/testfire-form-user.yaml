@@ -51,4 +51,18 @@ jobs:
     type: "stats"
   name: "requestor"
   type: "requestor"
-
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"
