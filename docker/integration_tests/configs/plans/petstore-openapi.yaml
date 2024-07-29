@@ -21,6 +21,7 @@ env:
   parameters:
     failOnError: true
     failOnWarning: true
+    continueOnFailure: true
     progressToStdout: true
   vars: {}
 jobs:
