@@ -43,8 +43,6 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.model.DefaultValueGenerator;
-import org.zaproxy.zap.model.ValueGenerator;
 
 /**
  * The Class SpiderHtmlFormParser is used for parsing HTML files for processing forms.
@@ -52,6 +50,7 @@ import org.zaproxy.zap.model.ValueGenerator;
  * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
 @Deprecated
+@SuppressWarnings("removal")
 public class SpiderHtmlFormParser extends SpiderParser {
 
     private static final String ENCODING_TYPE = "UTF-8";
@@ -65,7 +64,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
     private Map<String, String> envAttributes = new HashMap<>();
 
     /** Create new Value Generator field */
-    private final ValueGenerator valueGenerator;
+    private final org.zaproxy.zap.model.ValueGenerator valueGenerator;
 
     /**
      * Instantiates a new spider html form parser.
@@ -74,7 +73,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
      * @throws IllegalArgumentException if {@code param} is null.
      */
     public SpiderHtmlFormParser(org.zaproxy.zap.spider.SpiderParam param) {
-        this(param, new DefaultValueGenerator());
+        this(param, new org.zaproxy.zap.model.DefaultValueGenerator());
     }
 
     /**
@@ -86,7 +85,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
      * @throws NullPointerException if {@code param} is null.
      */
     public SpiderHtmlFormParser(
-            org.zaproxy.zap.spider.SpiderParam param, ValueGenerator valueGenerator) {
+            org.zaproxy.zap.spider.SpiderParam param,
+            org.zaproxy.zap.model.ValueGenerator valueGenerator) {
         super(param);
         if (valueGenerator == null) {
             throw new IllegalArgumentException("Parameter valueGenerator must not be null.");
