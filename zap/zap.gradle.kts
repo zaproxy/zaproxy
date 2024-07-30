@@ -83,7 +83,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.5.0")
+    api("com.fifesoft:rsyntaxtextarea:3.5.1")
     api("com.github.zafarkhaja:java-semver:0.10.2")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.16.1")
@@ -105,7 +105,7 @@ dependencies {
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.10.0")
     api("org.hsqldb:hsqldb:2.7.3")
-    api("org.jfree:jfreechart:1.5.4")
+    api("org.jfree:jfreechart:1.5.5")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
