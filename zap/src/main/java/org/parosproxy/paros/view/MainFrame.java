@@ -730,6 +730,7 @@ public class MainFrame extends AbstractFrame {
                 tabsResponsePanelPositionButton.setSelected(true);
         }
 
+        getWorkbench().closeAllDetachedRequestResponseTabs();
         getWorkbench().setResponsePanelPosition(responsePanelPosition);
         options.getViewParam().setResponsePanelPosition(responsePanelPosition.toString());
     }

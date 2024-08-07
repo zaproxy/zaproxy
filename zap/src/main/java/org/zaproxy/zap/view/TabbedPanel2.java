@@ -22,11 +22,17 @@ package org.zaproxy.zap.view;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -42,6 +48,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 
@@ -59,6 +66,9 @@ public class TabbedPanel2 extends TabbedPanel {
 
     private List<Component> fullTabList = new ArrayList<>();
     private List<Component> hiddenTabs = new ArrayList<>();
+    private Map<Component, DetachedTabFrame> detachedTabs = new HashMap<>();
+
+    private final List<DetachedTabListener> detachedTabListeners = new ArrayList<>();
 
     private static final Icon PLUS_ICON =
             DisplayUtils.getScaledIcon(
@@ -92,6 +102,21 @@ public class TabbedPanel2 extends TabbedPanel {
                             }
                         } else {
                             prevTabIndex = getSelectedIndex();
+                        }
+                    }
+                });
+
+        addMouseListener(
+                new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        int tabIndex = indexAtLocation(e.getX(), e.getY());
+                        if (tabIndex != -1 && SwingUtilities.isRightMouseButton(e)) {
+                            var tab = getTabComponentAt(tabIndex);
+                            if (tab instanceof TabbedPanelTab) {
+                                var contextMenu = ((TabbedPanelTab) tab).getContextMenu();
+                                contextMenu.show(e.getComponent(), e.getX(), e.getY());
+                            }
                         }
                     }
                 });
@@ -288,6 +313,44 @@ public class TabbedPanel2 extends TabbedPanel {
         handleHiddenTabListTab();
     }
 
+    void detachTab(Component component) {
+        if (detachedTabs.containsKey(component) || !(component instanceof AbstractPanel)) {
+            return;
+        }
+
+        var frame = new DetachedTabFrame((AbstractPanel) component, this);
+        detachedTabListeners.forEach(listener -> listener.tabDetached(component));
+        detachedTabs.put(component, frame);
+        frame.addWindowListener(
+                new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                        var parent = frame.getDetachedTabParent();
+                        if (parent == null) {
+                            return;
+                        }
+                        var panel = frame.getPanel();
+                        // Add it back to the current parent
+                        parent.addTab(
+                                panel.getName(),
+                                panel.getIcon(),
+                                panel,
+                                panel.isHideable(),
+                                true,
+                                frame.getLastIndex());
+                        parent.detachedTabs.remove(panel);
+                        parent.detachedTabListeners.forEach(
+                                listener -> listener.tabReattached(panel));
+                        // Add it back to this panel too
+                        if (TabbedPanel2.this != parent) {
+                            fullTabList.add(panel);
+                            detachedTabs.remove(panel);
+                            detachedTabListeners.forEach(listener -> listener.tabReattached(panel));
+                        }
+                    }
+                });
+    }
+
     @Override
     public void addTab(String title, Icon icon, final Component c) {
         if (c instanceof AbstractPanel) {
@@ -457,6 +520,29 @@ public class TabbedPanel2 extends TabbedPanel {
         }
     }
 
+    public boolean hasDetachedTabs() {
+        return !detachedTabs.isEmpty();
+    }
+
+    public void closeAllDetachedTabs() {
+        for (var frame : detachedTabs.values()) {
+            frame.reattach();
+        }
+    }
+
+    public Map<Component, DetachedTabFrame> getDetachedTabs() {
+        return detachedTabs;
+    }
+
+    public void setDetachedTabs(Set<DetachedTabFrame> detachedTabs) {
+        this.detachedTabs.clear();
+        for (var frame : detachedTabs) {
+            this.detachedTabs.put(frame.getPanel(), frame);
+            removeFromInternalState(frame.getPanel());
+            frame.setDetachedTabParent(this);
+        }
+    }
+
     /**
      * Temporarily locks/unlocks the specified tab, e.g. if its active and mustn't be closed.
      *
@@ -519,6 +605,9 @@ public class TabbedPanel2 extends TabbedPanel {
      * @see #setVisible(Component, boolean)
      */
     public void removeTab(AbstractPanel panel) {
+        if (this.detachedTabs.containsKey(panel)) {
+            detachedTabs.get(panel).reattach();
+        }
         this.remove(panel);
         // Ensure its removed from internal state (for when the tab is not visible).
         removeFromInternalState(panel);
@@ -564,8 +653,10 @@ public class TabbedPanel2 extends TabbedPanel {
     public void removeAll() {
         fullTabList.clear();
         hiddenTabs.clear();
+        detachedTabs.clear();
 
         removeAllTabs();
+        closeAllDetachedTabs();
     }
 
     /** Internal method that removes all tabs from the UI component. */
@@ -732,6 +823,14 @@ public class TabbedPanel2 extends TabbedPanel {
         }
     }
 
+    public void addDetachedTabListener(DetachedTabListener listener) {
+        detachedTabListeners.add(listener);
+    }
+
+    public void removeDetachedTabListener(DetachedTabListener listener) {
+        detachedTabListeners.remove(listener);
+    }
+
     /**
      * Tells whether or not the given panel can be hidden.
      *
@@ -743,5 +842,58 @@ public class TabbedPanel2 extends TabbedPanel {
      */
     private static boolean canHidePanel(AbstractPanel panel) {
         return panel.isHideable() && !panel.isPinned();
+    }
+
+    public static class DetachedTabFrame extends AbstractFrame {
+        TabbedPanel2 detachedTabParent;
+        AbstractPanel panel;
+        int lastIndex;
+
+        public DetachedTabFrame(AbstractPanel panel, TabbedPanel2 detachedTabParent) {
+            super(getPrefnzPrefix(panel.getName()));
+            this.panel = panel;
+            this.detachedTabParent = detachedTabParent;
+            lastIndex = detachedTabParent.indexOfComponent(panel);
+
+            setTitle(panel.getName());
+            getContentPane().add(panel);
+            setVisible(true);
+        }
+
+        public void reattach() {
+            for (var listener : getWindowListeners()) {
+                listener.windowClosing(null);
+            }
+            dispose();
+        }
+
+        public int getLastIndex() {
+            return lastIndex;
+        }
+
+        public AbstractPanel getPanel() {
+            return panel;
+        }
+
+        public TabbedPanel2 getDetachedTabParent() {
+            return detachedTabParent;
+        }
+
+        public void setDetachedTabParent(TabbedPanel2 detachedTabParent) {
+            this.detachedTabParent = detachedTabParent;
+        }
+
+        private static String getPrefnzPrefix(String title) {
+            return DetachedTabFrame.class.getSimpleName()
+                    + "."
+                    + title.toLowerCase(Locale.ROOT).replaceAll("[^a-zA-Z0-9]+", "_")
+                    + ".";
+        }
+    }
+
+    public interface DetachedTabListener {
+        void tabDetached(Component c);
+
+        void tabReattached(Component c);
     }
 }
