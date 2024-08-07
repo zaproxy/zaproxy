@@ -54,6 +54,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.UIManager;
@@ -713,8 +714,26 @@ public class MainFrame extends AbstractFrame {
             return;
         }
 
-        responsePanelPosition = position;
+        if (getWorkbench().hasAnyDetachedRequestResponseTabs()
+                && View.getSingleton()
+                                .showConfirmDialog(
+                                        Constant.messages.getString(
+                                                "view.toolbar.messagePanelsPosition.confirmCloseDetached"))
+                        != JOptionPane.OK_OPTION) {
+            setResponsePanelPositionButtonSelected(responsePanelPosition);
+            return;
+        }
 
+        responsePanelPosition = position;
+        setResponsePanelPositionButtonSelected(position);
+
+        getWorkbench().closeAllDetachedRequestResponseTabs();
+        getWorkbench().setResponsePanelPosition(responsePanelPosition);
+        options.getViewParam().setResponsePanelPosition(responsePanelPosition.toString());
+    }
+
+    private void setResponsePanelPositionButtonSelected(
+            WorkbenchPanel.ResponsePanelPosition position) {
         switch (position) {
             case PANEL_ABOVE:
                 aboveResponsePanelPositionButton.setSelected(true);
@@ -729,9 +748,6 @@ public class MainFrame extends AbstractFrame {
             default:
                 tabsResponsePanelPositionButton.setSelected(true);
         }
-
-        getWorkbench().setResponsePanelPosition(responsePanelPosition);
-        options.getViewParam().setResponsePanelPosition(responsePanelPosition.toString());
     }
 
     /**
