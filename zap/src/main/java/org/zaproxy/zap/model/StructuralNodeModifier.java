@@ -69,7 +69,7 @@ public class StructuralNodeModifier extends Enableable implements Cloneable {
         JSONObject json = JSONObject.fromObject(config);
         this.name = json.getString(CONFIG_NAME);
         this.type = Type.valueOf(json.getString(CONFIG_TYPE));
-        if (json.containsKey(CONFIG_TYPE)) {
+        if (json.containsKey(CONFIG_PATTERN)) {
             pattern = Pattern.compile(json.getString(CONFIG_PATTERN));
         }
     }
