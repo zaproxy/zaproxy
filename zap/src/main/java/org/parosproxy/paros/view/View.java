@@ -95,6 +95,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/09/27 Added dialog methods with ZapHtmlLabel parameter.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2024/08/20 Wrap string dialog messages in ZapLabel so that they can be copied.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -143,6 +144,7 @@ import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextExcludePanel;
 import org.zaproxy.zap.view.ContextGeneralPanel;
@@ -526,7 +528,7 @@ public class View implements ViewDelegate {
 
     public void showWarningDialog(JPanel parent, String msg) {
         JOptionPane.showMessageDialog(
-                parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+                parent, new ZapLabel(msg), Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -539,7 +541,7 @@ public class View implements ViewDelegate {
 
     public void showWarningDialog(Window parent, String msg) {
         JOptionPane.showMessageDialog(
-                parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+                parent, new ZapLabel(msg), Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -564,7 +566,7 @@ public class View implements ViewDelegate {
 
     public void showMessageDialog(JPanel parent, String msg) {
         JOptionPane.showMessageDialog(
-                parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+                parent, new ZapLabel(msg), Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -577,7 +579,7 @@ public class View implements ViewDelegate {
 
     public void showMessageDialog(Window parent, String msg) {
         JOptionPane.showMessageDialog(
-                parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+                parent, new ZapLabel(msg), Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
