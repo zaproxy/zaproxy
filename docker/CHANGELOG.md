@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-08-28
+- Change Weekly Docker image to use `debian:bookworm-slim` instead of `bullseye-slim`, it will now start using Java 17.
+
 ### 2024-07-16
 - Fallback to usage of Graal.js script engine if Nashorn is not available, in the API packaged scan.
 
