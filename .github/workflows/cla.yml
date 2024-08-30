@@ -29,6 +29,6 @@ jobs:
           path-to-document: 'https://github.com/zaproxy/zaproxy/blob/main/CLA.md'
           # branch should not be protected
           branch: 'main'
-          allowlist: zapbot,dependabot
+          allowlist: zapbot,dependabot[bot]
           remote-organization-name: 'zaproxy'
           remote-repository-name: 'cla'
