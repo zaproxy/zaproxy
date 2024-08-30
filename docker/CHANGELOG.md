@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-08-30
+- Updated the API-Minimal scan policy.
+
 ### 2024-08-28
 - Change Weekly Docker image to use `debian:bookworm-slim` instead of `bullseye-slim`, it will now start using Java 17.
 
