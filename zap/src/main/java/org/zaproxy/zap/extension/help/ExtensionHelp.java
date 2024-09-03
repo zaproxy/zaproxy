@@ -279,7 +279,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
             LOGGER.debug("Loading help for '{}' add-on and merging with core help.", addOn.getId());
             addHelpSet(addOn, new HelpSet(classLoader, helpSetUrl));
         } catch (HelpSetException e) {
-            LOGGER.error("An error occured while adding help for '{}' add-on:", addOn.getId(), e);
+            LOGGER.error("An error occurred while adding help for '{}' add-on:", addOn.getId(), e);
         }
     }
 
@@ -299,7 +299,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
                         ext.getAddOn(), new HelpSet(ext.getClass().getClassLoader(), helpSetUrl));
             } catch (HelpSetException e) {
                 LOGGER.error(
-                        "An error occured while adding help file of extension '{}': {}",
+                        "An error occurred while adding help file of extension '{}': {}",
                         ext.getName(),
                         e.getMessage(),
                         e);

@@ -271,7 +271,7 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
                             Boolean.parseBoolean(pieces[4])); // Enabled
         } catch (Exception ex) {
             LOGGER.error(
-                    "An error occured while decoding DefaultCustomPage from: {}",
+                    "An error occurred while decoding DefaultCustomPage from: {}",
                     encodedString,
                     ex);
             return null;
