@@ -299,7 +299,7 @@ class VariantODataUnitTest {
         setParameter(msg, param, hackValue, variant, originalPair);
 
         // Then
-        // Check that the msg contains now well formated URI with the injected parameter
+        // Check that the msg contains now well formatted URI with the injected parameter
         URI hackedURI = msg.getRequestHeader().getURI();
         String hackedURIasStr = hackedURI.getURI();
         assertThat("RequestHeader.uri", hackedURIasStr, is(expectedHackedURI));
