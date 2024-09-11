@@ -34,6 +34,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
+import java.util.concurrent.Callable;
 import javax.script.ScriptException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -226,6 +227,12 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         CachedScript<T> cachedScript =
                 mock(CachedScript.class, withSettings().strictness(Strictness.LENIENT));
         given(cachedScript.getScript()).willReturn(script);
+        try {
+            given(cachedScript.execute(any()))
+                    .willAnswer(a -> ((Callable<?>) a.getArgument(0)).call());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if (scriptWrapper != null) {
             given(cachedScript.getScriptWrapper()).willReturn(scriptWrapper);
         }
