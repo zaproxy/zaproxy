@@ -27,7 +27,9 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -68,6 +70,7 @@ public class TabbedPanelTab extends JPanel {
     private JButton btnPin = new JButton();
     private JButton btnClose = new JButton();
     private AbstractPanel ap = null;
+    private final JPopupMenu contextMenu;
 
     public TabbedPanelTab(
             final TabbedPanel2 parent,
@@ -79,6 +82,11 @@ public class TabbedPanelTab extends JPanel {
         super(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
         this.setOpaque(false);
+
+        contextMenu = new JPopupMenu();
+        var detachItem = new JMenuItem(Constant.messages.getString("tab.popup.moveToNewWindow"));
+        detachItem.addActionListener(e -> parent.detachTab(c));
+        contextMenu.add(detachItem);
 
         // change the title variable if 'Options - Display - show tab names' selected
         if (!Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
@@ -227,6 +235,10 @@ public class TabbedPanelTab extends JPanel {
             btnClose.setEnabled(enabled);
             btnClose.setVisible(enabled);
         }
+    }
+
+    JPopupMenu getContextMenu() {
+        return contextMenu;
     }
 
     protected AbstractPanel getAbstractPanel() {

@@ -52,11 +52,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -67,7 +71,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
-import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ComponentMaximiser;
 import org.zaproxy.zap.view.ComponentMaximiserMouseListener;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -396,6 +399,12 @@ public class WorkbenchPanel extends JPanel {
      */
     private boolean showTabNames;
 
+    private final Map<PanelType, Set<AbstractPanel>> layoutPanels =
+            Map.of(
+                    PanelType.SELECT, new HashSet<>(),
+                    PanelType.STATUS, new HashSet<>(),
+                    PanelType.WORK, new HashSet<>());
+
     /**
      * Constructs a {@code WorkbenchPanel} with the given options and request and response panels.
      *
@@ -415,6 +424,9 @@ public class WorkbenchPanel extends JPanel {
 
         this.requestPanel = requestPanel;
         this.responsePanel = responsePanel;
+        layoutPanels.get(PanelType.WORK).add(requestPanel);
+        layoutPanels.get(PanelType.WORK).add(responsePanel);
+
         this.componentMaximiser = new ComponentMaximiser(this);
         this.showTabNames = true;
 
@@ -424,6 +436,20 @@ public class WorkbenchPanel extends JPanel {
         responseTabbedPanel = new TabbedPanel2();
         responseTabbedPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseTabbedPanel.addMouseListener(maximiseMouseListener);
+        responseTabbedPanel.addDetachedTabListener(
+                new TabbedPanel2.DetachedTabListener() {
+                    @Override
+                    public void tabDetached(Component c) {
+                        getPaneWork().removeAll();
+                        getPaneWork().add(getTabbedWork());
+                        getPaneWork().validate();
+                    }
+
+                    @Override
+                    public void tabReattached(Component c) {
+                        setResponsePanelPosition(responsePanelPosition);
+                    }
+                });
 
         getTabbedWork().addMouseListener(maximiseMouseListener);
         getTabbedStatus().addMouseListener(maximiseMouseListener);
@@ -489,15 +515,27 @@ public class WorkbenchPanel extends JPanel {
         removeAll();
 
         List<AbstractPanel> visiblePanels;
+        Set<TabbedPanel2.DetachedTabFrame> detachedTabs = new HashSet<>();
         switch (layout) {
             case FULL:
                 visiblePanels = getTabbedStatus().getVisiblePanels();
+                detachedTabs.addAll(getTabbedStatus().getDetachedTabs().values());
                 getTabbedStatus().hideAllTabs();
+
                 visiblePanels.addAll(getTabbedWork().getVisiblePanels());
+                detachedTabs.addAll(getTabbedWork().getDetachedTabs().values());
                 getTabbedWork().hideAllTabs();
+
                 visiblePanels.addAll(getTabbedSelect().getVisiblePanels());
+                detachedTabs.addAll(getTabbedSelect().getDetachedTabs().values());
                 getTabbedSelect().hideAllTabs();
+
+                detachedTabs.addAll(responseTabbedPanel.getDetachedTabs().values());
+                responseTabbedPanel.hideAllTabs();
+
+                getTabbedFull().setDetachedTabs(detachedTabs);
                 getTabbedFull().setVisiblePanels(visiblePanels);
+
                 updateFullLayout();
                 this.add(getFullLayoutPanel());
                 break;
@@ -511,10 +549,49 @@ public class WorkbenchPanel extends JPanel {
 
                 if (previousLayout == Layout.FULL) {
                     visiblePanels = getTabbedFull().getVisiblePanels();
+                    detachedTabs = Set.copyOf(getTabbedFull().getDetachedTabs().values());
                     getTabbedFull().hideAllTabs();
+
+                    getTabbedStatus()
+                            .setDetachedTabs(
+                                    detachedTabs.stream()
+                                            .filter(
+                                                    t ->
+                                                            layoutPanels
+                                                                    .get(PanelType.STATUS)
+                                                                    .contains(t.getPanel()))
+                                            .collect(Collectors.toUnmodifiableSet()));
                     getTabbedStatus().setVisiblePanels(visiblePanels);
+
+                    getTabbedWork()
+                            .setDetachedTabs(
+                                    detachedTabs.stream()
+                                            .filter(
+                                                    t ->
+                                                            layoutPanels
+                                                                    .get(PanelType.WORK)
+                                                                    .contains(t.getPanel()))
+                                            .collect(Collectors.toUnmodifiableSet()));
                     getTabbedWork().setVisiblePanels(visiblePanels);
+
+                    getTabbedSelect()
+                            .setDetachedTabs(
+                                    detachedTabs.stream()
+                                            .filter(
+                                                    t ->
+                                                            layoutPanels
+                                                                    .get(PanelType.SELECT)
+                                                                    .contains(t.getPanel()))
+                                            .collect(Collectors.toUnmodifiableSet()));
                     getTabbedSelect().setVisiblePanels(visiblePanels);
+
+                    if (responsePanelPosition == ResponsePanelPosition.PANELS_SIDE_BY_SIDE
+                            || responsePanelPosition == ResponsePanelPosition.PANEL_ABOVE) {
+                        var detachedtab = getTabbedWork().getDetachedTabs().remove(responsePanel);
+                        if (detachedtab != null) {
+                            responseTabbedPanel.setDetachedTabs(Set.of(detachedtab));
+                        }
+                    }
 
                     setResponsePanelPosition(responsePanelPosition);
                 }
@@ -791,6 +868,7 @@ public class WorkbenchPanel extends JPanel {
         boolean fullLayout = layout == Layout.FULL;
 
         addPanels(getTabbedFull(), panels, fullLayout);
+        layoutPanels.get(panelType).addAll(panels);
 
         switch (panelType) {
             case SELECT:
@@ -860,6 +938,7 @@ public class WorkbenchPanel extends JPanel {
         boolean fullLayout = layout == Layout.FULL;
 
         addPanel(getTabbedFull(), panel, fullLayout);
+        layoutPanels.get(panelType).add(panel);
 
         switch (panelType) {
             case SELECT:
@@ -894,6 +973,7 @@ public class WorkbenchPanel extends JPanel {
         validateNotNull(panelType, "panelType");
 
         removePanels(getTabbedFull(), panels);
+        panels.forEach(layoutPanels.get(panelType)::remove);
 
         switch (panelType) {
             case SELECT:
@@ -953,6 +1033,7 @@ public class WorkbenchPanel extends JPanel {
         validateNotNull(panelType, "panelType");
 
         removeTabPanel(getTabbedFull(), panel);
+        layoutPanels.get(panelType).remove(panel);
         getTabbedFull().revalidate();
 
         switch (panelType) {
@@ -1164,7 +1245,9 @@ public class WorkbenchPanel extends JPanel {
                 getPaneWork().validate();
         }
 
-        if (selectRequest || getTabbedWork().getSelectedComponent() == null) {
+        if (selectRequest
+                || (getTabbedWork().getTabCount() > 0
+                        && getTabbedWork().getSelectedComponent() == null)) {
             getTabbedWork()
                     .setSelectedComponent(
                             responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE
@@ -1174,6 +1257,31 @@ public class WorkbenchPanel extends JPanel {
 
         if (currentTabbedPanel != null) {
             componentMaximiser.maximiseComponent(currentTabbedPanel);
+        }
+    }
+
+    boolean hasAnyDetachedRequestResponseTabs() {
+        var tabbedPanel = layout == Layout.FULL ? getTabbedFull() : getTabbedWork();
+        return tabbedPanel.getDetachedTabs().containsKey(requestPanel)
+                || tabbedPanel.getDetachedTabs().containsKey(responsePanel)
+                || tabbedPanel.getDetachedTabs().containsKey(splitRequestAndResponsePanel)
+                || responseTabbedPanel.getDetachedTabs().containsKey(responsePanel);
+    }
+
+    void closeAllDetachedRequestResponseTabs() {
+        var tabbedPanel = layout == Layout.FULL ? getTabbedFull() : getTabbedWork();
+        var workDetachedTabs = tabbedPanel.getDetachedTabs();
+        if (workDetachedTabs.containsKey(requestPanel)) {
+            workDetachedTabs.get(requestPanel).reattach();
+        }
+        if (workDetachedTabs.containsKey(responsePanel)) {
+            workDetachedTabs.get(responsePanel).reattach();
+        }
+        if (workDetachedTabs.containsKey(splitRequestAndResponsePanel)) {
+            workDetachedTabs.get(splitRequestAndResponsePanel).reattach();
+        }
+        if (responseTabbedPanel.getDetachedTabs().containsKey(responsePanel)) {
+            responseTabbedPanel.getDetachedTabs().get(responsePanel).reattach();
         }
     }
 
@@ -1187,7 +1295,9 @@ public class WorkbenchPanel extends JPanel {
         }
         getFullLayoutPanel().validate();
 
-        if (selectRequest || getTabbedFull().getSelectedComponent() == null) {
+        if (selectRequest
+                || (getTabbedFull().getTabCount() > 0
+                        && getTabbedFull().getSelectedComponent() == null)) {
             tabbedFull.setSelectedComponent(
                     responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE
                             ? splitRequestAndResponsePanel
@@ -1196,18 +1306,16 @@ public class WorkbenchPanel extends JPanel {
     }
 
     private void addRequestResponseTabs(TabbedPanel2 tabbedPanel) {
-        tabbedPanel.addTab(requestPanel, requestTabIndex);
+        if (!tabbedPanel.getDetachedTabs().containsKey(requestPanel)) {
+            tabbedPanel.addTab(requestPanel, requestTabIndex);
+        }
         insertResponseTab(tabbedPanel);
     }
 
     private void insertResponseTab(TabbedPanel2 tabbedPanel) {
-        String tabName = getNormalisedTabName(responsePanel);
-        tabbedPanel.insertTab(
-                tabName,
-                DisplayUtils.getScaledIcon(responsePanel.getIcon()),
-                responsePanel,
-                tabName,
-                tabbedPanel.indexOfComponent(requestPanel) + 1);
+        if (!tabbedPanel.getDetachedTabs().containsKey(responsePanel)) {
+            tabbedPanel.addTab(responsePanel, tabbedPanel.indexOfComponent(requestPanel) + 1);
+        }
     }
 
     private String getNormalisedTabName(AbstractPanel panel) {
@@ -1215,6 +1323,12 @@ public class WorkbenchPanel extends JPanel {
     }
 
     private void splitResponsePanelWithWorkTabbedPanel(int orientation) {
+        if (responseTabbedPanel.getDetachedTabs().containsKey(responsePanel)) {
+            getPaneWork().removeAll();
+            getPaneWork().add(getTabbedWork());
+            return;
+        }
+
         responseTabbedPanel.hideAllTabs();
 
         responseTabbedPanel.addTab(
@@ -1254,6 +1368,8 @@ public class WorkbenchPanel extends JPanel {
 
             splitRequestAndResponse = createSplitPane(orientation);
             splitRequestAndResponsePanel.add(splitRequestAndResponse);
+
+            layoutPanels.get(PanelType.WORK).add(splitRequestAndResponsePanel);
         }
 
         Component selectedComponent = tabbedPanel.getSelectedComponent();
@@ -1263,10 +1379,11 @@ public class WorkbenchPanel extends JPanel {
         splitRequestAndResponse.setRightComponent(responsePanel);
         tabbedPanel.removeTab(responsePanel);
 
-        tabbedPanel.addTab(splitRequestAndResponsePanel, requestTabIndex);
-
-        if (selectedComponent == requestPanel || selectedComponent == responsePanel) {
-            tabbedPanel.setSelectedComponent(splitRequestAndResponsePanel);
+        if (!tabbedPanel.getDetachedTabs().containsKey(splitRequestAndResponsePanel)) {
+            tabbedPanel.addTab(splitRequestAndResponsePanel, requestTabIndex);
+            if (selectedComponent == requestPanel || selectedComponent == responsePanel) {
+                tabbedPanel.setSelectedComponent(splitRequestAndResponsePanel);
+            }
         }
     }
 
