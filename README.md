@@ -1,4 +1,4 @@
-# [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap32x32.png) ZAP](https://www.zaproxy.org)
+# [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap-by-checkmarx.png)](https://www.zaproxy.org)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub release](https://img.shields.io/github/release/zaproxy/zaproxy.svg)](https://www.zaproxy.org/download/)
 [![Java CI](https://github.com/zaproxy/zaproxy/actions/workflows/ci.yml/badge.svg)](https://github.com/zaproxy/zaproxy/actions/workflows/ci.yml)
@@ -13,11 +13,14 @@
 ![Integration Tests](https://github.com/zaproxy/zaproxy/actions/workflows/run-integration-tests.yml/badge.svg)
 ![Docker Live Release](https://github.com/zaproxy/zaproxy/actions/workflows/release-live-docker.yml/badge.svg)
 
-The Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools and is actively maintained by a dedicated international team of volunteers. It can help you automatically find security vulnerabilities in your web applications while you are developing and testing your applications. It's also a great tool for experienced pentesters to use for manual security testing.
+The Zed Attack Proxy (ZAP) by Checkmarx is the world’s most widely used web app scanner. 
+Free and open source. A community based GitHub Top 1000 project that anyone can contribute to.
 
+It can help you automatically find security vulnerabilities in your web applications while you are developing and testing your applications. 
+It's also a great tool for experienced pentesters to use for manual security testing.
 
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://www.zaproxy.org/download/)
 
-For more details about ZAP see the new ZAP website at [zaproxy.org](https://www.zaproxy.org/)
+For more details about ZAP see the website: [zaproxy.org](https://www.zaproxy.org/)
 
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap-website.png)](https://www.zaproxy.org/)
