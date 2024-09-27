@@ -12,14 +12,14 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Describe the bug
+      label: "Describe the bug:"
       description: A clear and concise description of what the bug is.
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Steps to reproduce the behavior
+      label: "Steps to reproduce the behavior:"
       description: A clear and concise description of what the bug is.
       placeholder: |
         1. Go to '...'
@@ -31,14 +31,14 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: "Expected behavior:"
       description: A clear and concise description of what you expected to happen.
     validations:
       required: true
   - type: textarea
     id: version
     attributes:
-      label: Software versions
+      label: "Software versions:"
       description: |
         > [!IMPORTANT]
         > Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch.
@@ -51,7 +51,7 @@ body:
   - type: textarea
     id: screenshots
     attributes:
-      label: Screenshots
+      label: "Screenshots:"
       description: |
         If applicable, add screenshots to help explain your problem.
 
@@ -62,7 +62,7 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Errors from the zap.log file
+      label: "Errors from the zap.log file:"
       description: |
         See https://www.zaproxy.org/faq/what-is-the-default-directory-that-zap-uses/ for the location of the zap.log file for your OS.
         
@@ -73,7 +73,7 @@ body:
   - type: textarea
     id: additional
     attributes:
-      label: Additional context
+      label: "Additional context:"
       description: Add any other context about the problem here.
     validations:
         required: false
