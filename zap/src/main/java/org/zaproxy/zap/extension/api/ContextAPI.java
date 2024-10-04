@@ -499,7 +499,7 @@ public class ContextAPI extends ApiImplementor {
             if (AuthCheckingStrategy.POLL_URL.equals(strategy)) {
                 fields.put(PARAM_POLL_URL, authenticationMethod.getPollUrl());
                 fields.put(PARAM_POLL_DATA, authenticationMethod.getPollData());
-                fields.put(PARAM_POLL_HEADERS, authenticationMethod.getPollData());
+                fields.put(PARAM_POLL_HEADERS, authenticationMethod.getPollHeaders());
                 fields.put(
                         PARAM_POLL_FREQ, Integer.toString(authenticationMethod.getPollFrequency()));
                 AuthPollFrequencyUnits units = authenticationMethod.getPollFrequencyUnits();
