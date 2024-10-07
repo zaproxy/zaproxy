@@ -545,6 +545,7 @@ public class AlertAPI extends ApiImplementor {
                 (alert.getHistoryRef() != null)
                         ? String.valueOf(alert.getHistoryRef().getHistoryId())
                         : "");
+        map.put("sourceMessageId", alert.getSourceHistoryId());
         map.put("tags", alert.getTags());
         return new CustomApiResponseSet<>("alert", map);
     }
