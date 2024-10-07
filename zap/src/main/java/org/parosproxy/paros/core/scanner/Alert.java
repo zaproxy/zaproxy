@@ -282,6 +282,7 @@ public class Alert implements Comparable<Alert> {
                 null);
         setInputVector(recordAlert.getInputVector());
         setHistoryRef(ref);
+        setSourceHistoryId(recordAlert.getSourceHistoryId());
         String alertRef = recordAlert.getAlertRef();
         if (alertRef != null) {
             this.setAlertRef(alertRef);

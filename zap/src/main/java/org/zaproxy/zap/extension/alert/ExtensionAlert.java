@@ -180,6 +180,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
 
         try {
+            int sourceHistoryId = alert.getSourceHistoryId();
             LOGGER.debug("alertFound {} {}", alert.getName(), alert.getUri());
             if (ref == null) {
                 ref = alert.getHistoryRef();
@@ -206,7 +207,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 alert.setSource(Alert.Source.TOOL);
             }
 
-            alert.setSourceHistoryId(ref.getHistoryId());
+            alert.setSourceHistoryId(sourceHistoryId == 0 ? ref.getHistoryId() : sourceHistoryId);
 
             hrefs.put(ref.getHistoryId(), ref);
 
