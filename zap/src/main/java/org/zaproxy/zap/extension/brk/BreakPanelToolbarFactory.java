@@ -640,6 +640,7 @@ public class BreakPanelToolbarFactory {
             setBreakAll(false);
             setBreakRequest(false);
             setBreakResponse(false);
+            Stats.incCounter("stats.ui.toolbar.button.break.continue");
         }
     }
 
@@ -671,6 +672,7 @@ public class BreakPanelToolbarFactory {
             } else {
                 step();
             }
+            Stats.incCounter("stats.ui.toolbar.button.break.step");
         }
     }
 
@@ -691,6 +693,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             drop();
+            Stats.incCounter("stats.ui.toolbar.button.break.drop");
         }
     }
 
@@ -709,6 +712,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             breakPanel.showNewBreakPointDialog();
+            Stats.incCounter("stats.ui.toolbar.button.break.add");
         }
     }
 
@@ -727,6 +731,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakRequest();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.request");
         }
     }
 
@@ -745,6 +750,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakResponse();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.response");
         }
     }
 
@@ -763,6 +769,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakAll();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.all");
         }
     }
 
@@ -781,6 +788,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakOnJavascript();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.js");
         }
     }
 
@@ -799,6 +807,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakOnCssAndFonts();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.cssandfonts");
         }
     }
 
@@ -817,6 +826,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakOnMultimedia();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.multimedia");
         }
     }
 
@@ -835,6 +845,7 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakOnScopeOnly();
+            Stats.incCounter("stats.ui.toolbar.toggle.break.scope");
         }
     }
 
