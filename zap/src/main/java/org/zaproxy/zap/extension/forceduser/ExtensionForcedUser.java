@@ -46,6 +46,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.ZapToggleButton;
@@ -207,6 +208,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             setForcedUserModeEnabled(getForcedUserModeToggleButton().isSelected());
+                            Stats.incCounter("stats.ui.maintoolbar.toggle.forceduser");
                         }
                     });
         }
