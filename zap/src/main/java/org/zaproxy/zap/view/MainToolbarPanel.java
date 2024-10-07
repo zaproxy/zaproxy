@@ -42,6 +42,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.Stats;
 
 public class MainToolbarPanel extends JPanel {
 
@@ -256,6 +257,7 @@ public class MainToolbarPanel extends JPanel {
                             }
                             Control.getSingleton().setMode(mode);
                             View.getSingleton().getMainFrame().getMainMenuBar().setMode(mode);
+                            Stats.incCounter("stats.ui.toolbar.dropdown.mode." + mode.toString());
                         }
                     });
         }
@@ -292,6 +294,7 @@ public class MainToolbarPanel extends JPanel {
 
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
+                            Stats.incCounter("stats.ui.toolbar.button.new");
                             try {
                                 Control.getSingleton().getMenuFileControl().newSession(true);
                             } catch (Exception ex) {
@@ -324,6 +327,7 @@ public class MainToolbarPanel extends JPanel {
 
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
+                            Stats.incCounter("stats.ui.toolbar.button.open");
                             try {
                                 Control.getSingleton().getMenuFileControl().openSession();
                             } catch (Exception ex) {
@@ -356,6 +360,7 @@ public class MainToolbarPanel extends JPanel {
 
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
+                            Stats.incCounter("stats.ui.toolbar.button.persist");
                             try {
                                 if (Model.getSingleton().getSession().isNewState()) {
                                     Control.getSingleton().getMenuFileControl().saveAsSession();
@@ -396,6 +401,7 @@ public class MainToolbarPanel extends JPanel {
 
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
+                            Stats.incCounter("stats.ui.toolbar.button.snapshot");
                             try {
                                 if (Model.getSingleton().getSession().isNewState()) {
                                     View.getSingleton()
@@ -437,6 +443,7 @@ public class MainToolbarPanel extends JPanel {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             Control.getSingleton().getMenuFileControl().properties();
+                            Stats.incCounter("stats.ui.toolbar.button.session");
                         }
                     });
         }
@@ -460,6 +467,7 @@ public class MainToolbarPanel extends JPanel {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             Control.getSingleton().getMenuToolsControl().options();
+                            Stats.incCounter("stats.ui.toolbar.button.options");
                         }
                     });
         }
