@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.httpclient.URI;
 
+/**
+ * @deprecated (2.16.0) Use the classes from the Common Library add-on.
+ */
+@Deprecated(since = "2.16.0", forRemoval = true)
 public interface ValueGenerator {
 
     /**

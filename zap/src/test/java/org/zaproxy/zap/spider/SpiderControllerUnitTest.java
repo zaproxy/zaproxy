@@ -42,10 +42,9 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.WithConfigsTest;
-import org.zaproxy.zap.model.ValueGenerator;
 
 /** Unit test for {@link SpiderController}. */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "removal"})
 class SpiderControllerUnitTest extends WithConfigsTest {
 
     private org.zaproxy.zap.spider.Spider spider;
@@ -74,7 +73,8 @@ class SpiderControllerUnitTest extends WithConfigsTest {
 
         org.zaproxy.zap.extension.spider.ExtensionSpider extensionSpider =
                 mock(org.zaproxy.zap.extension.spider.ExtensionSpider.class);
-        given(extensionSpider.getValueGenerator()).willReturn(mock(ValueGenerator.class));
+        given(extensionSpider.getValueGenerator())
+                .willReturn(mock(org.zaproxy.zap.model.ValueGenerator.class));
         given(spider.getExtensionSpider()).willReturn(extensionSpider);
 
         spiderController =
