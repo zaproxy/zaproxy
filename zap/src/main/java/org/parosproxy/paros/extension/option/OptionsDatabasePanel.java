@@ -31,6 +31,7 @@ import javax.swing.border.EmptyBorder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapSizeNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -44,6 +45,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  *   <li>Request Body Size - the size of the request body in the 'History' database table.
  *   <li>Response Body Size - the size of the response body in the 'History' database table.
  *   <li>Recovery Log - if the recovery log should be enabled (HSQLDB option only).
+ *   <li>Defrag percentage - if the db should be compacted during scans (HSQLDB option only)
  * </ul>
  *
  * @see org.parosproxy.paros.db.Database#close(boolean)
@@ -83,8 +85,28 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
     private static final String RECOVERY_LOG_TOOL_TIP =
             Constant.messages.getString("database.optionspanel.option.recoveryLog.tooltip");
 
+    /*
+     *
+     * The label for the defrag option.
+     *
+     * @see #getDefragPercentage()
+     */
+    private static final String DEFRAG_PERCENTAGE_LABEL =
+            Constant.messages.getString("database.optionspanel.option.defrag.label");
+
+    /**
+     * The tool tip for the defrag option.
+     *
+     * @see #getDefragPercentage()
+     */
+    private static final String DEFRAG_PERCENTAGE_TOOL_TIP =
+            Constant.messages.getString("database.optionspanel.option.defrag.tooltip");
+
     /** The check box used to select/deselect the compact option. */
     private JCheckBox checkBoxCompactDatabase = null;
+
+    /** The spinner to select the percentage for defrag while DB is in use */
+    private ZapNumberSpinner spinnerDefragPercentage = null;
 
     /** The spinner to select the size of the request body in the History table */
     private ZapSizeNumberSpinner spinnerRequestBodySize = null;
@@ -173,6 +195,13 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         panel.add(
                 comboNewSessionOption(),
                 LayoutHelper.getGBC(1, 5, 1, 1.0D, new Insets(2, 2, 2, 2)));
+        panel.add(
+                new JLabel(DEFRAG_PERCENTAGE_LABEL),
+                LayoutHelper.getGBC(0, 6, 1, 0.5D, new Insets(2, 2, 2, 2)));
+
+        panel.add(
+                getDefragPercentage(), LayoutHelper.getGBC(1, 6, 1, 1.0D, new Insets(2, 2, 2, 2)));
+
         add(panel);
     }
 
@@ -189,6 +218,14 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
             checkBoxRecoveryLog.setToolTipText(RECOVERY_LOG_TOOL_TIP);
         }
         return checkBoxRecoveryLog;
+    }
+
+    private ZapNumberSpinner getDefragPercentage() {
+        if (spinnerDefragPercentage == null) {
+            spinnerDefragPercentage = new ZapNumberSpinner(0, 90, 90);
+            spinnerDefragPercentage.setToolTipText(DEFRAG_PERCENTAGE_TOOL_TIP);
+        }
+        return spinnerDefragPercentage;
     }
 
     private ZapSizeNumberSpinner getRequestBodySize() {
@@ -242,6 +279,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         final DatabaseParam param = options.getDatabaseParam();
 
         checkBoxCompactDatabase.setSelected(param.isCompactDatabase());
+        spinnerDefragPercentage.setValue(param.getDefragPercentage());
         spinnerRequestBodySize.setValue(param.getRequestBodySize());
         spinnerResponseBodySize.setValue(param.getResponseBodySize());
         checkBoxNewSessionPrompt.setSelected(param.isNewSessionPrompt());
@@ -255,6 +293,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         final DatabaseParam param = options.getDatabaseParam();
 
         param.setCompactDatabase(checkBoxCompactDatabase.isSelected());
+        param.setDefragPercentage(spinnerDefragPercentage.getValue());
         param.setRequestBodySize(spinnerRequestBodySize.getValue());
         param.setResponseBodySize(spinnerResponseBodySize.getValue());
         param.setNewSessionPrompt(checkBoxNewSessionPrompt.isSelected());
