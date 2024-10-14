@@ -56,6 +56,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.LocaleUtils;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /** Loads the core help files and provides GUI elements to access them. */
@@ -470,6 +471,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             showHelp();
+                            Stats.incCounter("stats.ui.maintoolbar.button.help");
                         }
                     });
         }

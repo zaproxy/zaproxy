@@ -81,6 +81,7 @@ import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.Uninstallatio
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnUninstallListener;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressEvent;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressHandler;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ScanStatus;
@@ -729,7 +730,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                     "/resource/icon/fugue/block.png")));
             addonsButton.setToolTipText(Constant.messages.getString("cfu.button.addons.browse"));
             addonsButton.setEnabled(true);
-            addonsButton.addActionListener(e -> getAddOnsDialog().setVisible(true));
+            addonsButton.addActionListener(
+                    e -> {
+                        getAddOnsDialog().setVisible(true);
+                        Stats.incCounter("stats.ui.maintoolbar.button.marketplace");
+                    });
         }
         return this.addonsButton;
     }
@@ -744,7 +749,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             checkForUpdatesButton.setToolTipText(
                     Constant.messages.getString("cfu.button.checkForUpdates"));
             checkForUpdatesButton.setEnabled(true);
-            checkForUpdatesButton.addActionListener(e -> checkForUpdates(true));
+            checkForUpdatesButton.addActionListener(
+                    e -> {
+                        checkForUpdates(true);
+                        Stats.incCounter("stats.ui.maintoolbar.button.cfu");
+                    });
         }
         return this.checkForUpdatesButton;
     }
