@@ -30,7 +30,10 @@ import org.apache.commons.httpclient.URI;
  * Default implementation of the ValueGenerator
  *
  * @since 2.6.0
+ * @deprecated (2.16.0) Use the classes from the Common Library add-on.
  */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.16.0", forRemoval = true)
 public class DefaultValueGenerator implements ValueGenerator {
 
     private static final String ATTR_TYPE = "type";
