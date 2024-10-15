@@ -74,6 +74,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         implements SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
+    private static final String ALERT_TAG_PREFIX = "ALERT-TAG:";
     private static final Logger LOGGER = LogManager.getLogger(ExtensionAlert.class);
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
@@ -207,6 +208,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             }
 
             alert.setSourceHistoryId(ref.getHistoryId());
+            copyHistoryTags(alert, alert.getSourceHistoryId());
 
             hrefs.put(ref.getHistoryId(), ref);
 
@@ -245,6 +247,36 @@ public class ExtensionAlert extends ExtensionAdaptor
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Copy any history tags that are tagged with the relevant prefix.
+     *
+     * @param alert the alert
+     * @param sourceHistoryId the source history id
+     * @throws DatabaseException
+     */
+    private static void copyHistoryTags(Alert alert, int sourceHistoryId) throws DatabaseException {
+        // Copy any tags that are intended for alerts
+        List<String> tags = HistoryReference.getTags(sourceHistoryId);
+        if (tags.isEmpty()) {
+            return;
+        }
+        Map<String, String> ctags = new HashMap<>(alert.getTags());
+        for (String tag : tags) {
+            if (tag.startsWith(ALERT_TAG_PREFIX)) {
+                String tagValue = tag.substring(ALERT_TAG_PREFIX.length()).trim();
+                if (!tagValue.isBlank()) {
+                    int eqIndex = tagValue.indexOf('=');
+                    if (eqIndex < 0) {
+                        ctags.put(tagValue, "");
+                    } else if (eqIndex > 0) {
+                        ctags.put(tagValue.substring(0, eqIndex), tagValue.substring(eqIndex + 1));
+                    }
+                }
+            }
+        }
+        alert.setTags(ctags);
     }
 
     private static boolean isInvalid(Alert alert) {
