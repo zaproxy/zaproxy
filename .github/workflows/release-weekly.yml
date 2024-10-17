@@ -16,7 +16,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: 11
+        java-version: 17
     - name: Set up Chalk
       uses: crashappsec/setup-chalk-action@main
       with:
@@ -27,7 +27,7 @@ jobs:
       env:
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
         ZAP_RELEASE: 1
-        ZAP_JAVA_VERSION: 11
+        ZAP_JAVA_VERSION: 17
         ZAP_WEEKLY_ADDONS_NO_TEST: ${{ vars.ZAP_WEEKLY_ADDONS_NO_TEST }}
         ZAP_WEEKLY_QUIET: ${{ vars.ZAP_WEEKLY_QUIET }}
         ZAP_CHALK: 1

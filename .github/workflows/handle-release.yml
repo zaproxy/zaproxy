@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: 11
+        java-version: 17
     - name: Handle Release
       run: ./gradlew handleReleaseFromGitHubRef
       env:
