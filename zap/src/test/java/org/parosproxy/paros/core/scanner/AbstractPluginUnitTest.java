@@ -1363,23 +1363,6 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         verifyNoInteractions(analyser);
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void shouldCheckPage200WithParentAndFallbackToAnalyser(boolean expectedResult) {
-        // Given
-        CustomPage.Type type = CustomPage.Type.OK_200;
-        given(parent.isCustomPage(message, type)).willReturn(false);
-        given(parent.getAnalyser()).willReturn(analyser);
-        plugin.init(message, parent);
-        given(analyser.isFileExist(message)).willReturn(expectedResult);
-        // When
-        boolean result = plugin.isPage200(message);
-        // Then
-        assertThat(result, is(equalTo(expectedResult)));
-        verify(parent).isCustomPage(message, type);
-        verify(analyser).isFileExist(message);
-    }
-
     @Test
     void isPage200ShouldReturnFalseIfCustomPage404Matches() {
         // Given
@@ -1794,7 +1777,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    void isSuccessShouldReturnTrueIfNoStatusCodeNorCustomPageMatchesButAnalyserIndicates200() {
+    void isSuccessShouldReturnFalseIfNoStatusCodeNorCustomPageMatchesButAnalyserIndicates200() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1808,7 +1791,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result, is(equalTo(false)));
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
