@@ -1571,21 +1571,18 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
         incTabOffset(tabIndex);
     }
 
-    public void addFileSelectField(
-            String fieldLabel, final File dir, final int mode, final FileFilter filter) {
-        validateNotTabbed();
-        final ZapTextField text = new ZapTextField();
-        text.setEditable(false);
-        if (dir != null) {
-            text.setText(dir.getAbsolutePath());
-        }
-        final StandardFieldsDialog sfd = this;
+    private static JButton createFileChooserButton(
+            StandardFieldsDialog sfd, ZapTextField field, int mode, FileFilter filter) {
         JButton selectButton = new JButton("...");
         selectButton.addActionListener(
                 new java.awt.event.ActionListener() {
                     @Override
                     public void actionPerformed(java.awt.event.ActionEvent e) {
-                        JFileChooser chooser = new JFileChooser(dir);
+                        File f = new File(field.getText());
+                        if (!f.exists()) {
+                            f = f.getParentFile();
+                        }
+                        JFileChooser chooser = new JFileChooser(f);
                         chooser.setFileSelectionMode(mode);
                         if (filter != null) {
                             chooser.setFileFilter(filter);
@@ -1597,10 +1594,20 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                             if (file == null) {
                                 return;
                             }
-                            text.setText(file.getAbsolutePath());
+                            field.setText(file.getAbsolutePath());
                         }
                     }
                 });
+        return selectButton;
+    }
+
+    public void addFileSelectField(
+            String fieldLabel, final File dir, final int mode, final FileFilter filter) {
+        validateNotTabbed();
+        final ZapTextField text = new ZapTextField();
+        if (dir != null) {
+            text.setText(dir.getAbsolutePath());
+        }
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.add(
@@ -1608,7 +1615,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                 LayoutHelper.getGBC(
                         0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
         panel.add(
-                selectButton,
+                createFileChooserButton(this, text, mode, filter),
                 LayoutHelper.getGBC(
                         1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
 
@@ -1623,32 +1630,9 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
             final FileFilter filter) {
         validateTabbed(tabIndex);
         final ZapTextField text = new ZapTextField();
-        text.setEditable(false);
         if (dir != null) {
             text.setText(dir.getAbsolutePath());
         }
-        final StandardFieldsDialog sfd = this;
-        JButton selectButton = new JButton("...");
-        selectButton.addActionListener(
-                new java.awt.event.ActionListener() {
-                    @Override
-                    public void actionPerformed(java.awt.event.ActionEvent e) {
-                        JFileChooser chooser = new JFileChooser(dir);
-                        chooser.setFileSelectionMode(mode);
-                        if (filter != null) {
-                            chooser.setFileFilter(filter);
-                        }
-
-                        int rc = chooser.showSaveDialog(sfd);
-                        if (rc == JFileChooser.APPROVE_OPTION) {
-                            File file = chooser.getSelectedFile();
-                            if (file == null) {
-                                return;
-                            }
-                            text.setText(file.getAbsolutePath());
-                        }
-                    }
-                });
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.add(
@@ -1656,7 +1640,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                 LayoutHelper.getGBC(
                         0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
         panel.add(
-                selectButton,
+                createFileChooserButton(this, text, mode, filter),
                 LayoutHelper.getGBC(
                         1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
 
