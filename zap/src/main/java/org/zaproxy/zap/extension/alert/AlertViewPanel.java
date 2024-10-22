@@ -67,6 +67,7 @@ import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
@@ -226,6 +227,9 @@ public class AlertViewPanel extends AbstractPanel {
                                 org.zaproxy.zap.model.Vulnerability v =
                                         getVulnerability((String) alertEditName.getSelectedItem());
                                 if (v != null) {
+                                    Stats.incCounter(
+                                            "stats.ui.alert.panel.vuln.selected." + v.getWascId());
+
                                     if (v.getDescription() != null
                                             && v.getDescription().length() > 0) {
                                         setAlertDescription(v.getDescription());
