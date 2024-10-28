@@ -466,6 +466,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      *
      * @return the current lexical state.
      */
+    @Override
     public final int yystate() {
         return zzLexicalState;
     }
@@ -499,6 +500,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      *     yylength()-1}.
      * @return the character at {@code position}.
      */
+    @Override
     public final char yycharat(int position) {
         return zzBuffer[zzStartRead + position];
     }
@@ -508,6 +510,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      *
      * @return the length of the matched text region.
      */
+    @Override
     public final int yylength() {
         return zzMarkedPos - zzStartRead;
     }
@@ -544,6 +547,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      * @param number the number of characters to be read again. This number must not be greater than
      *     {@link #yylength()}.
      */
+    @Override
     public void yypushback(int number) {
         if (number > yylength()) zzScanError(ZZ_PUSHBACK_2BIG);
         zzMarkedPos -= number;
