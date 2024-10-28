@@ -38,7 +38,7 @@ java {
             languageVersion.set(JavaLanguageVersion.of(System.getenv("ZAP_JAVA_VERSION")))
         }
     } else {
-        val javaVersion = JavaVersion.VERSION_11
+        val javaVersion = JavaVersion.VERSION_17
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
