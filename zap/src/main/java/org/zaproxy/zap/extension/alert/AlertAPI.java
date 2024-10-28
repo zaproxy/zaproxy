@@ -540,11 +540,8 @@ public class AlertAPI extends ApiImplementor {
         map.put("wascid", String.valueOf(alert.getWascId()));
         map.put("sourceid", String.valueOf(alert.getSource().getId()));
         map.put("solution", alert.getSolution());
-        map.put(
-                "messageId",
-                (alert.getHistoryRef() != null)
-                        ? String.valueOf(alert.getHistoryRef().getHistoryId())
-                        : "");
+        map.put("messageId", String.valueOf(alert.getHistoryId()));
+        map.put("sourceMessageId", alert.getSourceHistoryId());
         map.put("tags", alert.getTags());
         return new CustomApiResponseSet<>("alert", map);
     }

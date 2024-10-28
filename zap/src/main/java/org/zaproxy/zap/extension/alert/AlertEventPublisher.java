@@ -42,6 +42,16 @@ public class AlertEventPublisher implements EventPublisher {
      */
     public static final String HISTORY_REFERENCE_ID = "historyId";
 
+    /**
+     * Indicates the {@code HistoryReference} ID of the source of the alert.
+     *
+     * <p>The field is available in the events {@link #ALERT_ADDED_EVENT}, {@link
+     * #ALERT_CHANGED_EVENT} and {@link #ALERT_REMOVED_EVENT}.
+     *
+     * @since 2.16.0
+     */
+    public static final String SOURCE_HISTORY_REFERENCE_ID = "sourceHistoryId";
+
     public static final String NAME = "name";
     public static final String PLUGIN_ID = "pluginId";
     public static final String URI = "uri";

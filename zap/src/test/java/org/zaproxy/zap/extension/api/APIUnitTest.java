@@ -27,6 +27,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -43,6 +45,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
@@ -629,8 +632,7 @@ class APIUnitTest {
     @Test
     void shouldGetParamsWithReplacements() throws ApiException {
         // Given
-        OptionsParamApi options = Model.getSingleton().getOptionsParam().getApiParam();
-        options.load(new ZapXmlConfiguration());
+        OptionsParamApi options = mockApiOptions();
         options.setTransferDir("/tmp/dir");
         // When
         // Use token with and without trailing slash
@@ -650,13 +652,24 @@ class APIUnitTest {
         assertThat(params.get("MyDir2"), is(equalTo("/tmp/dir/myfile3")));
     }
 
+    private static OptionsParamApi mockApiOptions() {
+        Model model = mock(Model.class, withSettings().strictness(Strictness.LENIENT));
+        Model.setSingletonForTesting(model);
+        OptionsParam optionsParam =
+                mock(OptionsParam.class, withSettings().strictness(Strictness.LENIENT));
+        given(model.getOptionsParam()).willReturn(optionsParam);
+        OptionsParamApi optionsParamApi = new OptionsParamApi();
+        optionsParamApi.load(new ZapXmlConfiguration());
+        given(optionsParam.getApiParam()).willReturn(optionsParamApi);
+        return optionsParamApi;
+    }
+
     @Test
     void shouldGetParamsWithInvalidReplacements() throws ApiException {
         // Given
-        OptionsParamApi options = Model.getSingleton().getOptionsParam().getApiParam();
+        OptionsParamApi options = mockApiOptions();
         options.load(new ZapXmlConfiguration());
         options.setTransferDir("/tmp/dir");
-        Model.getSingleton().getOptionsParam().getApiParam().setTransferDir("/tmp/dir");
         // When
         JSONObject params =
                 API.getParams(
