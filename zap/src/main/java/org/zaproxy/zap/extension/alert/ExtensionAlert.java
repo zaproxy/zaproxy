@@ -181,6 +181,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
 
         try {
+            int sourceHistoryId = alert.getSourceHistoryId();
             LOGGER.debug("alertFound {} {}", alert.getName(), alert.getUri());
             if (ref == null) {
                 ref = alert.getHistoryRef();
@@ -207,7 +208,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 alert.setSource(Alert.Source.TOOL);
             }
 
-            alert.setSourceHistoryId(ref.getHistoryId());
+            alert.setSourceHistoryId(sourceHistoryId == 0 ? ref.getHistoryId() : sourceHistoryId);
             copyHistoryTags(alert, alert.getSourceHistoryId());
 
             hrefs.put(ref.getHistoryId(), ref);
@@ -381,19 +382,21 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     private void publishAlertEvent(Alert alert, String event) {
-        HistoryReference historyReference = hrefs.get(alert.getSourceHistoryId());
+        int historyId = alert.getHistoryId();
+        HistoryReference historyReference = hrefs.get(historyId);
         if (historyReference == null) {
             historyReference =
                     Control.getSingleton()
                             .getExtensionLoader()
                             .getExtension(ExtensionHistory.class)
-                            .getHistoryReference(alert.getSourceHistoryId());
+                            .getHistoryReference(historyId);
         }
 
         Map<String, String> map = new HashMap<>();
         map.put(AlertEventPublisher.ALERT_ID, Integer.toString(alert.getAlertId()));
+        map.put(AlertEventPublisher.HISTORY_REFERENCE_ID, Integer.toString(historyId));
         map.put(
-                AlertEventPublisher.HISTORY_REFERENCE_ID,
+                AlertEventPublisher.SOURCE_HISTORY_REFERENCE_ID,
                 Integer.toString(alert.getSourceHistoryId()));
         map.put(AlertEventPublisher.NAME, alert.getName());
         map.put(AlertEventPublisher.PLUGIN_ID, Integer.toString(alert.getPluginId()));
@@ -533,7 +536,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
         LOGGER.debug("updateAlert {} {}", alert.getName(), alert.getUri());
-        HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
+        HistoryReference hRef = hrefs.get(alert.getHistoryId());
         if (hRef != null) {
             updateAlertInDB(alert);
             hRef.updateAlert(alert);

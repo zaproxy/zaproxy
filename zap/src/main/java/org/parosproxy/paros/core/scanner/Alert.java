@@ -198,6 +198,7 @@ public class Alert implements Comparable<Alert> {
     private static final String CWE_URL_BASE = "https://cwe.mitre.org/data/definitions/";
 
     private int alertId = -1; // ZAP: Changed default alertId
+    private int historyId;
     private int pluginId = -1;
     private String name = "";
     private int risk = RISK_INFO;
@@ -250,6 +251,7 @@ public class Alert implements Comparable<Alert> {
                 recordAlert.getConfidence(),
                 recordAlert.getAlert());
 
+        historyId = recordAlert.getHistoryId();
         HistoryReference hRef = null;
         try {
             hRef = new HistoryReference(recordAlert.getHistoryId());
@@ -282,6 +284,7 @@ public class Alert implements Comparable<Alert> {
                 null);
         setInputVector(recordAlert.getInputVector());
         setHistoryRef(ref);
+        setSourceHistoryId(recordAlert.getSourceHistoryId());
         String alertRef = recordAlert.getAlertRef();
         if (alertRef != null) {
             this.setAlertRef(alertRef);
@@ -849,6 +852,16 @@ public class Alert implements Comparable<Alert> {
             sb.append("  <evidence>").append(replaceEntity(evidence)).append("</evidence>\r\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * Gets the ID of the {@code HistoryReference} of the alert.
+     *
+     * @return the history ID, or 0 if not defined.
+     * @since 2.16.0
+     */
+    public int getHistoryId() {
+        return historyId;
     }
 
     public int getSourceHistoryId() {

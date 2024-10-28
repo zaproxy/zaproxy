@@ -120,6 +120,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     private HostProcess parent = null;
     private HttpMessage msg = null;
+    private int sourceMessageId = 0;
     private boolean enabled = true;
     private final Logger logger = LogManager.getLogger(getClass());
     private Configuration config = null;
@@ -166,8 +167,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
+        sourceMessageId = getId(msg.getHistoryRef());
         this.parent = parent;
         init();
+    }
+
+    private static int getId(HistoryReference historyReference) {
+        return historyReference != null ? historyReference.getHistoryId() : 0;
+    }
+
+    int getSourceMessageId() {
+        return sourceMessageId;
     }
 
     /**
@@ -1434,6 +1444,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             setCweId(plugin.getCweId());
             setWascId(plugin.getWascId());
             setTags(plugin.getAlertTags());
+            setSourceHistoryId(plugin.getSourceMessageId());
         }
 
         @Override

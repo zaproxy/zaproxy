@@ -23,6 +23,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +32,49 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.core.scanner.Alert.Builder;
+import org.parosproxy.paros.db.RecordAlert;
 
 class AlertUnitTest {
+
+    @Test
+    void shouldHaveNoHistoryIdByDefault() {
+        // Given / When
+        Alert alert = new Alert(1);
+        // Then
+        assertThat(alert.getHistoryId(), is(equalTo(0)));
+    }
+
+    @Test
+    void shouldHaveHistoryIdFromRecordAlert() {
+        // Given
+        RecordAlert recordAlert = mock(RecordAlert.class);
+        int historyId = 42;
+        given(recordAlert.getHistoryId()).willReturn(historyId);
+        // When
+        Alert alert = new Alert(recordAlert);
+        // Then
+        assertThat(alert.getHistoryId(), is(equalTo(historyId)));
+    }
+
+    @Test
+    void shouldHaveNoSourceHistoryIdByDefault() {
+        // Given / When
+        Alert alert = new Alert(1);
+        // Then
+        assertThat(alert.getSourceHistoryId(), is(equalTo(0)));
+    }
+
+    @Test
+    void shouldHaveSourceHistoryIdFromRecordAlert() {
+        // Given
+        RecordAlert recordAlert = mock(RecordAlert.class);
+        int sourceHistoryId = 42;
+        given(recordAlert.getSourceHistoryId()).willReturn(sourceHistoryId);
+        // When
+        Alert alert = new Alert(recordAlert);
+        // Then
+        assertThat(alert.getSourceHistoryId(), is(equalTo(sourceHistoryId)));
+    }
 
     @Test
     void shouldDefaultAlertRefToPluginId() {

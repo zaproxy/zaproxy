@@ -51,6 +51,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -1317,6 +1318,24 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(alert.getCweId(), is(equalTo(cweId)));
         assertThat(alert.getWascId(), is(equalTo(wascId)));
         assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    void shouldRaiseAlertWithHistorySourceWithNewAlert() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        HttpMessage message = createAlertMessage();
+        HistoryReference href = mock(HistoryReference.class);
+        given(message.getHistoryRef()).willReturn(href);
+        int sourceHistoryId = 42;
+        given(href.getHistoryId()).willReturn(sourceHistoryId);
+        // When
+        plugin.init(message, hostProcess);
+        plugin.newAlert().setUri("uri").setMessage(message).raise();
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getSourceHistoryId(), is(equalTo(sourceHistoryId)));
     }
 
     @Test
