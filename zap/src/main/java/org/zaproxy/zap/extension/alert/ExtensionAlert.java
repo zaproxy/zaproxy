@@ -527,6 +527,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
         int alertId = recordAlert.getAlertId();
         alert.setAlertId(alertId);
+        alert.setHistoryId(recordAlert.getHistoryId());
 
         TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
         for (Map.Entry<String, String> e : alert.getTags().entrySet()) {

@@ -855,6 +855,16 @@ public class Alert implements Comparable<Alert> {
     }
 
     /**
+     * Sets the ID of the {@code HistoryReference} of the alert.
+     *
+     * @param historyId the history ID.
+     * @since 2.16.0
+     */
+    public void setHistoryId(int historyId) {
+        this.historyId = historyId;
+    }
+
+    /**
      * Gets the ID of the {@code HistoryReference} of the alert.
      *
      * @return the history ID, or 0 if not defined.
