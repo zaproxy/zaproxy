@@ -14,5 +14,4 @@ jobs:
     - uses: actions/labeler@v5
       if: join(github.event.pull_request.labels) == ''
       with:
-        dot: true
         configuration-path: .github/workflows/conf/pr-labeler.yml
