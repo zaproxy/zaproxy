@@ -227,7 +227,7 @@ public abstract class PopupMenuItemHistoryReferenceContainer
     }
 
     /**
-     * Performs the actions on the the given message container.
+     * Performs the actions on the given message container.
      *
      * <p>Calls the method {@code performHistoryReferenceActions(List)} with the selected messages
      * obtained by calling the method {@code getSelectedHistoryReferences(HttpMessageContainer)},
@@ -259,7 +259,7 @@ public abstract class PopupMenuItemHistoryReferenceContainer
     protected final void performAction(HttpMessage httpMessage) {}
 
     /**
-     * Performs the actions on all the the given messages.
+     * Performs the actions on all the given messages.
      *
      * <p>Defaults to call the method {@code performAction(HistoryReference)} for each message (with
      * the history references as parameter).

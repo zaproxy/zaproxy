@@ -609,7 +609,7 @@ public class OptionsParamView extends AbstractParam {
     }
 
     /**
-     * Gets the the name of the selected look and feel.
+     * Gets the name of the selected look and feel.
      *
      * @return the name, might be {@code null} or empty if none selected (i.e. using default).
      * @see #getLookAndFeelInfo()

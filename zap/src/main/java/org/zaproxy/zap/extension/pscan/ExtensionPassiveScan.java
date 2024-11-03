@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.pscan;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.ImageIcon;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -43,17 +42,15 @@ import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.control.CoreFunctionality;
-import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
-import org.zaproxy.zap.extension.script.ExtensionScript;
-import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.ScanStatus;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
     public static final String NAME = "ExtensionPassiveScan";
+
+    @Deprecated(forRemoval = true, since = "2.16.0")
     public static final String SCRIPT_TYPE_PASSIVE = "passive";
 
     // Should be after the last one that saves the HttpMessage, as this ProxyListener doesn't change
@@ -68,7 +65,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     private boolean passiveScanEnabled;
     private PassiveScanParam passiveScanParam;
     private static final List<Class<? extends Extension>> DEPENDENCIES;
-    private ScanStatus scanStatus = null;
 
     static {
         List<Class<? extends Extension>> dep = new ArrayList<>(1);
@@ -102,32 +98,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(getPassiveScannerOptionsPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan());
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
-            getView()
-                    .getMainFrame()
-                    .getMainFooterPanel()
-                    .addFooterToolbarRightLabel(getScanStatus().getCountLabel());
         }
-
-        ExtensionScript extScript =
-                Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
-        if (extScript != null) {
-            extScript.registerScriptType(
-                    new ScriptType(
-                            SCRIPT_TYPE_PASSIVE,
-                            "pscan.scripts.type.passive",
-                            createScriptIcon(),
-                            true));
-        }
-
-        extensionHook.addApiImplementor(new PassiveScanAPI(this));
-    }
-
-    private ImageIcon createScriptIcon() {
-        if (getView() == null) {
-            return null;
-        }
-        return new ImageIcon(
-                ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
     }
 
     @Override
@@ -288,20 +259,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
             // Read from the configs
             scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
-
-            // Load the  'switchable' plugins
-            List<PluginPassiveScanner> listTest =
-                    new ArrayList<>(CoreFunctionality.getBuiltInPassiveScanRules());
-            listTest.addAll(ExtensionFactory.getAddOnLoader().getPassiveScanRules());
-
-            for (PluginPassiveScanner scanner : listTest) {
-                if (scanner instanceof RegexAutoTagScanner) {
-                    continue;
-                }
-                if (!addPluginPassiveScannerImpl(scanner)) {
-                    LOGGER.error("Failed to install pscanrule: {}", scanner.getName());
-                }
-            }
         }
         return scannerList;
     }
@@ -444,7 +401,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                             extensionLoader.getExtension(ExtensionHistory.class),
                             extensionLoader.getExtension(ExtensionAlert.class),
                             getPassiveScanParam(),
-                            hasView() ? getScanStatus() : null);
+                            null);
             psc.setSession(Model.getSingleton().getSession());
             psc.start();
         }
@@ -629,16 +586,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
     }
 
+    @Deprecated(forRemoval = true, since = "2.16.0")
     protected ScanStatus getScanStatus() {
-        if (scanStatus == null) {
-            scanStatus =
-                    new ScanStatus(
-                            new ImageIcon(
-                                    ExtensionPassiveScan.class.getResource(
-                                            "/resource/icon/16/pscan.png")),
-                            Constant.messages.getString("pscan.footer.label"));
-        }
-        return scanStatus;
+        return null;
     }
 
     @Override

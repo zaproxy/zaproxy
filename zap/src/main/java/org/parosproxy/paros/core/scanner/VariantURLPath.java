@@ -122,6 +122,9 @@ public class VariantURLPath implements Variant {
         }
         // Attack new path at the end
         stringParam.add(new NameValuePair(NameValuePair.TYPE_URL_PATH, "", "", i));
+        if (segments == null || segments.length == 0) {
+            segments = new String[] {""};
+        }
     }
 
     // Adapted from URLCodec#decodeUrl

@@ -1,0 +1,71 @@
+---
+env:
+  contexts:
+  - name: "AjaxSpiderAuthTest"
+    urls:
+    - "http://localhost:9091/auth/simple-json-cookie"
+    includePaths:
+    - "http://localhost:9091/auth/simple-json-cookie.*"
+    excludePaths: []
+    authentication:
+      method: "browser"
+      parameters:
+        loginPageUrl: "http://localhost:9091/auth/simple-json-cookie/"
+        loginPageWait: 5
+        browserId: "firefox-headless"
+      verification:
+        method: "autodetect"
+    sessionManagement:
+      method: "autodetect"
+    technology:
+      exclude: []
+    users:
+    - name: "test"
+      credentials:
+        username: "test@test.com"
+        password: "password123"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    continueOnFailure: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    context: "AjaxSpiderAuthTest"
+    user: "test"
+    url: "http://localhost:9091/auth/simple-json-cookie/"
+    browserId: "firefox-headless"
+    numberOfBrowsers: 1
+    inScopeOnly: true
+  name: "spiderAjax"
+  type: "spiderAjax"
+  tests:
+  - onFail: "ERROR"
+    url: "http://localhost:9091/auth/simple-json-cookie/page1.html"
+    responseBodyRegex: "Page 1"
+    operator: "or"
+    type: "url"
+    name: "spiderAjax/url"
+  - onFail: "ERROR"
+    statistic: "stats.auth.browser.failed"
+    site: "http://localhost:9091"
+    operator: "=="
+    value: 0
+    type: "stats"
+    name: "spiderAjax/stats/browser"
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"

@@ -66,7 +66,11 @@ public class ProxyListenerScript implements ProxyListener {
             ProxyScript script = cachedScript.getScript();
             try {
                 boolean forwardMessage =
-                        request ? script.proxyRequest(msg) : script.proxyResponse(msg);
+                        cachedScript.execute(
+                                () ->
+                                        request
+                                                ? script.proxyRequest(msg)
+                                                : script.proxyResponse(msg));
                 if (!forwardMessage) {
                     return false;
                 }

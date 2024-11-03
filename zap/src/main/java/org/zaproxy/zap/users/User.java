@@ -363,7 +363,7 @@ public class User extends Enableable {
             cred.decode(pieces[4]);
             user.setAuthenticationCredentials(cred);
         } catch (Exception ex) {
-            LOGGER.error("An error occured while decoding user from: {}", encodedString, ex);
+            LOGGER.error("An error occurred while decoding user from: {}", encodedString, ex);
             return null;
         }
         LOGGER.debug("Decoded user: {}", user);

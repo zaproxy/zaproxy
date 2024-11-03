@@ -24,6 +24,7 @@ Scan rules:
 10000   Password Autocomplete in browser [Deprecated]
 10001   Secure page browser cache [Deprecated]
 10003   Retire JS
+10004   Technology Detection
 
 10009   In Page Banner Info Leak
 10010   Cookie set without HttpOnly flag
@@ -103,6 +104,7 @@ Scan rules:
 10112   Session Handling Detection (info)
 10113   Verification Detection (info)
 10114   Same Origin Method Execution (SOME)
+10115   Script served from malicious polyfill.io domain
 
 10200   Beast (via HTTPS Info Extension) [Deprecated]
 10201   Crime (via HTTPS Info Extension) [Deprecated]
@@ -257,6 +259,9 @@ Scan rules:
 100031  DNS Email Spoofing [Script]
 100032  WordPress Username Enumeration [Script]
 100033  Server Side Template Injection [Script]
+100034  Information Disclosure - Google API Key [Script]
+100035  Information Disclosure - Java Stack Trace [Script]
+100036  Information Disclosure - Amazon S3 Bucket URL [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]

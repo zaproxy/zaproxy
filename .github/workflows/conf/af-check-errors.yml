@@ -1,0 +1,63 @@
+---
+env:
+  contexts:
+  - name: "test"
+    urls:
+    - "http://localhost:9091/auth/simple-json/"
+jobs:
+  - type: script
+    parameters:
+      action: "add"
+      type: "standalone"
+      engine: "ECMAScript : Graal.js"
+      name: "error-test"
+      inline: |
+        var extAF = control.getExtensionLoader().getExtension("ExtensionAutomation");
+        var plans = extAF.getRunningPlans();
+        var File = Java.type("java.io.File");
+        var Scanner = Java.type("java.util.Scanner");
+        var zaplog = new File("/home/zap/.ZAP/zap.log")
+        if (!zaplog.exists()) {
+          // Not stable so check for nightly/weekly
+          zaplog = new File("/home/zap/.ZAP_D/zap.log")
+        }
+        if (!zaplog.exists()) {
+          plans.get(0).getProgress().error("Failed to read zap.log file");
+        } else {
+          var scan = new Scanner(zaplog);
+          var errors = [];
+          while(scan.hasNext()){
+            var line = scan.nextLine().toString();
+            // String is split as scripts are shown in the log file
+            if (line.contains("ERR" + "OR") && 
+                ! line.contains("Adding message bundle with duplicate prefix: dev")){ // Fixed in main
+              errors.push(line);
+            }
+          }
+          errors.forEach((item, index) => {
+            plans.get(0).getProgress().error(item);
+          });
+        }
+  - type: spider
+    tests:
+      - name: 'At least 3 URLs found'
+        type: 'stats'
+        statistic: 'automation.spider.urls.added'
+        operator: '>='
+        value: 3
+        onFail: 'error'
+  - type: spiderAjax
+    tests:
+      - name: 'At least 10 URLs found'
+        type: 'stats'
+        statistic: 'spiderAjax.urls.added'
+        operator: '>='
+        value: 10
+        onFail: 'error'
+  - type: activeScan
+  - type: passiveScan-wait
+  - type: script
+    parameters:
+      action: "run"
+      type: "standalone"
+      name: "error-test"

@@ -51,6 +51,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -1320,6 +1321,24 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    void shouldRaiseAlertWithHistorySourceWithNewAlert() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        HttpMessage message = createAlertMessage();
+        HistoryReference href = mock(HistoryReference.class);
+        given(message.getHistoryRef()).willReturn(href);
+        int sourceHistoryId = 42;
+        given(href.getHistoryId()).willReturn(sourceHistoryId);
+        // When
+        plugin.init(message, hostProcess);
+        plugin.newAlert().setUri("uri").setMessage(message).raise();
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getSourceHistoryId(), is(equalTo(sourceHistoryId)));
+    }
+
+    @Test
     void shouldFailToSaveToConfigIfConfigNotSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
@@ -1361,23 +1380,6 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(result, is(equalTo(true)));
         verify(parent).isCustomPage(message, type);
         verifyNoInteractions(analyser);
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void shouldCheckPage200WithParentAndFallbackToAnalyser(boolean expectedResult) {
-        // Given
-        CustomPage.Type type = CustomPage.Type.OK_200;
-        given(parent.isCustomPage(message, type)).willReturn(false);
-        given(parent.getAnalyser()).willReturn(analyser);
-        plugin.init(message, parent);
-        given(analyser.isFileExist(message)).willReturn(expectedResult);
-        // When
-        boolean result = plugin.isPage200(message);
-        // Then
-        assertThat(result, is(equalTo(expectedResult)));
-        verify(parent).isCustomPage(message, type);
-        verify(analyser).isFileExist(message);
     }
 
     @Test
@@ -1794,7 +1796,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    void isSuccessShouldReturnTrueIfNoStatusCodeNorCustomPageMatchesButAnalyserIndicates200() {
+    void isSuccessShouldReturnFalseIfNoStatusCodeNorCustomPageMatchesButAnalyserIndicates200() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1808,7 +1810,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result, is(equalTo(false)));
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);

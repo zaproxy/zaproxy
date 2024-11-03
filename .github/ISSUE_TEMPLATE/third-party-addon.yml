@@ -8,14 +8,14 @@ body:
   - type: input
     id: repo
     attributes:
-      label: "Add-on repo"
+      label: "Add-on repo:"
       description: "The URL of the repository for the add-on."
     validations:
       required: true
   - type: input
     id: contact
     attributes:
-      label: Your contact details
+      label: "Your contact details:"
       description: "Email, twitter, whatever works for you."
       placeholder: me at foo dot com
     validations:
@@ -29,28 +29,28 @@ body:
   - type: input
     id: license
     attributes:
-      label: License
+      label: "License:"
       description: If not clearly stated in the repo.
     validations:
       required: false
   - type: textarea
     id: build
     attributes:
-      label: Build instructions
+      label: "Build instructions:"
       description: If not in the repo.
     validations:
       required: false
   - type: textarea
     id: info
     attributes:
-      label: Link for more information
+      label: "Link for more information:"
       description: "Is there a relevant blog or user guide we should know about?"
     validations:
       required: false
   - type: textarea
     id: twitter
     attributes:
-      label: "Twitter handle for tool or author(s)"
+      label: "Twitter/X handle for tool or author(s):"
       description: "Will be used in the announcement tweet from [@zaproxy](https://twitter.com/zaproxy/)"
     validations:
       required: false
@@ -71,6 +71,6 @@ body:
   - type: textarea
     id: other
     attributes:
-      label: Anything else we should know
+      label: "Anything else we should know:"
     validations:
       required: false

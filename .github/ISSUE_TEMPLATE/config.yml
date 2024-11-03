@@ -1,10 +1,10 @@
 contact_links:
-  - name: ZAP user group
+  - name: ZAP User Group
     url: https://groups.google.com/group/zaproxy-users
     about: Please ask and answer questions about using ZAP here - do not raise issues for questions.
-  - name: ZAP developer group
+  - name: ZAP Developer Group
     url: https://groups.google.com/group/zaproxy-develop
     about: Please ask and answer questions about ZAP internals here.
-  - name: ZAP security bug bounty program
+  - name: ZAP Security Bug Bounty Program
     url: https://bugcrowd.com/owaspzap
     about: Please report security vulnerabilities here.

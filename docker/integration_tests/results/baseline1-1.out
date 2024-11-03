@@ -8,4 +8,4 @@ WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x X
 WARN-NEW: Storable and Cacheable Content [10049] x X 
 WARN-NEW: Retrieved from Cache [10050] x X 
 WARN-NEW: Permissions Policy Header Not Set [10063] x X 
-FAIL-NEW: 0	FAIL-INPROG: 0	WARN-NEW: 9	WARN-INPROG: 0	INFO: 0	IGNORE: 0	PASS: 56
+FAIL-NEW: 0	FAIL-INPROG: 0	WARN-NEW: 9	WARN-INPROG: 0	INFO: 0	IGNORE: 0	PASS: 57

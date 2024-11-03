@@ -836,7 +836,7 @@ class AddOnDependencyChecker {
         /**
          * Gets the add-ons that need to be uninstalled as result of the changes.
          *
-         * @return the the add-ons that need to be uninstalled
+         * @return the add-ons that need to be uninstalled
          */
         public Set<AddOn> getUninstalls() {
             return uninstalls;

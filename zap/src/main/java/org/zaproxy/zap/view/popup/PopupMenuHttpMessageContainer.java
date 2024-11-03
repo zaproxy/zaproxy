@@ -45,7 +45,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
 
     private static final long serialVersionUID = -5266647403287261225L;
 
-    /** The invokers of the the pop up menu. */
+    /** The invokers of the pop up menu. */
     protected static enum Invoker {
         SITES_PANEL,
         HISTORY_PANEL,

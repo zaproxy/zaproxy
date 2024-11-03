@@ -47,7 +47,7 @@ public abstract class FetchFilter {
         OUT_OF_SCOPE,
         /** The uri has an illegal protocol. */
         ILLEGAL_PROTOCOL,
-        /** The The uri is skipped because of user rules. */
+        /** The uri is skipped because of user rules. */
         USER_RULES
     }
 

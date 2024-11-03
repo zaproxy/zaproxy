@@ -55,7 +55,7 @@ import org.gradle.api.tasks.TaskAction;
  *   <li>Remove constant {@code ZZ_BUFFERSIZE}, not used;
  *   <li>Remove {@code throws IOException} from {@code yylex()}, not actually thrown;
  *   <li>Add {@code @SuppressWarnings("fallthrough")} annotation to {@code yylex()};
- *   <li>Add {@code @Override} annotation to {@code yybegin} and {@code yyclose}.
+ *   <li>Add {@code @Override} annotation to required methods.
  * </ul>
  *
  * @see JFlexGenerator
@@ -105,7 +105,7 @@ public class JFlexToRstaTokenMaker extends SourceTask {
                                     SuppressWarnings.class, "\"fallthrough\"");
                         });
 
-        addOverrideAnnotation(type, "yybegin", "yyclose");
+        addOverrideAnnotation(type, "addToken", "getTokenList", "yybegin", "yycharat", "yyclose", "yylength", "yypushback", "yystate", "yytext");
 
         Path outputFile = outputDir.resolve(source.getRelativePath().getPathString());
         try {
@@ -132,6 +132,7 @@ public class JFlexToRstaTokenMaker extends SourceTask {
         Stream.of(names)
                 .map(type::getMethodsByName)
                 .flatMap(List::stream)
+                .filter(MethodDeclaration::isPublic)
                 .forEach(method -> method.addMarkerAnnotation(Override.class));
     }
 

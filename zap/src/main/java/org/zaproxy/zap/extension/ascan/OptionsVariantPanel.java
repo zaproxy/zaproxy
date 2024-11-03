@@ -577,7 +577,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     }
 
     /**
-     * Sets the reason to show when the the variants are disabled.
+     * Sets the reason to show when the variants are disabled.
      *
      * @param reason the reason that indicates why the variants are disabled.
      * @since 2.8.0

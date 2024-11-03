@@ -77,6 +77,8 @@
 // ZAP: 2022/09/28 Do not set the Content-Length header when the method does not require one.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/07/06 Deprecate delayInMs.
+// ZAP: 2024/10/16 Remove isFileExist call from isSuccess and isPage200 - it results in too many
+// FPs.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -118,6 +120,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     private HostProcess parent = null;
     private HttpMessage msg = null;
+    private int sourceMessageId = 0;
     private boolean enabled = true;
     private final Logger logger = LogManager.getLogger(getClass());
     private Configuration config = null;
@@ -164,8 +167,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
+        sourceMessageId = getId(msg.getHistoryRef());
         this.parent = parent;
         init();
+    }
+
+    private static int getId(HistoryReference historyReference) {
+        return historyReference != null ? historyReference.getHistoryId() : 0;
+    }
+
+    int getSourceMessageId() {
+        return sourceMessageId;
     }
 
     /**
@@ -316,12 +328,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             parent.getHttpSender().sendAndReceive(message, false);
         }
 
+        decodeResponseBody(message);
         // ZAP: Notify parent
         parent.notifyNewMessage(this, message);
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
     }
+
+    /**
+     * Decodes the response body of the given {@code HttpMessage}. for example, to change a binary
+     * payload to clear text to allow to do text/string comparisons of the content.
+     *
+     * @param message the HTTP message whose response body will be decoded
+     * @since 2.15.0
+     */
+    protected void decodeResponseBody(HttpMessage message) {}
 
     @SuppressWarnings("removal")
     private void delayRequest() {
@@ -645,10 +667,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Falls
-     * back to use {@code Analyser} which analyzes specific behavior and status codes. Checks if the
-     * message matches {@code CustomPage.Type.ERROR_500} or {@code CusotmPage.Type.NOTFOUND_404}
-     * first, in case the user is trying to override something.
+     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Checks
+     * if the message matches {@code CustomPage.Type.ERROR_500} or {@code
+     * CustomPage.Type.NOTFOUND_404} first, in case the user is trying to override something. This
+     * method should probably just check for 200 rather than 2xx, but a number of ascan rules use it
+     * so we would need to double check that all of them just expect 200 to be matched or rely on
+     * the existing behaviour.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
@@ -662,7 +686,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         if (isCustomPage(msg, CustomPage.Type.OK_200)) {
             return true;
         }
-        return parent.getAnalyser().isFileExist(msg);
+        return HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode());
     }
 
     /**
@@ -735,21 +759,20 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Tells whether or not the response has a status code between 200 and 299 (inclusive), or
-     * {@code CustomPage.Type.OK_200} and {@code Analyser#isFileExist(HttpMessage)}. Checks if the
-     * message matches {@code CustomPage.Type.NOTFOUND_404} or {@code CustomPage.Type.ERROR_500}
-     * first, in case the user is trying to override something.
+     * {@code CustomPage.Type.OK_200}. Checks if the message matches {@code
+     * CustomPage.Type.NOTFOUND_404} or {@code CustomPage.Type.ERROR_500} first, in case the user is
+     * trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since 2.10.0
-     * @see Analyser#isFileExist(HttpMessage)
      */
     public boolean isSuccess(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
                 || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
             return false;
         }
-        if (isCustomPage(msg, CustomPage.Type.OK_200) || parent.getAnalyser().isFileExist(msg)) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)) {
             return true;
         }
         return HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode());
@@ -1421,6 +1444,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             setCweId(plugin.getCweId());
             setWascId(plugin.getWascId());
             setTags(plugin.getAlertTags());
+            setSourceHistoryId(plugin.getSourceMessageId());
         }
 
         @Override

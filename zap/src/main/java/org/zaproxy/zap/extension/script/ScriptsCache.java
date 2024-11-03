@@ -232,14 +232,13 @@ public class ScriptsCache<T> {
             this.script = script;
         }
 
-        void execute(Callable<T> action) throws Exception {
+        <R> R execute(Callable<R> action) throws Exception {
             if (isSyncAccess()) {
                 synchronized (this) {
-                    action.call();
+                    return action.call();
                 }
-            } else {
-                action.call();
             }
+            return action.call();
         }
 
         private boolean isSyncAccess() {

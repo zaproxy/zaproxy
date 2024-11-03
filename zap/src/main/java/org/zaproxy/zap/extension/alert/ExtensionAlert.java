@@ -74,6 +74,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         implements SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
+    public static final String ALERT_TAG_PREFIX = "ALERT-TAG:";
     private static final Logger LOGGER = LogManager.getLogger(ExtensionAlert.class);
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
@@ -180,16 +181,26 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
 
         try {
+            int sourceHistoryId = alert.getSourceHistoryId();
             LOGGER.debug("alertFound {} {}", alert.getName(), alert.getUri());
             if (ref == null) {
                 ref = alert.getHistoryRef();
             }
             if (ref == null) {
-                ref =
-                        new HistoryReference(
-                                getModel().getSession(),
-                                HistoryReference.TYPE_SCANNER,
-                                alert.getMessage());
+                ref = createHistoryReference(HistoryReference.TYPE_SCANNER, alert.getMessage());
+                alert.setHistoryRef(ref);
+            } else if (HistoryReference.getTemporaryTypes().contains(ref.getHistoryType())) {
+                int tempType = ref.getHistoryType();
+                int permanentType = getPermanentType(tempType);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "Attempting to create an alert for temporary message {}, type will be changed to permanent: {}",
+                            tempType,
+                            permanentType,
+                            new Exception());
+                }
+
+                ref = createHistoryReference(permanentType, alert.getMessage());
                 alert.setHistoryRef(ref);
             }
 
@@ -197,7 +208,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                 alert.setSource(Alert.Source.TOOL);
             }
 
-            alert.setSourceHistoryId(ref.getHistoryId());
+            alert.setSourceHistoryId(sourceHistoryId == 0 ? ref.getHistoryId() : sourceHistoryId);
+            copyHistoryTags(alert, alert.getSourceHistoryId());
 
             hrefs.put(ref.getHistoryId(), ref);
 
@@ -238,6 +250,36 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
     }
 
+    /**
+     * Copy any history tags that are tagged with the relevant prefix.
+     *
+     * @param alert the alert
+     * @param sourceHistoryId the source history id
+     * @throws DatabaseException
+     */
+    private static void copyHistoryTags(Alert alert, int sourceHistoryId) throws DatabaseException {
+        // Copy any tags that are intended for alerts
+        List<String> tags = HistoryReference.getTags(sourceHistoryId);
+        if (tags.isEmpty()) {
+            return;
+        }
+        Map<String, String> ctags = new HashMap<>(alert.getTags());
+        for (String tag : tags) {
+            if (tag.startsWith(ALERT_TAG_PREFIX)) {
+                String tagValue = tag.substring(ALERT_TAG_PREFIX.length()).trim();
+                if (!tagValue.isBlank()) {
+                    int eqIndex = tagValue.indexOf('=');
+                    if (eqIndex < 0) {
+                        ctags.put(tagValue, "");
+                    } else if (eqIndex > 0) {
+                        ctags.put(tagValue.substring(0, eqIndex), tagValue.substring(eqIndex + 1));
+                    }
+                }
+            }
+        }
+        alert.setTags(ctags);
+    }
+
     private static boolean isInvalid(Alert alert) {
         if (alert.getUri().isEmpty() || alert.getMessage() == null) {
             LOGGER.error(
@@ -248,6 +290,34 @@ public class ExtensionAlert extends ExtensionAdaptor
             return true;
         }
         return false;
+    }
+
+    private HistoryReference createHistoryReference(int historyType, HttpMessage message)
+            throws HttpMalformedHeaderException, DatabaseException {
+        return new HistoryReference(getModel().getSession(), historyType, message);
+    }
+
+    private static int getPermanentType(int historyType) {
+        switch (historyType) {
+            case HistoryReference.TYPE_TEMPORARY:
+                return HistoryReference.TYPE_ZAP_USER;
+            case HistoryReference.TYPE_SCANNER_TEMPORARY:
+                return HistoryReference.TYPE_SCANNER;
+            case HistoryReference.TYPE_AUTHENTICATION:
+                return HistoryReference.TYPE_ZAP_USER;
+            case HistoryReference.TYPE_SPIDER_TASK:
+                return HistoryReference.TYPE_SPIDER;
+            case HistoryReference.TYPE_SEQUENCE_TEMPORARY:
+                return HistoryReference.TYPE_ZAP_USER;
+            case HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY:
+                return HistoryReference.TYPE_SPIDER_AJAX;
+            case HistoryReference.TYPE_SPIDER_TEMPORARY:
+                return HistoryReference.TYPE_SPIDER;
+            case HistoryReference.TYPE_FUZZER_TEMPORARY:
+                return HistoryReference.TYPE_FUZZER;
+            default:
+                return HistoryReference.TYPE_SCANNER;
+        }
     }
 
     /*
@@ -312,21 +382,24 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     private void publishAlertEvent(Alert alert, String event) {
-        HistoryReference historyReference = hrefs.get(alert.getSourceHistoryId());
+        int historyId = alert.getHistoryId();
+        HistoryReference historyReference = hrefs.get(historyId);
         if (historyReference == null) {
             historyReference =
                     Control.getSingleton()
                             .getExtensionLoader()
                             .getExtension(ExtensionHistory.class)
-                            .getHistoryReference(alert.getSourceHistoryId());
+                            .getHistoryReference(historyId);
         }
 
         Map<String, String> map = new HashMap<>();
         map.put(AlertEventPublisher.ALERT_ID, Integer.toString(alert.getAlertId()));
+        map.put(AlertEventPublisher.HISTORY_REFERENCE_ID, Integer.toString(historyId));
         map.put(
-                AlertEventPublisher.HISTORY_REFERENCE_ID,
+                AlertEventPublisher.SOURCE_HISTORY_REFERENCE_ID,
                 Integer.toString(alert.getSourceHistoryId()));
         map.put(AlertEventPublisher.NAME, alert.getName());
+        map.put(AlertEventPublisher.PLUGIN_ID, Integer.toString(alert.getPluginId()));
         map.put(AlertEventPublisher.URI, alert.getUri().toString());
         map.put(AlertEventPublisher.PARAM, alert.getParam());
         map.put(AlertEventPublisher.RISK, Integer.toString(alert.getRisk()));
@@ -454,6 +527,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
         int alertId = recordAlert.getAlertId();
         alert.setAlertId(alertId);
+        alert.setHistoryId(recordAlert.getHistoryId());
 
         TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
         for (Map.Entry<String, String> e : alert.getTags().entrySet()) {
@@ -463,7 +537,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
         LOGGER.debug("updateAlert {} {}", alert.getName(), alert.getUri());
-        HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
+        HistoryReference hRef = hrefs.get(alert.getHistoryId());
         if (hRef != null) {
             updateAlertInDB(alert);
             hRef.updateAlert(alert);

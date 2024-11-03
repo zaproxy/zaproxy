@@ -65,7 +65,24 @@ if [ -f "$JVMPROPS" ]; then
   # Local jvm properties file present
   JMEM=$(head -1 "$JVMPROPS")
 elif [ "$OS" = "Linux" ]; then
-  MEM=$(expr $(sed -n 's/MemTotal:[ ]\{1,\}\([0-9]\{1,\}\) kB/\1/p' /proc/meminfo) / 1024)
+    HOSTMEM=$(expr $(sed -n 's/MemTotal:[ ]\{1,\}\([0-9]\{1,\}\) kB/\1/p' /proc/meminfo) / 1024)
+    if [ "$IS_CONTAINERIZED" = "true" ]; then
+        # Check if memory.stat exists so it can be used to determine the memory limit
+        if [ -f /sys/fs/cgroup/memory/memory.stat ]; then
+            # If we are running in a container, we need to use the cgroup memory limit
+            MEMLIMIT=$(grep hierarchical_memory_limit /sys/fs/cgroup/memory/memory.stat | cut -d' ' -f2)
+            # If the cgroup memory limit is not set, use the host memory
+            if [ "$MEMLIMIT" -eq "9223372036854771712" ]; then
+                MEM=$HOSTMEM
+            else
+                MEM=$(expr $MEMLIMIT / 1024 / 1024)
+            fi
+        else
+            MEM=$HOSTMEM
+        fi
+    else
+        MEM=$HOSTMEM
+    fi
 elif [ "$OS" = "Darwin" ]; then
   MEM=$(system_profiler SPMemoryDataType | sed -n -e 's/.*Size: \([0-9]\{1,\}\) GB/\1/p' | awk '{s+=$0} END {print s*1024}')
   if [ "$MEM" = "0" ]; then

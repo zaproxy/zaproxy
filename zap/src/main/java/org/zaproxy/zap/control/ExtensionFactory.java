@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -314,7 +315,7 @@ public class ExtensionFactory {
         }
 
         ResourceBundle msg = getExtensionResourceBundle(ext);
-        if (msg != null) {
+        if (msg != null && !isSameResourceBundle(msg, addOn.getResourceBundle())) {
             ext.setMessages(msg);
             extensionsWithMessages.put(ext, Boolean.TRUE);
             Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
@@ -323,6 +324,13 @@ public class ExtensionFactory {
         } else {
             ext.setMessages(Constant.messages.getCoreResourceBundle());
         }
+    }
+
+    private static boolean isSameResourceBundle(ResourceBundle rb1, ResourceBundle rb2) {
+        if (rb1 == null || rb2 == null) {
+            return false;
+        }
+        return Objects.equals(rb1.getBaseBundleName(), rb2.getBaseBundleName());
     }
 
     private static ResourceBundle getExtensionResourceBundle(Extension ext) {

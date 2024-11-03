@@ -39,10 +39,10 @@ dependencies {
         exclude(group = "org.jenkins-ci")
     }
     // Gradle Plugins
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.20.0")
-    implementation("de.undercouch:gradle-download-task:5.4.0")
-    implementation("edu.sc.seis.launch4j:launch4j:3.0.3")
-    implementation("gradle.plugin.install4j.install4j.buildtools:gradle_publish:10.0.6")
-    implementation("me.champeau.gradle:japicmp-gradle-plugin:0.4.1")
-    implementation("org.cyclonedx:cyclonedx-gradle-plugin:1.7.4")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.25.0")
+    implementation("de.undercouch:gradle-download-task:5.6.0")
+    implementation("edu.sc.seis.launch4j:launch4j:3.0.5")
+    implementation("gradle.plugin.install4j.install4j.buildtools:gradle_publish:10.0.8")
+    implementation("me.champeau.gradle:japicmp-gradle-plugin:0.4.3")
+    implementation("org.cyclonedx:cyclonedx-gradle-plugin:1.8.2")
 }

@@ -19,10 +19,16 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +37,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.MockedStatic;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMessage;
 
 class ExtensionAlertUnitTest {
 
@@ -525,6 +534,49 @@ class ExtensionAlertUnitTest {
         assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
         assertEquals(ORIGINAL_REF, alert2.getReference());
         assertEquals(ORIGINAL_TAG, alert2.getTags());
+    }
+
+    @Test
+    void shouldCopyCorrectHistoryTags() {
+        // Given
+        Alert alert = newAlert(1);
+        alert.setUri("https://www.example.com");
+        alert.setSourceHistoryId(1);
+        HttpMessage msg = new HttpMessage();
+        alert.setMessage(msg);
+
+        try (MockedStatic<HistoryReference> hr = mockStatic(HistoryReference.class)) {
+            List<String> tags =
+                    List.of(
+                            "ShouldIgnore",
+                            "ALERT-TAG:",
+                            "ALERT-TAG:=",
+                            "ALERT-TAG: \t",
+                            "ALERT-TAG: \t=",
+                            "ALERT-TAG:AAA=BBB",
+                            "ALERT-TAG:CCC=",
+                            "ALERT-TAG:DDD=EEE",
+                            "ALERT-TAG:FFF=GGG=HHH",
+                            "ALERT-TAG:III");
+            hr.when(() -> HistoryReference.getTags(1)).thenReturn(tags);
+
+            HistoryReference href = mock(HistoryReference.class);
+            when(href.getHistoryType()).thenReturn(1);
+            when(href.getHistoryId()).thenReturn(1);
+
+            // When
+            extAlert.alertFound(alert, href);
+            Map<String, String> alertTags = alert.getTags();
+
+            // Then
+            assertEquals(6, alertTags.size());
+            assertThat(alertTags, hasEntry("AAA", "BBB"));
+            assertThat(alertTags, hasEntry("CCC", ""));
+            assertThat(alertTags, hasEntry("DDD", "EEE"));
+            assertThat(alertTags, hasEntry("FFF", "GGG=HHH"));
+            assertThat(alertTags, hasEntry("III", ""));
+            assertThat(alertTags, hasEntry("Original Key", "Original Value"));
+        }
     }
 
     private static Stream<Arguments> alertTagsMethodSource() {

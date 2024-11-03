@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -304,5 +305,50 @@ class ConstantUnitTest {
         // Then
         assertThat(configuration.getProperty("scanner.threadPerHost"), is(equalTo(3)));
         assertThat(configuration.getProperty("pscans.threads"), is(equalTo(5)));
+    }
+
+    @Test
+    void shouldAddPscanTagsWhenFrom2_14_0() throws ConfigurationException {
+        // Given
+        String autoTagScannersKey = "pscans.autoTagScanners.scanner";
+        // Empty config
+        ZapXmlConfiguration configuration = new ZapXmlConfiguration();
+        // When
+        Constant.upgradeFrom2_14_0(configuration);
+        // Then
+        assertThat(configuration.configurationsAt(autoTagScannersKey).size(), is(equalTo(3)));
+    }
+
+    @Test
+    void shouldNotOverwriteExistingPscanTagsWhenFrom2_14_0() throws ConfigurationException {
+        // Given
+        String autoTagScannersKey = "pscans.autoTagScanners.scanner";
+
+        ZapXmlConfiguration configuration = new ZapXmlConfiguration();
+
+        configuration.addProperty(autoTagScannersKey + "(0).name", "response_xml");
+        configuration.addProperty(autoTagScannersKey + "(0).type", "TAG");
+        configuration.addProperty(autoTagScannersKey + "(0).config", "XML");
+        configuration.addProperty(
+                autoTagScannersKey + "(0).resHeadRegex",
+                "content-type:\\s{0,10}.{1,20}\\/.{0,100}xml");
+        configuration.addProperty(autoTagScannersKey + "(0).enabled", true);
+        // When
+        Constant.upgradeFrom2_14_0(configuration);
+        // Then
+        assertThat(configuration.configurationsAt(autoTagScannersKey).size(), is(equalTo(3)));
+
+        List<Object> namesList = configuration.getList(autoTagScannersKey + ".name");
+        assertTrue(
+                namesList.containsAll(List.of("json_extended", "response_yaml", "response_xml")));
+
+        List<Object> configsList = configuration.getList(autoTagScannersKey + ".config");
+        assertTrue(configsList.containsAll(List.of("XML", "JSON", "YAML")));
+
+        // response_xml should be 0th and enabled if not overwritten
+        assertThat(
+                configuration.getString(autoTagScannersKey + "(0).name"),
+                is(equalTo("response_xml")));
+        assertThat(configuration.getBoolean(autoTagScannersKey + "(0).enabled"), is(equalTo(true)));
     }
 }

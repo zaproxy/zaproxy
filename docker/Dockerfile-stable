@@ -23,7 +23,7 @@ RUN ./zap.sh -cmd -silent -addonupdate
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
 # Setup Webswing
-ENV WEBSWING_VERSION 23.2.2
+ENV WEBSWING_VERSION=24.1.1
 RUN --mount=type=secret,id=webswing_url \
 	if [ -s /run/secrets/webswing_url ] ; \
 	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
@@ -79,14 +79,14 @@ COPY --link --from=builder --chown=1000:1000 /zap .
 COPY --link --from=builder --chown=1000:1000 /zap/webswing /zap/webswing
 
 ARG TARGETARCH
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
-ENV PATH $JAVA_HOME/bin:/zap/:$PATH
-ENV ZAP_PATH /zap/zap.sh
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$TARGETARCH
+ENV PATH=$JAVA_HOME/bin:/zap/:$PATH
+ENV ZAP_PATH=/zap/zap.sh
 
 # Default port for use with health check
-ENV ZAP_PORT 8080
-ENV IS_CONTAINERIZED true
-ENV HOME /home/zap/
+ENV ZAP_PORT=8080
+ENV IS_CONTAINERIZED=true
+ENV HOME=/home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 

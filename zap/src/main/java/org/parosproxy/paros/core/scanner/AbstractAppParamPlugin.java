@@ -137,6 +137,15 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         }
     }
 
+    @Override
+    protected void decodeResponseBody(HttpMessage message) {
+        if (variant == null) {
+            return;
+        }
+
+        variant.decodeResponseBody(message);
+    }
+
     /**
      * Inner method to check if the current parameter should be excluded
      *

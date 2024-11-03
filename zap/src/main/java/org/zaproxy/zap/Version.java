@@ -43,7 +43,7 @@ public final class Version implements Comparable<Version> {
         validateNotEmpty(version, "Parameter version must not be null nor empty.");
 
         try {
-            impl = new com.github.zafarkhaja.semver.Version.Builder(version).build();
+            impl = com.github.zafarkhaja.semver.Version.parse(version);
         } catch (com.github.zafarkhaja.semver.ParseException e) {
             throw new IllegalArgumentException(
                     "Parameter version [" + version + "] is not valid: " + e.getMessage());
@@ -62,7 +62,7 @@ public final class Version implements Comparable<Version> {
      * @return the major version
      */
     public int getMajorVersion() {
-        return impl.getMajorVersion();
+        return (int) impl.majorVersion();
     }
 
     /**
@@ -71,7 +71,7 @@ public final class Version implements Comparable<Version> {
      * @return the minor version
      */
     public int getMinorVersion() {
-        return impl.getMinorVersion();
+        return (int) impl.minorVersion();
     }
 
     /**
@@ -80,7 +80,7 @@ public final class Version implements Comparable<Version> {
      * @return the patch version
      */
     public int getPatchVersion() {
-        return impl.getPatchVersion();
+        return (int) impl.patchVersion();
     }
 
     /**

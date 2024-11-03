@@ -67,7 +67,13 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
                     + "\"\"\"\n\n";
 
     private static final Map<String, Set<String>> NON_WRAPPED_API_ELEMENTS =
-            Map.of("users", Set.of("getUserById"));
+            Map.of(
+                    "automation",
+                    Set.of("planProgress"),
+                    "stats",
+                    Set.of("stats"),
+                    "users",
+                    Set.of("getUserById"));
 
     /** Map any names which are reserved in python to something legal */
     private static final Map<String, String> nameMap;

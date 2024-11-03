@@ -7,4 +7,4 @@ WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x X
 WARN-NEW: Storable and Cacheable Content [10049] x X 
 WARN-NEW: Permissions Policy Header Not Set [10063] x X 
 FAIL-NEW: Missing Anti-clickjacking Header [10020] x X Custom X-Frame-Options option message
-FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 5	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 56
+FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 5	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 57

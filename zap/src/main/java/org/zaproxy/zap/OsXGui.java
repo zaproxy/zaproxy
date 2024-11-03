@@ -22,9 +22,6 @@ package org.zaproxy.zap;
 import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -58,91 +55,16 @@ class OsXGui {
 
         // Override various handlers, so that About, Preferences, and Quit behave in an OS X typical
         // fashion.
-        LOGGER.info("Initializing OS X specific settings, despite Apple's best efforts");
+        LOGGER.info("Initializing OS X specific settings.");
 
         // TODO Remove the menu item File -> Exit, redundant with quit handler.
 
-        try {
-            InvocationHandler invocationHandler =
-                    (o, m, args) -> {
-                        // Same method names for both APIs.
-                        switch (m.getName()) {
-                            case "handleAbout":
-                                showAboutDialog();
-                                break;
-                            case "handlePreferences":
-                                showOptionsDialog();
-                                break;
-                            case "handleQuitRequestWith":
-                                exitZap();
-                                break;
-                        }
-                        return null;
-                    };
-
-            if (SystemUtils.IS_JAVA_1_8) {
-                // TODO Remove once targeting Java 9+ (and stop using reflection).
-                setupJava8(invocationHandler);
-            } else {
-                setupJava9Plus(invocationHandler);
-            }
-        } catch (Throwable e) {
-            LOGGER.error("Failed to set up all macOS GUI changes:", e);
-        }
-    }
-
-    private static void setupJava8(InvocationHandler invocationHandler) throws Throwable {
-        Class<?> applicationClass = Class.forName("com.apple.eawt.Application");
-        Object app = applicationClass.getDeclaredMethod("getApplication").invoke(null);
-        applicationClass
-                .getDeclaredMethod("setDockIconImage", Image.class)
-                .invoke(app, createIcon());
-        Class<?> aboutHandlerClass = Class.forName("com.apple.eawt.AboutHandler");
-        Class<?> preferencesHandlerClass = Class.forName("com.apple.eawt.PreferencesHandler");
-        Class<?> quitHandlerClass = Class.forName("com.apple.eawt.QuitHandler");
-        Object proxy =
-                Proxy.newProxyInstance(
-                        OsXGui.class.getClassLoader(),
-                        new Class<?>[] {
-                            aboutHandlerClass, preferencesHandlerClass, quitHandlerClass
-                        },
-                        invocationHandler);
-        applicationClass.getDeclaredMethod("setAboutHandler", aboutHandlerClass).invoke(app, proxy);
-        applicationClass
-                .getDeclaredMethod("setPreferencesHandler", preferencesHandlerClass)
-                .invoke(app, proxy);
-        applicationClass.getDeclaredMethod("setQuitHandler", quitHandlerClass).invoke(app, proxy);
-    }
-
-    private static void setupJava9Plus(InvocationHandler invocationHandler) throws Throwable {
-        Class<?> taskbarClass = Class.forName("java.awt.Taskbar");
-        taskbarClass
-                .getDeclaredMethod("setIconImage", Image.class)
-                .invoke(taskbarClass.getDeclaredMethod("getTaskbar").invoke(null), createIcon());
-        // java.awt.Taskbar.getTaskbar().setIconImage(createIcon());
-
-        Class<?> aboutHandlerClass = Class.forName("java.awt.desktop.AboutHandler");
-        Class<?> preferencesHandlerClass = Class.forName("java.awt.desktop.PreferencesHandler");
-        Class<?> quitHandlerClass = Class.forName("java.awt.desktop.QuitHandler");
-        Object proxy =
-                Proxy.newProxyInstance(
-                        OsXGui.class.getClassLoader(),
-                        new Class<?>[] {
-                            aboutHandlerClass, preferencesHandlerClass, quitHandlerClass
-                        },
-                        invocationHandler);
+        java.awt.Taskbar.getTaskbar().setIconImage(createIcon());
 
         Desktop desktop = Desktop.getDesktop();
-        Desktop.class
-                .getDeclaredMethod("setAboutHandler", aboutHandlerClass)
-                .invoke(desktop, proxy);
-        // desktop.setAboutHandler(ae -> showAboutDialog());
-        Desktop.class
-                .getDeclaredMethod("setPreferencesHandler", preferencesHandlerClass)
-                .invoke(desktop, proxy);
-        // desktop.setPreferencesHandler(pe -> showOptionsDialog());
-        Desktop.class.getDeclaredMethod("setQuitHandler", quitHandlerClass).invoke(desktop, proxy);
-        // desktop.setQuitHandler((qe, qr) -> exitZap());
+        desktop.setAboutHandler(ae -> showAboutDialog());
+        desktop.setPreferencesHandler(pe -> showOptionsDialog());
+        desktop.setQuitHandler((qe, qr) -> exitZap());
     }
 
     private static Image createIcon() {

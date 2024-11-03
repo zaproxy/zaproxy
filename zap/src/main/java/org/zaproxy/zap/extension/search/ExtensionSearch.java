@@ -47,6 +47,8 @@ public class ExtensionSearch extends ExtensionAdaptor {
         Request,
         Response,
         Header,
+        Tag,
+        Note,
         Custom
     }
 

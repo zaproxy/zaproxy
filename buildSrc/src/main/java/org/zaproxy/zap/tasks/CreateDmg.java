@@ -55,8 +55,6 @@ public abstract class CreateDmg extends DefaultTask {
                                             "create",
                                             "-format",
                                             "UDBZ",
-                                            "-megabytes",
-                                            "800",
                                             "-fs",
                                             "HFS+",
                                             "-srcfolder",
