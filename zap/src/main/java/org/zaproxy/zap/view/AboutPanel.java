@@ -77,8 +77,7 @@ public class AboutPanel extends JPanel {
         GridBagConstraints gbcHomepage = new GridBagConstraints();
         GridBagConstraints gbcCopyright = new GridBagConstraints();
         GridBagConstraints gbcVersion = new GridBagConstraints();
-        GridBagConstraints gbcProgramName = new GridBagConstraints();
-        GridBagConstraints gbcLogo = new GridBagConstraints();
+        GridBagConstraints gbcBrandLogo = new GridBagConstraints();
 
         Color backgroundColor = new Color(UIManager.getColor("TextField.background").getRGB());
         this.setPreferredSize(DisplayUtils.getScaledDimension(420, 460));
@@ -89,9 +88,8 @@ public class AboutPanel extends JPanel {
         JLabel lblCopyright = new JLabel();
         JLabel lblOtherCopyright = new ZapHtmlLabel();
         JLabel lblVersion = new JLabel();
-        JLabel lblProgramName = new JLabel();
         JLabel lblCopyrightDetail = new ZapHtmlLabel();
-        JLabel lblLogo = new JLabel();
+        JLabel lblBrandLogo = new JLabel();
         JLabel lblHomepage = new ZapHtmlLabel();
 
         lblDisclaimer.setText(
@@ -105,19 +103,14 @@ public class AboutPanel extends JPanel {
         lblDisclaimer.setName("lblDisclaimer");
         lblDisclaimer.setBackground(backgroundColor);
 
-        lblLogo.setText("");
-        lblLogo.setIcon(new ImageIcon(AboutPanel.class.getResource("/resource/zap64x64.png")));
-        lblLogo.setName("lblLogo");
+        lblBrandLogo.setIcon(
+                new ImageIcon(AboutPanel.class.getResource("/resource/zap-by-checkmarx.png")));
+        lblBrandLogo.setName("lblBrandLogo");
 
         lblCopyrightDetail.setText(LICENSE_DETAIL);
         // lblCopyrightDetail.setFont(FontUtils.getFont(FontUtils.Size.smaller));
         lblCopyrightDetail.setName("lblCopyrightDetail");
         lblCopyrightDetail.setBackground(backgroundColor);
-
-        lblProgramName.setText(PRODUCT);
-        lblProgramName.setFont(FontUtils.getFont(FontUtils.Size.huge));
-        lblProgramName.setVisible(true);
-        lblProgramName.setName("lblProgramName");
 
         lblVersion.setText(VERSION);
         lblVersion.setFont(FontUtils.getFont(FontUtils.Size.larger));
@@ -137,20 +130,12 @@ public class AboutPanel extends JPanel {
         lblCopyright.setName("lblCopyright");
         lblCopyright.setBackground(backgroundColor);
 
-        gbcLogo.gridx = 0;
-        gbcLogo.gridy = 0;
-        gbcLogo.ipadx = 0;
-        gbcLogo.ipady = 0;
-        gbcLogo.gridheight = 2;
-        gbcLogo.anchor = GridBagConstraints.NORTHWEST;
-        gbcLogo.insets = new Insets(5, 15, 5, 15);
-
-        gbcProgramName.gridx = 1;
-        gbcProgramName.gridy = 0;
-        gbcProgramName.ipadx = 0;
-        gbcProgramName.ipady = 0;
-        gbcProgramName.anchor = GridBagConstraints.NORTHWEST;
-        gbcProgramName.insets = new Insets(2, 2, 2, 2);
+        gbcBrandLogo.gridx = 1;
+        gbcBrandLogo.gridy = 0;
+        gbcBrandLogo.ipadx = 0;
+        gbcBrandLogo.ipady = 0;
+        gbcBrandLogo.anchor = GridBagConstraints.NORTHWEST;
+        gbcBrandLogo.insets = new Insets(2, 2, 2, 2);
 
         gbcVersion.gridx = 1;
         gbcVersion.gridy = 1;
@@ -207,9 +192,8 @@ public class AboutPanel extends JPanel {
         gbcOtherCopyright.gridwidth = 2;
         gbcOtherCopyright.insets = new Insets(2, 5, 2, 5);
 
-        this.add(lblProgramName, gbcProgramName);
+        this.add(lblBrandLogo, gbcBrandLogo);
         this.add(lblVersion, gbcVersion);
-        this.add(lblLogo, gbcLogo);
         this.add(lblCopyright, gbcCopyright);
         this.add(lblHomepage, gbcHomepage);
         this.add(lblDisclaimer, gbcDisclaimer);

@@ -66,7 +66,7 @@ public class AboutDialog extends AbstractDialog {
         gbcPanel.anchor = GridBagConstraints.NORTHWEST;
         gbcPanel.weightx = 1.0D;
         gbcPanel.weighty = 1.0D;
-        gbcPanel.ipady = 2;
+        gbcPanel.ipady = 50;
         gbcPanel.gridwidth = 2;
 
         gbcButtons.gridx = 1;
@@ -82,6 +82,7 @@ public class AboutDialog extends AbstractDialog {
 
         mainPanel.add(btnOk, gbcButtons);
 
+        this.setTitle(Constant.PROGRAM_NAME_CX);
         this.setContentPane(mainPanel);
         this.pack();
     }
