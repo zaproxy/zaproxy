@@ -89,7 +89,7 @@ public class SplashScreen extends JFrame {
 
         setSize(DisplayUtils.getScaledDimension(430, 430));
         setLocationRelativeTo(null);
-        setTitle(Constant.PROGRAM_NAME);
+        setTitle(Constant.PROGRAM_NAME_CX);
         setIconImages(DisplayUtils.getZapIconImages());
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -104,12 +104,18 @@ public class SplashScreen extends JFrame {
 
         JLabel lblVersion = new JLabel();
         JLabel lblProgramName = new JLabel();
+        JLabel lblProgramSubHead = new JLabel();
 
         lblProgramName.setText(Constant.PROGRAM_NAME);
         lblProgramName.setFont(
                 FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.much_larger));
         lblProgramName.setVisible(true);
         lblProgramName.setName("lblProgramName");
+
+        lblProgramSubHead.setText(Constant.CX_BRAND_SUBHEAD);
+        lblProgramSubHead.setFont(
+                FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.larger));
+        lblProgramSubHead.setName("lblVersion");
 
         lblVersion.setText(Constant.PROGRAM_VERSION);
         lblVersion.setFont(
@@ -120,17 +126,20 @@ public class SplashScreen extends JFrame {
         panel.add(
                 lblProgramName,
                 LayoutHelper.getGBC(0, 0, 1, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
-        // Version is +8 horizontally respect to the other components
+        // SubHead & Version is +8 horizontally respect to the other components
+        panel.add(
+                lblProgramSubHead,
+                LayoutHelper.getGBC(0, 1, 1, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
         panel.add(
                 lblVersion,
-                LayoutHelper.getGBC(0, 1, 1, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
+                LayoutHelper.getGBC(0, 2, 1, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
         // Progress bar (height 12) is +56 and then +24
         // vertically respect the other elements (tot + 92)
         panel.add(
                 getLoadingJProgressBar(),
                 LayoutHelper.getGBC(
                         0,
-                        2,
+                        3,
                         1,
                         1.0,
                         0.0,
@@ -139,11 +148,11 @@ public class SplashScreen extends JFrame {
 
         panel.add(
                 new JLabel(createSplashScreenImage()),
-                LayoutHelper.getGBC(1, 0, 1, 3, 0.0, DisplayUtils.getScaledInsets(0, 0, 0, 15)));
+                LayoutHelper.getGBC(1, 0, 1, 4, 0.0, DisplayUtils.getScaledInsets(0, 0, 0, 15)));
 
         // Panels should be with different heights for a good view
-        panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 2, 1.0, 1.0));
-        panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 0.5));
+        panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 1.0));
+        panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 5, 2, 1.0, 0.5));
 
         setContentPane(panel);
         this.pack();

@@ -125,6 +125,7 @@
 // ZAP: 2023/08/28 Update paths in config file to match the renamed home dir.
 // ZAP: 2023/09/14 Lock home directory.
 // ZAP: 2024/04/25 Add new autoTagScanner regex patterns when upgrading from 2.14 or earlier.
+// ZAP: 2024/11/06 Add branding related constants.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -180,6 +181,8 @@ public final class Constant {
     // ZAP: rebrand
     public static final String PROGRAM_NAME = "ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
+    public static final String PROGRAM_NAME_CX = "ZAP by Checkmarx";
+    public static final String CX_BRAND_SUBHEAD = "by Checkmarx";
 
     /**
      * @deprecated (2.9.0) Do not use, it will be removed.
