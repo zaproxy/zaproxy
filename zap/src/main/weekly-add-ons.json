@@ -42,6 +42,7 @@
       ":addOns:retire",
       ":addOns:reveal",
       ":addOns:sequence",
+      ":addOns:scanpolicies",
       ":addOns:scripts",
       ":addOns:selenium",
       ":addOns:soap",
