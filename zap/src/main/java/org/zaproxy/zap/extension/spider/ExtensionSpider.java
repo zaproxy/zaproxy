@@ -43,12 +43,10 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.model.ValueGenerator;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -58,10 +56,12 @@ import org.zaproxy.zap.view.ZapMenuItem;
  * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
 @Deprecated
+@SuppressWarnings("removal")
 public class ExtensionSpider extends ExtensionAdaptor
         implements SessionChangedListener, ScanController<SpiderScan> {
 
-    private ValueGenerator generator = new DefaultValueGenerator();
+    private org.zaproxy.zap.model.ValueGenerator generator =
+            new org.zaproxy.zap.model.DefaultValueGenerator();
 
     public static final int EXTENSION_ORDER = 30;
 
@@ -121,14 +121,14 @@ public class ExtensionSpider extends ExtensionAdaptor
         this.scanController = new SpiderScanController(this);
     }
 
-    public void setValueGenerator(ValueGenerator generator) {
+    public void setValueGenerator(org.zaproxy.zap.model.ValueGenerator generator) {
         if (generator == null) {
             throw new IllegalArgumentException("Parameter generator must not be null.");
         }
         this.generator = generator;
     }
 
-    public ValueGenerator getValueGenerator() {
+    public org.zaproxy.zap.model.ValueGenerator getValueGenerator() {
         return generator;
     }
 
