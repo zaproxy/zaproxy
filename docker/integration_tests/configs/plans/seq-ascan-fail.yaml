@@ -1,0 +1,37 @@
+---
+# A sanity check to make sure the spider and active scanner do not find the XSS in the simple sequence
+env:
+  contexts:
+  - name: "sequence"
+    urls:
+    - "http://localhost:9091/seq/performance"
+    includePaths:
+    - "http://localhost:9091/seq/performance.*"
+    excludePaths: []
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    continueOnFailure: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- type: spider
+  parameters:
+    context: sequence
+- type: activeScan
+  parameters:
+    context: sequence
+  policyDefinition:
+    defaultStrength: medium
+    defaultThreshold: "off"
+    rules:
+    - name: Cross Site Scripting (Reflected)
+      id: 40012
+      threshold: medium
+      strength: default
+  tests:
+  - name: sequence-activeScan/alert
+    type: alert
+    onFail: ERROR
+    scanRuleId: 40012
+    action: passIfAbsent
