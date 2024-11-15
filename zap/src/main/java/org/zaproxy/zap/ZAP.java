@@ -119,7 +119,7 @@ public class ZAP {
                                 .equals(x)) {
                             return;
                         }
-                        if (x.startsWith("Multiplexing LAF")) {
+                        if (x != null && x.startsWith("Multiplexing LAF")) {
                             return;
                         }
                         super.println(x);
