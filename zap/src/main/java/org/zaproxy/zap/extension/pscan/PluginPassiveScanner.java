@@ -46,7 +46,7 @@ public abstract class PluginPassiveScanner extends Enableable
      * The (base) configuration key used to saved the configurations of a passive scanner, ID, alert
      * threshold and enabled state.
      */
-    private static final String PSCANS_KEY = PassiveScanParam.PASSIVE_SCANS_BASE_KEY + ".pscanner";
+    private static final String PSCANS_KEY = "pscans.pscanner";
 
     /** The configuration key used to save/load the ID of a passive scanner. */
     private static final String ID_KEY = "id";

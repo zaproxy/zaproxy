@@ -39,6 +39,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 /**
  * @since 2.12.0
  */
+@SuppressWarnings("removal")
 public class PassiveScanTaskHelper {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanTaskHelper.class);
@@ -49,7 +50,6 @@ public class PassiveScanTaskHelper {
 
     private final ExtensionPassiveScan extPscan;
     private final ExtensionAlert extAlert;
-    private final PassiveScanParam pscanParams;
     private Map<Integer, Integer> alertCounts = new HashMap<>();
 
     private List<PassiveScanner> activeList = Collections.synchronizedList(new ArrayList<>());
@@ -66,7 +66,6 @@ public class PassiveScanTaskHelper {
 
         this.extPscan = extensionPscan;
         this.extAlert = extensionAlert;
-        this.pscanParams = pscanParams;
 
         MicrosoftConditionalCommentTagTypes.register();
         PHPTagTypes.register();
@@ -132,8 +131,16 @@ public class PassiveScanTaskHelper {
         return this.extPscan.getPassiveScannerList();
     }
 
+    PassiveScanRuleManager getPassiveScanRuleManager() {
+        return extPscan.getScanRuleManager();
+    }
+
     public int getMaxBodySizeInBytesToScan() {
-        return this.pscanParams.getMaxBodySizeInBytesToScan();
+        return getPassiveScanParam().getMaxBodySizeInBytesToScan();
+    }
+
+    private PassiveScanParam getPassiveScanParam() {
+        return extPscan.getModel().getOptionsParam().getParamSet(PassiveScanParam.class);
     }
 
     public void raiseAlert(HistoryReference href, Alert alert) {
@@ -145,21 +152,23 @@ public class PassiveScanTaskHelper {
         // Raise the alert
         extAlert.alertFound(alert, href);
 
-        if (this.pscanParams.getMaxAlertsPerRule() > 0) {
+        int maxAlertsPerRule = getPassiveScanParam().getMaxAlertsPerRule();
+        if (maxAlertsPerRule > 0) {
             // Theres a limit on how many each rule can raise
             Integer count = alertCounts.get(alert.getPluginId());
             if (count == null) {
                 count = Integer.valueOf(0);
             }
             alertCounts.put(alert.getPluginId(), count + 1);
-            if (count > this.pscanParams.getMaxAlertsPerRule()) {
+            if (count > maxAlertsPerRule) {
                 // Disable the plugin
-                PassiveScanner scanner = getPassiveScannerList().getScanner(alert.getPluginId());
+                PassiveScanner scanner =
+                        getPassiveScanRuleManager().getScanRule(alert.getPluginId());
                 if (scanner != null) {
                     LOGGER.info(
                             "Disabling passive scan rule {} as it has raised more than {} alerts.",
                             scanner.getName(),
-                            this.pscanParams.getMaxAlertsPerRule());
+                            maxAlertsPerRule);
                     scanner.setEnabled(false);
                 }
             }

@@ -106,7 +106,7 @@ public class PassiveScanTask implements Runnable {
             Source src = new Source(msg.getResponseBody().toString());
             PassiveScanData passiveScanData = new PassiveScanData(msg);
 
-            for (PassiveScanner scanner : helper.getPassiveScannerList().list()) {
+            for (PassiveScanner scanner : helper.getPassiveScanRuleManager().getScanRules()) {
                 currentScanner = scanner;
                 try {
                     if (shutdown) {

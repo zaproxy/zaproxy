@@ -43,6 +43,8 @@ import org.zaproxy.zap.view.LayoutHelper;
  *
  * @since 2.6.0
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 class PassiveScannerOptionsPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

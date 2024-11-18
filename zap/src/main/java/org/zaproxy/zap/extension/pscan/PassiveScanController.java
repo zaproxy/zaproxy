@@ -42,12 +42,12 @@ import org.zaproxy.zap.view.ScanStatus;
  *
  * @since 2.12.0
  */
+@SuppressWarnings("removal")
 public class PassiveScanController extends Thread implements ProxyListener {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanController.class);
 
     private ExtensionHistory extHist;
-    private PassiveScanParam pscanOptions;
     private PassiveScanTaskHelper helper;
     private Session session;
 
@@ -67,9 +67,8 @@ public class PassiveScanController extends Thread implements ProxyListener {
             ScanStatus scanStatus) {
         setName("ZAP-PassiveScanController");
         this.extHist = extHistory;
-        this.pscanOptions = passiveScanParam;
 
-        helper = new PassiveScanTaskHelper(extPscan, extAlert, passiveScanParam);
+        helper = new PassiveScanTaskHelper(extPscan, extAlert, null);
 
         // Get the last id - in case we've just opened an existing session
         currentId = this.getLastHistoryId();
@@ -124,7 +123,8 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
 
                 if (href != null
-                        && (!pscanOptions.isScanOnlyInScope() || session.isInScope(href))) {
+                        && (!getPassiveScanParam().isScanOnlyInScope()
+                                || session.isInScope(href))) {
                     LOGGER.debug(
                             "Submitting request to executor: {} id {} type {}",
                             href.getURI(),
@@ -149,9 +149,13 @@ public class PassiveScanController extends Thread implements ProxyListener {
         }
     }
 
+    private PassiveScanParam getPassiveScanParam() {
+        return extHist.getModel().getOptionsParam().getParamSet(PassiveScanParam.class);
+    }
+
     private ThreadPoolExecutor getExecutor() {
         if (this.executor == null || this.executor.isShutdown()) {
-            int threads = pscanOptions.getPassiveScanThreads();
+            int threads = getPassiveScanParam().getPassiveScanThreads();
             LOGGER.debug("Creating new executor with {} threads", threads);
 
             this.executor =

@@ -21,8 +21,9 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
 
     private static final long serialVersionUID = 6536266615593275432L;
@@ -42,7 +43,7 @@ class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
         return CONFIRM_BUTTON_LABEL;
     }
 
-    public void setApp(RegexAutoTagScanner app) {
+    public void setApp(org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner app) {
         this.scanner = app;
     }
 

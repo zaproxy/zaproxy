@@ -37,6 +37,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
+@SuppressWarnings("removal")
 class RegexAutoTagScannerUnitTest {
 
     private static final String BODY =

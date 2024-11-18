@@ -29,6 +29,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
 
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class RegexAutoTagScanner extends PluginPassiveScanner {
 
     public static final String TAG_STATS_PREFIX = "stats.tag.";

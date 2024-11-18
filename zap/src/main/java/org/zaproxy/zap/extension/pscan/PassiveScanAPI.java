@@ -37,6 +37,7 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.utils.ApiUtils;
 
+@SuppressWarnings("removal")
 @Deprecated(since = "2.16.0", forRemoval = true)
 public class PassiveScanAPI extends ApiImplementor {
 

@@ -30,11 +30,11 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"removal", "serial"})
+@Deprecated(forRemoval = true, since = "2.16.0")
 class DialogAddAutoTagScanner extends AbstractFormDialog {
 
     private static final long serialVersionUID = -5209887319253495735L;
@@ -92,8 +92,8 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
     private ZapTextField responseBodyRegexTextField;
     private JCheckBox enabledCheckBox;
 
-    protected RegexAutoTagScanner scanner;
-    private List<RegexAutoTagScanner> scanners;
+    protected org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner scanner;
+    private List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> scanners;
 
     private ConfirmButtonValidatorDocListener confirmButtonValidatorDocListener;
 
@@ -219,7 +219,7 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
     }
 
     protected boolean validateName(String name) {
-        for (RegexAutoTagScanner s : scanners) {
+        for (org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner s : scanners) {
             if (name.equals(s.getName())) {
                 JOptionPane.showMessageDialog(
                         this,
@@ -248,9 +248,9 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
     @Override
     protected void performAction() {
         scanner =
-                new RegexAutoTagScanner(
+                new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner(
                         getNameTextField().getText(),
-                        RegexAutoTagScanner.TYPE.TAG,
+                        org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner.TYPE.TAG,
                         getConfigurationTextField().getText());
         scanner.setRequestHeaderRegex(getRequestHeaderRegexTextField().getText());
         scanner.setRequestUrlRegex(getRequestUrlRegexTextField().getText());
@@ -280,7 +280,7 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
         getResponseBodyRegexTextField().discardAllEdits();
     }
 
-    public RegexAutoTagScanner getScanner() {
+    public org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner getScanner() {
         return scanner;
     }
 
@@ -356,7 +356,8 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
         return enabledCheckBox;
     }
 
-    public void setScanners(List<RegexAutoTagScanner> scanners) {
+    public void setScanners(
+            List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> scanners) {
         this.scanners = scanners;
     }
 

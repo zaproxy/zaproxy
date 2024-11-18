@@ -50,6 +50,7 @@ import org.zaproxy.zap.utils.StatsListener;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 @Timeout(6)
+@SuppressWarnings("removal")
 class DefaultRegexAutoTagScannerTest {
 
     private static final String BASE_STRING = "lorem ipsum < type= href= ";

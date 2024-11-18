@@ -45,6 +45,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -52,11 +53,12 @@ import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link PassiveScanController}. */
+@SuppressWarnings("removal")
 class PassiveScanControllerUnitTest extends TestUtils {
 
     private static final String EXAMPLE_URL = "https://www.example.com";
     private PassiveScanController psc;
-    private PassiveScannerList passiveScannerList;
+    private PassiveScanRuleManager scanRuleManager;
     private ExtensionHistory extHistory;
     private ExtensionPassiveScan extPscan;
     private ExtensionAlert extAlert;
@@ -68,7 +70,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
         Constant.messages = mock(I18N.class);
         Control.initSingletonForTesting();
 
-        passiveScannerList = mock(PassiveScannerList.class);
+        scanRuleManager = mock(PassiveScanRuleManager.class);
         extHistory = mock(ExtensionHistory.class);
         extPscan = mock(ExtensionPassiveScan.class);
         extAlert = mock(ExtensionAlert.class);
@@ -79,10 +81,15 @@ class PassiveScanControllerUnitTest extends TestUtils {
         Model.setSingletonForTesting(model);
         given(model.getSession()).willReturn(session);
 
-        given(extPscan.getPassiveScannerList()).willReturn(passiveScannerList);
+        given(extPscan.getScanRuleManager()).willReturn(scanRuleManager);
+        given(extPscan.getModel()).willReturn(model);
+        given(extHistory.getModel()).willReturn(model);
+        OptionsParam optionsParam = mock(OptionsParam.class);
+        given(model.getOptionsParam()).willReturn(optionsParam);
+        given(optionsParam.getParamSet(PassiveScanParam.class)).willReturn(passiveScanParam);
         given(passiveScanParam.getPassiveScanThreads()).willReturn(2);
 
-        psc = new PassiveScanController(extPscan, extHistory, extAlert, passiveScanParam, null);
+        psc = new PassiveScanController(extPscan, extHistory, extAlert, null, null);
         psc.setSession(session);
     }
 
@@ -112,7 +119,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
 
         ScanState scanState = new ScanState(1);
         TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
-        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
+        given(scanRuleManager.getScanRules()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
@@ -141,7 +148,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
 
             ScanState scanState = new ScanState(1);
             TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
-            given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
+            given(scanRuleManager.getScanRules()).willReturn(Collections.singletonList(scanner));
 
             executor.scheduleAtFixedRate(() -> psc.interrupt(), 0, 100, TimeUnit.MILLISECONDS);
             // When
@@ -173,7 +180,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
 
         ScanState scanState = new ScanState(1);
         TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
-        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
+        given(scanRuleManager.getScanRules()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
@@ -204,7 +211,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
 
         ScanState scanState = new ScanState(0);
         TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
-        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
+        given(scanRuleManager.getScanRules()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
@@ -241,7 +248,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
 
         ScanState scanState = new ScanState(true, 2);
         TestPassiveScanner scanner = new TestPassiveScanner("TPS", true, scanState);
-        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
+        given(scanRuleManager.getScanRules()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
