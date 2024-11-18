@@ -568,22 +568,14 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
     }
 
+    @Deprecated(forRemoval = true, since = "2.16.0")
     public void saveTo(Configuration conf) {
-        for (PassiveScanner scanner : getPassiveScannerList().list()) {
-            if ((scanner instanceof PluginPassiveScanner)
-                    && !(scanner instanceof RegexAutoTagScanner)) {
-                ((PluginPassiveScanner) scanner).saveTo(conf);
-            }
-        }
+        // Method was not in use.
     }
 
+    @Deprecated(forRemoval = true, since = "2.16.0")
     public void loadFrom(Configuration conf) {
-        for (PassiveScanner scanner : getPassiveScannerList().list()) {
-            if ((scanner instanceof PluginPassiveScanner)
-                    && !(scanner instanceof RegexAutoTagScanner)) {
-                ((PluginPassiveScanner) scanner).loadFrom(conf);
-            }
-        }
+        // Method was not in use.
     }
 
     @Deprecated(forRemoval = true, since = "2.16.0")
