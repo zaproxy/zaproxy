@@ -58,6 +58,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/30 Stop HostProcess to stop the Analyser.
+// ZAP: 2024/11/20 Include ID of the scan in relevant log messages.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -199,7 +200,7 @@ public class Scanner implements Runnable {
 
     public void start(Target target) {
         isStop = false;
-        LOGGER.info("scanner started");
+        LOGGER.info("scanner with ID {} started", id);
         startTimeMillis = System.currentTimeMillis();
         this.target = target;
         Thread thread = new Thread(this);
@@ -212,7 +213,7 @@ public class Scanner implements Runnable {
 
     public void stop() {
         if (!isStop) {
-            LOGGER.info("scanner stopped");
+            LOGGER.info("scanner with ID {} stopped", id);
 
             isStop = true;
             hostProcesses.stream().forEach(HostProcess::stop);
@@ -404,7 +405,7 @@ public class Scanner implements Runnable {
     void notifyScannerComplete() {
         long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-        LOGGER.info("scanner completed in {}", diffTimeString);
+        LOGGER.info("scanner with ID {} completed in {}", id, diffTimeString);
         isStop = true;
 
         ActiveScanEventPublisher.publishScanEvent(
