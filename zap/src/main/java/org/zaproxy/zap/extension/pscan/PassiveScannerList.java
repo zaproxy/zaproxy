@@ -26,8 +26,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class PassiveScannerList {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScannerList.class);
@@ -53,12 +54,13 @@ public class PassiveScannerList {
         return this.passiveScanners;
     }
 
-    public void setAutoTagScanners(List<RegexAutoTagScanner> autoTagScanners) {
+    public void setAutoTagScanners(
+            List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> autoTagScanners) {
         List<PassiveScanner> tempScanners =
                 new ArrayList<>(passiveScanners.size() + autoTagScanners.size());
 
         for (PassiveScanner scanner : passiveScanners) {
-            if (scanner instanceof RegexAutoTagScanner) {
+            if (scanner instanceof org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner) {
                 this.scannerNames.remove(scanner.getName());
             } else {
                 tempScanners.add(scanner);

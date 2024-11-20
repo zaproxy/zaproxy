@@ -47,6 +47,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.panels.TableFilterPanel;
 
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

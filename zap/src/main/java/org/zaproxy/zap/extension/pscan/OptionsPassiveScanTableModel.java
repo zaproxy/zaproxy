@@ -22,12 +22,13 @@ package org.zaproxy.zap.extension.pscan;
 import java.util.ArrayList;
 import java.util.List;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"removal", "serial"})
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class OptionsPassiveScanTableModel
-        extends AbstractMultipleOptionsTableModel<RegexAutoTagScanner> {
+        extends AbstractMultipleOptionsTableModel<
+                org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,7 +40,8 @@ public class OptionsPassiveScanTableModel
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    private List<RegexAutoTagScanner> defns = new ArrayList<>(5);
+    private List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> defns =
+            new ArrayList<>(5);
 
     public OptionsPassiveScanTableModel() {
         super();
@@ -48,18 +50,19 @@ public class OptionsPassiveScanTableModel
     /**
      * @param defns
      */
-    public void setScanDefns(List<RegexAutoTagScanner> defns) {
+    public void setScanDefns(
+            List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> defns) {
         this.defns = new ArrayList<>(defns.size());
 
-        for (RegexAutoTagScanner def : defns) {
-            this.defns.add(new RegexAutoTagScanner(def));
+        for (org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner def : defns) {
+            this.defns.add(new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner(def));
         }
 
         fireTableDataChanged();
     }
 
     @Override
-    public List<RegexAutoTagScanner> getElements() {
+    public List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> getElements() {
         return defns;
     }
 

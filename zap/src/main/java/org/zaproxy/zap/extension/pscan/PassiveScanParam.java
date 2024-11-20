@@ -29,8 +29,9 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
-import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class PassiveScanParam extends AbstractParam {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanParam.class);
@@ -62,7 +63,8 @@ public class PassiveScanParam extends AbstractParam {
 
     @Deprecated public static final int PASSIVE_SCAN_DEFAULT_THREADS = 4;
 
-    private List<RegexAutoTagScanner> autoTagScanners = new ArrayList<>(0);
+    private List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> autoTagScanners =
+            new ArrayList<>(0);
 
     private boolean confirmRemoveAutoTagScanner = true;
 
@@ -108,12 +110,14 @@ public class PassiveScanParam extends AbstractParam {
                 if (!"".equals(name) && !tempListNames.contains(name)) {
                     tempListNames.add(name);
 
-                    RegexAutoTagScanner app =
-                            new RegexAutoTagScanner(
+                    org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner app =
+                            new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner(
                                     sub.getString(AUTO_TAG_SCANNER_NAME_KEY),
                                     getEnum(
                                             AUTO_TAG_SCANNER_TYPE_KEY,
-                                            RegexAutoTagScanner.TYPE.TAG),
+                                            org.zaproxy.zap.extension.pscan.scanner
+                                                    .RegexAutoTagScanner.TYPE
+                                                    .TAG),
                                     sub.getString(AUTO_TAG_SCANNER_CONFIG_KEY),
                                     sub.getString(AUTO_TAG_SCANNER_REQ_URL_REGEX_KEY),
                                     sub.getString(AUTO_TAG_SCANNER_REQ_HEAD_REGEX_KEY),
@@ -143,14 +147,15 @@ public class PassiveScanParam extends AbstractParam {
         this.maxBodySizeInBytesToScan = this.getInt(MAX_BODY_SIZE_IN_BYTES, 0);
     }
 
-    public void setAutoTagScanners(List<RegexAutoTagScanner> scanners) {
+    public void setAutoTagScanners(
+            List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> scanners) {
         this.autoTagScanners = scanners;
 
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_AUTO_TAG_SCANNERS_KEY);
 
         for (int i = 0, size = scanners.size(); i < size; ++i) {
             String elementBaseKey = ALL_AUTO_TAG_SCANNERS_KEY + "(" + i + ").";
-            RegexAutoTagScanner scanner = scanners.get(i);
+            org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner scanner = scanners.get(i);
 
             getConfig().setProperty(elementBaseKey + AUTO_TAG_SCANNER_NAME_KEY, scanner.getName());
             getConfig()
@@ -181,7 +186,7 @@ public class PassiveScanParam extends AbstractParam {
         }
     }
 
-    public List<RegexAutoTagScanner> getAutoTagScanners() {
+    public List<org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner> getAutoTagScanners() {
         return autoTagScanners;
     }
 

@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 /** Unit test for {@link PassiveScannerList}. */
+@SuppressWarnings("removal")
 class PassiveScannerListUnitTest {
 
     private PassiveScannerList psl;

@@ -35,6 +35,7 @@ import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link PassiveScanParam}. */
+@SuppressWarnings("removal")
 class PassiveScanParamUnitTest {
 
     private PassiveScanParam param;
