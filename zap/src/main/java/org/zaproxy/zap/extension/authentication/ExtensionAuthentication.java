@@ -20,9 +20,11 @@
 package org.zaproxy.zap.extension.authentication;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -60,7 +62,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     public static final int EXTENSION_ORDER = 52;
 
     /** The NAME of the extension. */
-    public static final String NAME = "ExtensionAuthentication";
+    public static final String NAME = ExtensionAuthentication.class.getSimpleName();
 
     /** The ID that indicates that there's no authentication method. */
     private static final int NO_AUTH_METHOD = -1;
@@ -71,8 +73,13 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     /** The automatically loaded authentication method types. */
     List<AuthenticationMethodType> authenticationMethodTypes = new ArrayList<>();
 
+    AuthenticationAPI api;
+
     /** The context panels map. */
-    private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
+    private final Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
+
+    private final List<AuthenticationMethodsChangeListener> authenticationMethodsChangeListeners =
+            new ArrayList<>();
 
     private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory;
 
@@ -80,7 +87,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     private HttpSenderAuthHeaderListener httpSenderAuthHeaderListener;
 
-    AuthenticationAPI api;
+    private ExtensionHook extensionHook;
 
     public ExtensionAuthentication() {
         super();
@@ -106,8 +113,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+        this.extensionHook = extensionHook;
         // Register this as a context data factory
-        extensionHook.addContextDataFactory(this);
+        this.extensionHook.addContextDataFactory(this);
 
         if (getView() != null) {
             extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
@@ -117,8 +125,13 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             extensionHook.getHookView().addContextPanelFactory(this);
         }
 
-        // Load the Authentication and Session Management methods
-        this.loadAuthenticationMethodTypes(extensionHook);
+        // Load the default Authentication and Session Management methods
+        addAuthenticationMethodTypes(
+                new FormBasedAuthenticationMethodType(),
+                new HttpAuthenticationMethodType(),
+                new ManualAuthenticationMethodType(),
+                new ScriptBasedAuthenticationMethodType(),
+                new JsonBasedAuthenticationMethodType());
 
         // Register the api
         this.api = new AuthenticationAPI(this);
@@ -189,31 +202,61 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     }
 
     /**
-     * Loads the authentication method types and hooks them up.
-     *
-     * @param hook the extension hook
-     */
-    private void loadAuthenticationMethodTypes(ExtensionHook hook) {
-        this.authenticationMethodTypes.add(new FormBasedAuthenticationMethodType());
-        this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
-        this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
-        this.authenticationMethodTypes.add(new ScriptBasedAuthenticationMethodType());
-        this.authenticationMethodTypes.add(new JsonBasedAuthenticationMethodType());
-
-        for (AuthenticationMethodType a : authenticationMethodTypes) {
-            a.hook(hook);
-        }
-
-        LOGGER.info("Loaded authentication method types: {}", authenticationMethodTypes);
-    }
-
-    /**
-     * Gets all the registered/loaded authentication method types.
+     * Gets an unmodifiable list of the registered/loaded authentication method types.
      *
      * @return the authentication method types
      */
     public List<AuthenticationMethodType> getAuthenticationMethodTypes() {
-        return authenticationMethodTypes;
+        return Collections.unmodifiableList(authenticationMethodTypes);
+    }
+
+    /**
+     * Adds and loads the provided {@link AuthenticationMethodType}s.
+     *
+     * @param authenticationMethodType the {@link AuthenticationMethodType}(s) to add.
+     */
+    public void addAuthenticationMethodTypes(AuthenticationMethodType... authenticationMethodType) {
+        final List<AuthenticationMethodType> methodTypes = List.of(authenticationMethodType);
+        this.authenticationMethodTypes.addAll(methodTypes);
+
+        if (Objects.isNull(this.extensionHook)) {
+            throw new IllegalArgumentException(
+                    "The ExtensionAuthentication was not properly initialized");
+        } else {
+            methodTypes.forEach(methodType -> methodType.hook(this.extensionHook));
+        }
+
+        this.authenticationMethodsChangeListeners.forEach(
+                l -> l.onStateChanged(this.authenticationMethodTypes));
+
+        LOGGER.info("Loaded authentication method types: {}", methodTypes);
+    }
+
+    /**
+     * Removes the provided {@link AuthenticationMethodType}s.
+     *
+     * @param authenticationMethodType the {@link AuthenticationMethodType}(s) to remove.
+     */
+    public void removeAuthenticationMethodTypes(
+            AuthenticationMethodType... authenticationMethodType) {
+        final List<AuthenticationMethodType> methodTypes = List.of(authenticationMethodType);
+        this.authenticationMethodTypes.removeAll(methodTypes);
+
+        this.authenticationMethodsChangeListeners.forEach(
+                l -> l.onStateChanged(this.authenticationMethodTypes));
+
+        LOGGER.info("Removed authentication method types: {}", methodTypes);
+    }
+
+    /**
+     * Register a new listener that will be notified whenever {@link AuthenticationMethodType}(s)
+     * are added or removed
+     *
+     * @param listener the listener to register
+     */
+    public void addAuthenticationMethodStateChangeListener(
+            AuthenticationMethodsChangeListener listener) {
+        this.authenticationMethodsChangeListeners.add(listener);
     }
 
     /**
