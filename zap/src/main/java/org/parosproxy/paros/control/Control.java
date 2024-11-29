@@ -335,22 +335,17 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     /**
-     * Sets the non zero value ZAP will exit cleanly with. ZAP may still exit with a non zero value
-     * if a serious error occurs. This will work however ZAP is run but it makes more sense if ZAP
-     * is run in cmdline mode. Any add-on can set an exit status so attempts to reset the status to
-     * zero will be rejected.
+     * Sets the value ZAP will exit cleanly with. ZAP may still exit with a non-zero value if a
+     * serious error occurs. This will work however ZAP is run but it makes more sense if ZAP is run
+     * in cmdline mode.
      *
-     * @param exitStatus the non zero value ZAP will exit it with
+     * @param exitStatus the value ZAP will exit with
      * @param logMessage the message that will be logged at info level
      * @since 2.11.0
      */
     public void setExitStatus(int exitStatus, String logMessage) {
-        if (exitStatus == 0) {
-            LOGGER.error("Not setting the exit status to zero - culprit: {}", logMessage);
-        } else {
-            this.exitStatus = exitStatus;
-            LOGGER.info(logMessage);
-        }
+        this.exitStatus = exitStatus;
+        LOGGER.info(logMessage);
     }
 
     public int getExitStatus() {
