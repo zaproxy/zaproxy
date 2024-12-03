@@ -40,6 +40,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
  * @since 2.12.0
  */
 @SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class PassiveScanTaskHelper {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanTaskHelper.class);

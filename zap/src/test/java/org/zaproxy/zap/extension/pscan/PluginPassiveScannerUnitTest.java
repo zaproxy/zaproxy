@@ -494,10 +494,10 @@ class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    void shouldCallTaskHelperWithTagAdded() {
+    void shouldCallActionsWithTagAdded() {
         // Given
         String tag = "tag";
-        PassiveScanTaskHelper taskHelper = mock(PassiveScanTaskHelper.class);
+        PassiveScanActions actions = mock(PassiveScanActions.class);
         TestPluginPassiveScanner scanner = new TestPluginPassiveScanner();
         HttpMessage msg = mock(HttpMessage.class);
         HistoryReference href = mock(HistoryReference.class);
@@ -505,11 +505,11 @@ class PluginPassiveScannerUnitTest {
         PassiveScanData passiveScanData = mock(PassiveScanData.class);
         when(passiveScanData.getMessage()).thenReturn(msg);
         scanner.setHelper(passiveScanData);
-        scanner.setTaskHelper(taskHelper);
+        scanner.setPassiveScanActions(actions);
         // When
         scanner.addHistoryTag(tag);
         // Then
-        verify(taskHelper).addHistoryTag(href, tag);
+        verify(actions).addHistoryTag(href, tag);
     }
 
     private static class TestPluginPassiveScanner extends PluginPassiveScanner {
