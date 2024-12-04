@@ -43,6 +43,7 @@ import org.zaproxy.zap.view.ScanStatus;
  * @since 2.12.0
  */
 @SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class PassiveScanController extends Thread implements ProxyListener {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanController.class);

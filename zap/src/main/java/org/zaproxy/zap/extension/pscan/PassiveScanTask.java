@@ -37,6 +37,8 @@ import org.zaproxy.zap.utils.Stats;
  *
  * @since 2.12.0
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.16.0")
 public class PassiveScanTask implements Runnable {
 
     /** I think this should be a thread which runs just one scan rule against one history record */
@@ -44,7 +46,6 @@ public class PassiveScanTask implements Runnable {
 
     private PassiveScanTaskHelper helper;
 
-    @SuppressWarnings("deprecation")
     private PassiveScanThread psThread;
 
     private int maxBodySize;
@@ -56,7 +57,6 @@ public class PassiveScanTask implements Runnable {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanTask.class);
 
-    @SuppressWarnings("deprecation")
     public PassiveScanTask(HistoryReference hr, PassiveScanTaskHelper helper) {
         this.href = hr;
         this.helper = helper;

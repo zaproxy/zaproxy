@@ -114,9 +114,6 @@ public class PassiveScanAPI extends ApiImplementor {
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
         switch (name) {
             case ACTION_SET_ENABLED:
-                boolean enabled = getParam(params, PARAM_ENABLED, false);
-
-                extension.setPassiveScanEnabled(enabled);
                 break;
             case ACTION_SET_SCAN_ONLY_IN_SCOPE:
                 extension

@@ -58,7 +58,7 @@ public class PassiveScanData {
     private List<User> userList = null;
     private Map<CustomPage.Type, Boolean> customPageMap;
 
-    PassiveScanData(HttpMessage msg) {
+    public PassiveScanData(HttpMessage msg) {
         this.message = msg;
         this.context = getContext(message);
 

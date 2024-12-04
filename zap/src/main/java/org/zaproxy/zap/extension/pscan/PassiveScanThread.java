@@ -27,7 +27,8 @@ import org.parosproxy.paros.model.HistoryReference;
 /**
  * @deprecated (2.12.0) Use {@link org.zaproxy.zap.extension.pscan.PassiveScanController} instead.
  */
-@Deprecated
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true, since = "2.12.0")
 public class PassiveScanThread extends Thread {
 
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
