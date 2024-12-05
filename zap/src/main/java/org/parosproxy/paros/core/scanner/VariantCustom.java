@@ -21,11 +21,13 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptEngineWrapper;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.model.SessionStructure;
 
@@ -38,6 +40,7 @@ public class VariantCustom implements Variant {
 
     ExtensionScript extension = null;
     private ScriptWrapper wrapper = null;
+    private boolean syncAccess;
     private VariantScript script = null;
     private final List<NameValuePair> params = new ArrayList<>();
     private NameValuePair currentParam;
@@ -70,6 +73,8 @@ public class VariantCustom implements Variant {
                             wrapper,
                             Constant.messages.getString(
                                     "variant.scripts.interface.variant.error", wrapper.getName()));
+                } else {
+                    syncAccess = isSyncAccess(wrapper);
                 }
             } catch (Exception ex) {
                 // Catch Exception instead of ScriptException and IOException because script engine
@@ -79,6 +84,11 @@ public class VariantCustom implements Variant {
                 this.extension.handleScriptException(wrapper, ex);
             }
         }
+    }
+
+    private static boolean isSyncAccess(ScriptWrapper wrapper) {
+        ScriptEngineWrapper engine = wrapper.getEngine();
+        return engine != null && engine.isSingleThreaded();
     }
 
     /**
@@ -92,6 +102,7 @@ public class VariantCustom implements Variant {
         this.wrapper = wrapper;
         this.script = script;
         this.extension = extension;
+        this.syncAccess = isSyncAccess(wrapper);
     }
 
     /**
@@ -101,17 +112,28 @@ public class VariantCustom implements Variant {
      */
     @Override
     public void setMessage(HttpMessage msg) {
-        try {
-            if (script != null) {
-                script.parseParameters(this, msg);
-            }
+        execute(
+                () -> {
+                    script.parseParameters(this, msg);
+                    return null;
+                });
+    }
 
+    private <R> R execute(Callable<R> action) {
+        if (script == null) {
+            return null;
+        }
+
+        try {
+            if (syncAccess) {
+                synchronized (script) {
+                    return action.call();
+                }
+            }
+            return action.call();
         } catch (Exception e) {
-            // Catch Exception instead of ScriptException because script engine implementations
-            // might
-            // throw other exceptions on script errors (e.g.
-            // jdk.nashorn.internal.runtime.ECMAException)
             extension.handleScriptException(wrapper, e);
+            return null;
         }
     }
 
@@ -278,17 +300,12 @@ public class VariantCustom implements Variant {
             String value,
             boolean escaped) {
         try {
-            if (script != null) {
-                currentParam = originalPair;
-                script.setParameter(this, msg, paramName, value, escaped);
-            }
-
-        } catch (Exception e) {
-            // Catch Exception instead of ScriptException because script engine implementations
-            // might
-            // throw other exceptions on script errors (e.g.
-            // jdk.nashorn.internal.runtime.ECMAException)
-            extension.handleScriptException(wrapper, e);
+            currentParam = originalPair;
+            execute(
+                    () -> {
+                        script.setParameter(this, msg, paramName, value, escaped);
+                        return null;
+                    });
         } finally {
             currentParam = null;
         }
@@ -298,25 +315,11 @@ public class VariantCustom implements Variant {
 
     @Override
     public String getLeafName(String nodeName, HttpMessage msg) {
-        if (script != null) {
-            try {
-                return this.script.getLeafName(this, nodeName, msg);
-            } catch (Exception e) {
-                extension.handleScriptException(wrapper, e);
-            }
-        }
-        return null;
+        return execute(() -> script.getLeafName(this, nodeName, msg));
     }
 
     @Override
     public List<String> getTreePath(HttpMessage msg) {
-        if (script != null) {
-            try {
-                return this.script.getTreePath(this, msg);
-            } catch (Exception e) {
-                extension.handleScriptException(wrapper, e);
-            }
-        }
-        return null;
+        return execute(() -> script.getTreePath(this, msg));
     }
 }

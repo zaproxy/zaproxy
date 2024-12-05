@@ -323,6 +323,7 @@ class VariantFactoryUnitTest extends WithConfigsTest {
     private static <T> CachedScript<T> createCachedScript(T script) {
         CachedScript<T> cachedScript = mock(CachedScript.class);
         given(cachedScript.getScript()).willReturn(script);
+        given(cachedScript.getScriptWrapper()).willReturn(mock(ScriptWrapper.class));
         return cachedScript;
     }
 
