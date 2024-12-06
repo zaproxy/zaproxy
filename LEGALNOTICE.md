@@ -32,20 +32,20 @@ and subject to their respective licenses.
 | Library                             | License                   |
 |-------------------------------------|---------------------------|
 | commons-beanutils-1.9.4.jar         | Apache 2.0                |
-| commons-codec-1.16.1.jar            | Apache 2.0                |
+| commons-codec-1.17.1.jar            | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
-| commons-csv-1.10.0.jar              | Apache 2.0                |
+| commons-csv-1.12.0.jar              | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
-| commons-io-2.16.1.jar               | Apache 2.0                |
+| commons-io-2.18.0.jar               | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
-| commons-lang3-3.14.0.jar            | Apache 2.0                |
-| commons-logging-1.3.1.jar           | Apache 2.0                |
+| commons-lang3-3.17.0.jar            | Apache 2.0                |
+| commons-logging-1.3.4.jar           | Apache 2.0                |
 | commons-text-1.12.0.jar             | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
-| flatlaf-3.5.2.jar                   | Apache 2.0                |
+| flatlaf-3.5.3.jar                   | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
-| hsqldb-2.7.3.jar                    | BSD                       |
+| hsqldb-2.7.4.jar                    | BSD                       |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
 | javahelp-2.0.05.jar                 | GPL + classpath exception |
 | java-semver-0.10.2.jar              | MIT                       |
@@ -53,10 +53,10 @@ and subject to their respective licenses.
 | jfreechart-1.5.5.jar                | LGPL                      |
 | jgrapht-core-0.9.0.jar              | LGPL 2.1                  |
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
-| log4j-1.2-api-2.23.1.jar            | Apache 2.0                |
-| log4j-api-2.23.1.jar                | Apache 2.0                |
-| log4j-core-2.23.1.jar               | Apache 2.0                |
-| log4j-jul-2.23.1.jar                | Apache 2.0                |
+| log4j-1.2-api-2.24.2.jar            | Apache 2.0                |
+| log4j-api-2.24.".jar                | Apache 2.0                |
+| log4j-core-2.24.2.jar               | Apache 2.0                |
+| log4j-jul-2.24.2.jar                | Apache 2.0                |
 | rsyntaxtextarea-3.5.2.jar           | BSD-3 clause              |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.3.9.jar                       | LGPL                      |

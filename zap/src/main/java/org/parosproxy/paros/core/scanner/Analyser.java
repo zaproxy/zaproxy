@@ -556,6 +556,6 @@ public class Analyser {
      * @since 2.7.0
      */
     public long getRunningTime() {
-        return stopWatch.getTime();
+        return stopWatch.getDuration().toMillis();
     }
 }

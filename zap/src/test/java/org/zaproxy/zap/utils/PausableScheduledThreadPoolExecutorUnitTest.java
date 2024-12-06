@@ -191,7 +191,7 @@ class PausableScheduledThreadPoolExecutorUnitTest {
         }
 
         long getEllapsedTime() {
-            return watch.getTime();
+            return watch.getDuration().toMillis();
         }
 
         @Override
