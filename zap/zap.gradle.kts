@@ -94,7 +94,7 @@ dependencies {
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.17.0")
     api("org.apache.commons:commons-text:1.12.0")
-    api("edu.umass.cs.benchlab:harlib:1.1.3")
+    implementation("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
     val log4jVersion = "2.24.2"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
