@@ -47,7 +47,6 @@ import org.zaproxy.zap.extension.api.ApiResponseConversionUtils;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
-import org.zaproxy.zap.utils.HarUtils;
 
 public class SearchAPI extends ApiImplementor {
 
@@ -275,6 +274,7 @@ public class SearchAPI extends ApiImplementor {
     }
 
     @Override
+    @SuppressWarnings("removal")
     public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params)
             throws ApiException {
         byte responseBody[] = {};
@@ -313,17 +313,17 @@ public class SearchAPI extends ApiImplementor {
                     searchType,
                     rh -> {
                         HarEntry entry =
-                                HarUtils.createHarEntry(
+                                org.zaproxy.zap.utils.HarUtils.createHarEntry(
                                         rh.getHistoryId(),
                                         rh.getHistoryType(),
                                         rh.getHttpMessage());
                         entries.addEntry(entry);
                     });
 
-            HarLog harLog = HarUtils.createZapHarLog();
+            HarLog harLog = org.zaproxy.zap.utils.HarUtils.createZapHarLog();
             harLog.setEntries(entries);
 
-            responseBody = HarUtils.harLogToByteArray(harLog);
+            responseBody = org.zaproxy.zap.utils.HarUtils.harLogToByteArray(harLog);
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);

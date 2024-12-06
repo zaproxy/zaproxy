@@ -67,7 +67,9 @@ import org.zaproxy.zap.network.HttpRequestBody;
  * @see <a href="http://www.softwareishard.com/blog/har-12-spec/">HTTP Archive 1.2</a>
  * @since 2.3.0
  * @see HttpMessage
+ * @deprecated (2.16.0) Use/rely on exim add-on.
  */
+@Deprecated(forRemoval = true, since = "2.16.0")
 public final class HarUtils {
 
     private static final Logger LOGGER = LogManager.getLogger(HarUtils.class);
