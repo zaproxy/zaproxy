@@ -85,9 +85,9 @@ import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.utils.ApiUtils;
-import org.zaproxy.zap.utils.HarUtils;
 import org.zaproxy.zap.utils.ZapSupportUtils;
 
+@SuppressWarnings("removal")
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
     private static final Logger LOGGER = LogManager.getLogger(CoreAPI.class);
@@ -1426,10 +1426,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
                 addHarEntry(entries, recordHistory);
 
-                HarLog harLog = HarUtils.createZapHarLog();
+                HarLog harLog = org.zaproxy.zap.utils.HarUtils.createZapHarLog();
                 harLog.setEntries(entries);
 
-                responseBody = HarUtils.harLogToByteArray(harLog);
+                responseBody = org.zaproxy.zap.utils.HarUtils.harLogToByteArray(harLog);
             } catch (ApiException e) {
                 throw e;
             } catch (Exception e) {
@@ -1466,10 +1466,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                             rh -> addHarEntry(entries, rh));
                 }
 
-                HarLog harLog = HarUtils.createZapHarLog();
+                HarLog harLog = org.zaproxy.zap.utils.HarUtils.createZapHarLog();
                 harLog.setEntries(entries);
 
-                responseBody = HarUtils.harLogToByteArray(harLog);
+                responseBody = org.zaproxy.zap.utils.HarUtils.harLogToByteArray(harLog);
             } catch (ApiException e) {
                 throw e;
             } catch (Exception e) {
@@ -1491,7 +1491,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             byte[] responseBody = {};
             HttpMessage request = null;
             try {
-                request = HarUtils.createHttpMessage(params.getString(PARAM_REQUEST));
+                request =
+                        org.zaproxy.zap.utils.HarUtils.createHttpMessage(
+                                params.getString(PARAM_REQUEST));
             } catch (IOException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
             }
@@ -1509,16 +1511,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 httpMessage -> {
                                     HistoryReference hRef = httpMessage.getHistoryRef();
                                     entries.addEntry(
-                                            HarUtils.createHarEntry(
+                                            org.zaproxy.zap.utils.HarUtils.createHarEntry(
                                                     hRef.getHistoryId(),
                                                     hRef.getHistoryType(),
                                                     httpMessage));
                                 });
 
-                        HarLog harLog = HarUtils.createZapHarLog();
+                        HarLog harLog = org.zaproxy.zap.utils.HarUtils.createZapHarLog();
                         harLog.setEntries(entries);
 
-                        responseBody = HarUtils.harLogToByteArray(harLog);
+                        responseBody = org.zaproxy.zap.utils.HarUtils.harLogToByteArray(harLog);
                     } catch (ApiException e) {
                         throw e;
                     } catch (Exception e) {
@@ -1643,7 +1645,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
      */
     private static void addHarEntry(HarEntries entries, RecordHistory recordHistory) {
         entries.addEntry(
-                HarUtils.createHarEntry(
+                org.zaproxy.zap.utils.HarUtils.createHarEntry(
                         recordHistory.getHistoryId(),
                         recordHistory.getHistoryType(),
                         recordHistory.getHttpMessage()));
