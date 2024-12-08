@@ -69,6 +69,7 @@ val bundledAddOns: Any = provider {
 }
 
 val distFiles by tasks.registering(Sync::class) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     destinationDir = layout.buildDirectory.dir("distFiles").get().asFile
     from(jarWithBom)
     from(distDir) {
