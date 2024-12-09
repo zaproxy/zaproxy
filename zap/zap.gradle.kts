@@ -217,6 +217,7 @@ tasks.named<Javadoc>("javadoc") {
     title = "Zed Attack Proxy"
     source =
         sourceSets["main"].allJava.matching {
+            include("ch/**")
             include("org/parosproxy/**")
             include("org/zaproxy/**")
         }
