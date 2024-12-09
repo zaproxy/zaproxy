@@ -43,7 +43,7 @@ and subject to their respective licenses.
 | commons-logging-1.3.4.jar           | Apache 2.0                |
 | commons-text-1.12.0.jar             | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
-| flatlaf-3.5.3.jar                   | Apache 2.0                |
+| flatlaf-3.5.4.jar                   | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.7.4.jar                    | BSD                       |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
