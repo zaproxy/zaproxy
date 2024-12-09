@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-11-27
+- Update ZAP API scan to support host override for local OpenAPI spec
+
 ### 2024-09-13
 - Update the zap.sh script to use the cgroup memory limit when the IS_CONTAINERIZED environment variable is set to "true".
 
