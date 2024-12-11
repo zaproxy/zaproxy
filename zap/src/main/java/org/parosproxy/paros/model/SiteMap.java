@@ -600,11 +600,10 @@ public class SiteMap extends SortedTreeModel {
             handleEvent(parent, node, EventType.ADD);
         } else if (hrefMap.get(ref.getHistoryId()) != node) {
 
-            // do not replace if
-            // - use local copy (304). only use if 200
-
-            if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
-                // replace node HistoryReference to this new child if this is a spidered record.
+            // Give preference to successful requests but update same statuses'.
+            if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK
+                    || msg.getResponseHeader().getStatusCode()
+                            == node.getHistoryReference().getStatusCode()) {
                 node.setHistoryReference(ref);
                 ref.setSiteNode(node);
             } else {
