@@ -91,10 +91,21 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
         this.subMenus.add(piicm);
     }
 
+    /**
+     * @deprecated (2.16.0) Override {@link #createPopupIncludeInContextMenu(int)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "2.16.0")
     protected ExtensionPopupMenuItem createPopupIncludeInContextMenu() {
         return new PopupMenuItemIncludeInContext();
     }
 
+    /**
+     * Called when creating the "New Context" menu item.
+     *
+     * @param weight the weight that the menu item should have.
+     * @return the menu item that creates a new context.
+     * @since 2.15.0
+     */
     protected ExtensionPopupMenuItem createPopupIncludeInContextMenu(int weight) {
         return new PopupMenuItemIncludeInContext(weight);
     }
