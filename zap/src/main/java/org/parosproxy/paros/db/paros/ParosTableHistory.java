@@ -459,14 +459,22 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                     "The actual Request Body length "
                             + reqBody.length
                             + " is greater than the configured request body length "
-                            + this.configuredrequestbodysize);
+                            + this.configuredrequestbodysize
+                            + " for "
+                            + method
+                            + " "
+                            + uri);
         }
         if (resBody.length > this.configuredresponsebodysize) {
             throw new SQLException(
                     "The actual Response Body length "
                             + resBody.length
                             + " is greater than the configured response body length "
-                            + this.configuredresponsebodysize);
+                            + this.configuredresponsebodysize
+                            + " for "
+                            + method
+                            + " "
+                            + uri);
         }
 
         psInsert.setLong(1, sessionId);

@@ -280,14 +280,22 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     "The actual Request Body length "
                             + reqBody.length
                             + " is greater than the configured request body length "
-                            + this.configuredrequestbodysize);
+                            + this.configuredrequestbodysize
+                            + " for "
+                            + method
+                            + " "
+                            + uri);
         }
         if (resBody.length > this.configuredresponsebodysize) {
             throw new DatabaseException(
                     "The actual Response Body length "
                             + resBody.length
                             + " is greater than the configured response body length "
-                            + this.configuredresponsebodysize);
+                            + this.configuredresponsebodysize
+                            + " for "
+                            + method
+                            + " "
+                            + uri);
         }
 
         SqlPreparedStatementWrapper psInsert = null;
