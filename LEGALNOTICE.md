@@ -57,6 +57,6 @@ and subject to their respective licenses.
 | log4j-api-2.24.".jar                | Apache 2.0                |
 | log4j-core-2.24.2.jar               | Apache 2.0                |
 | log4j-jul-2.24.2.jar                | Apache 2.0                |
-| rsyntaxtextarea-3.5.2.jar           | BSD-3 clause              |
+| rsyntaxtextarea-3.5.3.jar           | BSD-3 clause              |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.3.9.jar                       | LGPL                      |
