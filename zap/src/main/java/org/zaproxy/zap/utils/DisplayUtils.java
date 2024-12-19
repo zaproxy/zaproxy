@@ -37,6 +37,7 @@ import javax.swing.JToggleButton;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.view.OverlayIcon;
 
 public class DisplayUtils {
 
@@ -91,6 +92,10 @@ public class DisplayUtils {
     public static ImageIcon getScaledIcon(ImageIcon icon) {
         if (icon == null || icon.getIconHeight() > STD_HEIGHT) {
             return icon;
+        }
+        if (icon instanceof OverlayIcon) {
+            return ((OverlayIcon) icon)
+                    .getScaledInstance(getScaledIconWidth(icon), getIconSize(), Image.SCALE_SMOOTH);
         }
         return new ImageIcon(
                 icon.getImage()
