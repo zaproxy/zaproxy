@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import org.apache.commons.csv.CSVFormat;
@@ -131,7 +130,8 @@ public class TableExportAction<T extends JTable> extends AbstractAction {
     public static Icon getDefaultIcon() {
         if (defaultIcon == null) {
             defaultIcon =
-                    new ImageIcon(TableExportAction.class.getResource("/resource/icon/16/115.png"));
+                    DisplayUtils.getScaledIcon(
+                            TableExportAction.class.getResource("/resource/icon/16/115.png"));
         }
         return defaultIcon;
     }

@@ -778,8 +778,7 @@ public class AlertPanel extends AbstractPanel {
         if (editButton == null) {
             editButton = new JButton();
             editButton.setToolTipText(Constant.messages.getString("alert.edit.button.tooltip"));
-            editButton.setIcon(
-                    new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/018.png")));
+            editButton.setIcon(getScaledIcon("/resource/icon/16/018.png"));
 
             editButton.addActionListener(
                     new ActionListener() {
@@ -797,9 +796,7 @@ public class AlertPanel extends AbstractPanel {
             deleteAllButton = new JButton();
             deleteAllButton.setToolTipText(
                     Constant.messages.getString("alert.deleteall.button.tooltip"));
-            deleteAllButton.setIcon(
-                    DisplayUtils.getScaledIcon(
-                            AlertPanel.class.getResource("/resource/icon/fugue/broom-alerts.png")));
+            deleteAllButton.setIcon(getScaledIcon("/resource/icon/fugue/broom-alerts.png"));
 
             deleteAllButton.addActionListener(
                     e -> {
@@ -814,5 +811,9 @@ public class AlertPanel extends AbstractPanel {
                     });
         }
         return deleteAllButton;
+    }
+
+    private static ImageIcon getScaledIcon(String path) {
+        return DisplayUtils.getScaledIcon(AlertPanel.class.getResource(path));
     }
 }
