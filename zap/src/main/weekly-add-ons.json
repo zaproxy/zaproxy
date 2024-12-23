@@ -10,6 +10,7 @@
       ":addOns:automation",
       ":addOns:bruteforce",
       ":addOns:callhome",
+      ":addOns:client",
       ":addOns:commonlib",
       ":addOns:coreLang",
       ":addOns:database",
