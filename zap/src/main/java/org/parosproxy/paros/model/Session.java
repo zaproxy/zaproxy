@@ -410,7 +410,8 @@ public class Session {
                                 HistoryReference.TYPE_SPIDER,
                                 HistoryReference.TYPE_BRUTE_FORCE,
                                 HistoryReference.TYPE_SPIDER_AJAX,
-                                HistoryReference.TYPE_SCANNER);
+                                HistoryReference.TYPE_SCANNER,
+                                HistoryReference.TYPE_CLIENT_SPIDER);
 
         for (int i = 0; i < list.size(); i++) {
             // ZAP: Removed unnecessary cast.

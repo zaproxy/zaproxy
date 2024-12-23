@@ -210,7 +210,8 @@ public class SearchThread extends Thread {
                                     HistoryReference.TYPE_ZAP_USER,
                                     HistoryReference.TYPE_SPIDER,
                                     HistoryReference.TYPE_SPIDER_AJAX,
-                                    HistoryReference.TYPE_AUTHENTICATION);
+                                    HistoryReference.TYPE_AUTHENTICATION,
+                                    HistoryReference.TYPE_CLIENT_SPIDER);
             int last = list.size();
             int currentRecordId = 0;
             for (int index = 0; index < last; index++) {
