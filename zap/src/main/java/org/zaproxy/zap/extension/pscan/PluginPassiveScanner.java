@@ -72,8 +72,11 @@ public abstract class PluginPassiveScanner extends Enableable
 
     private static final Integer[] DEFAULT_HISTORY_TYPES =
             new Integer[] {
-                HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER,
-                HistoryReference.TYPE_SPIDER, HistoryReference.TYPE_SPIDER_AJAX
+                HistoryReference.TYPE_PROXIED,
+                HistoryReference.TYPE_ZAP_USER,
+                HistoryReference.TYPE_SPIDER,
+                HistoryReference.TYPE_SPIDER_AJAX,
+                HistoryReference.TYPE_CLIENT_SPIDER
             };
 
     private static final Set<Integer> DEFAULT_HISTORY_TYPES_SET =

@@ -170,7 +170,8 @@ public class ExtensionCompare extends ExtensionAdaptor
                         HistoryReference.TYPE_PROXIED,
                         HistoryReference.TYPE_ZAP_USER,
                         HistoryReference.TYPE_SPIDER,
-                        HistoryReference.TYPE_SPIDER_AJAX);
+                        HistoryReference.TYPE_SPIDER_AJAX,
+                        HistoryReference.TYPE_CLIENT_SPIDER);
 
         for (Integer hId : hIds) {
             RecordHistory recH = th.read(hId);

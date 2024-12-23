@@ -150,6 +150,13 @@ public class HttpSender {
     public static final int OAST_INITIATOR = 16;
     public static final int PARAM_DIGGER_INITIATOR = 17;
 
+    /**
+     * The ID for the Client Spider.
+     *
+     * @since 2.16.0
+     */
+    public static final int CLIENT_SPIDER_INITIATOR = 18;
+
     private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
     private static final HttpRequestConfig FOLLOW_REDIRECTS =
             HttpRequestConfig.builder().setFollowRedirects(true).build();

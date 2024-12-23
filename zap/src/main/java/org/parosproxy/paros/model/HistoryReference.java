@@ -287,6 +287,13 @@ public class HistoryReference {
      */
     public static final int TYPE_PARAM_DIGGER = 23;
 
+    /**
+     * An HTTP message sent by the Client Spider.
+     *
+     * @since 2.16.0
+     */
+    public static final int TYPE_CLIENT_SPIDER = 24;
+
     private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
     private static TableHistory staticTableHistory = null;
     // ZAP: Support for multiple tags
