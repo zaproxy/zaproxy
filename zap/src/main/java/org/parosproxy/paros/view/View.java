@@ -96,6 +96,7 @@
 // ZAP: 2022/09/27 Added dialog methods with ZapHtmlLabel parameter.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2024/08/20 Wrap string dialog messages in ZapLabel so that they can be copied.
+// ZAP: 2024/12/30 Support swapping the output panel implementation.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -181,7 +182,7 @@ public class View implements ViewDelegate {
     private HttpPanelRequest requestPanel = null;
     private HttpPanelResponse responsePanel = null;
     private SiteMapPanel siteMapPanel = null;
-    private OutputPanel outputPanel = null;
+    private OutputPanel outputPanel;
     private Vector<JMenuItem> popupList = new Vector<>();
 
     private JMenu menuShowTabs = null;
@@ -276,7 +277,7 @@ public class View implements ViewDelegate {
     }
 
     public void postInit() {
-        mainFrame.getWorkbench().addPanel(getOutputPanel(), WorkbenchPanel.PanelType.STATUS);
+        setOutputPanel(getOutputPanel());
 
         refreshTabViewMenus();
 
@@ -702,6 +703,22 @@ public class View implements ViewDelegate {
             ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
         }
         return outputPanel;
+    }
+
+    /**
+     * Sets the output panel implementation, replacing the existing output panel in the UI with the
+     * new one. If {@code outputPanel} is {@code null}, the existing output panel is replaced with
+     * the default implementation.
+     *
+     * @since 2.16.0
+     */
+    @Override
+    public void setOutputPanel(OutputPanel outputPanel) {
+        if (this.outputPanel != null) {
+            mainFrame.getWorkbench().removePanel(this.outputPanel, WorkbenchPanel.PanelType.STATUS);
+        }
+        this.outputPanel = outputPanel;
+        mainFrame.getWorkbench().addPanel(getOutputPanel(), WorkbenchPanel.PanelType.STATUS);
     }
 
     @Override

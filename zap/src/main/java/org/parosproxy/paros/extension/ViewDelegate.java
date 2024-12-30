@@ -31,6 +31,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2022/05/29 Allow to obtain the OptionsDialog.
 // ZAP: 2022/11/07 Add convenience methods for help and options buttons.
+// ZAP: 2024/12/30 Allow setting the output panel.
 package org.parosproxy.paros.extension;
 
 import java.awt.Toolkit;
@@ -60,6 +61,11 @@ public interface ViewDelegate {
     SiteMapPanel getSiteTreePanel();
 
     OutputPanel getOutputPanel();
+
+    /**
+     * @since 2.16.0
+     */
+    void setOutputPanel(OutputPanel outputPanel);
 
     /**
      * Gets the Options dialogue.
