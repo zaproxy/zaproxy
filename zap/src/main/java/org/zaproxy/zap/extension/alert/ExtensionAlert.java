@@ -315,6 +315,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                 return HistoryReference.TYPE_SPIDER;
             case HistoryReference.TYPE_FUZZER_TEMPORARY:
                 return HistoryReference.TYPE_FUZZER;
+            case HistoryReference.TYPE_CLIENT_SPIDER_TEMPORARY:
+                return HistoryReference.TYPE_CLIENT_SPIDER;
             default:
                 return HistoryReference.TYPE_SCANNER;
         }

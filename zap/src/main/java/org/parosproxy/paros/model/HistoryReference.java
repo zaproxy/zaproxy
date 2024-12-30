@@ -294,6 +294,15 @@ public class HistoryReference {
      */
     public static final int TYPE_CLIENT_SPIDER = 24;
 
+    /**
+     * A temporary HTTP message of the Client Spider.
+     *
+     * <p>A message that was not allowed to be sent.
+     *
+     * @since 2.16.0
+     */
+    public static final int TYPE_CLIENT_SPIDER_TEMPORARY = 25;
+
     private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
     private static TableHistory staticTableHistory = null;
     // ZAP: Support for multiple tags
@@ -311,6 +320,7 @@ public class HistoryReference {
         defaultHistoryTypes.add(HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY);
         defaultHistoryTypes.add(HistoryReference.TYPE_SPIDER_TEMPORARY);
         defaultHistoryTypes.add(HistoryReference.TYPE_FUZZER_TEMPORARY);
+        defaultHistoryTypes.add(HistoryReference.TYPE_CLIENT_SPIDER_TEMPORARY);
         DEFAULT_TEMPORARY_HISTORY_TYPES = Collections.unmodifiableSet(defaultHistoryTypes);
 
         TEMPORARY_HISTORY_TYPES.addAll(DEFAULT_TEMPORARY_HISTORY_TYPES);
