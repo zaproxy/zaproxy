@@ -34,10 +34,11 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2024/12/30 Add methods to enable swapping the output panel implementation, replace
+//      EventQueue usages with ThreadUtils.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -45,20 +46,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.utils.TimeStampUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.view.OutputSource;
 
 public class OutputPanel extends AbstractPanel {
 
     private static final long serialVersionUID = -947074835463140074L;
-    // ZAP: Added logger.
-    private static final Logger LOGGER = LogManager.getLogger(OutputPanel.class);
 
     private static final String CLEAR_BUTTON_LABEL =
             Constant.messages.getString("output.panel.clear.button.label");
@@ -194,22 +193,14 @@ public class OutputPanel extends AbstractPanel {
     }
 
     public void append(final String msg) {
-        if (EventQueue.isDispatchThread()) {
-            doAppend(msg);
-            return;
-        }
-        try {
-            EventQueue.invokeAndWait(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            doAppend(msg);
-                        }
-                    });
-        } catch (Exception e) {
-            // ZAP: Added logging.
-            LOGGER.error(e.getMessage(), e);
-        }
+        ThreadUtils.invokeAndWaitHandled(() -> doAppend(msg));
+    }
+
+    /**
+     * @since 2.16.0
+     */
+    public void append(String msg, String sourceName) {
+        ThreadUtils.invokeAndWaitHandled(() -> doAppend(msg, sourceName));
     }
 
     // ZAP: New method for printing out stack traces
@@ -219,6 +210,17 @@ public class OutputPanel extends AbstractPanel {
 
     public void clear() {
         getTxtOutput().setText("");
+    }
+
+    /**
+     * @since 2.16.0
+     */
+    public void clear(String sourceName) {
+        clear();
+    }
+
+    private void doAppend(String message, String sourceName) {
+        doAppend("[" + sourceName + "] " + message);
     }
 
     private void doAppend(String message) {
@@ -239,16 +241,36 @@ public class OutputPanel extends AbstractPanel {
      *
      * @param message the message to append to the output panel
      * @since 2.5.0
-     * @see EventQueue#invokeLater(Runnable)
+     * @see ThreadUtils#invokeLater(Runnable)
      */
     public void appendAsync(final String message) {
-        EventQueue.invokeLater(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        doAppend(message);
-                    }
-                });
+        ThreadUtils.invokeLater(() -> doAppend(message));
     }
+
+    /**
+     * @since 2.16.0
+     */
+    public void appendAsync(String message, String sourceName) {
+        ThreadUtils.invokeLater(() -> doAppend(message, sourceName));
+    }
+
+    /**
+     * This is intended to be used by a message producer when it wants override the default
+     * behaviour of the output panel. To do so the producer must provide {@code OutputSource}
+     * attributes supported by the output panel.
+     *
+     * <p>Note: The default output panel does not support customization.
+     *
+     * @since 2.16.0
+     */
+    public void registerOutputSource(OutputSource source) {}
+
+    /**
+     * This is intended to be used by a message producer when it wants to unregister a previously
+     * registered {@code OutputSource}, when the source is no longer expected to produce new
+     * messages.
+     *
+     * @since 2.16.0
+     */
+    public void unregisterOutputSource(OutputSource source) {}
 } //  @jve:decl-index=0:visual-constraint="10,10"
