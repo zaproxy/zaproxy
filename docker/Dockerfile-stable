@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds the zap stable release
-FROM --platform=linux/amd64 debian:bullseye-slim AS builder
+FROM --platform=linux/amd64 debian:12.8-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
@@ -34,7 +34,7 @@ RUN --mount=type=secret,id=webswing_url \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:bullseye-slim AS final
+FROM debian:12.8-slim AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
