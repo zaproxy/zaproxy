@@ -66,11 +66,13 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2025/01/08 Add local address.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -144,6 +146,7 @@ public class HttpRequestHeader extends HttpHeader {
     private URI mUri;
     private String mHostName;
     private InetAddress senderAddress;
+    private InetSocketAddress localAddress;
 
     /**
      * The host port number of this request message, a non-negative integer.
@@ -859,6 +862,30 @@ public class HttpRequestHeader extends HttpHeader {
      */
     public InetAddress getSenderAddress() {
         return senderAddress;
+    }
+
+    /**
+     * Sets the local address.
+     *
+     * <p>This information is not persisted to the session.
+     *
+     * @param address the local address.
+     * @since 2.16.0
+     */
+    public void setLocalAddress(InetSocketAddress address) {
+        localAddress = address;
+    }
+
+    /**
+     * Gets the local address where (e.g. server, proxy) this request was received, if any.
+     *
+     * <p>This information is not persisted to the session.
+     *
+     * @return the local address.
+     * @since 2.16.0
+     */
+    public InetSocketAddress getLocalAddress() {
+        return localAddress;
     }
 
     /**
