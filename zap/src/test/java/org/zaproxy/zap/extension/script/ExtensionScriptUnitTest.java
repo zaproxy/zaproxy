@@ -23,11 +23,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.security.InvalidParameterException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,6 +76,51 @@ class ExtensionScriptUnitTest {
         // Then
         verify(script).setEnabled(true);
         verify(scriptParam).saveScriptProperties(script);
+    }
+
+    @Test
+    void shouldReturnEngineWithGivenName() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptEngineWrapper graalWrapper = mock(ScriptEngineWrapper.class);
+        when(graalWrapper.getEngineName()).thenReturn("Test");
+        extensionScript.registerScriptEngineWrapper(graalWrapper);
+
+        // When
+        ScriptEngineWrapper wrapper = extensionScript.getEngineWrapper("Test");
+
+        // Then
+        assertThat(wrapper, is(not(nullValue())));
+        assertThat(wrapper.getEngineName(), is("Test"));
+    }
+
+    @Test
+    void shouldNotReturnEngineWithUnknownName() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptEngineWrapper graalWrapper = mock(ScriptEngineWrapper.class);
+        when(graalWrapper.getEngineName()).thenReturn("Test");
+        extensionScript.registerScriptEngineWrapper(graalWrapper);
+
+        // When / Then
+        assertThrows(
+                InvalidParameterException.class, () -> extensionScript.getEngineWrapper("Unknown"));
+    }
+
+    @Test
+    void shouldReturnGraalEngineInsteadOfNashorn() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptEngineWrapper graalWrapper = mock(ScriptEngineWrapper.class);
+        when(graalWrapper.getEngineName()).thenReturn("Graal.js");
+        extensionScript.registerScriptEngineWrapper(graalWrapper);
+
+        // When
+        ScriptEngineWrapper wrapper = extensionScript.getEngineWrapper("Oracle Nashorn");
+
+        // Then
+        assertThat(wrapper, is(not(nullValue())));
+        assertThat(wrapper.getEngineName(), is("Graal.js"));
     }
 
     private interface Script {}

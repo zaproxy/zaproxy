@@ -480,6 +480,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @return the engine, or {@code null} if not available.
      */
     private ScriptEngineWrapper getEngineWrapperImpl(String name) {
+        if (name != null && name.contains("Nashorn")) {
+            // Nashorn is no longer included in any of the JVMs we support
+            name = "Graal.js";
+        }
+
         for (ScriptEngineWrapper sew : this.engineWrappers) {
             if (isSameScriptEngine(name, sew.getEngineName(), sew.getLanguageName())) {
                 return sew;
