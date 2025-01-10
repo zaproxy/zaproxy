@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds the zap stable release
-FROM --platform=linux/amd64 debian:bullseye-slim AS builder
+FROM --platform=linux/amd64 debian:bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
-	openjdk-11-jdk \
+	openjdk-17-jdk \
 	xmlstarlet \
 	unzip && \
 	rm -rf /var/lib/apt/lists/*
@@ -34,7 +34,7 @@ RUN --mount=type=secret,id=webswing_url \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:bullseye-slim AS final
+FROM debian:bookworm-slim AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	automake \
 	autoconf \
 	gcc g++ \
-	openjdk-11-jdk \
+	openjdk-17-jdk \
 	wget \
 	curl \
 	xmlstarlet \
@@ -60,7 +60,15 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir --upgrade awscli pip zaproxy pyyaml urllib3
+RUN pip3 install \
+	--break-system-packages \
+	--no-cache-dir \
+	--upgrade \
+	awscli \
+	pip \
+	zaproxy \
+	pyyaml \
+	urllib3
 
 RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
@@ -79,7 +87,7 @@ COPY --link --from=builder --chown=1000:1000 /zap .
 COPY --link --from=builder --chown=1000:1000 /zap/webswing /zap/webswing
 
 ARG TARGETARCH
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-$TARGETARCH
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-$TARGETARCH
 ENV PATH=$JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH=/zap/zap.sh
 

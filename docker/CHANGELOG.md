@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-01-10
+- Change stable image to use `debian:bookworm-slim` instead of `bullseye-slim`, it will now start using Java 17.
+- Change bare image to use `eclipse-temurin:17-jre-alpine` instead of `11-jre-alpine`.
+
 ### 2024-12-10
 - Updated to use Webswing 24.2.2.
 

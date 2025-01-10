@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds the zap bare release
-FROM --platform=linux/amd64 debian:bullseye-slim AS builder
+FROM --platform=linux/amd64 debian:bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
-	openjdk-11-jdk \
+	openjdk-17-jdk \
 	xmlstarlet \
 	unzip && \
 	rm -rf /var/lib/apt/lists/*
@@ -22,7 +22,7 @@ RUN ./zap.sh -cmd -silent -addonupdate
 # Copy them to installation directory
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
-FROM eclipse-temurin:11-jre-alpine AS final
+FROM eclipse-temurin:17-jre-alpine AS final
 LABEL maintainer="psiinon@gmail.com"
 
 RUN apk add --no-cache bash curl 
