@@ -107,6 +107,7 @@ addOns:
 - id: "pscan"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/pscan-v0.1.0/pscan-alpha-0.1.0.zap"
   hash: "SHA-256:566cfd1d8d2416150165727fedc732409e127ea1ff5005078f548bf068798dde"
+  core: true
 - id: "pscanrules"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/pscanrules-v62/pscanrules-release-62.zap"
   hash: "SHA-256:ff7b0c4590ed29c9a1fa60ef1c9acb9442ba9d9590e6d3af2ec90b048adadf32"
@@ -138,6 +139,7 @@ addOns:
 - id: "scanpolicies"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/scanpolicies-v0.2.0/scanpolicies-alpha-0.2.0.zap"
   hash: "SHA-256:44be8edf3017e42642c574f2628e078c8196ad92225ebfbcea8c0ed59deabe1e"
+  core: true
 - id: "scripts"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/scripts-v45.8.0/scripts-release-45.8.0.zap"
   hash: "SHA-256:64af074096d73a1caad2a73d4e0ee013a296aeb7a756cd76ec3ee7a89d941472"
