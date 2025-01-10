@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="10.0.6" transformSequenceNumber="10">
-  <application name="Zed Attack Proxy" applicationId="ZAP" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="ZAP" publisher="ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" macVolumeId="1369b1f423bb47f8" javaMinVersion="11">
+  <application name="Zed Attack Proxy by Checkmarx" applicationId="ZAP" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="ZAP" publisher="ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" macVolumeId="1369b1f423bb47f8" javaMinVersion="17">
     <languages skipLanguageSelection="true">
       <principalLanguage id="en" customLocalizationFile="./resources/Messages.properties" />
       <additionalLanguages>

@@ -1,9 +1,9 @@
 name: zaproxy
-version: '2.15.0'
-summary: ZAP, a tool for finding vulnerabilities in web applications
+version: '2.16.0'
+summary: ZAP by Checkmarx, a tool for finding vulnerabilities in web applications
 description: |
-  The Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools
-  and is actively maintained by dedicated international team of volunteers.
+  The Zed Attack Proxy (ZAP) by Checkmarx is one of the world’s most popular security tools.
+  It is free and open source.
   It can help you automatically find security vulnerabilities in your web applications
   while you are developing and testing your applications.
   Its also a great tool for experienced pentesters to use for manual security testing.
@@ -20,12 +20,12 @@ apps:
     environment:
       XDG_DATA_HOME: "$SNAP/usr/share"
       FONTCONFIG_PATH: "$SNAP/etc/fonts"
-      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAPCRAFT_TARGET_ARCH"
       PATH: $JAVA_HOME/bin:$PATH
 
 parts:
   zaproxy:
-    source: https://github.com/zaproxy/zaproxy/releases/download/v2.15.0/ZAP_2.15.0_Linux.tar.gz
+    source: https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Linux.tar.gz
     plugin: dump
     filesets:
       pkg-contents: [ ./* ]
@@ -35,12 +35,12 @@ parts:
     build-packages:
       - ca-certificates-java
     stage-packages:
-      - openjdk-11-jre
+      - openjdk-17-jre
       - ca-certificates-java
     override-build: |
-      cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
+      cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-17-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
       cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/etc/ssl/certs/java/cacerts
-      rm $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/blacklisted.certs
+      rm $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-17-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/blacklisted.certs
   desktop-glib-only:
     build-packages:
       - libglib2.0-dev
