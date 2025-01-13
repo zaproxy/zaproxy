@@ -140,7 +140,7 @@ public abstract class CreatePullRequest extends DefaultTask {
                             .head(ghUser.getName() + ":" + getBranchName().get())
                             .state(GHIssueState.OPEN)
                             .list()
-                            .asList();
+                            .toList();
             String description =
                     getPullRequestDescription().getOrElse(getCommitDescription().get());
             if (pulls.isEmpty()) {
