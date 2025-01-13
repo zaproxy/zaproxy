@@ -40,7 +40,7 @@ parts:
     override-build: |
       cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-17-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
       cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/etc/ssl/certs/java/cacerts
-      rm $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-17-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/blacklisted.certs
+      rm $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/blacklisted.certs
   desktop-glib-only:
     build-packages:
       - libglib2.0-dev
