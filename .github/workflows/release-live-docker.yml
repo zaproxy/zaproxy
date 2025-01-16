@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Chalk
-        uses: crashappsec/setup-chalk-action@507600134045283246b3cb08d82c2b6080defd3c
+        uses: crashappsec/setup-chalk-action@main
         with:
           password: ${{ secrets.CHALK_PASSWORD }}
           public_key: ${{ secrets.CHALK_PUBLIC_KEY }}
