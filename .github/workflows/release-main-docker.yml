@@ -55,9 +55,6 @@ jobs:
             ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}
             ghcr.io/zaproxy/zaproxy:stable
             ghcr.io/zaproxy/zaproxy:latest
-            softwaresecurityproject/zap-stable:${{ env.REL_DATE_SHORT }}
-            softwaresecurityproject/zap-stable:${{ env.REL_VERSION }}
-            softwaresecurityproject/zap-stable:latest
             zaproxy/zap-stable:${{ env.REL_DATE_SHORT }}
             zaproxy/zap-stable:${{ env.REL_VERSION }}
             zaproxy/zap-stable:latest
@@ -80,9 +77,6 @@ jobs:
             ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-bare
             ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}-bare
             ghcr.io/zaproxy/zaproxy:bare
-            softwaresecurityproject/zap-bare:${{ env.REL_DATE_SHORT }}
-            softwaresecurityproject/zap-bare:${{ env.REL_VERSION }}
-            softwaresecurityproject/zap-bare:latest
             zaproxy/zap-bare:${{ env.REL_DATE_SHORT }}
             zaproxy/zap-bare:${{ env.REL_VERSION }}
             zaproxy/zap-bare:latest

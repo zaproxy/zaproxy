@@ -50,8 +50,6 @@ jobs:
           tags: |
             ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-weekly
             ghcr.io/zaproxy/zaproxy:weekly
-            softwaresecurityproject/zap-weekly:${{ env.REL_DATE_SHORT }}
-            softwaresecurityproject/zap-weekly:latest
             zaproxy/zap-weekly:${{ env.REL_DATE_SHORT }}
             zaproxy/zap-weekly:latest
           secrets: |
