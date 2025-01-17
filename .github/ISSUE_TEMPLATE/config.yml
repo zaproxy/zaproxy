@@ -6,5 +6,5 @@ contact_links:
     url: https://groups.google.com/group/zaproxy-develop
     about: Please ask and answer questions about ZAP internals here.
   - name: ZAP Security Bug Bounty Program
-    url: https://bugcrowd.com/owaspzap
-    about: Please report security vulnerabilities here.
+    url: mailto:zaproxy-admin@googlegroups.com
+    about: Please report security vulnerabilities via email here.

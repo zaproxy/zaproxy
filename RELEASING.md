@@ -71,7 +71,6 @@ The resulting localized resources are added/updated in the repository periodical
   - [ ] Scoop - [zaproxy.json](https://github.com/ScoopInstaller/Extras/blob/master/bucket/zaproxy.json)
   - [ ] Chocolatey - [zap](https://github.com/jtcmedia/chocolatey-packages/tree/master/zap)
   - [ ] winget-pkgs - [ZAP](https://github.com/microsoft/winget-pkgs/tree/master/manifests/z/ZAP/ZAP/)
-- [ ] Update [bugcrowd](https://bugcrowd.com/owaspzap) scope
 
 ## Weekly Release
 

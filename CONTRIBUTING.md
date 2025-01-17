@@ -18,7 +18,7 @@ It's worth checking to see if it's already been reported, and including as much 
 This FAQ explains some useful steps you can follow: https://www.zaproxy.org/faq/somethings-not-working-what-should-i-do/
 
 ## Found a Vulnerability?
-If you think you have found a vulnerability in ZAP then please report it via our [bug bounty program](https://bugcrowd.com/owaspzap).
+If you think you have found a vulnerability in ZAP then please report it via [email](mailto:zaproxy-admin@googlegroups.com).
 
 We are always very grateful to researchers who report vulnerabilities responsibly and will be very happy to give credit for the valuable assistance they provide.
 
