@@ -14,6 +14,7 @@ jobs:
       - name: Set up Chalk
         uses: crashappsec/setup-chalk-action@main
         with:
+          version: 0.4.14
           password: ${{ secrets.CHALK_PASSWORD }}
           public_key: ${{ secrets.CHALK_PUBLIC_KEY }}
           private_key: ${{ secrets.CHALK_PRIVATE_KEY }}
