@@ -11,11 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: "Check For Errors: Stable"
+        id: "check-stable"
         run: |
           # Pulls Stable from DockerHub
           docker run --rm -v $(pwd)/.github/workflows/conf:/zap/wrk/:rw -t zaproxy/zap-stable:latest zap.sh -addonupdate -addoninstall dev -dev -cmd -autorun /zap/wrk/af-check-errors.yml
+        continue-on-error: true
       - name: "Check For Errors: Nightly"
+        id: "check-nightly"
         if: ${{ ! cancelled() }}
         run: |
           # Pulls Nightly from GHCR
           docker run --rm -v $(pwd)/.github/workflows/conf:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:nightly zap.sh -addonupdate -addoninstall dev -dev -cmd -autorun /zap/wrk/af-check-errors.yml
+        continue-on-error: true
+      - name: "Send messages on failures"
+        uses: myConsciousness/bluesky-post@96827d0a9604cb228b11b3095f6961196efba4a0 # v5
+        if: ${{ ! cancelled() }} && ( steps.check-stable.outcome != 'success' || steps.check-nightly.outcome != 'success' )
+        with:
+          text: "Hey @psiinon.bsky.social - looks like the overnight ZAP Check failed 😟 https://github.com/zaproxy/zaproxy/actions/runs/${{ github.run_id }}"  
+          identifier: ${{ secrets.BLUESKY_ZAPBOT_IDENTIFIER }}
+          password: ${{ secrets.BLUESKY_ZAPBOT_PASSWORD }}
+      - name: "Fail if necessary"
+        if: steps.check-stable.outcome != 'success' || steps.check-nightly.outcome != 'success'
+        run: exit 1

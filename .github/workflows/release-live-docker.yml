@@ -55,3 +55,10 @@ jobs:
             index:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
             index:org.opencontainers.image.description=The nightly Docker image for the world’s most widely used web app scanner.
             index:org.opencontainers.image.licenses=Apache-2.0
+      - name: "Publicise the release"
+        uses: myConsciousness/bluesky-post@96827d0a9604cb228b11b3095f6961196efba4a0 # v5
+        if: ${{ ! cancelled() }}
+        with:
+          text: "The 'Nightly' @zaproxy.org #Docker image has just been updated https://hub.docker.com/r/zaproxy/zap-nightly"  
+          identifier: ${{ secrets.BLUESKY_ZAPBOT_IDENTIFIER }}
+          password: ${{ secrets.BLUESKY_ZAPBOT_PASSWORD }}
