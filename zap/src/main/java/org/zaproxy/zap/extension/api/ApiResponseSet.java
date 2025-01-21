@@ -60,7 +60,6 @@ public class ApiResponseSet<T> extends ApiResponse {
         return jo;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void toXML(Document doc, Element parent) {
         parent.setAttribute("type", "set");
