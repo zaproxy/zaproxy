@@ -60,12 +60,13 @@ public class ApiResponseSet<T> extends ApiResponse {
         return jo;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void toXML(Document doc, Element parent) {
         parent.setAttribute("type", "set");
-
         for (Entry<String, T> val : values.entrySet()) {
-            Element el = doc.createElement(val.getKey());
+            String sanitizedKey = val.getKey().replace(" ", "-");
+            Element el = doc.createElement(sanitizedKey);
             String textValue = val.getValue() == null ? "" : val.getValue().toString();
             Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
             el.appendChild(text);
