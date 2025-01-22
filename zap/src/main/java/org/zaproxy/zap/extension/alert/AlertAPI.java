@@ -766,9 +766,6 @@ public class AlertAPI extends ApiImplementor {
 
     @SuppressWarnings("unchecked")
     private static class CustomApiResponseSet<T> extends ApiResponseSet<T> {
-
-        private Map<String, T> values = null;
-
         public CustomApiResponseSet(String name, Map<String, T> values) {
             super(name, values);
         }
@@ -776,7 +773,7 @@ public class AlertAPI extends ApiImplementor {
         @Override
         public void toXML(Document doc, Element parent) {
             parent.setAttribute("type", "set");
-            for (Map.Entry<String, T> val : values.entrySet()) {
+            for (Map.Entry<String, T> val : getValues().entrySet()) {
                 Element el = doc.createElement(val.getKey());
                 if ("tags".equals(val.getKey())) {
                     el.setAttribute("type", "list");
@@ -793,8 +790,7 @@ public class AlertAPI extends ApiImplementor {
                         Element elValue = doc.createElement("value");
                         elValue.appendChild(
                                 doc.createTextNode(
-                                        XMLStringUtil.escapeControlChrs(
-                                                tag.getValue())));
+                                        XMLStringUtil.escapeControlChrs(tag.getValue())));
                         elTag.appendChild(elValue);
 
                         el.appendChild(elTag);
