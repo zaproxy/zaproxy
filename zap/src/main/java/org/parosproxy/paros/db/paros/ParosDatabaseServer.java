@@ -123,6 +123,11 @@ public class ParosDatabaseServer implements DatabaseServer {
         try (Statement stmt = getSingletonConnection().createStatement()) {
             stmt.executeUpdate(query);
         }
+
+        String defragQuery = "SET FILES DEFRAG " + (databaseOptions.getDefragPercentage());
+        try (Statement stmt = getSingletonConnection().createStatement()) {
+            stmt.executeUpdate(defragQuery);
+        }
     }
 
     void shutdown(boolean compact) throws SQLException {
