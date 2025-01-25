@@ -2240,9 +2240,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
                 next++;
             }
             // In IPv6reference, '[', ']' should be excluded
-            _host = (escaped) ? original.substring(from, next).toCharArray() 
-                : encode(original.substring(from, next), allowed_IPv6reference,
-                        charset);
+            _host = original.substring(from, next).toCharArray();
             // Set flag
             _is_IPv6reference = true;
         } else { // only for !_is_IPv6reference
