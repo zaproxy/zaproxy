@@ -64,8 +64,7 @@ public class ApiResponseSet<T> extends ApiResponse {
     public void toXML(Document doc, Element parent) {
         parent.setAttribute("type", "set");
         for (Entry<String, T> val : values.entrySet()) {
-            String sanitizedKey = val.getKey().replace(" ", "-");
-            Element el = doc.createElement(sanitizedKey);
+            Element el = doc.createElement(val.getKey());
             String textValue = val.getValue() == null ? "" : val.getValue().toString();
             Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
             el.appendChild(text);
