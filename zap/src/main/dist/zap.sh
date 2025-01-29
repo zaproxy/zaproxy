@@ -47,7 +47,7 @@ JAVA_VERSION=$(java -version 2>&1 | awk -F\" '/version/ { print $2 }')
 JAVA_MAJOR_VERSION=${JAVA_VERSION%%[.|-]*}
 JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
 
-if [ $JAVA_MAJOR_VERSION -ge 11 ]; then
+if [ ${JAVA_MAJOR_VERSION:-0} -ge 11 ]; then
   echo "Found Java version $JAVA_VERSION"
 else
   echo "Exiting: ZAP requires a minimum of Java 11 to run, found $JAVA_VERSION"
