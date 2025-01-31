@@ -8,7 +8,7 @@ env:
     authentication:
       method: client
       parameters:
-        script: /zap/wrk/configs/scripts/auth/RecordedTestAuth.zst
+        script: /zap/wrk/configs/scripts/auth/clientScriptAuth.zst
         scriptEngine: Mozilla Zest
       verification:
         method: poll
