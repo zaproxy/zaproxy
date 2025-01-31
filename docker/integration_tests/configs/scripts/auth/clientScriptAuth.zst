@@ -1,0 +1,65 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://github.com/zaproxy/zest/",
+  "zestVersion": "0.8",
+  "title": "RecordedTestAuth",
+  "description": "",
+  "prefix": "",
+  "type": "StandAlone",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {},
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "windowHandle": "windowHandle1",
+      "browserType": "firefox",
+      "url": "http://localhost:9091/auth/simple-json-cookie/",
+      "capabilities": "",
+      "headless": false,
+      "profilePath": "",
+      "index": 1,
+      "enabled": true,
+      "elementType": "ZestClientLaunch"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "user",
+      "index": 2,
+      "enabled": true,
+      "elementType": "ZestClientElementClick"
+    },
+    {
+      "value": "test@test.com",
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "user",
+      "index": 3,
+      "enabled": true,
+      "elementType": "ZestClientElementSendKeys"
+    },
+    {
+      "value": "password123",
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "password",
+      "index": 4,
+      "enabled": true,
+      "elementType": "ZestClientElementSendKeys"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "login",
+      "index": 5,
+      "enabled": true,
+      "elementType": "ZestClientElementClick"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "enabled": true,
+  "elementType": "ZestScript"
+}
