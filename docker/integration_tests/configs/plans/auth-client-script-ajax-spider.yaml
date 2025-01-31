@@ -39,6 +39,6 @@ jobs:
   tests:
   - name: spiderAjax/url
     type: url
-    onFail: INFO
+    onFail: ERROR
     url: http://localhost:9091/auth/simple-json-cookie/s3cr3t.html
     operator: and
