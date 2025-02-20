@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
 	unzip \
-	jq \
 	git && \
 	rm -rf /var/lib/apt/lists/* && \
 	mkdir /zap-src
@@ -51,6 +50,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	curl \
 	xmlstarlet \
 	unzip \
+	jq \
 	git \
 	openbox \
 	xterm \

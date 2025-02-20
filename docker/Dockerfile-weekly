@@ -4,7 +4,6 @@ FROM --platform=linux/amd64 debian:bookworm-slim AS builder
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
-	jq \
 	unzip && \
 	rm -rf /var/lib/apt/lists/*
 
@@ -36,6 +35,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	curl \
 	xmlstarlet \
 	unzip \
+	jq \
 	git \
 	openbox \
 	xterm \
