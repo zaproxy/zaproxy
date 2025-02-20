@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2025-02-20
+- Added jq to all images except bare.
+
 ### 2025-01-16
 - Stop publishing images under the `softwaresecurityproject` Docker Hub org, superseded by `zaproxy`, which should be used instead.
 
