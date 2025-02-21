@@ -275,4 +275,16 @@ class AlertUnitTest {
         assertThat(tags.containsKey(cwe2Key), is(equalTo(true)));
         assertThat(tags.get(cwe2Key), is(equalTo(cwe2Url)));
     }
+
+    @Test
+    void shouldHaveSameHistoryIdAsOldInstance() {
+        // Given
+        int historyId = 123;
+        Alert alert = new Alert(1);
+        alert.setHistoryId(historyId);
+        // When
+        Alert newAlert = alert.newInstance();
+        // Then
+        assertThat(newAlert.getHistoryId(), is(equalTo(historyId)));
+    }
 }
