@@ -31,16 +31,19 @@ val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
 val distDir = file("src/main/dist/")
 
+fun isZapRelease() = System.getenv("ZAP_RELEASE") != null
+
+val zapJavaVersion by extra { if (isZapRelease()) JavaVersion.toVersion(System.getenv("ZAP_JAVA_VERSION")) else JavaVersion.VERSION_17 }
+
 java {
     // Compile with appropriate Java version when building ZAP releases.
-    if (System.getenv("ZAP_RELEASE") != null) {
+    if (isZapRelease()) {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(System.getenv("ZAP_JAVA_VERSION")))
+            languageVersion.set(JavaLanguageVersion.of(zapJavaVersion.majorVersion))
         }
     } else {
-        val javaVersion = JavaVersion.VERSION_17
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
+        sourceCompatibility = zapJavaVersion
+        targetCompatibility = zapJavaVersion
     }
 }
 
@@ -77,7 +80,8 @@ spotless {
 
 tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs = options.compilerArgs + "-parameters"
-    if (JavaVersion.current().getMajorVersion() >= "21") {
+    val javaVersion = if (isZapRelease()) zapJavaVersion else JavaVersion.current()
+    if (javaVersion >= JavaVersion.VERSION_21) {
         options.compilerArgs = options.compilerArgs + "-Xlint:-this-escape"
     }
 }

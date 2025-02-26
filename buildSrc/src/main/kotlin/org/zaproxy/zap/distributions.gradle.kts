@@ -68,12 +68,14 @@ val bundledAddOns: Any = provider {
     }
 }
 
+fun startScriptTokenMap(zapJar: String) = mapOf("zapJar" to zapJar, "javaVersion" to (extra["zapJavaVersion"] as JavaVersion).majorVersion)
+
 val distFiles by tasks.registering(Sync::class) {
     destinationDir = layout.buildDirectory.dir("distFiles").get().asFile
     from(jarWithBom)
     from(distDir) {
         filesMatching(listOf("zap.bat", "zap.sh")) {
-            filter<ReplaceTokens>("tokens" to mapOf("zapJar" to jarWithBom.get().archiveFileName.get()))
+            filter<ReplaceTokens>("tokens" to startScriptTokenMap(jarWithBom.get().archiveFileName.get()))
         }
         exclude("README.weekly")
         exclude("plugin/*.zap")
@@ -315,7 +317,7 @@ val distDaily by tasks.registering(Zip::class) {
         into(rootDir)
         include(startScripts)
         filesMatching(startScripts) {
-            filter<ReplaceTokens>("tokens" to mapOf("zapJar" to jarDaily.get().archiveFileName.get()))
+            filter<ReplaceTokens>("tokens" to startScriptTokenMap(jarDaily.get().archiveFileName.get()))
         }
     }
     from(File(distDir, "plugin")) {
@@ -374,7 +376,7 @@ val prepareDistWeekly by tasks.registering(Sync::class) {
     from(distDir) {
         include(startScripts)
         filesMatching(startScripts) {
-            filter<ReplaceTokens>("tokens" to mapOf("zapJar" to jarDaily.get().archiveFileName.get()))
+            filter<ReplaceTokens>("tokens" to startScriptTokenMap(jarDaily.get().archiveFileName.get()))
         }
     }
     from(weeklyAddOnsDir) {
