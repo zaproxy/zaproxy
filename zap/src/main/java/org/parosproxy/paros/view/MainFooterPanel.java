@@ -108,8 +108,7 @@ public class MainFooterPanel extends JPanel {
 
         footerToolbarLeft.add(getAlertInfo());
 
-        // Current Scans (Right)
-        footerToolbarRight.add(new JLabel(Constant.messages.getString("footer.scans.label")));
+        footerToolbarRight.add(new JLabel(Constant.messages.getString("footer.status.label")));
     }
 
     // Left toolbar for alerts
