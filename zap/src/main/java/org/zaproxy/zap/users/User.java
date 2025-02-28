@@ -104,6 +104,11 @@ public class User extends Enableable {
         this.name = name;
     }
 
+    public User(int contextId, String name, AuthenticationCredentials authenticationCredentials) {
+        this(contextId, name);
+        setAuthenticationCredentials(authenticationCredentials);
+    }
+
     /**
      * Gets the name of the user.
      *
