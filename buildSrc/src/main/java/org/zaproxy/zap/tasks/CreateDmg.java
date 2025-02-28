@@ -20,13 +20,17 @@
 package org.zaproxy.zap.tasks;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
+import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 
 public abstract class CreateDmg extends DefaultTask {
 
@@ -39,14 +43,17 @@ public abstract class CreateDmg extends DefaultTask {
     @OutputFile
     public abstract RegularFileProperty getDmg();
 
+    @Inject
+    protected abstract ExecOperations getExecOperations();
+
     @TaskAction
-    void create() {
+    void create() throws IOException {
         File dmgFile = getDmg().getAsFile().get();
-        getProject().mkdir(dmgFile.getParentFile());
+        Files.createDirectories(dmgFile.getParentFile().toPath());
 
         File workingDir = getWorkingDir().get();
 
-        getProject()
+        getExecOperations()
                 .exec(
                         spec -> {
                             spec.executable("hdiutil").workingDir(workingDir);

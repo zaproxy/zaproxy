@@ -22,6 +22,7 @@ package org.zaproxy.zap.tasks;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
@@ -34,6 +35,7 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecResult;
 
 /** A task that runs JFlex for given lexers. */
@@ -49,6 +51,11 @@ public class JFlexGenerator extends SourceTask {
 
         source("src/main/flex");
         include("**/*.flex");
+    }
+
+    @Inject
+    protected ExecOperations getExecOperations() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -90,7 +97,7 @@ public class JFlexGenerator extends SourceTask {
         args.add(source.getFile().getAbsolutePath());
 
         ExecResult result =
-                getProject()
+                getExecOperations()
                         .javaexec(
                                 spec -> {
                                     spec.getMainClass().set("jflex.Main");

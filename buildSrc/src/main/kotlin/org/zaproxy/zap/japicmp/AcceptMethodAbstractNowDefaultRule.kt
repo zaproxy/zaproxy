@@ -2,7 +2,7 @@ package org.zaproxy.zap.japicmp
 
 import japicmp.model.JApiClass
 import japicmp.model.JApiCompatibility
-import japicmp.model.JApiCompatibilityChange
+import japicmp.model.JApiCompatibilityChangeType
 import me.champeau.gradle.japicmp.report.Violation
 import me.champeau.gradle.japicmp.report.ViolationRule
 
@@ -14,7 +14,7 @@ class AcceptMethodAbstractNowDefaultRule: ViolationRule {
         }
 
         member.methods.forEach {
-            it.compatibilityChanges.remove(JApiCompatibilityChange.METHOD_ABSTRACT_NOW_DEFAULT)
+            it.compatibilityChanges.removeIf { e -> e.type == JApiCompatibilityChangeType.METHOD_ABSTRACT_NOW_DEFAULT }
         }
 
         return null

@@ -14,7 +14,7 @@ plugins {
     id("me.champeau.gradle.japicmp")
     id("org.cyclonedx.bom")
     id("org.zaproxy.common")
-    id("org.zaproxy.crowdin") version "0.4.0"
+    id("org.zaproxy.crowdin") version "0.6.0"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -178,7 +178,7 @@ listOf("jar", "jarDaily", "jarWithBom").forEach {
 
         if (System.getenv("ZAP_CHALK") != null) {
             doLast {
-                exec {
+                providers.exec {
                     workingDir(rootDir)
                     executable("chalk")
                     args("insert", archiveFile.get().asFile)
