@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.UnaryOperator;
@@ -62,6 +63,7 @@ public class AuthenticationHelper {
     private static final Logger LOGGER = LogManager.getLogger(AuthenticationHelper.class);
 
     private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
+    public static final String HISTORY_TAG_VERIFICATION = "Verification";
     public static final String AUTH_SUCCESS_STATS = "stats.auth.success";
     public static final String AUTH_FAILURE_STATS = "stats.auth.failure";
 
@@ -116,7 +118,23 @@ public class AuthenticationHelper {
         return user.getCorrespondingHttpState();
     }
 
+    /**
+     * Add the specified message to the History with an 'Authentication' tag.
+     *
+     * @param msg the message
+     */
     public static void addAuthMessageToHistory(HttpMessage msg) {
+        addAuthMessageToHistory(msg, List.of());
+    }
+
+    /**
+     * Add the specified message to the History with the given tags + an 'Authentication' one.
+     *
+     * @param msg the message
+     * @param tags the tags (must not be null)
+     * @since 2.16.1
+     */
+    public static void addAuthMessageToHistory(HttpMessage msg, List<String> tags) {
         // Add message to history
         try {
             final HistoryReference ref =
@@ -125,6 +143,7 @@ public class AuthenticationHelper {
                             HistoryReference.TYPE_AUTHENTICATION,
                             msg);
             ref.addTag(HISTORY_TAG_AUTHENTICATION);
+            tags.forEach(t -> ref.addTag(t));
             if (View.isInitialised()) {
                 final ExtensionHistory extHistory =
                         Control.getSingleton()
