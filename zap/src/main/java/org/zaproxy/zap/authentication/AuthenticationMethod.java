@@ -433,7 +433,8 @@ public abstract class AuthenticationMethod {
         replaceUserDataInPollRequest(pollMsg, user);
 
         getHttpSender().sendAndReceive(pollMsg);
-        AuthenticationHelper.addAuthMessageToHistory(pollMsg);
+        AuthenticationHelper.addAuthMessageToHistory(
+                pollMsg, List.of(AuthenticationHelper.HISTORY_TAG_VERIFICATION));
 
         AuthenticationState authState = user.getAuthenticationState();
         authState.setLastPollTime(System.currentTimeMillis());
