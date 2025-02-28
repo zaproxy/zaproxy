@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.inject.Inject;
 import org.apache.tools.ant.taskdefs.condition.Os;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
@@ -42,6 +43,7 @@ import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -52,6 +54,7 @@ import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.zaproxy.zap.tasks.internal.RepoData;
 
 /** A task that clones Git repositories and runs Gradle tasks contained in them. */
@@ -74,6 +77,11 @@ public class GradleBuildWithGitRepos extends DefaultTask {
         this.quiet = objects.property(Boolean.class).value(true);
         this.clean = objects.property(Boolean.class).value(false);
         this.tasks = getProject().container(Task.class, name -> new Task(name, getProject()));
+    }
+
+    @Inject
+    protected ExecOperations getExecOperations() {
+        throw new UnsupportedOperationException();
     }
 
     @InputFile
@@ -140,7 +148,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                     continue;
                 }
 
-                getProject().mkdir(reposDir);
+                Files.createDirectories(reposDir);
 
                 CloneCommand clone =
                         Git.cloneRepository()
@@ -197,7 +205,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
             execArgs.add("-q");
         }
         execArgs.addAll(args);
-        getProject()
+        getExecOperations()
                 .exec(
                         spec -> {
                             spec.setWorkingDir(repoDir);
