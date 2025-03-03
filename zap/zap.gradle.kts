@@ -114,6 +114,7 @@ dependencies {
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
     implementation("com.formdev:flatlaf:3.5.4")
+    implementation("com.formdev:flatlaf-swingx:3.5.4")
 
     runtimeOnly("commons-logging:commons-logging:1.3.4")
     runtimeOnly("xom:xom:1.3.9") {
