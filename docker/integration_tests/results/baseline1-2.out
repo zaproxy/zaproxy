@@ -5,7 +5,7 @@ WARN-NEW: Strict-Transport-Security Header Not Set [10035] x X
 WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x X 
 WARN-NEW: Storable and Cacheable Content [10049] x X 
 WARN-NEW: Retrieved from Cache [10050] x X 
-WARN-NEW: CSP: Wildcard Directive [10055] x X 
+WARN-NEW: CSP: Failure to Define Directive with No Fallback [10055] x X 
 WARN-NEW: Permissions Policy Header Not Set [10063] x X 
 WARN-NEW: Cross-Domain Misconfiguration [10098] x X 
 WARN-NEW: Insufficient Site Isolation Against Spectre Vulnerability [90004] x X 
