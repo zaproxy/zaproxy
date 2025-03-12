@@ -48,6 +48,8 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
             Constant.messages.getString("multiple.options.panel.add.button.label");
     protected static final String MODIFY_BUTTON_LABEL =
             Constant.messages.getString("multiple.options.panel.modify.button.label");
+    protected static final String DUPLICATE_BUTTON_LABEL =
+            Constant.messages.getString("multiple.options.panel.duplicate.button.label");
     protected static final String REMOVE_BUTTON_LABEL =
             Constant.messages.getString("multiple.options.panel.remove.button.label");
     protected static final String REMOVE_WO_CONFIRMATION_CHECKBOX_LABEL =
@@ -56,6 +58,7 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
 
     protected JButton addButton;
     protected JButton modifyButton;
+    protected JButton duplicateButton;
     protected JButton removeButton;
 
     protected AbstractMultipleOptionsBaseTableModel<E> model;
@@ -63,11 +66,18 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
     protected JCheckBox removeWithoutConfirmationCheckBox;
 
     public AbstractMultipleOptionsBaseTablePanel(AbstractMultipleOptionsBaseTableModel<E> model) {
-        this(model, true);
+        this(model, true, true);
     }
 
     protected AbstractMultipleOptionsBaseTablePanel(
             AbstractMultipleOptionsBaseTableModel<E> model, boolean allowModification) {
+        this(model, allowModification, true);
+    }
+
+    private AbstractMultipleOptionsBaseTablePanel(
+            AbstractMultipleOptionsBaseTableModel<E> model,
+            boolean allowModification,
+            boolean allowDuplicate) {
         super(model);
 
         getFooterPanel().setLayout(new GridBagLayout());
@@ -85,7 +95,6 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         addButton = new JButton(ADD_BUTTON_LABEL);
         addButton.addActionListener(
                 new ActionListener() {
-
                     @Override
                     public void actionPerformed(ActionEvent evt) {
                         E e = showAddDialogue();
@@ -95,6 +104,18 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
                         }
                     }
                 });
+
+        if (allowDuplicate) {
+            duplicateButton = new JButton(DUPLICATE_BUTTON_LABEL);
+            duplicateButton.setEnabled(false);
+            duplicateButton.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent evt) {
+                            duplicateElement(getSelectedRow());
+                        }
+                    });
+        }
 
         if (allowModification) {
             modifyButton = new JButton(MODIFY_BUTTON_LABEL);
@@ -112,7 +133,6 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         removeButton.setEnabled(false);
         removeButton.addActionListener(
                 new ActionListener() {
-
                     @Override
                     public void actionPerformed(ActionEvent evt) {
                         int row = getSelectedRow();
@@ -128,6 +148,9 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
                 });
 
         addButton(addButton);
+        if (allowDuplicate) {
+            addButton(duplicateButton);
+        }
         if (allowModification) {
             addButton(modifyButton);
         }
@@ -177,9 +200,19 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         }
     }
 
+    private void duplicateElement(int row) {
+        E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
+        if (e != null) {
+            getMultipleOptionsModel().addElement(e);
+        }
+    }
+
     protected void selectionChanged(boolean entrySelected) {
         if (modifyButton != null) {
             modifyButton.setEnabled(entrySelected);
+        }
+        if (duplicateButton != null) {
+            duplicateButton.setEnabled(entrySelected);
         }
         removeButton.setEnabled(entrySelected);
     }
@@ -191,8 +224,8 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
     /**
      * {@inheritDoc}
      *
-     * <p>Overridden to also enable/disable the added buttons ("add", "modify", "remove" and "remove
-     * without confirmation").
+     * <p>Overridden to also enable/disable the added buttons ("add", "modify", "remove",
+     * "duplicate" and "remove without confirmation").
      */
     @Override
     public void setComponentEnabled(boolean enabled) {
@@ -204,6 +237,9 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         boolean enable = enabled && getTable().getSelectionModel().getMinSelectionIndex() >= 0;
         if (modifyButton != null) {
             modifyButton.setEnabled(enable);
+        }
+        if (duplicateButton != null) {
+            duplicateButton.setEnabled(enable);
         }
         removeButton.setEnabled(enable);
     }
