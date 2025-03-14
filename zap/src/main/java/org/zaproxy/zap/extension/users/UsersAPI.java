@@ -100,7 +100,6 @@ public class UsersAPI extends ApiImplementor {
     private static final String TIME_NOW = "NOW";
 
     private ExtensionUserManagement extension;
-    private Map<Integer, ApiDynamicActionImplementor> loadedAuthenticationMethodActions;
 
     public UsersAPI(ExtensionUserManagement extension) {
         super();
@@ -166,24 +165,26 @@ public class UsersAPI extends ApiImplementor {
                         new String[] {
                             PARAM_COOKIE_PATH, PARAM_COOKIE_SECURE,
                         }));
+    }
 
-        // Load the authentication method actions
-        if (Control.getSingleton() != null) {
-            ExtensionAuthentication authenticationExtension =
-                    Control.getSingleton()
-                            .getExtensionLoader()
-                            .getExtension(ExtensionAuthentication.class);
-            this.loadedAuthenticationMethodActions = new HashMap<>();
-            if (authenticationExtension != null) {
-                for (AuthenticationMethodType t :
-                        authenticationExtension.getAuthenticationMethodTypes()) {
-                    ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
-                    if (i != null) {
-                        loadedAuthenticationMethodActions.put(t.getUniqueIdentifier(), i);
-                    }
+    private static ApiDynamicActionImplementor getAuthMethod(int identifier) throws ApiException {
+        ExtensionAuthentication authenticationExtension =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionAuthentication.class);
+        if (authenticationExtension != null) {
+            // Load the authentication method actions
+            for (AuthenticationMethodType t :
+                    authenticationExtension.getAuthenticationMethodTypes()) {
+                ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
+                if (i != null && t.getUniqueIdentifier() == identifier) {
+                    return i;
                 }
             }
         }
+        throw new ApiException(
+                Type.DOES_NOT_EXIST,
+                "No applicable authentication method type was found. Is it provided by an add-on which isn't installed?");
     }
 
     @Override
@@ -225,8 +226,7 @@ public class UsersAPI extends ApiImplementor {
                         ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID)
                                 .getAuthenticationMethod()
                                 .getType();
-                ApiDynamicActionImplementor a =
-                        loadedAuthenticationMethodActions.get(type.getUniqueIdentifier());
+                ApiDynamicActionImplementor a = getAuthMethod(type.getUniqueIdentifier());
                 return a.buildParamsDescription();
 
             case VIEW_GET_AUTH_STATE:
@@ -296,7 +296,7 @@ public class UsersAPI extends ApiImplementor {
                 actionParams.put(PARAM_USER_ID, getUserId(params));
                 // Run the method
                 ApiDynamicActionImplementor a =
-                        loadedAuthenticationMethodActions.get(
+                        getAuthMethod(
                                 context.getAuthenticationMethod().getType().getUniqueIdentifier());
                 a.handleAction(actionParams);
                 context.save();
