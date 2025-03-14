@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import java.time.Instant;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -132,6 +133,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     private final String apiMethodName;
     private final String labelPopupMenuKey;
     private final boolean postDataRequired;
+    private Instant when;
 
     /**
      * Constructs a {@code PostBasedAuthenticationMethodType} with the given data.
@@ -144,16 +146,38 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
      *     method, {@code false} otherwise.
      */
     public PostBasedAuthenticationMethodType(
+      String methodName,
+      int methodIdentifier,
+      String apiMethodName,
+      String labelPopupMenuKey,
+      boolean postDataRequired
+    ) {
+      this(methodName, methodIdentifier, apiMethodName, labelPopupMenuKey, postDataRequired, Instant.now());
+    }
+    /**
+     * Constructs a {@code PostBasedAuthenticationMethodType} with the given data.
+     *
+     * @param methodName the name of the authentication method, should not be {@code null}.
+     * @param methodIdentifier the ID of the authentication method.
+     * @param apiMethodName the API name of the authentication method, should not be {@code null}.
+     * @param labelPopupMenuKey the name of the menu item that flags the request as login.
+     * @param postDataRequired {@code true} if the POST data is required by the authentication
+     *     method, {@code false} otherwise.
+     * @param when A time (or null for whatever the current time is). Used for TOTP support.
+     */
+    public PostBasedAuthenticationMethodType(
             String methodName,
             int methodIdentifier,
             String apiMethodName,
             String labelPopupMenuKey,
-            boolean postDataRequired) {
+            boolean postDataRequired,
+            Instant when) {
         this.methodName = methodName;
         this.methodIdentifier = methodIdentifier;
         this.apiMethodName = apiMethodName;
         this.labelPopupMenuKey = labelPopupMenuKey;
         this.postDataRequired = postDataRequired;
+        this.when = when;
     }
 
     /**
@@ -252,13 +276,29 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
          * @throws HttpMalformedHeaderException if the constructed HTTP request is malformed
          * @throws DatabaseException if an error occurred while reading the request from database
          */
+       protected HttpMessage prepareRequestMessage(
+               UsernamePasswordAuthenticationCredentials credentials)
+               throws URIException, HttpMalformedHeaderException, DatabaseException {
+               return prepareRequestMessage(credentials, Instant.now());
+        }
+        /**
+         * Prepares a request message, by filling the appropriate 'username' and 'password' fields
+         * in the request URI and the POST data, if any.
+         *
+         * @param credentials the credentials
+         * @return the HTTP message prepared for authentication
+         * @throws URIException if failed to create the request URI
+         * @throws HttpMalformedHeaderException if the constructed HTTP request is malformed
+         * @throws DatabaseException if an error occurred while reading the request from database
+         * @param when A time (or null for whatever the current time is). Used for TOTP support.
+         */
         protected HttpMessage prepareRequestMessage(
-                UsernamePasswordAuthenticationCredentials credentials)
+                UsernamePasswordAuthenticationCredentials credentials, Instant when)
                 throws URIException, HttpMalformedHeaderException, DatabaseException {
 
             String mfa = "";
             try {
-              mfa = credentials.getOneTimeCode();
+              mfa = credentials.getOneTimeCode(when);
             } catch (Exception e) {
               System.out.println("WARNING: No one time code produced "+e.getClass().getName());
             }
@@ -269,12 +309,6 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             // Replace the username and password in the post data of the request, if needed
             String requestBody = null;
             if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
-                try {
-                  mfa = credentials.getOneTimeCode();
-                } catch (Exception e) {
-                  System.out.println("WARNING: No one time code produced "+e.getClass().getName());
-                }
-
                 Map<String, String> kvMap = new HashMap<>();
                 kvMap.put(
                         PostBasedAuthenticationMethod.MSG_USER_PATTERN, credentials.getUsername());
@@ -323,7 +357,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user)
+                User user, Instant when)
                 throws AuthenticationMethod.UnsupportedAuthenticationCredentialsException {
 
             // type check
@@ -363,7 +397,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 getHttpSender().sendAndReceive(loginMsgToRenewCookie);
                 AuthenticationHelper.addAuthMessageToHistory(loginMsgToRenewCookie);
 
-                msg = prepareRequestMessage(cred);
+                msg = prepareRequestMessage(cred, when);
                 msg.setRequestingUser(user);
 
                 replaceAntiCsrfTokenValueIfRequired(msg, loginMsgToRenewCookie, paramEncoder);

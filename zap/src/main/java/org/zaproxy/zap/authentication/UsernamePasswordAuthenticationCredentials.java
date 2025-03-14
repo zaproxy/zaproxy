@@ -157,6 +157,9 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
     }
 
     public String getOneTimeCode() throws BadOTPException {
+      return getOneTimeCode(Instant.now());
+    }
+    public String getOneTimeCode(Instant when) throws BadOTPException {
       if (mfaURI.isEmpty()) {
         throw new BadOTPException("The MFA URI has not been set!");
       }
@@ -199,7 +202,7 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         try {
           Key key = new SecretKeySpec(decodedSecret, totpAlgorithm);
           TimeBasedOneTimePasswordGenerator totp = new TimeBasedOneTimePasswordGenerator(Duration.ofSeconds(period), digits, totpAlgorithm);
-          return totp.generateOneTimePasswordString(key, Instant.now());
+          return totp.generateOneTimePasswordString(key, when);
         } catch (NoSuchAlgorithmException e) {
           throw new BadOTPException("The MFA URI specifies an unsupported or invalid algorithm name");
         } catch (InvalidKeyException e) {
@@ -227,7 +230,9 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         StringBuilder out = new StringBuilder();
         out.append(Base64.encodeBase64String(username.getBytes())).append(FIELD_SEPARATOR);
         out.append(Base64.encodeBase64String(password.getBytes())).append(FIELD_SEPARATOR);
-        out.append(Base64.encodeBase64String(mfaURI.getBytes())).append(FIELD_SEPARATOR);
+        if (mfaURI.length() > 0) {
+          out.append(Base64.encodeBase64String(mfaURI.getBytes())).append(FIELD_SEPARATOR);
+        }
         return out.toString();
     }
 

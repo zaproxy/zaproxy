@@ -32,7 +32,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 import static org.zaproxy.zap.authentication.PostBasedAuthenticationMethodTypeUnitTest.ReplaceAntiCsrfTokenValueIfRequired.token;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -307,7 +307,7 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             Control.initSingletonForTesting();
             extAntiCsrf = mock(ExtensionAntiCSRF.class);
 
-            type = spy(new FormBasedAuthenticationMethodType());
+            type = spy(new FormBasedAuthenticationMethodType(Instant.EPOCH));
             method = type.createAuthenticationMethod(1);
             given(type.createAuthenticationMethod(anyInt()))
                     .willReturn((FormBasedAuthenticationMethod) method);
@@ -316,13 +316,14 @@ class PostBasedAuthenticationMethodTypeUnitTest {
         }
 
         @Test
-        void shouldSetCorrectContentLengthWithAntiCsrfTokens()
+        void shouldSetCorrectContentLengthWithAntiCsrfTokensUsingMfa()
                 throws NullPointerException, ApiException {
 
             // Given
             String test = "/shouldSetContentLength/test";
-            String username = "user";
-            String password = "";
+            String username = "LainIwakura";
+            String password = "PresentDayPresentTime";
+            String mfaURI = "otpauth://totp/NAVI:LainIwakura?secret=JBSWY3DPEHPK3PXP&issuer=NAVI&algorithm=SHA256&digits=8&period=42";
             String csrfTokenName = "_csrf";
             String csrfTokenValue = "0123456789";
             PostBasedAuthenticationMethodType.setExtAntiCsrf(extAntiCsrf);
@@ -341,7 +342,7 @@ class PostBasedAuthenticationMethodTypeUnitTest {
                     });
 
             UsernamePasswordAuthenticationCredentials creds =
-                    new UsernamePasswordAuthenticationCredentials(username, "");
+                    new UsernamePasswordAuthenticationCredentials(username, password, mfaURI);
 
             User user = mock(User.class);
             given(user.getAuthenticationState()).willReturn(new AuthenticationState());
@@ -358,20 +359,21 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             params.put("loginUrl", loginUrl);
             String authRequestBody =
                     String.format(
-                            "%s=xxxx&username=%s&password=%s",
+                            "%s=xxxx&username=%s&password=%s&mfa=%s",
                             csrfTokenName,
                             PostBasedAuthenticationMethod.MSG_USER_PATTERN,
-                            PostBasedAuthenticationMethod.MSG_PASS_PATTERN);
+                            PostBasedAuthenticationMethod.MSG_PASS_PATTERN,
+                            PostBasedAuthenticationMethod.MSG_MFA_PATTERN);
             params.put("loginRequestData", authRequestBody);
             type.getSetMethodForContextApiAction().handleAction(params);
 
             String expectedRequestBody =
                     String.format(
-                            "%s=%s&username=%s&password=%s",
-                            csrfTokenName, csrfTokenValue, username, password);
+                            "%s=%s&username=%s&password=%s&mfa=%s",
+                            csrfTokenName, csrfTokenValue, username, password, "63282760");
 
             // When
-            method.authenticate(sessMethod, creds, user);
+            method.authenticate(sessMethod, creds, user, Instant.EPOCH);
 
             // Then
             assertThat(orderedReqData.size(), is(2));
