@@ -70,10 +70,12 @@ public class AuthenticationAPI extends ApiImplementor {
     private static final String PARAM_METHOD_NAME = "authMethodName";
     private static final String PARAM_METHOD_CONFIG_PARAMS = "authMethodConfigParams";
 
-    private Map<String, AuthMethodEntry> loadedAuthenticationMethodActions;
+    private ExtensionAuthentication extension;
 
     public AuthenticationAPI(ExtensionAuthentication extension) {
         super();
+
+        this.extension = extension;
 
         this.addApiView(new ApiView(VIEW_GET_SUPPORTED_METHODS));
         this.addApiView(
@@ -82,17 +84,6 @@ public class AuthenticationAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_GET_LOGGED_IN_INDICATOR, new String[] {PARAM_CONTEXT_ID}));
         this.addApiView(
                 new ApiView(VIEW_GET_LOGGED_OUT_INDICATOR, new String[] {PARAM_CONTEXT_ID}));
-
-        this.loadedAuthenticationMethodActions = new HashMap<>();
-        // Load the authentication method actions
-        if (extension != null) {
-            for (AuthenticationMethodType t : extension.getAuthenticationMethodTypes()) {
-                ApiDynamicActionImplementor i = t.getSetMethodForContextApiAction();
-                if (i != null) {
-                    loadedAuthenticationMethodActions.put(i.getName(), new AuthMethodEntry(t, i));
-                }
-            }
-        }
 
         this.addApiAction(
                 new ApiAction(
@@ -135,7 +126,7 @@ public class AuthenticationAPI extends ApiImplementor {
                 else return new ApiResponseElement("logged_out_regex", "");
             case VIEW_GET_SUPPORTED_METHODS:
                 ApiResponseList supportedMethods = new ApiResponseList("supportedMethods");
-                for (AuthMethodEntry entry : loadedAuthenticationMethodActions.values())
+                for (AuthMethodEntry entry : getAuthMethods().values())
                     supportedMethods.addItem(
                             new ApiResponseElement("methodName", entry.getApi().getName()));
                 return supportedMethods;
@@ -211,6 +202,18 @@ public class AuthenticationAPI extends ApiImplementor {
                 });
     }
 
+    private Map<String, AuthMethodEntry> getAuthMethods() {
+        Map<String, AuthMethodEntry> loadedAuthenticationMethodActions = new HashMap<>();
+        for (AuthenticationMethodType type : extension.getAuthenticationMethodTypes()) {
+            ApiDynamicActionImplementor implr = type.getSetMethodForContextApiAction();
+            if (implr != null) {
+                loadedAuthenticationMethodActions.put(
+                        implr.getName(), new AuthMethodEntry(type, implr));
+            }
+        }
+        return loadedAuthenticationMethodActions;
+    }
+
     /**
      * Gets the sets the method action implementor or throws a Missing Parameter exception, if any
      * problems occurred.
@@ -220,13 +223,12 @@ public class AuthenticationAPI extends ApiImplementor {
      * @throws ApiException the api exception
      */
     private AuthMethodEntry getSetMethodActionImplementor(JSONObject params) throws ApiException {
-        AuthMethodEntry a =
-                loadedAuthenticationMethodActions.get(
-                        ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME));
+        String method = ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME);
+        AuthMethodEntry a = getAuthMethods().get(method);
         if (a == null)
             throw new ApiException(
                     Type.DOES_NOT_EXIST,
-                    "No authentication method type matches the provided value.");
+                    "No authentication method type matches the provided value: " + method);
         return a;
     }
 
