@@ -42,13 +42,14 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
 
     private UsernamePasswordAuthenticationCredentials usernamePasswordAuthenticationCredentials;
     private UsernamePasswordAuthenticationCredentials notConfiguredInstance;
-    private String username = "myUser";
-    private String password = "myPass";
+    private String username = "LainIwakura";
+    private String password = "PresentDayPresentTime";
+    private String mfaURI = "otpauth://totp/NAVI:LainIwakura?secret=JBSWY3DPEHPK3PXP&issuer=NAVI&algorithm=SHA256&digits=8&period=42";
 
     @BeforeEach
     void setUp() {
         this.usernamePasswordAuthenticationCredentials =
-                new UsernamePasswordAuthenticationCredentials(username, password);
+                new UsernamePasswordAuthenticationCredentials(username, password, mfaURI);
         this.notConfiguredInstance = new UsernamePasswordAuthenticationCredentials();
     }
 
@@ -132,7 +133,28 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
             assertThat(
                     String.format("Failed to properly encode with '%s'", correctSeparator),
                     encodedUsernamePassword,
-                    is("bXlVc2Vy~bXlQYXNz~"));
+                    is("TGFpbkl3YWt1cmE=~UHJlc2VudERheVByZXNlbnRUaW1l~b3RwYXV0aDovL3RvdHAvTkFWSTpMYWluSXdha3VyYT9zZWNyZXQ9SkJTV1kzRFBFSFBLM1BYUCZpc3N1ZXI9TkFWSSZhbGdvcml0aG09U0hBMjU2JmRpZ2l0cz04JnBlcmlvZD00Mg==~"));
+        }
+    }
+
+    @Test
+    void shouldEncodeUsernameAndPasswordAndMfaWithTheCorrectFieldSeparator() {
+        // Given
+        List<String> someCorrectSeparators = Arrays.asList("-", "|", "/", "\\", "+");
+
+        // When/Then
+        for (String correctSeparator : someCorrectSeparators) {
+            String encodedUsernamePassword =
+                    usernamePasswordAuthenticationCredentials.encode(correctSeparator);
+
+            assertThat(
+                    String.format("Failed to encode with '%s'", correctSeparator),
+                    encodedUsernamePassword,
+                    notNullValue());
+            assertThat(
+                    String.format("Failed to properly encode with '%s'", correctSeparator),
+                    encodedUsernamePassword,
+                    is("TGFpbkl3YWt1cmE=~UHJlc2VudERheVByZXNlbnRUaW1l~b3RwYXV0aDovL3RvdHAvTkFWSTpMYWluSXdha3VyYT9zZWNyZXQ9SkJTV1kzRFBFSFBLM1BYUCZpc3N1ZXI9TkFWSSZhbGdvcml0aG09U0hBMjU2JmRpZ2l0cz04JnBlcmlvZD00Mg==~"));
         }
     }
 

@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
+import java.time.Instant;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
@@ -282,7 +283,7 @@ class AuthenticationMethodUnitTest {
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user)
+                User user, Instant when)
                 throws UnsupportedAuthenticationCredentialsException {
             return null;
         }

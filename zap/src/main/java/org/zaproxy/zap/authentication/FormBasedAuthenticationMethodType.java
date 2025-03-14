@@ -25,6 +25,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Instant;
 import java.util.function.UnaryOperator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,6 +76,15 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
                 return "";
             };
 
+    public FormBasedAuthenticationMethodType(Instant when) {
+        super(
+                METHOD_NAME,
+                METHOD_IDENTIFIER,
+                API_METHOD_NAME,
+                "authentication.method.fb.popup.login.request",
+                false,
+                when);
+    }
     public FormBasedAuthenticationMethodType() {
         super(
                 METHOD_NAME,

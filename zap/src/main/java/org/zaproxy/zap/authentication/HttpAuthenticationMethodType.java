@@ -24,6 +24,7 @@ import java.awt.Insets;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +138,8 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user)
+                User user,
+                Instant when)
                 throws UnsupportedAuthenticationCredentialsException {
 
             WebSession session = user.getAuthenticatedSession();

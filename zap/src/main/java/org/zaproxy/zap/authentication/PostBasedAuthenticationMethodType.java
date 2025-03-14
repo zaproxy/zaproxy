@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import java.time.Instant;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -113,6 +114,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             Constant.messages.getString("authentication.method.pb.field.label.usernameParam");
     private static final String PASSWORD_PARAM_LABEL =
             Constant.messages.getString("authentication.method.pb.field.label.passwordParam");
+    private static final String MFA_PARAM_LABEL =
+            Constant.messages.getString("authentication.method.pb.field.label.mfaParam");
     private static final String LOGIN_URL_LABEL =
             Constant.messages.getString("authentication.method.pb.field.label.loginUrl");
     private static final String LOGIN_PAGE_URL_LABEL =
@@ -130,6 +133,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     private final String apiMethodName;
     private final String labelPopupMenuKey;
     private final boolean postDataRequired;
+    private Instant when;
 
     /**
      * Constructs a {@code PostBasedAuthenticationMethodType} with the given data.
@@ -142,16 +146,38 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
      *     method, {@code false} otherwise.
      */
     public PostBasedAuthenticationMethodType(
+      String methodName,
+      int methodIdentifier,
+      String apiMethodName,
+      String labelPopupMenuKey,
+      boolean postDataRequired
+    ) {
+      this(methodName, methodIdentifier, apiMethodName, labelPopupMenuKey, postDataRequired, Instant.now());
+    }
+    /**
+     * Constructs a {@code PostBasedAuthenticationMethodType} with the given data.
+     *
+     * @param methodName the name of the authentication method, should not be {@code null}.
+     * @param methodIdentifier the ID of the authentication method.
+     * @param apiMethodName the API name of the authentication method, should not be {@code null}.
+     * @param labelPopupMenuKey the name of the menu item that flags the request as login.
+     * @param postDataRequired {@code true} if the POST data is required by the authentication
+     *     method, {@code false} otherwise.
+     * @param when A time (or null for whatever the current time is). Used for TOTP support.
+     */
+    public PostBasedAuthenticationMethodType(
             String methodName,
             int methodIdentifier,
             String apiMethodName,
             String labelPopupMenuKey,
-            boolean postDataRequired) {
+            boolean postDataRequired,
+            Instant when) {
         this.methodName = methodName;
         this.methodIdentifier = methodIdentifier;
         this.apiMethodName = apiMethodName;
         this.labelPopupMenuKey = labelPopupMenuKey;
         this.postDataRequired = postDataRequired;
+        this.when = when;
     }
 
     /**
@@ -166,6 +192,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 "/resource/icon/fugue/door-open-green-arrow.png";
         public static final String MSG_USER_PATTERN = TOKEN_PREFIX + "username" + TOKEN_POSTFIX;
         public static final String MSG_PASS_PATTERN = TOKEN_PREFIX + "password" + TOKEN_POSTFIX;
+        public static final String MSG_MFA_PATTERN = TOKEN_PREFIX + "mfatoken" + TOKEN_POSTFIX;
 
         private final String contentType;
         private final UnaryOperator<String> paramEncoder;
@@ -249,13 +276,35 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
          * @throws HttpMalformedHeaderException if the constructed HTTP request is malformed
          * @throws DatabaseException if an error occurred while reading the request from database
          */
+       protected HttpMessage prepareRequestMessage(
+               UsernamePasswordAuthenticationCredentials credentials)
+               throws URIException, HttpMalformedHeaderException, DatabaseException {
+               return prepareRequestMessage(credentials, Instant.now());
+        }
+        /**
+         * Prepares a request message, by filling the appropriate 'username' and 'password' fields
+         * in the request URI and the POST data, if any.
+         *
+         * @param credentials the credentials
+         * @return the HTTP message prepared for authentication
+         * @throws URIException if failed to create the request URI
+         * @throws HttpMalformedHeaderException if the constructed HTTP request is malformed
+         * @throws DatabaseException if an error occurred while reading the request from database
+         * @param when A time (or null for whatever the current time is). Used for TOTP support.
+         */
         protected HttpMessage prepareRequestMessage(
-                UsernamePasswordAuthenticationCredentials credentials)
+                UsernamePasswordAuthenticationCredentials credentials, Instant when)
                 throws URIException, HttpMalformedHeaderException, DatabaseException {
 
+            String mfa = "";
+            try {
+              mfa = credentials.getOneTimeCode(when);
+            } catch (Exception e) {
+              System.out.println("WARNING: No one time code produced "+e.getClass().getName());
+            }
             URI requestURI =
                     createLoginUrl(
-                            loginRequestURL, credentials.getUsername(), credentials.getPassword());
+                            loginRequestURL, credentials.getUsername(), credentials.getPassword(), mfa);
 
             // Replace the username and password in the post data of the request, if needed
             String requestBody = null;
@@ -265,6 +314,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                         PostBasedAuthenticationMethod.MSG_USER_PATTERN, credentials.getUsername());
                 kvMap.put(
                         PostBasedAuthenticationMethod.MSG_PASS_PATTERN, credentials.getPassword());
+                kvMap.put(
+                        PostBasedAuthenticationMethod.MSG_MFA_PATTERN, mfa);
                 requestBody =
                         AuthenticationHelper.replaceUserData(loginRequestBody, kvMap, paramEncoder);
             }
@@ -306,7 +357,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user)
+                User user, Instant when)
                 throws AuthenticationMethod.UnsupportedAuthenticationCredentialsException {
 
             // type check
@@ -346,7 +397,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 getHttpSender().sendAndReceive(loginMsgToRenewCookie);
                 AuthenticationHelper.addAuthMessageToHistory(loginMsgToRenewCookie);
 
-                msg = prepareRequestMessage(cred);
+                msg = prepareRequestMessage(cred, when);
                 msg.setRequestingUser(user);
 
                 replaceAntiCsrfTokenValueIfRequired(msg, loginMsgToRenewCookie, paramEncoder);
@@ -482,7 +533,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 this.loginRequestURL = url;
                 this.loginRequestBody = postData;
 
-                URI uri = createLoginUrl(loginRequestURL, "", "");
+                URI uri = createLoginUrl(loginRequestURL, "", "", "");
                 // Note: The findNode just checks the parameter names, not their values
                 // Note: No need to make sure the other parameters (besides user/password) are the
                 // same, as POSTs with different values are not delimited in the SitesTree anyway
@@ -653,11 +704,12 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         return map;
     }
 
-    private static URI createLoginUrl(String loginData, String username, String password)
+    private static URI createLoginUrl(String loginData, String username, String password, String mfaToken)
             throws URIException {
         Map<String, String> kvMap = new HashMap<>();
         kvMap.put(PostBasedAuthenticationMethod.MSG_USER_PATTERN, username);
         kvMap.put(PostBasedAuthenticationMethod.MSG_PASS_PATTERN, password);
+        kvMap.put(PostBasedAuthenticationMethod.MSG_MFA_PATTERN, mfaToken);
         return new URI(
                 AuthenticationHelper.replaceUserData(
                         loginData, kvMap, PostBasedAuthenticationMethodType::encodeParameter),
@@ -679,7 +731,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         }
 
         try {
-            createLoginUrl(loginUrl, "", "");
+            createLoginUrl(loginUrl, "", "", "");
             return true;
         } catch (Exception e) {
             return false;
@@ -711,6 +763,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         private ZapTextField postDataField;
         private JComboBox<NameValuePair> usernameParameterCombo;
         private JComboBox<NameValuePair> passwordParameterCombo;
+        private JComboBox<NameValuePair> mfaParameterCombo;
         private PostBasedAuthenticationMethod authenticationMethod;
 
         private Context context;
@@ -876,6 +929,11 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             this.passwordParameterCombo.setRenderer(NameValuePairRenderer.INSTANCE);
             this.add(passwordParameterCombo, LayoutHelper.getGBC(1, 5, 1, 1.0d, 0.0d));
 
+            this.add(new JLabel(MFA_PARAM_LABEL), LayoutHelper.getGBC(2, 4, 1, 1.0d, 0.0d));
+            this.mfaParameterCombo = new JComboBox<>();
+            this.mfaParameterCombo.setRenderer(NameValuePairRenderer.INSTANCE);
+            this.add(mfaParameterCombo, LayoutHelper.getGBC(2, 5, 1, 1.0d, 0.0d));
+
             this.add(new ZapHtmlLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 8, 2, 1.0d, 0.0d));
 
             // Make sure we update the parameters when something has been changed in the
@@ -937,6 +995,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                             (NameValuePair) usernameParameterCombo.getSelectedItem();
                     NameValuePair passwdParam =
                             (NameValuePair) passwordParameterCombo.getSelectedItem();
+                    NameValuePair mfaParam =
+                            (NameValuePair) mfaParameterCombo.getSelectedItem();
 
                     ExtensionUserManagement userExt = getUserExt();
                     if (userExt != null
@@ -974,6 +1034,12 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                     postData,
                                     passwdParam,
                                     PostBasedAuthenticationMethod.MSG_PASS_PATTERN);
+                    postData =
+                            this.replaceParameterValue(
+                                    postData,
+                                    mfaParam,
+                                    PostBasedAuthenticationMethod.MSG_MFA_PATTERN);
+
                 }
                 getMethod().setLoginRequest(loginUrlField.getText(), postData);
                 getMethod().setLoginPageUrl(loginPageUrlField.getText());
@@ -1011,6 +1077,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 NameValuePair[] paramsArray = params.toArray(new NameValuePair[params.size()]);
                 this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
                 this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
+                this.mfaParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
 
                 int index =
                         getIndexOfParamWithValue(
@@ -1025,6 +1092,15 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 if (index >= 0) {
                     this.passwordParameterCombo.setSelectedIndex(index);
                 }
+
+                index =
+                        getIndexOfParamWithValue(
+                                paramsArray, PostBasedAuthenticationMethod.MSG_MFA_PATTERN);
+                if (index >= 0) {
+                    this.mfaParameterCombo.setSelectedIndex(index);
+                }
+
+
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
