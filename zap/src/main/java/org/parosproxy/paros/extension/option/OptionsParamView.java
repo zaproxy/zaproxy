@@ -677,7 +677,8 @@ public class OptionsParamView extends AbstractParam {
                                     } catch (Exception e2) {
                                         LOGGER.warn(
                                                 "Failed to set the look and feel: {}",
-                                                e2.getMessage());
+                                                e2.getMessage(),
+                                                e2);
                                     } finally {
                                         dialog.setVisible(false);
                                         dialog.dispose();

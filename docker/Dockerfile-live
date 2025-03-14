@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	curl \
 	xmlstarlet \
 	unzip \
+	jq \
 	git \
 	openbox \
 	xterm \

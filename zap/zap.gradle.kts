@@ -14,7 +14,7 @@ plugins {
     id("me.champeau.gradle.japicmp")
     id("org.cyclonedx.bom")
     id("org.zaproxy.common")
-    id("org.zaproxy.crowdin") version "0.4.0"
+    id("org.zaproxy.crowdin") version "0.6.0"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -31,16 +31,19 @@ val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
 val distDir = file("src/main/dist/")
 
+fun isZapRelease() = System.getenv("ZAP_RELEASE") != null
+
+val zapJavaVersion by extra { if (isZapRelease()) JavaVersion.toVersion(System.getenv("ZAP_JAVA_VERSION")) else JavaVersion.VERSION_17 }
+
 java {
     // Compile with appropriate Java version when building ZAP releases.
-    if (System.getenv("ZAP_RELEASE") != null) {
+    if (isZapRelease()) {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(System.getenv("ZAP_JAVA_VERSION")))
+            languageVersion.set(JavaLanguageVersion.of(zapJavaVersion.majorVersion))
         }
     } else {
-        val javaVersion = JavaVersion.VERSION_17
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
+        sourceCompatibility = zapJavaVersion
+        targetCompatibility = zapJavaVersion
     }
 }
 
@@ -77,7 +80,8 @@ spotless {
 
 tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs = options.compilerArgs + "-parameters"
-    if (JavaVersion.current().getMajorVersion() >= "21") {
+    val javaVersion = if (isZapRelease()) zapJavaVersion else JavaVersion.current()
+    if (javaVersion >= JavaVersion.VERSION_21) {
         options.compilerArgs = options.compilerArgs + "-Xlint:-this-escape"
     }
 }
@@ -112,6 +116,7 @@ dependencies {
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
     implementation("com.formdev:flatlaf:3.5.4")
+    implementation("com.formdev:flatlaf-swingx:3.5.4")
 
     runtimeOnly("commons-logging:commons-logging:1.3.4")
     runtimeOnly("xom:xom:1.3.9") {
@@ -176,7 +181,7 @@ listOf("jar", "jarDaily", "jarWithBom").forEach {
 
         if (System.getenv("ZAP_CHALK") != null) {
             doLast {
-                exec {
+                providers.exec {
                     workingDir(rootDir)
                     executable("chalk")
                     args("insert", archiveFile.get().asFile)

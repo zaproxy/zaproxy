@@ -1,0 +1,46 @@
+env:
+  contexts:
+  - name: RecordedAuthTest
+    urls:
+    - http://localhost:9091/auth/simple-json-cookie
+    includePaths:
+    - http://localhost:9091/auth/simple-json-cookie.*
+    authentication:
+      method: client
+      parameters:
+        script: /zap/wrk/configs/scripts/auth/clientScriptAuth.zst
+        scriptEngine: Mozilla Zest
+      verification:
+        method: poll
+        loggedInRegex: \Q 200 OK\E
+        loggedOutRegex: \Q 403 Forbidden\E
+        pollFrequency: 60
+        pollUnits: seconds
+        pollUrl: http://localhost:9091/auth/simple-json-cookie/user
+        pollPostData: ""
+    sessionManagement:
+      method: headers
+      parameters:
+        Cookie: "sid={%cookie:sid%}; _random=blahblah"
+    technology: {}
+    structure: {}
+    users:
+    - name: test
+      credentials:
+        Username: test@test.com
+        Password: password123
+  parameters: {}
+jobs:
+- type: spiderClient
+  parameters:
+    context: RecordedAuthTest
+    user: test
+    maxDuration: 0
+    maxChildren: 0
+    browserId: firefox-headless
+  tests:
+  - name: spiderClient/url
+    type: url
+    onFail: ERROR
+    url: http://localhost:9091/auth/simple-json-cookie/s3cr3t.html
+    operator: and

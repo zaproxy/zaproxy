@@ -789,6 +789,7 @@ public class AlertViewPanel extends AbstractPanel {
             alert.setInputVector(originalAlert.getInputVector());
         }
 
+        int historyId = 0;
         String uri = null;
         HttpMessage msg = null;
         if (httpMessage != null) {
@@ -796,12 +797,14 @@ public class AlertViewPanel extends AbstractPanel {
             msg = httpMessage;
         } else if (historyRef != null) {
             try {
+                historyId = historyRef.getHistoryId();
                 uri = historyRef.getURI().toString();
                 msg = historyRef.getHttpMessage();
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
         } else if (originalAlert != null) {
+            historyId = originalAlert.getHistoryId();
             uri = originalAlert.getUri();
             msg = originalAlert.getMessage();
         }
@@ -817,6 +820,7 @@ public class AlertViewPanel extends AbstractPanel {
                 alertEditCweId.getValue(),
                 alertEditWascId.getValue(),
                 msg);
+        alert.setHistoryId(historyId);
         alert.setTags(getAlertTags());
         return alert;
     }

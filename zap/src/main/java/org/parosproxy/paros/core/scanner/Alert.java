@@ -603,6 +603,7 @@ public class Alert implements Comparable<Alert> {
      */
     public Alert newInstance() {
         Alert item = new Alert(this.pluginId);
+        item.setHistoryId(historyId);
         item.setRiskConfidence(this.risk, this.confidence);
         item.setName(this.name);
         item.setDetail(
