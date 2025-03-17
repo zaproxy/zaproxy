@@ -26,4 +26,29 @@ package org.parosproxy.paros.db;
  *
  * @author psiinon
  */
-public interface DatabaseServer {}
+public interface DatabaseServer {
+
+    /**
+     * Gets the URL used to connect to the DB.
+     *
+     * @return the URL, never {@code null}.
+     * @since 2.16.1
+     */
+    String getUrl();
+
+    /**
+     * Gets the user name used to connect to the DB.
+     *
+     * @return the user name, never {@code null}.
+     * @since 2.16.1
+     */
+    String getUser();
+
+    /**
+     * Gets the password of the user.
+     *
+     * @return the password, might be {@code null}.
+     * @since 2.16.1
+     */
+    String getPassword();
+}
