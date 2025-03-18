@@ -29,4 +29,11 @@ public interface DatabaseListener {
 
     void databaseOpen(DatabaseServer dbServer)
             throws DatabaseException, DatabaseUnsupportedException;
+
+    /**
+     * Called when the database is in process of closing, or when the listener is removed.
+     *
+     * @since 2.16.1
+     */
+    default void closing(DatabaseServer db) throws DatabaseException {}
 }

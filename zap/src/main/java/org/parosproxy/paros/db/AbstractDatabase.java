@@ -74,7 +74,16 @@ public abstract class AbstractDatabase implements Database {
 
     @Override
     public void removeDatabaseListener(DatabaseListener listener) {
+        notifyClosing(listener);
         databaseListeners.remove(listener);
+    }
+
+    private void notifyClosing(DatabaseListener listener) {
+        try {
+            listener.closing(getDatabaseServer());
+        } catch (Exception e) {
+            getLogger().error(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -89,6 +98,9 @@ public abstract class AbstractDatabase implements Database {
      */
     @Override
     public void close(boolean compact, boolean cleanup) {
+        for (DatabaseListener listener : databaseListeners) {
+            notifyClosing(listener);
+        }
         removeDatabaseListeners();
     }
 

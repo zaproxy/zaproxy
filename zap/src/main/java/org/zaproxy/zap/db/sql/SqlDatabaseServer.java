@@ -43,6 +43,21 @@ public class SqlDatabaseServer implements DatabaseServer {
         start(dbname);
     }
 
+    @Override
+    public String getUrl() {
+        return dbUrl;
+    }
+
+    @Override
+    public String getUser() {
+        return dbUser;
+    }
+
+    @Override
+    public String getPassword() {
+        return dbPassword;
+    }
+
     private void start(String dbname) throws ClassNotFoundException, Exception {
         this.setDbUrl(DbSQL.getSingleton().getDbUrl());
         this.setDbUser(DbSQL.getSingleton().getDbUser());

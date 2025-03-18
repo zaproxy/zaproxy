@@ -75,6 +75,21 @@ public class ParosDatabaseServer implements DatabaseServer {
         start(dbname);
     }
 
+    @Override
+    public String getUrl() {
+        return mUrl;
+    }
+
+    @Override
+    public String getUser() {
+        return mUser;
+    }
+
+    @Override
+    public String getPassword() {
+        return mPassword;
+    }
+
     private void start(String dbname) throws ClassNotFoundException, Exception {
         // hsqldb only accept '/' as path;
         dbname = dbname.replaceAll("\\\\", "/");
