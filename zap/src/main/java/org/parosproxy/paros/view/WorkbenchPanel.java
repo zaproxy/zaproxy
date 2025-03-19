@@ -42,6 +42,7 @@
 // ZAP: 2022/02/26 Remove deprecated methods in 2.5.0
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2025/03/19 Make getTabbedFull public.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -756,7 +757,16 @@ public class WorkbenchPanel extends JPanel {
         return fullLayoutPanel;
     }
 
-    private TabbedPanel2 getTabbedFull() {
+    /**
+     * Gets the tabbed panel that has all the panels, when in {@link Layout#FULL FULL} layout.
+     *
+     * <p>Direct access/manipulation of the tabbed panel is discouraged, the changes done to it
+     * might be lost while changing layouts.
+     *
+     * @return the tabbed panel used for the {@link Layout#FULL FULL} layout, never {@code null}
+     * @since 2.16.1
+     */
+    public TabbedPanel2 getTabbedFull() {
         if (tabbedFull == null) {
             tabbedFull = new TabbedPanel2();
             tabbedFull.setName("tabbedFull");
