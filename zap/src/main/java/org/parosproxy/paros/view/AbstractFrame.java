@@ -31,6 +31,7 @@
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2025/03/07 Save window size regardless of state.
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
@@ -194,23 +195,14 @@ public class AbstractFrame extends JFrame {
     }
 
     /**
-     * Saves the size of this frame, but only, if window state is 'normal'. If window state is
-     * iconified or maximized, the size is not saved!
+     * Saves the size of this frame.
      *
-     * @param size
+     * @param size the dimensions being saved
      */
     private void saveWindowSize(Dimension size) {
         if (size != null) {
-            if (getExtendedState() == Frame.NORMAL) {
-                LOGGER.debug(
-                        "Saving preference {}={},{}", PREF_WINDOW_SIZE, size.width, size.height);
-                this.preferences.put(
-                        prefnzPrefix + PREF_WINDOW_SIZE, size.width + "," + size.height);
-            } else {
-                LOGGER.debug(
-                        "Preference {} not saved, cause window state is not 'normal'.",
-                        PREF_WINDOW_SIZE);
-            }
+            LOGGER.debug("Saving preference {}={},{}", PREF_WINDOW_SIZE, size.width, size.height);
+            this.preferences.put(prefnzPrefix + PREF_WINDOW_SIZE, size.width + "," + size.height);
         }
     }
 
