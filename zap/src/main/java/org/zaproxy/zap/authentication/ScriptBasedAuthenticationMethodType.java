@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.time.Instant;
 import javax.script.ScriptException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -237,7 +238,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user)
+                User user, Instant when)
                 throws UnsupportedAuthenticationCredentialsException {
             // type check
             if (!(credentials instanceof GenericAuthenticationCredentials)) {
