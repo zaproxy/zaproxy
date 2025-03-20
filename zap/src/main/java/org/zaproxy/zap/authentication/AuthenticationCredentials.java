@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
+import java.time.Instant;
 import org.zaproxy.zap.extension.api.ApiResponse;
 
 /**
@@ -64,4 +65,18 @@ public interface AuthenticationCredentials {
      * @return the api response representation
      */
     public abstract ApiResponse getApiResponseRepresentation();
+
+    /**
+     * Gets a TOTP code.
+     *
+     * <p>Not all credential implementations might provide one.
+     *
+     * @param when for when the code should be generated.
+     * @return the code or {@code null} if not able to generate one.
+     * @since 2.16.1
+     * @throws IllegalArgumentException if {@code when} is {@code null}.
+     */
+    default String getTotpCode(Instant when) {
+        return null;
+    }
 }
