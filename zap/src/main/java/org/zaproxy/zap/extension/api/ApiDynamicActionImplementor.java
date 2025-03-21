@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONObject;
 import org.zaproxy.zap.extension.api.API.RequestType;
@@ -38,6 +39,21 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
      */
     public ApiDynamicActionImplementor(
             String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+        super(name, mandatoryParamNames, optionalParamNames);
+    }
+
+    /**
+     * Instantiates a new api dynamic action implementor.
+     *
+     * @param name the name
+     * @param mandatoryParamNames the mandatory param names, or <code>null</code> if there are no
+     *     mandatory parameters
+     * @param optionalParamNames the optional param names, or <code>null</code> if there are no
+     *     optional parameters
+     * @since 2.16.1
+     */
+    public ApiDynamicActionImplementor(
+            String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
         super(name, mandatoryParamNames, optionalParamNames);
     }
 

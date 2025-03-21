@@ -20,7 +20,10 @@
 package org.zaproxy.zap.authentication;
 
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import net.sf.json.JSONObject;
@@ -38,15 +41,28 @@ import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.EncodingUtils;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 
-public class GenericAuthenticationCredentials implements AuthenticationCredentials {
+public class GenericAuthenticationCredentials extends TotpAuthenticationCredentials {
 
     private static final String API_NAME = "GenericAuthenticationCredentials";
+
+    private static final String FIELD_SEPARATOR = "~";
 
     private String[] paramNames;
     private Map<String, String> paramValues;
 
     public GenericAuthenticationCredentials(String[] paramNames) {
-        super();
+        this(paramNames, false);
+    }
+
+    /**
+     * Creates credentials enabling or not TOTP.
+     *
+     * @param paramNames the parameter names.
+     * @param enableTotp {@code true} if TOTP should be enabled, {@code false} otherwise.
+     * @since 2.16.1
+     */
+    public GenericAuthenticationCredentials(String[] paramNames, boolean enableTotp) {
+        super(enableTotp);
         this.paramNames = paramNames;
         this.paramValues = new HashMap<>(paramNames.length);
     }
@@ -66,19 +82,29 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
 
     @Override
     public String encode(String parentFieldSeparator) {
-        return EncodingUtils.mapToString(paramValues);
+        StringBuilder out = new StringBuilder();
+        out.append(EncodingUtils.mapToString(paramValues)).append(FIELD_SEPARATOR);
+        encodeTotpData(out, FIELD_SEPARATOR);
+        return out.toString();
     }
 
     @Override
     public void decode(String encodedCredentials) {
-        this.paramValues = EncodingUtils.stringToMap(encodedCredentials);
+        String[] pieces = encodedCredentials.split(FIELD_SEPARATOR);
+
+        this.paramValues = EncodingUtils.stringToMap(pieces[0]);
         this.paramNames = this.paramValues.keySet().toArray(new String[this.paramValues.size()]);
+
+        if (pieces.length > 1) {
+            decodeTotpData(Arrays.asList(pieces).subList(1, pieces.length));
+        }
     }
 
     @Override
     public ApiResponse getApiResponseRepresentation() {
-        Map<String, String> values = new HashMap<>(paramValues);
+        Map<String, Object> values = new HashMap<>(paramValues);
         values.put("type", API_NAME);
+        setTotpData(values);
         return new ApiResponseSet<>("credentials", values);
     }
 
@@ -92,6 +118,8 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
         /** The dynamic fields panel. */
         private DynamicFieldsPanel fieldsPanel;
 
+        private TotpTabbedPane totpTabbedPane;
+
         public GenericAuthenticationCredentialsOptionsPanel(
                 GenericAuthenticationCredentials credentials) {
             super(credentials);
@@ -104,7 +132,15 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
 
             this.fieldsPanel = new DynamicFieldsPanel(credentials.paramNames);
             this.fieldsPanel.bindFieldValues(this.credentials.paramValues);
-            this.add(fieldsPanel, BorderLayout.CENTER);
+
+            if (getCredentials().isTotpEnabled()) {
+                totpTabbedPane = new TotpTabbedPane(fieldsPanel);
+                totpTabbedPane.setTotpData(getCredentials().getTotpData());
+
+                add(totpTabbedPane);
+            } else {
+                add(fieldsPanel);
+            }
         }
 
         @Override
@@ -125,6 +161,10 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
         @Override
         public void saveCredentials() {
             this.credentials.paramValues = new HashMap<>(this.fieldsPanel.getFieldValues());
+
+            if (totpTabbedPane != null) {
+                credentials.setTotpData(totpTabbedPane.getTotpData());
+            }
         }
     }
 
@@ -139,8 +179,14 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
      */
     public static ApiDynamicActionImplementor getSetCredentialsForUserApiAction(
             final AuthenticationMethodType methodType) {
-        return new ApiDynamicActionImplementor(
-                ACTION_SET_CREDENTIALS, null, new String[] {PARAM_CONFIG_PARAMS}) {
+        List<String> optionalParameters = new ArrayList<>();
+        optionalParameters.add(PARAM_CONFIG_PARAMS);
+        if (methodType.createAuthenticationCredentials()
+                        instanceof TotpAuthenticationCredentials totpCreds
+                && totpCreds.isTotpEnabled()) {
+            optionalParameters = TotpAuthenticationCredentials.getApiParameters();
+        }
+        return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, null, optionalParameters) {
 
             @Override
             public void handleAction(JSONObject params) throws ApiException {
@@ -173,6 +219,8 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
                 for (String paramName : credentials.paramNames)
                     credentials.setParam(
                             paramName, ApiUtils.getNonEmptyStringParam(params, paramName));
+                credentials.readTotpData(params);
+
                 user.setAuthenticationCredentials(credentials);
             }
         };

@@ -21,10 +21,14 @@ package org.zaproxy.zap.authentication;
 
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
@@ -46,7 +50,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The credentials implementation for use in systems that require a username and password
  * combination for authentication.
  */
-public class UsernamePasswordAuthenticationCredentials implements AuthenticationCredentials {
+public class UsernamePasswordAuthenticationCredentials extends TotpAuthenticationCredentials {
 
     private static final String API_NAME = "UsernamePasswordAuthenticationCredentials";
 
@@ -67,11 +71,34 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
     private String password;
 
     public UsernamePasswordAuthenticationCredentials() {
-        super();
+        this(false);
+    }
+
+    /**
+     * Creates empty credentials enabling or not TOTP.
+     *
+     * @param enableTotp {@code true} if TOTP should be enabled, {@code false} otherwise.
+     * @since 2.16.1
+     */
+    public UsernamePasswordAuthenticationCredentials(boolean enableTotp) {
+        super(enableTotp);
     }
 
     public UsernamePasswordAuthenticationCredentials(String username, String password) {
-        super();
+        this(username, password, false);
+    }
+
+    /**
+     * Creates the credentials enabling or not TOTP.
+     *
+     * @param username the name of the user.
+     * @param password the password of the user.
+     * @param enableTotp {@code true} if TOTP should be enabled, {@code false} otherwise.
+     * @since 2.16.1
+     */
+    public UsernamePasswordAuthenticationCredentials(
+            String username, String password, boolean enableTotp) {
+        super(enableTotp);
         this.username = username;
         this.password = password;
     }
@@ -114,6 +141,7 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         StringBuilder out = new StringBuilder();
         out.append(Base64.encodeBase64String(username.getBytes())).append(FIELD_SEPARATOR);
         out.append(Base64.encodeBase64String(password.getBytes())).append(FIELD_SEPARATOR);
+        encodeTotpData(out, FIELD_SEPARATOR);
         return out.toString();
     }
 
@@ -135,6 +163,10 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         this.username = new String(Base64.decodeBase64(pieces[0]));
         if (pieces.length > 1) this.password = new String(Base64.decodeBase64(pieces[1]));
         else this.password = "";
+
+        if (pieces.length > 2) {
+            decodeTotpData(Arrays.asList(pieces).subList(2, pieces.length));
+        }
     }
 
     /**
@@ -155,6 +187,8 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         private ZapTextField usernameTextField;
         private JPasswordField passwordTextField;
 
+        private TotpTabbedPane totpTabbedPane;
+
         public UsernamePasswordAuthenticationCredentialsOptionsPanel(
                 UsernamePasswordAuthenticationCredentials credentials) {
             super(credentials);
@@ -164,21 +198,35 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         private void initialize() {
             this.setLayout(new GridBagLayout());
 
-            this.add(new JLabel(USERNAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d));
+            JPanel panel = new JPanel();
+            panel.setLayout(new GridBagLayout());
+
+            panel.add(new JLabel(USERNAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d));
             this.usernameTextField = new ZapTextField();
             if (this.getCredentials().username != null)
                 this.usernameTextField.setText(this.getCredentials().username);
-            this.add(
+            panel.add(
                     this.usernameTextField,
                     LayoutHelper.getGBC(1, 0, 1, 0.0d, new Insets(0, 4, 0, 0)));
 
-            this.add(new JLabel(PASSWORD_LABEL), LayoutHelper.getGBC(0, 1, 1, 0.0d));
+            panel.add(new JLabel(PASSWORD_LABEL), LayoutHelper.getGBC(0, 1, 1, 0.0d));
             this.passwordTextField = new JPasswordField();
             if (this.getCredentials().password != null)
                 this.passwordTextField.setText(this.getCredentials().password);
-            this.add(
+            panel.add(
                     this.passwordTextField,
                     LayoutHelper.getGBC(1, 1, 1, 1.0d, new Insets(0, 4, 0, 0)));
+
+            if (getCredentials().isTotpEnabled()) {
+                panel.add(Box.createVerticalGlue(), LayoutHelper.getGBC(0, 2, 2, 0.0d, 1.0d));
+
+                totpTabbedPane = new TotpTabbedPane(panel);
+                totpTabbedPane.setTotpData(getCredentials().getTotpData());
+
+                add(totpTabbedPane);
+            } else {
+                add(panel);
+            }
         }
 
         @Override
@@ -200,6 +248,10 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         public void saveCredentials() {
             getCredentials().username = usernameTextField.getText();
             getCredentials().password = new String(passwordTextField.getPassword());
+
+            if (totpTabbedPane != null) {
+                getCredentials().setTotpData(totpTabbedPane.getTotpData());
+            }
         }
     }
 
@@ -207,10 +259,11 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
 
     @Override
     public ApiResponse getApiResponseRepresentation() {
-        Map<String, String> values = new HashMap<>();
+        Map<String, Object> values = new HashMap<>();
         values.put("type", API_NAME);
         values.put("username", username);
         values.put("password", password);
+        setTotpData(values);
         return new ApiResponseSet<>("credentials", values);
     }
 
@@ -227,8 +280,18 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
      */
     public static ApiDynamicActionImplementor getSetCredentialsForUserApiAction(
             final AuthenticationMethodType methodType) {
+
+        List<String> optionalParameters = List.of();
+        if (methodType.createAuthenticationCredentials()
+                        instanceof TotpAuthenticationCredentials totpCreds
+                && totpCreds.isTotpEnabled()) {
+            optionalParameters = TotpAuthenticationCredentials.getApiParameters();
+        }
+
         return new ApiDynamicActionImplementor(
-                ACTION_SET_CREDENTIALS, new String[] {PARAM_USERNAME, PARAM_PASSWORD}, null) {
+                ACTION_SET_CREDENTIALS,
+                List.of(PARAM_USERNAME, PARAM_PASSWORD),
+                optionalParameters) {
 
             @Override
             public void handleAction(JSONObject params) throws ApiException {
@@ -257,9 +320,12 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
                             ApiException.Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
                 // Build and set the credentials
                 UsernamePasswordAuthenticationCredentials credentials =
-                        new UsernamePasswordAuthenticationCredentials();
+                        (UsernamePasswordAuthenticationCredentials)
+                                context.getAuthenticationMethod().createAuthenticationCredentials();
                 credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
                 credentials.password = params.optString(PARAM_PASSWORD, "");
+                credentials.readTotpData(params);
+
                 user.setAuthenticationCredentials(credentials);
             }
         };

@@ -225,7 +225,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         @Override
         public AuthenticationCredentials createAuthenticationCredentials() {
-            return new GenericAuthenticationCredentials(this.credentialsParamNames);
+            return new GenericAuthenticationCredentials(this.credentialsParamNames, true);
         }
 
         @Override
