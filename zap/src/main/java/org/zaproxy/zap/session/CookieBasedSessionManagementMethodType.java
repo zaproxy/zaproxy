@@ -299,7 +299,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
     @Override
     public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
-        return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
+        return new ApiDynamicActionImplementor(API_METHOD_NAME, List.of(), List.of()) {
 
             @Override
             public void handleAction(JSONObject params) throws ApiException {
