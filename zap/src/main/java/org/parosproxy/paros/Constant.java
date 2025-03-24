@@ -209,7 +209,7 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 20016000;
+    static final long VERSION_TAG = 20016001;
 
     // Old version numbers - for upgrade
     private static final long V_2_14_0_TAG = 20014000;
