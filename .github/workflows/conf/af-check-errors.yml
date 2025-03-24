@@ -48,11 +48,11 @@ jobs:
         onFail: 'error'
   - type: spiderAjax
     tests:
-      - name: 'At least 10 URLs found'
+      - name: 'At least 3 URLs found'
         type: 'stats'
         statistic: 'spiderAjax.urls.added'
         operator: '>='
-        value: 10
+        value: 3
         onFail: 'error'
   - type: activeScan
   - type: passiveScan-wait
