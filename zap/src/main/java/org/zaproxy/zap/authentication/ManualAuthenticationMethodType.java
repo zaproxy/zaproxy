@@ -403,7 +403,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
     @Override
     public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
-        return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
+        return new ApiDynamicActionImplementor(API_METHOD_NAME, List.of(), List.of()) {
             @Override
             public void handleAction(JSONObject params) throws ApiException {
                 Context context =

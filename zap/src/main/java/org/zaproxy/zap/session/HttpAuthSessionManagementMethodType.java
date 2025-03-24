@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.session;
 
+import java.util.List;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -183,7 +184,7 @@ public class HttpAuthSessionManagementMethodType extends SessionManagementMethod
 
     @Override
     public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
-        return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
+        return new ApiDynamicActionImplementor(API_METHOD_NAME, List.of(), List.of()) {
 
             @Override
             public void handleAction(JSONObject params) throws ApiException {
