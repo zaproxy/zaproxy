@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.time.Instant;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -106,7 +107,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user) {
+                User user,
+                Instant when) {
             // Check proper type
             if (!(credentials instanceof ManualAuthenticationCredentials)) {
                 LogManager.getLogger(ManualAuthenticationMethod.class)

@@ -87,6 +87,8 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
+    implementation("org.bouncycastle:bcprov-jdk15on:1.69")
+    implementation("com.eatthepath:java-otp:0.3.1")
     api("com.fifesoft:rsyntaxtextarea:3.5.3")
     api("com.github.zafarkhaja:java-semver:0.10.2")
     api("commons-beanutils:commons-beanutils:1.9.4")

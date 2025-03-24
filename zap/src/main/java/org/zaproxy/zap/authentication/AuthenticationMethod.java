@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.time.Instant;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
@@ -182,12 +183,22 @@ public abstract class AuthenticationMethod {
      * @return an authenticated web session
      * @throws UnsupportedAuthenticationCredentialsException the unsupported authentication
      *     credentials exception {@link WebSession}.
+     * @param when A time (or null for whatever the current time is). Used for TOTP support.
      */
     public abstract WebSession authenticate(
+           SessionManagementMethod sessionManagementMethod,
+           AuthenticationCredentials credentials,
+           User user,
+           Instant when)
+           throws UnsupportedAuthenticationCredentialsException;
+
+    public WebSession authenticate(
             SessionManagementMethod sessionManagementMethod,
             AuthenticationCredentials credentials,
             User user)
-            throws UnsupportedAuthenticationCredentialsException;
+            throws UnsupportedAuthenticationCredentialsException {
+      return authenticate(sessionManagementMethod, credentials, user, Instant.now());
+    }
 
     /**
      * Gets an api response that represents the Authentication Method.

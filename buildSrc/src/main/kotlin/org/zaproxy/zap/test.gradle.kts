@@ -6,6 +6,9 @@ plugins {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+    this.testLogging {
+        this.showStandardStreams = false
+    }
 }
 
 tasks.register("testAll") {
