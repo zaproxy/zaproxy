@@ -87,27 +87,27 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.5.3")
+    api("com.fifesoft:rsyntaxtextarea:3.6.0")
     api("com.github.zafarkhaja:java-semver:0.10.2")
-    api("commons-beanutils:commons-beanutils:1.9.4")
-    api("commons-codec:commons-codec:1.17.1")
+    api("commons-beanutils:commons-beanutils:1.10.1")
+    api("commons-codec:commons-codec:1.18.0")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
     api("commons-io:commons-io:2.18.0")
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.17.0")
-    api("org.apache.commons:commons-text:1.12.0")
+    api("org.apache.commons:commons-text:1.13.0")
     implementation("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.24.2"
+    val log4jVersion = "2.24.3"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-jul:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.12.0")
+    api("org.apache.commons:commons-csv:1.14.0")
     api("org.hsqldb:hsqldb:2.7.4")
     api("org.jfree:jfreechart:1.5.5")
     api("org.jgrapht:jgrapht-core:0.9.0")
@@ -116,22 +116,22 @@ dependencies {
     implementation("com.formdev:flatlaf:3.5.4")
     implementation("com.formdev:flatlaf-swingx:3.5.4")
 
-    runtimeOnly("commons-logging:commons-logging:1.3.4")
+    runtimeOnly("commons-logging:commons-logging:1.3.5")
     runtimeOnly("xom:xom:1.3.9") {
         setTransitive(false)
     }
 
     // Include annotations used by Log4j2 Core library to avoid compiler warnings.
-    compileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:6.4.1")
+    compileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:7.0.0")
     compileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
     testCompileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:6.4.1")
     testCompileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
 
-    testImplementation("net.bytebuddy:byte-buddy:1.15.10")
-    testImplementation("org.hamcrest:hamcrest-core:2.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
+    testImplementation("net.bytebuddy:byte-buddy:1.17.4")
+    testImplementation("org.hamcrest:hamcrest-core:3.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.16.1")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
     testRuntimeOnly(files(distDir))
