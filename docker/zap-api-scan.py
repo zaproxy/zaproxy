@@ -430,22 +430,22 @@ def main(argv):
                 logging.debug('Import OpenAPI URL ' + target_url)
                 res = zap.openapi.import_url(target, host_override)
                 urls = zap.core.urls()
-
-                if host_override:
-                    if urlparse(host_override).scheme:
-                        target = host_override
-                    else:
-                        target = urljoin(target_url, '//' + host_override)
-                    logging.info(
-                        'Using override, new target: {0}'.format(target))
             else:
                 logging.debug('Import OpenAPI File ' + target_file)
-                res = zap.openapi.import_file(target_file)
+                res = zap.openapi.import_file(target_file, host_override)
                 urls = zap.core.urls()
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
+
+            if host_override:
+                if urlparse(host_override).scheme:
+                    target = host_override
+                else:
+                    target = urljoin(target, '//' + host_override)
+                logging.info(
+                    'Using override, new target: {0}'.format(target))
             logging.info('Number of Imported URLs: ' + str(len(urls)))
         elif format == 'soap':
             trigger_hook('importing_soap', target_url, target_file)

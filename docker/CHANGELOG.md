@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2025-03-25
+- Update ZAP API scan to support host override for local OpenAPI spec.
+
 ### 2025-02-20
 - Added jq to all images except bare.
 
