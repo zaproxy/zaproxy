@@ -409,7 +409,7 @@ public class HttpMessage implements Message {
             throw new IllegalArgumentException("The parameter resBody must not be null.");
         }
         mResBody = resBody;
-        getResponseBody().setCharset(getResponseHeader().getCharset());
+        setBodyCharset(getResponseBody(), getResponseHeader());
     }
 
     /**
@@ -480,7 +480,7 @@ public class HttpMessage implements Message {
     public void setRequestBody(String body) {
         setContentEncodings(getRequestHeader(), getRequestBody());
 
-        getRequestBody().setCharset(getRequestHeader().getCharset());
+        setBodyCharset(getRequestBody(), getRequestHeader());
         getRequestBody().setBody(body);
     }
 
@@ -495,9 +495,21 @@ public class HttpMessage implements Message {
      */
     public void setRequestBody(byte[] body) {
         getRequestBody().setBody(body);
-        getRequestBody().setCharset(getRequestHeader().getCharset());
+        setBodyCharset(getRequestBody(), getRequestHeader());
 
         setContentEncodings(getRequestHeader(), getRequestBody());
+    }
+
+    private static void setBodyCharset(HttpBody body, HttpHeader header) {
+        String charset = header.getCharset();
+        body.setCharset(charset);
+
+        if (charset != null && !charset.equalsIgnoreCase(body.getCharset())) {
+            LOGGER.warn(
+                    "Failed to set charset {} from content-type value: {}",
+                    charset,
+                    header.getNormalisedContentTypeValue());
+        }
     }
 
     /**
@@ -512,7 +524,7 @@ public class HttpMessage implements Message {
     public void setResponseBody(String body) {
         setContentEncodings(getResponseHeader(), getResponseBody());
 
-        getResponseBody().setCharset(getResponseHeader().getCharset());
+        setBodyCharset(getResponseBody(), getResponseHeader());
         getResponseBody().setDetermineCharset(getResponseHeader().isText());
         getResponseBody().setBody(body);
     }
@@ -528,7 +540,7 @@ public class HttpMessage implements Message {
      */
     public void setResponseBody(byte[] body) {
         getResponseBody().setBody(body);
-        getResponseBody().setCharset(getResponseHeader().getCharset());
+        setBodyCharset(getResponseBody(), getResponseHeader());
 
         setContentEncodings(getResponseHeader(), getResponseBody());
     }
