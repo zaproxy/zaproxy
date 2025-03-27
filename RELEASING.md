@@ -61,11 +61,11 @@ The resulting localized resources are added/updated in the repository periodical
 - [ ] Update and release client APIs
   - [ ] [Java](https://github.com/zaproxy/zap-api-java/blob/main/RELEASING.md)
   - [ ] [Python](https://github.com/zaproxy/zap-api-python/blob/master/RELEASING.md)
+- [ ] Review automated updates:
+  - [ ] [Flathub](https://github.com/flathub/org.zaproxy.ZAP/pulls)
+  - [ ] [Snap](https://github.com/zaproxy/zaproxy/actions/workflows/release-snap.yml)
 - [ ] Update major projects using ZAP
   - [ ] Kali - [new issue](https://bugs.kali.org/)
-  - [ ] [Flathub](https://github.com/flathub/org.zaproxy.ZAP)
-  - [ ] [Snap](https://github.com/zaproxy/zaproxy/tree/main/snap)
-    - [ ] Run the workflow [Release Snap](https://github.com/zaproxy/zaproxy/actions/workflows/release-snap.yml).
 - [ ] Update 3rd Party Package Managers 
   - [ ] Homebrew - [zap.rb](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/z/zap.rb)
   - [ ] Scoop - [zaproxy.json](https://github.com/ScoopInstaller/Extras/blob/master/bucket/zaproxy.json)
