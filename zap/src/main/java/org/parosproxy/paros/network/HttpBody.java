@@ -567,7 +567,7 @@ public abstract class HttpBody {
                 setCharsetImpl(newCharset);
             }
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-            LOGGER.error("Failed to set charset: {}", charsetName, e);
+            LOGGER.debug("Failed to set charset: {}", charsetName, e);
         }
     }
 
