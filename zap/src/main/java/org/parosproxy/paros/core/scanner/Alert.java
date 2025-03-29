@@ -191,7 +191,7 @@ public class Alert implements Comparable<Alert> {
     public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
 
     public static final String[] MSG_CONFIDENCE = {
-        "False Positive", "Low", "Medium", "High", "Confirmed"
+        "False-Positive", "Low", "Medium", "High", "Confirmed"
     };
 
     private static final String CWE_KEY = "CWE-";
