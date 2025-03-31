@@ -97,4 +97,17 @@ public class ScriptNode extends DefaultMutableTreeNode {
     public boolean isTemplate() {
         return template;
     }
+
+    @Override
+    public ScriptWrapper getUserObject() {
+        return (ScriptWrapper) userObject;
+    }
+
+    @Override
+    public void setUserObject(Object userObject) {
+        if (!(userObject instanceof ScriptWrapper script)) {
+            throw new IllegalArgumentException("Parameter userObject must be a ScriptWrapper.");
+        }
+        this.userObject = script;
+    }
 }

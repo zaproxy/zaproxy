@@ -341,8 +341,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                 Enumeration<TreeNode> e = baseNode.depthFirstEnumeration();
                 e.hasMoreElements(); ) {
             ScriptNode node = (ScriptNode) e.nextElement();
-            if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
-                ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
+            if (node.getUserObject() != null) {
+                ScriptWrapper scriptWrapper = node.getUserObject();
                 if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
                     scriptWrapper.setEngine(newEngineWrapper);
                     if (newEngineWrapper == null) {
@@ -451,8 +451,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         List<TreeNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
         for (TreeNode tpNode : templateNodes) {
             ScriptNode node = (ScriptNode) tpNode;
-            if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
-                ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
+            if (node.getUserObject() != null) {
+                ScriptWrapper scriptWrapper = node.getUserObject();
                 if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
                     if (engineWrapper.isDefaultTemplate(scriptWrapper)) {
                         removeTemplate(scriptWrapper);
@@ -1378,9 +1378,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             return scripts;
         }
         for (ScriptNode node : this.getTreeModel().getNodes(type.getName())) {
-            ScriptWrapper script = (ScriptWrapper) node.getUserObject();
+            ScriptWrapper script = node.getUserObject();
             refreshScript(script);
-            scripts.add((ScriptWrapper) node.getUserObject());
+            scripts.add(node.getUserObject());
         }
         return scripts;
     }
