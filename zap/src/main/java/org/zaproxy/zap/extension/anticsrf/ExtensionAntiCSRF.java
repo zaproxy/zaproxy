@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -561,30 +562,74 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
      * @param message The {@link HttpMessage} to be checked.
      * @param httpSender The {@code sendAndReceive} implementation of the caller.
      * @since 2.10.0
+     * @see #regenerateAntiCsrfToken(HttpMessage, HttpMessageSender, HttpMessageSender, boolean)
      */
     public void regenerateAntiCsrfToken(HttpMessage message, HttpMessageSender httpSender) {
-        List<AntiCsrfToken> tokens = getTokens(message);
+        try {
+            regenerateAntiCsrfToken(message, httpSender, null, true);
+        } catch (IOException e) {
+            // Should not happen as the original message is not sent.
+            LOGGER.error("An error occurred while regenerating the token:", e);
+        }
+    }
+
+    /**
+     * Regenerates the anti-csrf token in the given {@code message}, if any, and optionally sending
+     * the message after.
+     *
+     * <p>If the {@code messageSender} is {@code null} or the token is not found/regenerated the
+     * {@code message} is not sent.
+     *
+     * @param message the message that will have the token regenerated, and possibly be sent.
+     * @param tokenSender the sender of the message used to regenerate the token, must not be {@code
+     *     null}.
+     * @param messageSender the sender of the {@code message}, or {@code null}.
+     * @param registerToken {@code true} if the new regenerated token should be registered, {@code
+     *     false} otherwise.
+     * @return {@code true} if the {@code message} has the token regenerated, {@code false}
+     *     otherwise.
+     * @throws IOException if an error occurred while sending the {@code message}.
+     * @since 2.17.0
+     * @see #regenerateAntiCsrfToken(HttpMessage, HttpMessageSender)
+     */
+    public boolean regenerateAntiCsrfToken(
+            HttpMessage message,
+            HttpMessageSender tokenSender,
+            HttpMessageSender messageSender,
+            boolean registerToken)
+            throws IOException {
+        String reqBody = message.getRequestBody().toString();
+
         AntiCsrfToken antiCsrfToken = null;
-        if (tokens.size() > 0) {
-            antiCsrfToken = tokens.get(0);
+        synchronized (valueToToken) {
+            for (String value : valueToToken.keySet()) {
+                if (reqBody.indexOf(value) >= 0) {
+                    antiCsrfToken = valueToToken.get(value).clone();
+                    antiCsrfToken.setTargetURL(message.getRequestHeader().getURI().toString());
+                    break;
+                }
+            }
         }
 
         if (antiCsrfToken == null) {
-            return;
-        }
-        String tokenValue = null;
-        try {
-            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
-
-            httpSender.sendAndReceive(tokenMsg);
-
-            tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            return false;
         }
 
-        if (tokenValue != null) {
+        synchronized (antiCsrfToken) {
+            String tokenValue = null;
+            try {
+                HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneRequest();
+                tokenSender.sendAndReceive(tokenMsg);
+
+                tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+
+            if (tokenValue == null) {
+                return false;
+            }
+
             // Replace token value - only supported in the body right now
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
@@ -592,17 +637,29 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                         antiCsrfToken.getValue(),
                         getURLEncode(tokenValue));
             }
-            String replaced = message.getRequestBody().toString();
-            replaced =
-                    replaced.replace(
-                            getURLEncode(antiCsrfToken.getValue()), getURLEncode(tokenValue));
+            String replaced =
+                    message.getRequestBody()
+                            .toString()
+                            .replace(
+                                    getURLEncode(antiCsrfToken.getValue()),
+                                    getURLEncode(tokenValue));
             message.setRequestBody(replaced);
-            registerAntiCsrfToken(
-                    new AntiCsrfToken(
-                            message,
-                            antiCsrfToken.getName(),
-                            tokenValue,
-                            antiCsrfToken.getFormIndex()));
+            message.getRequestHeader().setContentLength(message.getRequestBody().length());
+
+            if (messageSender != null) {
+                messageSender.sendAndReceive(message);
+            }
+
+            if (registerToken) {
+                registerAntiCsrfToken(
+                        new AntiCsrfToken(
+                                message,
+                                antiCsrfToken.getName(),
+                                tokenValue,
+                                antiCsrfToken.getFormIndex()));
+            }
+
+            return true;
         }
     }
 

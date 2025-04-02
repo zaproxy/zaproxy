@@ -293,19 +293,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             HttpMessage message, boolean isFollowRedirect, boolean handleAntiCSRF)
             throws IOException {
 
-        if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
-            if (extAntiCSRF == null) {
-                extAntiCSRF =
-                        Control.getSingleton()
-                                .getExtensionLoader()
-                                .getExtension(ExtensionAntiCSRF.class);
-            }
-            if (extAntiCSRF != null) {
-                extAntiCSRF.regenerateAntiCsrfToken(
-                        message, tokenMsg -> sendAndReceive(tokenMsg, true, false));
-            }
-        }
-
         if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
             message.getRequestHeader()
                     .setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
@@ -322,10 +309,26 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         // ZAP: Runs the "beforeScan" methods of any ScannerHooks
         parent.performScannerHookBeforeScan(message, this);
 
-        if (isFollowRedirect) {
-            parent.getHttpSender().sendAndReceive(message, getParent().getRedirectRequestConfig());
-        } else {
-            parent.getHttpSender().sendAndReceive(message, false);
+        boolean send = true;
+        if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
+            if (extAntiCSRF == null) {
+                extAntiCSRF =
+                        Control.getSingleton()
+                                .getExtensionLoader()
+                                .getExtension(ExtensionAntiCSRF.class);
+            }
+            if (extAntiCSRF != null) {
+                send =
+                        !extAntiCSRF.regenerateAntiCsrfToken(
+                                message,
+                                tokenMsg -> sendAndReceive(tokenMsg, true, false),
+                                msg -> sendMessageImpl(msg, isFollowRedirect),
+                                false);
+            }
+        }
+
+        if (send) {
+            sendMessageImpl(message, isFollowRedirect);
         }
 
         decodeResponseBody(message);
@@ -334,6 +337,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
+    }
+
+    private void sendMessageImpl(HttpMessage message, boolean isFollowRedirect) throws IOException {
+        if (isFollowRedirect) {
+            parent.getHttpSender().sendAndReceive(message, getParent().getRedirectRequestConfig());
+        } else {
+            parent.getHttpSender().sendAndReceive(message, false);
+        }
     }
 
     /**
