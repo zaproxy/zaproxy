@@ -62,6 +62,9 @@ public class VariantUserDefined implements Variant {
 
     @Override
     public void setMessage(HttpMessage msg) {
+        if (msg == null) {
+            throw new IllegalArgumentException("Parameter message must not be null.");
+        }
         headerLength = msg.getRequestHeader().toString().length();
         bodyLength = msg.getRequestBody().toString().length();
         String url = msg.getRequestHeader().getURI().toString();
@@ -118,13 +121,13 @@ public class VariantUserDefined implements Variant {
     }
 
     private boolean isInHeader(int[] injPoint) {
-        return injPoint[0] < headerLength && injPoint[1] < headerLength;
+        return injPoint[0] <= headerLength && injPoint[1] <= headerLength;
     }
 
     private boolean isInBody(int[] injPoint) {
         return injPoint[0] > headerLength
                 && injPoint[1] > headerLength
-                && injPoint[0] - headerLength < bodyLength
-                && injPoint[1] - headerLength < bodyLength;
+                && injPoint[0] - headerLength <= bodyLength
+                && injPoint[1] - headerLength <= bodyLength;
     }
 }
