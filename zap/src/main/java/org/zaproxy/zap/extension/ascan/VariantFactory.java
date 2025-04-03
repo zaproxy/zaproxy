@@ -38,6 +38,7 @@ import org.parosproxy.paros.core.scanner.VariantJSONQuery;
 import org.parosproxy.paros.core.scanner.VariantMultipartFormParameters;
 import org.parosproxy.paros.core.scanner.VariantODataFilterQuery;
 import org.parosproxy.paros.core.scanner.VariantODataIdQuery;
+import org.parosproxy.paros.core.scanner.VariantPlainBody;
 import org.parosproxy.paros.core.scanner.VariantScript;
 import org.parosproxy.paros.core.scanner.VariantURLPath;
 import org.parosproxy.paros.core.scanner.VariantURLQuery;
@@ -152,6 +153,10 @@ public class VariantFactory {
 
         if ((enabledRPC & ScannerParam.RPC_USERDEF) != 0) {
             listVariant.add(new VariantUserDefined());
+        }
+
+        if ((targets & ScannerParam.TARGET_PLAINBODY) != 0) {
+            listVariant.add(new VariantPlainBody());
         }
 
         addCustomVariants(listVariant);
