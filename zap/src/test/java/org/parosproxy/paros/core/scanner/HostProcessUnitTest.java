@@ -21,6 +21,7 @@ package org.parosproxy.paros.core.scanner;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,12 +34,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.HostProcess.NodeToScan;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -440,6 +446,28 @@ class HostProcessUnitTest {
         hostProcess.run();
         // Then
         assertThat(hostProcess.getTestTotalCount(), is(equalTo(5)));
+    }
+
+    @Test
+    void shouldOrderGetPagesInPreferredOrder() {
+        // Given
+        Map<String, NodeToScan> nodes = new LinkedHashMap<>();
+        addNode(nodes, 1, "");
+        addNode(nodes, 2, null);
+        addNode(nodes, 3, "/");
+        addNode(nodes, 4, "/path");
+        addNode(nodes, 5, "/path/");
+
+        List<Integer> idsToScan = new ArrayList<>();
+
+        // When
+        HostProcess.addGetNodesInPreferredOrder(idsToScan, nodes);
+        // Then
+        assertThat(idsToScan, contains(5, 3, 1, 2, 4));
+    }
+
+    private static void addNode(Map<String, NodeToScan> nodes, int id, String path) {
+        nodes.put("http://localhost" + path == null ? "" : path, new NodeToScan(id, path));
     }
 
     @Test
