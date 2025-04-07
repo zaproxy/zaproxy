@@ -119,6 +119,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.httpclient.URI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -352,7 +353,7 @@ public class HostProcess implements Runnable {
             }
 
             for (StructuralNode startNode : startNodes) {
-                Map<String, Integer> historyIdsToAdd = new LinkedHashMap<>();
+                Map<String, NodeToScan> getNodesToScan = new LinkedHashMap<>();
                 traverse(
                         startNode,
                         true,
@@ -360,10 +361,14 @@ public class HostProcess implements Runnable {
                             if (canScanNode(node)) {
                                 int nodeHistoryId = node.getHistoryReference().getHistoryId();
                                 if (node.getMethod().equals(HttpRequestHeader.GET)) {
-                                    String key = node.getURI().getEscapedURI();
-                                    boolean nodeSeen = historyIdsToAdd.containsKey(key);
+                                    URI uri = node.getURI();
+                                    String key = uri.getEscapedURI();
+                                    boolean nodeSeen = getNodesToScan.containsKey(key);
                                     if (!nodeSeen || !isTemporary(node)) {
-                                        historyIdsToAdd.put(key, nodeHistoryId);
+                                        getNodesToScan.put(
+                                                key,
+                                                new NodeToScan(
+                                                        nodeHistoryId, uri.getEscapedPath()));
                                     }
                                 } else {
                                     messagesIdsToAppScan.add(nodeHistoryId);
@@ -371,7 +376,7 @@ public class HostProcess implements Runnable {
                             }
                         });
 
-                messagesIdsToAppScan.addAll(historyIdsToAdd.values());
+                addGetNodesInPreferredOrder(messagesIdsToAppScan, getNodesToScan);
                 getAnalyser().start(startNode);
             }
             nodeInScopeCount = messagesIdsToAppScan.size();
@@ -409,6 +414,35 @@ public class HostProcess implements Runnable {
         } finally {
             notifyHostProgress(null);
             notifyHostComplete();
+        }
+    }
+
+    static void addGetNodesInPreferredOrder(List<Integer> ids, Map<String, NodeToScan> nodes) {
+        for (NodeToScan node : nodes.values()) {
+            if (node.isLowOrderPath()) {
+                ids.add(node.getHistoryId());
+            } else {
+                ids.add(0, node.getHistoryId());
+            }
+        }
+    }
+
+    static class NodeToScan {
+
+        private final int historyId;
+        private final String path;
+
+        NodeToScan(int historyId, String path) {
+            this.historyId = historyId;
+            this.path = path;
+        }
+
+        boolean isLowOrderPath() {
+            return path == null || path.isEmpty() || path.charAt(path.length() - 1) != '/';
+        }
+
+        int getHistoryId() {
+            return historyId;
         }
     }
 
