@@ -360,9 +360,10 @@ public class HostProcess implements Runnable {
                             if (canScanNode(node)) {
                                 int nodeHistoryId = node.getHistoryReference().getHistoryId();
                                 if (node.getMethod().equals(HttpRequestHeader.GET)) {
-                                    boolean nodeSeen = historyIdsToAdd.containsKey(nodeHash(node));
+                                    String key = node.getURI().getEscapedURI();
+                                    boolean nodeSeen = historyIdsToAdd.containsKey(key);
                                     if (!nodeSeen || !isTemporary(node)) {
-                                        historyIdsToAdd.put(nodeHash(node), nodeHistoryId);
+                                        historyIdsToAdd.put(key, nodeHistoryId);
                                     }
                                 } else {
                                     messagesIdsToAppScan.add(nodeHistoryId);
@@ -409,12 +410,6 @@ public class HostProcess implements Runnable {
             notifyHostProgress(null);
             notifyHostComplete();
         }
-    }
-
-    private String nodeHash(StructuralNode node) {
-        String nodeMethod = node.getMethod();
-        String nodeURI = node.getURI().getEscapedURI();
-        return nodeMethod + nodeURI;
     }
 
     private boolean isTemporary(StructuralNode node) {
