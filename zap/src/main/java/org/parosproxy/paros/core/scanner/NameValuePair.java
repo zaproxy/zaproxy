@@ -89,6 +89,13 @@ public class NameValuePair implements Comparable<NameValuePair> {
      */
     public static final int TYPE_GRPC_WEB_TEXT = 39;
 
+    /**
+     * For requests with body but either no or text/plain content type
+     *
+     * @since 2.17.0
+     */
+    public static final int TYPE_PLAIN_BODY = 40;
+
     public static final int TYPE_UNDEFINED = -1;
 
     private final int targetType;
