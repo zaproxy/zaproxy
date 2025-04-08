@@ -85,6 +85,7 @@ public class ScannerParam extends AbstractParam {
     private static final String DELAY_IN_MS = ACTIVE_SCAN_BASE_KEY + ".delayInMs";
     private static final String INJECT_PLUGIN_ID_IN_HEADER = ACTIVE_SCAN_BASE_KEY + ".pluginHeader";
     private static final String HANDLE_ANTI_CSRF_TOKENS = ACTIVE_SCAN_BASE_KEY + ".antiCSRF";
+    static final String EXCLUDE_ANTI_CSRF_TOKENS = ACTIVE_SCAN_BASE_KEY + ".excludeAntiCsrfTokens";
     private static final String PROMPT_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackPrompt";
     private static final String RESCAN_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackRescan";
     private static final String PROMPT_TO_CLEAR_FINISHED = ACTIVE_SCAN_BASE_KEY + ".clearFinished";
@@ -176,6 +177,7 @@ public class ScannerParam extends AbstractParam {
     private int maxScansInUI = 5;
     private boolean injectPluginIdInHeader = false;
     private boolean handleAntiCSRFTokens = true;
+    private boolean excludeAntiCsrfTokens = true;
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;
     private boolean promptToClearFinishedScans = true;
@@ -260,6 +262,7 @@ public class ScannerParam extends AbstractParam {
         this.injectPluginIdInHeader = getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
 
         this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, true);
+        excludeAntiCsrfTokens = getBoolean(EXCLUDE_ANTI_CSRF_TOKENS, true);
 
         this.promptInAttackMode = getBoolean(PROMPT_IN_ATTACK_MODE, true);
 
@@ -536,6 +539,28 @@ public class ScannerParam extends AbstractParam {
     public void setHandleAntiCSRFTokens(boolean handleAntiCSRFTokens) {
         this.handleAntiCSRFTokens = handleAntiCSRFTokens;
         getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
+    }
+
+    /**
+     * Tells whether or not the active scanner should exclude anti-csrf tokens from the scan.
+     *
+     * @return {@code true} if anti-csrf tokens will be excluded, {@code false} otherwise.
+     * @since 2.17.0
+     */
+    public boolean isExcludeAntiCsrfTokens() {
+        return excludeAntiCsrfTokens;
+    }
+
+    /**
+     * Sets whether or not the active scanner should exclude anti-csrf tokens from the scan.
+     *
+     * @param excludeAntiCsrfTokens {@code true} if anti-csrf tokens should be excluded, {@code
+     *     false} otherwise.
+     * @since 2.17.0
+     */
+    public void setExcludeAntiCsrfTokens(boolean excludeAntiCsrfTokens) {
+        this.excludeAntiCsrfTokens = excludeAntiCsrfTokens;
+        getConfig().setProperty(EXCLUDE_ANTI_CSRF_TOKENS, excludeAntiCsrfTokens);
     }
 
     public boolean isRescanInAttackMode() {

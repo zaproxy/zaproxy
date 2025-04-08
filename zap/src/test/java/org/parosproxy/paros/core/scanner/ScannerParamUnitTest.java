@@ -252,4 +252,46 @@ class ScannerParamUnitTest {
         assertNull(configuration.getProperty("scanner.antiCSFR"));
         assertNull(configuration.getProperty("scanner.deleteOnShutdown"));
     }
+
+    @Test
+    void shouldHaveExcludeAntiCsrfTokensEnabledByDefault() {
+        // Given / When
+        boolean exclude = param.isExcludeAntiCsrfTokens();
+        // Then
+        assertThat(exclude, is(equalTo(true)));
+    }
+
+    @Test
+    void shouldHaveExcludeAntiCsrfTokensEnabledIfConfigurationNotBoolean() {
+        // Given
+        configuration.setProperty(ScannerParam.EXCLUDE_ANTI_CSRF_TOKENS, "NotBoolean");
+        param.load(configuration);
+        // When
+        boolean exclude = param.isExcludeAntiCsrfTokens();
+        // Then
+        assertThat(exclude, is(equalTo(true)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldHaveExcludeAntiCsrfTokensAsSetInConfiguration(boolean value) {
+        // Given
+        configuration.setProperty(ScannerParam.EXCLUDE_ANTI_CSRF_TOKENS, value);
+        param.load(configuration);
+        // When
+        boolean exclude = param.isExcludeAntiCsrfTokens();
+        // Then
+        assertThat(exclude, is(equalTo(value)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldSetExcludeAntiCsrfTokensToConfiguration(boolean value) {
+        // Given / When
+        param.setExcludeAntiCsrfTokens(value);
+        // Then
+        assertThat(
+                configuration.getBoolean(ScannerParam.EXCLUDE_ANTI_CSRF_TOKENS),
+                is(equalTo(value)));
+    }
 }
