@@ -4,5 +4,7 @@
 ---
 packageExcludes: []
 fieldExcludes: []
-classExcludes: []
+classExcludes:
+  - "org.parosproxy.paros.core.scanner.VariantAbstractRPCQuery$RPCParameter"
+  - "org.parosproxy.paros.core.scanner.VariantJSONQuery$SimpleStringReader"
 methodExcludes: []

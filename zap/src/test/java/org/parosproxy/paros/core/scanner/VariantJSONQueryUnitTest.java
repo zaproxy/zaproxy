@@ -394,6 +394,31 @@ class VariantJSONQueryUnitTest {
         assertThat(message.getRequestBody().toString(), is("[ 1, -2, injection, -6E+7, 8e-9 ]"));
     }
 
+    @Test
+    void shouldExtractPrimitiveString() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody("\"a\""));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters.size(), is(equalTo(1)));
+        assertThat(parameters.get(0).getValue(), is("a"));
+    }
+
+    @Test
+    void shouldReplacePrimitiveString() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        HttpMessage message = getMessageWithBody("\"a\"");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setEscapedParameter(message, parameters.get(0), "", "injection");
+        // Then
+        assertThat(message.getRequestBody().toString(), is("\"injection\""));
+    }
+
     private static HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
         return new HttpMessage(
                 new HttpRequestHeader(
