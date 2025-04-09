@@ -50,10 +50,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.core.scanner.InputVector;
 import org.zaproxy.zap.core.scanner.InputVectorBuilder;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
@@ -61,6 +63,8 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     private List<Variant> listVariant;
     private NameValuePair originalPair = null;
     private Variant variant = null;
+
+    private ExtensionAntiCSRF extensionAntiCsrf;
 
     // Allow tests to provide their own.
     VariantFactory getVariantFactory() {
@@ -153,6 +157,19 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @return true if it need to be excluded
      */
     private boolean isToExclude(NameValuePair param) {
+        if (param.getType() == NameValuePair.TYPE_POST_DATA
+                && getParent().getScannerParam().isExcludeAntiCsrfTokens()) {
+            if (extensionAntiCsrf == null) {
+                extensionAntiCsrf =
+                        Control.getSingleton()
+                                .getExtensionLoader()
+                                .getExtension(ExtensionAntiCSRF.class);
+            }
+            if (extensionAntiCsrf != null && extensionAntiCsrf.isAntiCsrfToken(param.getName())) {
+                return true;
+            }
+        }
+
         List<ScannerParamFilter> excludedParameters = getParameterExclusionFilters(param);
 
         // We can use the base one, we don't do anything with it

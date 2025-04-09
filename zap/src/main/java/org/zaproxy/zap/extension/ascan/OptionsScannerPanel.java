@@ -53,6 +53,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private ZapNumberSpinner spinnerMaxResultsList = null;
     private JCheckBox chkInjectPluginIdInHeader = null;
     private JCheckBox chkHandleAntiCsrfTokens = null;
+    private JCheckBox chkExcludeAntiCsrfTokens;
     private JCheckBox chkPromptInAttackMode = null;
     private JCheckBox chkRescanInAttackMode = null;
     private JComboBox<String> defaultAscanPolicy = null;
@@ -266,7 +267,17 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             1.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
-                            new Insets(16, 2, 2, 2)));
+                            new Insets(2, 2, 2, 2)));
+            panelScanner.add(
+                    getChkExcludeAntiCsrfTokens(),
+                    LayoutHelper.getGBC(
+                            0,
+                            row++,
+                            3,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
 
             panelScanner.add(
                     this.getChkPromptInAttackMode(),
@@ -277,7 +288,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             1.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
-                            new Insets(16, 2, 2, 2)));
+                            new Insets(2, 2, 2, 2)));
             panelScanner.add(
                     this.getChkRescanInAttackMode(),
                     LayoutHelper.getGBC(
@@ -287,7 +298,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             1.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
-                            new Insets(16, 2, 2, 2)));
+                            new Insets(2, 2, 2, 2)));
 
             // Add Attack settings section
             // ---------------------------------------------
@@ -300,7 +311,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             0.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
-                            new Insets(16, 2, 2, 2)));
+                            new Insets(2, 2, 2, 2)));
             panelScanner.add(
                     getDefaultAscanPolicyPulldown(),
                     LayoutHelper.getGBC(
@@ -310,7 +321,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             0.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
-                            new Insets(16, 2, 2, 2)));
+                            new Insets(2, 2, 2, 2)));
 
             panelScanner.add(
                     new JLabel(Constant.messages.getString("ascan.options.policy.attack.label")),
@@ -341,7 +352,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             1.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
-                            new Insets(16, 2, 2, 2)));
+                            new Insets(2, 2, 2, 2)));
 
             // Chart
             panelScanner.add(
@@ -413,6 +424,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         maxAlertsPerRule.setValue(param.getMaxAlertsPerRule());
         getChkInjectPluginIdInHeader().setSelected(param.isInjectPluginIdInHeader());
         getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
+        getChkExcludeAntiCsrfTokens().setSelected(param.isExcludeAntiCsrfTokens());
         getChkPromptInAttackMode().setSelected(param.isPromptInAttackMode());
         getChkRescanInAttackMode().setSelected(param.isRescanInAttackMode());
         getChkRescanInAttackMode().setEnabled(!getChkPromptInAttackMode().isSelected());
@@ -438,6 +450,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setMaxAlertsPerRule(maxAlertsPerRule.getValue());
         param.setInjectPluginIdInHeader(getChkInjectPluginIdInHeader().isSelected());
         param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
+        param.setExcludeAntiCsrfTokens(getChkExcludeAntiCsrfTokens().isSelected());
         param.setPromptInAttackMode(getChkPromptInAttackMode().isSelected());
         param.setRescanInAttackMode(getChkRescanInAttackMode().isSelected());
         param.setDefaultPolicy((String) this.getDefaultAscanPolicyPulldown().getSelectedItem());
@@ -539,6 +552,15 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     Constant.messages.getString("ascan.options.anticsrf.label"));
         }
         return chkHandleAntiCsrfTokens;
+    }
+
+    private JCheckBox getChkExcludeAntiCsrfTokens() {
+        if (chkExcludeAntiCsrfTokens == null) {
+            chkExcludeAntiCsrfTokens =
+                    new JCheckBox(
+                            Constant.messages.getString("ascan.options.excludeanticsrf.label"));
+        }
+        return chkExcludeAntiCsrfTokens;
     }
 
     private JCheckBox getChkPromptInAttackMode() {
