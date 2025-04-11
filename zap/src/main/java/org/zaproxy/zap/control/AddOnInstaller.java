@@ -120,7 +120,8 @@ public final class AddOnInstaller {
                 LOGGER.error(
                         "Post install method failed for add-on {} extension {}",
                         addOn.getId(),
-                        ext.getName());
+                        ext.getName(),
+                        e);
             }
         }
     }
