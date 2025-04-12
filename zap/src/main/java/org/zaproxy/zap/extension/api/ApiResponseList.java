@@ -92,7 +92,7 @@ public class ApiResponseList extends ApiResponse {
     public void toXML(Document doc, Element parent) {
         parent.setAttribute("type", "list");
         for (ApiResponse resp : this.list) {
-            String name=resp.getName().replaceAll("[^a-zA-Z0-9_-]", "_");
+            String name = resp.getName().replaceAll("[^a-zA-Z0-9_-]", "_");
             Element el = doc.createElement(name);
             resp.toXML(doc, el);
             parent.appendChild(el);
