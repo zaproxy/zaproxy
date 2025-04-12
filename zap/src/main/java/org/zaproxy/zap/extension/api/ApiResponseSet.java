@@ -65,7 +65,8 @@ public class ApiResponseSet<T> extends ApiResponse {
         parent.setAttribute("type", "set");
 
         for (Entry<String, T> val : values.entrySet()) {
-            Element el = doc.createElement(val.getKey());
+            String safeKey = val.getKey().replaceAll("[^a-zA-Z0-9_-]", "_");
+            Element el = doc.createElement(safeKey);
             String textValue = val.getValue() == null ? "" : val.getValue().toString();
             Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
             el.appendChild(text);
