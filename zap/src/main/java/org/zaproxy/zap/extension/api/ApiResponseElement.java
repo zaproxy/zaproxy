@@ -84,11 +84,11 @@ public class ApiResponseElement extends ApiResponse {
     @Override
     public void toXML(Document doc, Element parent) {
         if (apiResponse == null) {
+            String value= this.getValue()==null?"":getValue().replaceAll("[^a-zA-Z0-9_-]", "_");
             parent.appendChild(
                     doc.createTextNode(
-                            getValue() != null
-                                    ? XMLStringUtil.escapeControlChrs(this.getValue())
-                                    : ""));
+                                    XMLStringUtil.escapeControlChrs(value)
+                                    ));
         } else {
             apiResponse.toXML(doc, parent);
         }
