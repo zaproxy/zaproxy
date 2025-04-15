@@ -147,6 +147,9 @@ public class GuiBootstrap extends ZapBootstrap {
         }
 
         UIManager.put("PasswordField.showRevealButton", true);
+        
+        // Initialize popup safeguards to prevent "always on top" popups
+        org.zaproxy.zap.utils.PopupSafeguardUtils.initializePopupSafeguards();
 
         OptionsParam options = Model.getSingleton().getOptionsParam();
         OptionsParamView viewParam = options.getViewParam();

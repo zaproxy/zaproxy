@@ -526,6 +526,8 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
     public void reset() {
         this.msg = null;
         breakToolbarFactory.reset();
+        // Ensure Always on Top is cleared on reset
+        breakpointLeft();
     }
 
     @Override
@@ -571,11 +573,15 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
         breakToolbarFactory.setBreakAll(false);
         breakToolbarFactory.setBreakRequest(false);
         breakToolbarFactory.setBreakResponse(false);
+        // Ensure Always on Top is cleared when leaving a breakpoint
+        breakpointLeft();
     }
 
     @Override
     public void drop() {
         breakToolbarFactory.drop();
+        // Ensure Always on Top is cleared when leaving a breakpoint
+        breakpointLeft();
     }
 
     public void showNewBreakPointDialog() {
