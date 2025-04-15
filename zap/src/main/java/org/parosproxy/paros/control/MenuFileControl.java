@@ -471,7 +471,9 @@ public class MenuFileControl implements SessionListener {
         String activeActions = wrapEntriesInLiTags(control.getExtensionLoader().getActiveActions());
         if (!activeActions.isEmpty()) {
             view.showMessageDialog(
-                    Constant.messages.getString("menu.file.snapshot.activeactions", activeActions));
+                    new ZapHtmlLabel(
+                            Constant.messages.getString(
+                                    "menu.file.snapshot.activeactions", activeActions)));
             return;
         }
 
