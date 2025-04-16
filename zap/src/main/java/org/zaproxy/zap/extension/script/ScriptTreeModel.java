@@ -187,8 +187,8 @@ public class ScriptTreeModel extends DefaultTreeModel {
             if (typeNode.getChildCount() > 0) {
                 ScriptNode scriptNode = (ScriptNode) typeNode.getFirstChild();
                 while (scriptNode != null) {
-                    if (((ScriptWrapper) scriptNode.getUserObject()).getName().equals(name)) {
-                        return (ScriptWrapper) scriptNode.getUserObject();
+                    if (scriptNode.getUserObject().getName().equals(name)) {
+                        return scriptNode.getUserObject();
                     }
                     scriptNode = (ScriptNode) typeNode.getChildAfter(scriptNode);
                 }
@@ -237,8 +237,8 @@ public class ScriptTreeModel extends DefaultTreeModel {
             if (typeNode.getChildCount() > 0) {
                 ScriptNode scriptNode = (ScriptNode) typeNode.getFirstChild();
                 while (scriptNode != null) {
-                    if (((ScriptWrapper) scriptNode.getUserObject()).getName().equals(name)) {
-                        return (ScriptWrapper) scriptNode.getUserObject();
+                    if (scriptNode.getUserObject().getName().equals(name)) {
+                        return scriptNode.getUserObject();
                     }
                     scriptNode = (ScriptNode) typeNode.getChildAfter(scriptNode);
                 }
@@ -271,7 +271,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
             if ((type == null || type.equals(typeNode.getType())) && typeNode.getChildCount() > 0) {
                 ScriptNode scriptNode = (ScriptNode) typeNode.getFirstChild();
                 while (scriptNode != null) {
-                    list.add((ScriptWrapper) scriptNode.getUserObject());
+                    list.add(scriptNode.getUserObject());
                     scriptNode = (ScriptNode) typeNode.getChildAfter(scriptNode);
                 }
             }
