@@ -63,15 +63,24 @@ public class ApiResponseSet<T> extends ApiResponse {
     @Override
     public void toXML(Document doc, Element parent) {
         parent.setAttribute("type", "set");
-
+    
         for (Entry<String, T> val : values.entrySet()) {
-            Element el = doc.createElement(val.getKey());
+            // 1. grab the raw key
+            String key = val.getKey();
+            // 2. sanitize empty or illegal XML names
+            String safeKey = (key == null || key.isEmpty())
+                ? "no-id"
+                : key.replaceAll("[^A-Za-z0-9_-]", "-");
+    
+            // 3. use safeKey instead of the raw key
+            Element el = doc.createElement(safeKey);
             String textValue = val.getValue() == null ? "" : val.getValue().toString();
             Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
             el.appendChild(text);
             parent.appendChild(el);
         }
     }
+
 
     @Override
     public void toHTML(StringBuilder sb) {
