@@ -54,18 +54,22 @@ body:
       description: "Will be used in the announcement tweet from [@zaproxy](https://twitter.com/zaproxy/)"
     validations:
       required: false
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        > [!NOTE]
+        > All new add-ons start at Alpha status.
   - type: textarea
     id: promote
     attributes:
       label: "Promote to Beta or Release?"
       description: |
-        > [!NOTE]
-        > All new add-ons start at Alpha status.
-
         Refer to the following pages for the guidelines of each status:
-        https://github.com/zaproxy/zap-extensions/wiki/AddOnsAlpha
-        https://github.com/zaproxy/zap-extensions/wiki/AddOnsBeta
-        https://github.com/zaproxy/zap-extensions/wiki/AddOnsRelease
+        
+        - https://github.com/zaproxy/zap-extensions/wiki/AddOnsAlpha
+        - https://github.com/zaproxy/zap-extensions/wiki/AddOnsBeta
+        - https://github.com/zaproxy/zap-extensions/wiki/AddOnsRelease
     validations:
       required: false
   - type: textarea
