@@ -4,7 +4,7 @@ labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to suggest a way to enhance ZAP! Fill out the form below to provide us with info to help fix the bug.
+      value: Thanks for taking the time to suggest a way to enhance ZAP! Fill out the form below to provide us with info to help implement the idea.
   - type: textarea
     id: description
     attributes:
@@ -26,15 +26,18 @@ body:
       description: A clear and concise description of any alternative solutions or features you've considered.
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        > [!TIP]
+        > You can attach files/screenshots by clicking this area to highlight it and then dragging files in
   - type: textarea
     id: screenshots
     attributes:
       label: "Screenshots:"
-      description: |
-        If applicable, add screenshots to help explain your enhancement/idea.
-
-        > [!TIP]
-        > You can attach files by clicking this area to highlight it and then dragging files in.
+      description: If applicable, add screenshots to help explain your enhancement/idea.
     validations:
       required: false
   - type: textarea

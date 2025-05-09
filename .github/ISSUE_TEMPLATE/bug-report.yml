@@ -7,6 +7,7 @@ body:
       value: |
         Thanks for taking the time to report a ZAP bug! Fill out the form below to provide us with info to help fix the bug. 
         Only use this if you're 100% sure you've found a bug and can reproduce it. If you're looking for general help with ZAP, try the [User Group](https://groups.google.com/g/zaproxy-users).
+        
         > [!CAUTION] 
         > Please do not ask questions as issues - these will be closed.
   - type: textarea
@@ -16,6 +17,12 @@ body:
       description: A clear and concise description of what the bug is.
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        > [!NOTE]
+        > If you are able to provide an Automation Framework plan which demonstrates reproduction of the issue that helps the team GREATLY!
   - type: textarea
     id: reproduce
     attributes:
@@ -35,39 +42,48 @@ body:
       description: A clear and concise description of what you expected to happen.
     validations:
       required: true
-  - type: textarea
-    id: version
+  - type: markdown
     attributes:
-      label: "Software versions:"
-      description: |
+      value: |
+        ---
         > [!IMPORTANT]
         > Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch.
 
         > [!NOTE]
-        > If you're reporting a docker issue please ensure you include the image id.
+        > If you're reporting a docker issue please ensure you include the image ID.
         > Also please be aware that if you've wrapped or customized the image it is very difficult for us to support you.
+  - type: textarea
+    id: version
+    attributes:
+      label: "Software Versions:"
     validations:
       required: true
-  - type: textarea
-    id: screenshots
+  - type: markdown
     attributes:
-      label: "Screenshots:"
-      description: |
+      value: |
+        ---
         If applicable, add screenshots to help explain your problem.
 
         > [!TIP]
         > You can attach files by clicking this area to highlight it and then dragging files in.
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "Screenshots:"
     validations:
       required: false
-  - type: textarea
-    id: logs
+  - type: markdown
     attributes:
-      label: "Errors from the zap.log file:"
-      description: |
+      value: |
+        ---        
         See https://www.zaproxy.org/faq/what-is-the-default-directory-that-zap-uses/ for the location of the zap.log file for your OS.
         
         > [!TIP]
         > You can attach files by clicking this area to highlight it and then dragging files in.
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Errors from the zap.log file:"
     validations:
       required: false
   - type: textarea
@@ -77,6 +93,10 @@ body:
       description: Add any other context about the problem here.
     validations:
         required: false
+  - type: markdown
+    attributes:
+      value: |
+        --- 
   - type: checkboxes
     id: contribute
     attributes:
