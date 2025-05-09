@@ -33,6 +33,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.core.scanner.Alert.Builder;
 import org.parosproxy.paros.db.RecordAlert;
+import org.parosproxy.paros.model.HistoryReference;
 
 class AlertUnitTest {
 
@@ -52,6 +53,19 @@ class AlertUnitTest {
         given(recordAlert.getHistoryId()).willReturn(historyId);
         // When
         Alert alert = new Alert(recordAlert);
+        // Then
+        assertThat(alert.getHistoryId(), is(equalTo(historyId)));
+    }
+
+    @Test
+    void shouldHaveHistoryIdFromRecordAlertAndHistoryReference() {
+        // Given
+        RecordAlert recordAlert = mock(RecordAlert.class);
+        HistoryReference historyReference = mock(HistoryReference.class);
+        int historyId = 42;
+        given(recordAlert.getHistoryId()).willReturn(historyId);
+        // When
+        Alert alert = new Alert(recordAlert, historyReference);
         // Then
         assertThat(alert.getHistoryId(), is(equalTo(historyId)));
     }
