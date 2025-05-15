@@ -1,0 +1,113 @@
+---
+env:
+  contexts:
+  - name: "simple-json"
+    urls:
+    - "http://localhost:9091/auth/simple-json-blocking-ui"
+    includePaths:
+    - "http://localhost:9091/auth/simple-json-blocking-ui.*"
+    excludePaths: []
+    authentication:
+      method: "client"
+      parameters:
+        loginPageUrl: "http://localhost:9091/auth/simple-json-blocking-ui/"
+        loginPageWait: 5
+        script: /zap/wrk/configs/scripts/auth/clientScriptAuthBlocking.zst
+        scriptEngine: Mozilla Zest
+      verification:
+        method: "autodetect"
+    sessionManagement:
+      method: "autodetect"
+      parameters: {}
+    technology:
+      exclude: []
+    users:
+    - name: "test"
+      credentials:
+        username: "test@test.com"
+        password: "password123"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    continueOnFailure: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    maxAlertsPerRule: 0
+    scanOnlyInScope: true
+    maxBodySizeInBytesToScan: 0
+    enableTags: false
+    disableAllRules: true
+  rules:
+  - id: 10111
+    name: "Authentication Request Identified"
+    threshold: "medium"
+  - id: 10112
+    name: "Session Management Response Identified"
+    threshold: "medium"
+  - id: 10113
+    name: "Verification Request Identified"
+    threshold: "medium"
+  name: "passiveScan-config"
+  type: "passiveScan-config"
+- parameters:
+    user: "test"
+  requests:
+  - url: "http://localhost:9091/auth/simple-json-blocking-ui/user"
+    name: ""
+    method: ""
+    httpVersion: ""
+    headers: []
+    data: ""
+  name: "requestor"
+  type: "requestor"
+  tests:
+  - type: "stats"
+    statistic: "stats.auth.success"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.state.loggedin"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.sessiontoken.accesstoken"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.configure.session.header"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.configure.verification"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.detect.auth.json"
+    operator: ">="
+    value: 1
+    onFail: "error"
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"
