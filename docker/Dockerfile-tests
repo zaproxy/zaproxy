@@ -1,5 +1,22 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a ZAP docker image used for integration tests
+FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -q -y --fix-missing \
+	openjdk-17-jdk \
+	git && \
+	rm -rf /var/lib/apt/lists/* && \
+	mkdir /zap-src
+
+WORKDIR /zap-src
+
+# Build required add-ons
+RUN git clone --depth 1 https://github.com/zaproxy/zap-extensions.git && \
+	cd zap-extensions && \
+	./gradlew :aO:dev:cZAO --into /zap-src/zap/plugin/
+
 FROM ghcr.io/zaproxy/zaproxy:nightly
 LABEL maintainer="psiinon@gmail.com"
 
@@ -7,6 +24,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
+
+COPY --link --from=builder --chown=1000:1000 /zap-src/zap/plugin/* /home/zap/.ZAP_D/plugin/
 
 COPY --link --chown=1000:1000 integration_tests /zap/wrk/
 

@@ -13,9 +13,6 @@ cd /zap/wrk/configs/plans/
 export JIGSAW_USER="guest"
 export JIGSAW_PWORD="guest"
 
-# Install dev add-on
-/zap/zap.sh -cmd -addoninstall dev
-
 summary="\nSummary:\n"
 
 for file in *.yaml
