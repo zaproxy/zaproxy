@@ -1,0 +1,110 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://github.com/zaproxy/zest/",
+  "zestVersion": "0.3",
+  "title": "test.zst",
+  "description": "",
+  "prefix": "",
+  "type": "Authentication",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {},
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "index": 1,
+      "enabled": true,
+      "elementType": "ZestComment",
+      "comment": "Recorded by ZAP by Checkmarx Browser Extension 0.0.13 on Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "browserType": "firefox",
+      "url": "http://localhost:9091/auth/simple-json-blocking-ui-scroll-fields/",
+      "capabilities": "",
+      "headless": true,
+      "index": 2,
+      "enabled": true,
+      "elementType": "ZestClientLaunch"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "user",
+      "index": 3,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementScrollTo"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "user",
+      "index": 4,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementClick"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "user",
+      "index": 5,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementScrollTo"
+    },
+    {
+      "value": "test@test.com",
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "user",
+      "index": 6,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementSendKeys"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "password",
+      "index": 7,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementScrollTo"
+    },
+    {
+      "value": "password123",
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "password",
+      "index": 8,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementSendKeys"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "login",
+      "index": 9,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementScrollTo"
+    },
+    {
+      "windowHandle": "windowHandle1",
+      "type": "id",
+      "element": "login",
+      "index": 10,
+      "waitForMsec": 5000,
+      "enabled": true,
+      "elementType": "ZestClientElementClick"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "enabled": true,
+  "elementType": "ZestScript"
+}
