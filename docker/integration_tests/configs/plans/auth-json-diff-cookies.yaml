@@ -1,0 +1,91 @@
+env:
+  contexts:
+  - name: Test
+    urls:
+    - http://localhost:9091
+    includePaths:
+    - http://localhost:9091.*
+    authentication:
+      method: browser
+      parameters:
+        loginPageUrl: http://localhost:9091/auth/simple-json-bearer-js-diff-cookies/
+        browserId: firefox-headless
+        loginPageWait: 2
+        steps: []
+      verification:
+        method: autodetect
+    sessionManagement:
+      method: autodetect
+    technology: {}
+    structure: {}
+    users:
+    - name: test
+      credentials:
+        password: password123
+        username: test@test.com
+  parameters: {}
+jobs:
+- type: requestor
+  parameters:
+    user: test
+  requests:
+  - url: http://localhost:9091/auth/simple-json-bearer-js-diff-cookies/
+    method: GET
+    responseCode: 200
+- type: passiveScan-wait
+  parameters: {}
+- type: requestor
+  parameters:
+    user: test
+  requests:
+  - url: http://localhost:9091/auth/simple-json-bearer-js-diff-cookies/
+    method: GET
+  tests:
+  - type: "stats"
+    statistic: "stats.auth.success"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.state.loggedin"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.sessiontoken.accesstoken"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.configure.session.header"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.configure.verification"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.detect.auth.json"
+    operator: ">="
+    value: 1
+    onFail: "error"
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"
