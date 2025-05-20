@@ -28,6 +28,9 @@ if [ "$OS" = "Darwin" ]; then
     PATH="$JAVA_PATH:$PATH"
     popd > /dev/null
   fi
+elif [ "$OS" = "Linux" ] && [ -n "$JAVA_HOME" ]; then
+  # On Linux, respect JAVA_HOME if it exists in the environment
+  PATH="$JAVA_HOME/bin:$PATH"
 fi
 
 # Extract and check the Java version
