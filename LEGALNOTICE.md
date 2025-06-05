@@ -31,7 +31,7 @@ and subject to their respective licenses.
 
 | Library                             | License                   |
 |-------------------------------------|---------------------------|
-| commons-beanutils-1.10.1.jar        | Apache 2.0                |
+| commons-beanutils-1.11.0.jar        | Apache 2.0                |
 | commons-codec-1.18.0.jar            | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
