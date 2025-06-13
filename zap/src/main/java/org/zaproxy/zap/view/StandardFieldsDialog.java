@@ -1279,6 +1279,20 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
         this.incTabOffset(tabIndex);
     }
 
+    protected static JPanel getSideBySidePanel(Component c1, Component c2) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        panel.add(
+                c1,
+                LayoutHelper.getGBC(
+                        0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 2)));
+        panel.add(
+                c2,
+                LayoutHelper.getGBC(
+                        1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(0, 2, 0, 0)));
+        return panel;
+    }
+
     /*
      * Add a 'node select' field which provides a button for showing a Node Select Dialog and a
      * non editable field for showing the node selected
@@ -1314,18 +1328,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                         }
                     }
                 });
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.add(
-                text,
-                LayoutHelper.getGBC(
-                        0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-        panel.add(
-                selectButton,
-                LayoutHelper.getGBC(
-                        1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-
-        this.addField(fieldLabel, text, panel, 0.0D);
+        this.addField(fieldLabel, text, getSideBySidePanel(text, selectButton), 0.0D);
     }
 
     /*
@@ -1364,23 +1367,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                         }
                     }
                 });
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.add(
-                text,
-                LayoutHelper.getGBC(
-                        0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-        panel.add(
-                selectButton,
-                LayoutHelper.getGBC(
-                        1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-
         this.addField(
                 this.tabPanels.get(tabIndex),
                 this.tabOffsets.get(tabIndex),
                 fieldLabel,
                 text,
-                panel,
+                getSideBySidePanel(text, selectButton),
                 0.0D);
         this.incTabOffset(tabIndex);
     }
@@ -1424,18 +1416,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                         targetSelected(fieldLabel, target);
                     }
                 });
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.add(
-                text,
-                LayoutHelper.getGBC(
-                        0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-        panel.add(
-                selectButton,
-                LayoutHelper.getGBC(
-                        1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-
-        this.addField(fieldLabel, text, panel, 0.0D);
+        this.addField(fieldLabel, text, getSideBySidePanel(text, selectButton), 0.0D);
     }
 
     /*
@@ -1470,23 +1451,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                         targetSelected(fieldLabel, target);
                     }
                 });
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.add(
-                text,
-                LayoutHelper.getGBC(
-                        0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-        panel.add(
-                selectButton,
-                LayoutHelper.getGBC(
-                        1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-
         this.addField(
                 this.tabPanels.get(tabIndex),
                 this.tabOffsets.get(tabIndex),
                 fieldLabel,
                 text,
-                panel,
+                getSideBySidePanel(text, selectButton),
                 0.0D);
         this.incTabOffset(tabIndex);
     }
@@ -1633,23 +1603,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
         if (dir != null) {
             text.setText(dir.getAbsolutePath());
         }
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.add(
-                text,
-                LayoutHelper.getGBC(
-                        0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-        panel.add(
-                createFileChooserButton(this, text, mode, filter),
-                LayoutHelper.getGBC(
-                        1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4)));
-
         this.addField(
                 this.tabPanels.get(tabIndex),
                 this.tabOffsets.get(tabIndex),
                 fieldLabel,
                 text,
-                panel,
+                getSideBySidePanel(text, createFileChooserButton(this, text, mode, filter)),
                 0.0D);
         this.incTabOffset(tabIndex);
     }
