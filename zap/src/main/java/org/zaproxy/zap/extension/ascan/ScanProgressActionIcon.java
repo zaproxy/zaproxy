@@ -110,7 +110,9 @@ public class ScanProgressActionIcon extends JLabel {
             }
 
             setIcon(icon);
-            setToolTipText(Constant.messages.getString("ascan.progress.label.skipaction"));
+            setToolTipText(
+                    Constant.messages.getString(
+                            "ascan.progress.label.skipaction", item.getNameLabel()));
 
         } else {
             setIcon(null);
