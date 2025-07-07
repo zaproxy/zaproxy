@@ -52,8 +52,8 @@ public class DialogEditRuleConfig extends StandardFieldsDialog {
 
         this.removeAllFields();
 
-        this.addReadOnlyField(FIELD_KEY, rc.getKey(), false);
-        this.addReadOnlyField(FIELD_DEFAULT, rc.getDefaultValue(), false);
+        addTextFieldReadOnly(FIELD_KEY, rc.getKey());
+        addTextFieldReadOnly(FIELD_DEFAULT, rc.getDefaultValue());
         this.addTextField(FIELD_VALUE, rc.getValue());
         String desc = "";
         if (Constant.messages.containsKey(rc.getKey())) {
@@ -63,6 +63,8 @@ public class DialogEditRuleConfig extends StandardFieldsDialog {
         ZapTextArea descField = (ZapTextArea) this.getField(FIELD_DESC);
         descField.setEditable(false);
         descField.setWrapStyleWord(true);
+
+        getField(FIELD_VALUE).requestFocusInWindow();
     }
 
     private JButton getResetButton() {
