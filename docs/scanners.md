@@ -105,6 +105,7 @@ Scan rules:
 10113   Verification Detection (info)
 10114   Same Origin Method Execution (SOME)
 10115   Script served from malicious polyfill.io domain
+10116   ZAP is out of date
 
 10200   Beast (via HTTPS Info Extension) [Deprecated]
 10201   Crime (via HTTPS Info Extension) [Deprecated]
