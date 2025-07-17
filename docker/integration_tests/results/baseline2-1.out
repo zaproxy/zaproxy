@@ -10,4 +10,4 @@ WARN-NEW: Permissions Policy Header Not Set [10063] x X
 WARN-NEW: Cross-Domain Misconfiguration [10098] x X 
 WARN-NEW: Insufficient Site Isolation Against Spectre Vulnerability [90004] x X 
 FAIL-NEW: X-Content-Type-Options Header Missing [10021] x X 
-FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 8	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 55
+FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 8	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 56
