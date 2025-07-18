@@ -40,6 +40,8 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.utils.JsonUtil;
+import org.zaproxy.zap.utils.XmlUtils;
 
 public class SessionStructure {
 
@@ -379,7 +381,7 @@ public class SessionStructure {
         sb.append(":");
         sb.append(nodeName);
 
-        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
+        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) { // TODO for all methods?
             sb.append(
                     getQueryParamString(
                             convertParosNVP(
@@ -392,6 +394,14 @@ public class SessionStructure {
             if (contentType != null
                     && contentType.startsWith(HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
                 sb.append(MULTIPART_FORM_DATA_DISPLAY);
+            } else if (message.getRequestHeader().hasContentType("json")) {
+                sb.append('(');
+                sb.append(JsonUtil.getJsonKeyString(message.getRequestBody().toString()));
+                sb.append(')');
+            } else if (message.getRequestHeader().hasContentType("xml")) {
+                sb.append('(');
+                sb.append(XmlUtils.getXmlKeyString(message.getRequestBody().toString()));
+                sb.append(')');
             } else {
                 sb.append(
                         getQueryParamString(
