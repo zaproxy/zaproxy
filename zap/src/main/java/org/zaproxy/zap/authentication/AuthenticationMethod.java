@@ -417,7 +417,7 @@ public abstract class AuthenticationMethod {
         }
         if (this.getPollHeaders() != null && this.getPollHeaders().length() > 0) {
             for (String header : this.getPollHeaders().split("\n")) {
-                String[] headerValue = header.split(":");
+                String[] headerValue = header.split(":", 2);
                 if (headerValue.length == 2) {
                     pollMsg.getRequestHeader()
                             .addHeader(headerValue[0].trim(), headerValue[1].trim());

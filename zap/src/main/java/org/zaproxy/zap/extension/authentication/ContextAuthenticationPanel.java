@@ -724,7 +724,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
             }
             for (String header : this.getPollHeadersField().getText().split("\n")) {
                 if (header.trim().length() > 0) {
-                    String[] headerValue = header.split(":");
+                    String[] headerValue = header.split(":", 2);
                     if (headerValue.length != 2) {
                         throw new IllegalStateException(
                                 Constant.messages.getString(
