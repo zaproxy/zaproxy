@@ -279,4 +279,45 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         // Second poll for user2
         assertThat(orderedReqs.size(), is(4));
     }
+
+    @Test
+    void shouldHandlePollHeadersWithColonsInValues() throws Exception {
+        // Given
+        String test = "/shouldHandlePollHeadersWithColonsInValues/test";
+        String pollUrl = "/shouldHandlePollHeadersWithColonsInValues/pollUrl";
+        final List<String> orderedReqs = new ArrayList<>();
+
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
+                        msg.setResponseBody(LOGGED_IN_BODY);
+                    }
+                });
+
+        HttpMessage testMsg = this.getHttpMessage(test);
+        HttpMessage pollMsg = this.getHttpMessage(pollUrl);
+
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        
+        // Set poll headers with colons in values (like JWT tokens, dates, etc.)
+        String headersWithColons = "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature\n" +
+                                  "X-Custom-Time: 2025-07-19T10:30:45.123Z\n" +
+                                  "Content-Type: application/json";
+        method.setPollHeaders(headersWithColons);
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        boolean isAuthenticated = method.isAuthenticated(testMsg, user);
+
+        // Then
+        assertThat(isAuthenticated, is(true));
+        assertThat(orderedReqs.size(), is(1));
+        assertThat(orderedReqs.get(0), is(pollUrl));
+    }
 }
