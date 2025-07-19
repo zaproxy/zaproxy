@@ -279,4 +279,62 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         // Second poll for user2
         assertThat(orderedReqs.size(), is(4));
     }
+
+    @Test
+    void shouldHandlePollHeadersWithColonsInValues() throws Exception {
+        // Given
+        String test = "/shouldHandlePollHeadersWithColonsInValues/test";
+        String pollUrl = "/shouldHandlePollHeadersWithColonsInValues/pollUrl";
+        final List<String> orderedReqs = new ArrayList<>();
+        final List<HttpMessage> capturedPollMessages = new ArrayList<>();
+
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
+                        capturedPollMessages.add(msg);
+                        msg.setResponseBody(LOGGED_IN_BODY);
+                    }
+                });
+
+        HttpMessage testMsg = this.getHttpMessage(test);
+        HttpMessage pollMsg = this.getHttpMessage(pollUrl);
+
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+
+        // Set poll headers with colons in values (like JWT tokens, dates, etc.)
+        String headersWithColons =
+                "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature\n"
+                        + "X-Custom-Time: 2025-07-19T10:30:45.123Z\n"
+                        + "Content-Type: application/json";
+        method.setPollHeaders(headersWithColons);
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        boolean isAuthenticated = method.isAuthenticated(testMsg, user);
+
+        // Then
+        assertThat(isAuthenticated, is(true));
+        assertThat(orderedReqs.size(), is(1));
+        assertThat(orderedReqs.get(0), is(pollUrl));
+
+        // Verify that the poll request was captured
+        assertThat(capturedPollMessages.size(), is(1));
+        HttpMessage pollRequest = capturedPollMessages.get(0);
+
+        // Verify that headers with colons in values were correctly parsed and added
+        assertThat(
+                pollRequest.getRequestHeader().getHeader("Authorization"),
+                is("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature"));
+        assertThat(
+                pollRequest.getRequestHeader().getHeader("X-Custom-Time"),
+                is("2025-07-19T10:30:45.123Z"));
+        assertThat(
+                pollRequest.getRequestHeader().getHeader("Content-Type"), is("application/json"));
+    }
 }
