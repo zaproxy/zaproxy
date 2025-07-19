@@ -1,4 +1,4 @@
-# readme_GRUPO_9.md HOLA CHICOS
+# readme_GRUPO_9.md
 
 
 ## 🔍 Resumen del proyecto seleccionado: OWASP ZAP
