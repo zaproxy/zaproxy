@@ -2,7 +2,7 @@
 
 ## 🔍 Resumen del proyecto seleccionado: OWASP ZAP
 
-OWASP ZAP (Zed Attack Proxy) es una herramienta de código abierto para la evaluación de seguridad de aplicaciones web. Desarrollada por la Fundación OWASP (Open Web Application Security Project), ZAP actúa como un proxy que intercepta el tráfico HTTP/HTTPS entre el navegador y la aplicación web, permitiendo identificar vulnerabilidades tales como inyecciones SQL, XSS (Cross-Site Scripting), fallas de autenticación, exposiciones de datos sensibles, entre otras.
+OWASP ZAP (Zed Attack Proxy) es una herramienta de código abierto para la evaluación de seguridad de aplicaciones web. Desarrollada por la Fundación OWASP (Open Web Application Security Project), ZAP actúa como un proxy que intercepta el tráfico HTTP/HTTPS entre el navegador y la aplicación web, permitiendo identificar vulnerabilidades tales como inyecciones SQL, XSS (Cross-Site Scripting), fallas de autenticación, exposiciones de datos sensibles, entre otras..
 
 ZAP ofrece escaneos tanto automáticos como manuales, lo que permite su uso por parte de expertos en ciberseguridad y estudiantes en formación. Incluye funcionalidades como spiders, fuzzers, escaneo pasivo, generación de informes y una API REST que permite su integración en entornos de desarrollo continuo (CI/CD).
 
