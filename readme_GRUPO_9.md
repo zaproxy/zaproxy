@@ -10,6 +10,24 @@ La herramienta es multiplataforma, tiene interfaz gráfica, línea de comandos y
 
 ---
 
+## 🎯 Justificación de la elección del repositorio
+
+Como grupo decidimos trabajar con **OWASP ZAP** por las siguientes razones técnicas:
+
+1. **Reconocimiento internacional y respaldo académico**  
+   ZAP es una herramienta respaldada por la Fundación OWASP, organización reconocida a nivel mundial en el ámbito de la seguridad informática. Según el *OWASP Web Security Testing Guide* (2023), ZAP es una de las principales herramientas recomendadas para realizar pruebas de seguridad a aplicaciones web (OWASP, 2023).
+
+2. **Utilización en entornos profesionales y educativos**  
+   ZAP es ampliamente utilizada en cursos universitarios, bootcamps y certificaciones como CEH (Certified Ethical Hacker) y OSCP (Offensive Security Certified Professional). Weidman (2014), en su libro *Penetration Testing*, menciona ZAP como una de las herramientas fundamentales para iniciarse en las pruebas de seguridad web.
+
+3. **Soporte técnico y comunidad activa**  
+   La herramienta cuenta con documentación oficial extensa, tutoriales, foros y actualizaciones constantes en su [repositorio oficial de GitHub](https://github.com/zaproxy/zaproxy), lo que garantiza su vigencia y aplicabilidad.
+
+4. **Facilidad de uso e integración**  
+   A diferencia de herramientas más complejas como Burp Suite o Metasploit, ZAP ofrece una curva de aprendizaje más amigable. Además, permite automatizar escaneos mediante su API, lo que la hace ideal para integrarse a pipelines de desarrollo seguro (DevSecOps).
+
+5. **Enfoque en vulnerabilidades críticas**  
+   ZAP está alineada con el top 10 de OWASP, abordando vulnerabilidades como inyecciones, control de acceso roto, exposición de datos sensibles y más. Esto refuerza su utilidad en entornos reales de desarrollo seguro.
 
 ---
 
