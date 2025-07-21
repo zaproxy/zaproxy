@@ -325,9 +325,9 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
 
         // Verify that the poll request was captured
         assertThat(capturedPollMessages.size(), is(1));
-        HttpMessage pollRequest = capturedPollMessages.get(0);
 
         // Verify that headers with colons in values were correctly parsed and added
+        HttpMessage pollRequest = capturedPollMessages.get(0);
         assertThat(
                 pollRequest.getRequestHeader().getHeader("Authorization"),
                 is("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature"));
