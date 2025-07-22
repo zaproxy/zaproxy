@@ -7,4 +7,9 @@ fieldExcludes: []
 classExcludes:
   - "org.parosproxy.paros.core.scanner.VariantAbstractRPCQuery$RPCParameter"
   - "org.parosproxy.paros.core.scanner.VariantJSONQuery$SimpleStringReader"
-methodExcludes: []
+methodExcludes:
+  - "org.zaproxy.zap.model.SessionStructure#addPath(org.parosproxy.paros.model.Session,org.parosproxy.paros.model.HistoryReference,org.parosproxy.paros.network.HttpMessage)"
+  - "org.zaproxy.zap.model.SessionStructure#addPath(org.parosproxy.paros.model.Session,org.parosproxy.paros.model.HistoryReference,org.parosproxy.paros.network.HttpMessage,boolean)"
+  - "org.zaproxy.zap.model.SessionStructure#find(long,org.apache.commons.httpclient.URI,java.lang.String,java.lang.String)"
+  - "org.zaproxy.zap.model.SessionStructure#getNodeName(org.parosproxy.paros.network.HttpMessage)"
+  - "org.zaproxy.zap.model.SessionStructure#getRootNode()"

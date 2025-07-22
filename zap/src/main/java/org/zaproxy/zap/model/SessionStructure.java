@@ -56,20 +56,6 @@ public class SessionStructure {
     /**
      * Adds the message to the Sites tree
      *
-     * @param session the session
-     * @param ref the history reference
-     * @param msg the message
-     * @return the node added to the Sites Tree
-     * @deprecated Use {@link #addPath(Model, HistoryReference, HttpMessage)}
-     */
-    @Deprecated
-    public static StructuralNode addPath(Session session, HistoryReference ref, HttpMessage msg) {
-        return addPath(session, ref, msg, false);
-    }
-
-    /**
-     * Adds the message to the Sites tree
-     *
      * @param model the model
      * @param ref the history reference
      * @param msg the message
@@ -78,23 +64,6 @@ public class SessionStructure {
      */
     public static StructuralNode addPath(Model model, HistoryReference ref, HttpMessage msg) {
         return addPath(model, ref, msg, false);
-    }
-
-    /**
-     * Adds the message to the Sites tree
-     *
-     * @param session the session
-     * @param ref the history reference
-     * @param msg the message
-     * @param newOnly Only return a SiteNode if one was newly created
-     * @return the SiteNode that corresponds to the HttpMessage, or null if newOnly and the node
-     *     already exists
-     * @deprecated Use {@link #addPath(Model, HistoryReference, HttpMessage, boolean)}
-     */
-    @Deprecated
-    public static StructuralNode addPath(
-            Session session, HistoryReference ref, HttpMessage msg, boolean newOnly) {
-        return addPath(Model.getSingleton(), ref, msg, newOnly);
     }
 
     /**
@@ -192,38 +161,6 @@ public class SessionStructure {
     /**
      * Finds the node in the Site tree for the given request data
      *
-     * @param sessionId the session id
-     * @param uri the URI
-     * @param method the method
-     * @param postData the POST data
-     * @return the site node or null if not found
-     * @throws DatabaseException
-     * @throws URIException
-     * @deprecated Use {@link #find(Model, URI, String, String)}
-     */
-    @Deprecated
-    public static StructuralNode find(long sessionId, URI uri, String method, String postData)
-            throws DatabaseException, URIException {
-        Model model = Model.getSingleton();
-        if (!Constant.isLowMemoryOptionSet()) {
-            SiteNode node = model.getSession().getSiteTree().findNode(uri, method, postData);
-            if (node == null) {
-                return null;
-            }
-            return new StructuralSiteNode(node);
-        }
-
-        String nodeName = getNodeName(model, uri, method, postData, null);
-        RecordStructure rs = model.getDb().getTableStructure().find(sessionId, nodeName, method);
-        if (rs == null) {
-            return null;
-        }
-        return new StructuralTableNode(rs);
-    }
-
-    /**
-     * Finds the node in the Site tree for the given request data
-     *
      * @param model the model
      * @param uri the URI
      * @param method the method
@@ -282,19 +219,6 @@ public class SessionStructure {
             }
         }
         return nodeUrl;
-    }
-
-    /**
-     * Returns the node name for the given message
-     *
-     * @param msg the message
-     * @return the node name
-     * @throws URIException
-     * @deprecated Use {@link #getNodeName(Model, HttpMessage)}
-     */
-    @Deprecated
-    public static String getNodeName(HttpMessage msg) throws URIException {
-        return getNodeName(Model.getSingleton(), msg);
     }
 
     /**
@@ -695,17 +619,6 @@ public class SessionStructure {
             return uri.getPort() == 443 ? "https" : "http";
         }
         return scheme.toLowerCase(Locale.ROOT);
-    }
-
-    /**
-     * Returns the root node
-     *
-     * @return the root node
-     * @deprecated Use {@link #getRootNode(Model)}
-     */
-    @Deprecated
-    public static StructuralNode getRootNode() {
-        return getRootNode(Model.getSingleton());
     }
 
     /**
