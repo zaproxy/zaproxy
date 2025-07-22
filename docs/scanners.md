@@ -152,15 +152,15 @@ Scan rules:
 40016   Persistent XSS (Prime)
 40017   Persistent XSS (Spider)
 40018   SQL Injection
-40019   SQL Injection MySQL (Timing Based)
-40020   SQL Injection Hypersonic (Timing Based)
-40021   SQL Injection Oracle (Timing Based)
-40022   SQL Injection Postgresql (Timing Based)
+40019   SQL Injection MySQL (Time Based)
+40020   SQL Injection Hypersonic (Time Based)
+40021   SQL Injection Oracle (Time Based)
+40022   SQL Injection Postgresql (Time Based)
 40023   Username Enumeration
-40024   SQL Injection SQLite
+40024   SQL Injection SQLite (Time Based)
 40025   Proxy Disclosure
 40026   Cross site scripting (DOM)
-40027   SQL Injection MsSQL (Timing Based)
+40027   SQL Injection MsSQL (Time Based)
 40028   ELMAH Scanner
 40029   trace.axd Scanner
 40030   Backslash Powered Scanner
@@ -221,9 +221,9 @@ Scan rules:
 90034   Cloud Metadata Attack
 90035   Server Side Template Injection
 90036   Server Side Template Injection (Blind)
-90037   Command Injection (Timing Based)
-90038   SQL Injection SQLite (Timing Based)
-90039   NoSQL Injection MongoDB (Timing Based)
+90037   Command Injection (Time Based)
+90038   SQL Injection SQLite (For future use, non-Time Based attacks)
+90039   NoSQL Injection MongoDB (Time Based)
 90040   DNS add-on SPF rule
 
 100000  Client/Server HTTP Error Response Codes [Script]
