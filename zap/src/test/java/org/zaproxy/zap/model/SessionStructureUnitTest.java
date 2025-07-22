@@ -472,14 +472,136 @@ class SessionStructureUnitTest {
         }
     }
 
+    @Nested
+    static class NodeNameTests {
+
+        private Model model;
+        private Session session;
+        private VariantFactory factory;
+
+        HttpMessage getParams;
+        HttpMessage postParamsFormData;
+        HttpMessage postParamsJsonData;
+        HttpMessage postParamsXmlData;
+        HttpMessage postMultipartData;
+
+        @BeforeEach
+        void setup() throws Exception {
+            WithConfigsTest.setUpConstantMessages();
+            model = mock(Model.class);
+            session = new Session(model);
+            factory = new VariantFactory();
+            given(model.getSession()).willReturn(session);
+            given(model.getVariantFactory()).willReturn(factory);
+            getParams =
+                    new HttpMessage(new URI("https://www.example.com/aaa/bbb?aa=bb&cc=dd", false));
+            postParamsFormData =
+                    getPostMsgWithFormParams(
+                            "https://www.example.com/ccc", "aa=bb&cc=dd", "ee=ff&gg=ee");
+            postParamsJsonData =
+                    getPostMsg(
+                            "https://www.example.com/ccc",
+                            "aa=bb&cc=dd",
+                            "{\"aaa\":\"bbb\", \"ccc\":\"ddd\", \"eee\":\"fff\"}",
+                            "application/json");
+            postParamsXmlData =
+                    getPostMsg(
+                            "https://www.example.com/ccc",
+                            "aa=bb&cc=dd",
+                            "<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DDD</ddd></aaa>",
+                            "text/xml");
+            Control.initSingletonForTesting(model);
+        }
+
+        @AfterEach
+        void cleanUp() {
+            Constant.messages = null;
+        }
+
+        @Test
+        void shouldGetNodeName() throws URIException {
+            assertThat(
+                    SessionStructure.getNodeName(model, getParams),
+                    is(equalTo("https://www.example.com/aaa/bbb (aa,cc)")));
+            assertThat(
+                    SessionStructure.getNodeName(model, postParamsFormData),
+                    is(equalTo("https://www.example.com/ccc (aa,cc)(ee,gg)")));
+            // FIXME should have the JSON key names
+            assertThat(
+                    SessionStructure.getNodeName(model, postParamsJsonData),
+                    is(equalTo("https://www.example.com/ccc (aa,cc)")));
+            // FIXME should have the XML key names
+            assertThat(
+                    SessionStructure.getNodeName(model, postParamsXmlData),
+                    is(equalTo("https://www.example.com/ccc (aa,cc)")));
+        }
+
+        @Test
+        void shouldGetLeafName1() throws URIException {
+            assertThat(
+                    SessionStructure.getLeafName(model, "test", getParams),
+                    is(equalTo("GET:test(aa,cc)")));
+            assertThat(
+                    SessionStructure.getLeafName(model, "test", postParamsFormData),
+                    is(equalTo("POST:test(aa,cc)(ee,gg)")));
+            // FIXME should have the JSON key names
+            assertThat(
+                    SessionStructure.getLeafName(model, "test", postParamsJsonData),
+                    is(
+                            equalTo(
+                                    "POST:test(aa,cc)({\"aaa\":\"bbb\", \"ccc\":\"ddd\", \"eee\":\"fff\"})")));
+            // FIXME should have the XML key names
+            assertThat(
+                    SessionStructure.getLeafName(model, "test", postParamsXmlData),
+                    is(equalTo("POST:test(aa,cc)(<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DD...)")));
+        }
+
+        @Test
+        void shouldGetLeafName2() throws Exception {
+            assertThat(getLeafName2(getParams), is(equalTo("GET:test(aa,cc)")));
+            assertThat(getLeafName2(postParamsFormData), is(equalTo("POST:test(aa,cc)(ee,gg)")));
+            // FIXME should have the JSON key names
+            assertThat(
+                    getLeafName2(postParamsJsonData),
+                    is(
+                            equalTo(
+                                    "POST:test(aa,cc)({\"aaa\":\"bbb\", \"ccc\":\"ddd\", \"eee\":\"fff\"})")));
+            // FIXME should have the XML key names
+            assertThat(
+                    getLeafName2(postParamsXmlData),
+                    is(equalTo("POST:test(aa,cc)(<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DD...)")));
+        }
+
+        String getLeafName2(HttpMessage msg) throws Exception {
+            return SessionStructure.getLeafName(
+                    model,
+                    "test",
+                    msg.getRequestHeader().getURI(),
+                    msg.getRequestHeader().getMethod(),
+                    msg.getRequestBody().toString());
+        }
+    }
+
     private void createPostMsgWithFormParams(String uri, String queryParams, String formParams)
             throws URIException {
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+        msg = getPostMsgWithFormParams(uri, queryParams, formParams);
+    }
+
+    private static HttpMessage getPostMsgWithFormParams(
+            String uri, String queryParams, String formParams) throws URIException {
+        return getPostMsg(uri, queryParams, formParams, "application/x-www-form-urlencoded");
+    }
+
+    private static HttpMessage getPostMsg(
+            String uri, String queryParams, String formParams, String contentType)
+            throws URIException {
+        HttpMessage message = new HttpMessage();
+        message.getRequestHeader().setMethod(HttpRequestHeader.POST);
         queryParams = queryParams == null ? "" : "?" + queryParams;
-        msg.getRequestHeader().setURI(new URI(uri + queryParams, true));
-        msg.getRequestHeader()
-                .setHeader(HttpHeader.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        msg.setRequestBody(formParams);
+        message.getRequestHeader().setURI(new URI(uri + queryParams, true));
+        message.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
+        message.setRequestBody(formParams);
+        return message;
     }
 
     public static final class PathTreeVariant implements Variant {
