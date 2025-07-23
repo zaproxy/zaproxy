@@ -8,7 +8,7 @@ description: |
   while you are developing and testing your applications.
   Its also a great tool for experienced pentesters to use for manual security testing.
 
-base: core24
+base: core22
 grade: stable
 confinement: classic
 
