@@ -19,9 +19,9 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 
 import net.sf.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -137,6 +137,50 @@ class JsonUtilUnitTest {
         // Then
         assertThat(processedValue, is(equalTo(value)));
         assertValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
+    void shouldReturnKeyStrForJsonObject() {
+        // Given
+        String json =
+                """
+                    {"aaa":"bbb", "ccc":"ddd", "eee":"fff"}
+                    """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("{aaa,ccc,eee}")));
+    }
+
+    @Test
+    void shouldReturnKeyStrForJsonArray() {
+        // Given
+        String json = """
+                    ["aaa", "bbb", "ccc"]
+                    """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("[]")));
+    }
+
+    @Test
+    void shouldReturnKeyStrForDeepJsonObject() {
+        // Given
+        String json =
+                """
+                {"aaa":{"bbb": "ccc", "ddd": "eee"}, fff: ["kkk", {"ggg":"hhh"}, {"iii":"jjj"}]}
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("{aaa:{bbb,ddd},fff:[{ggg},{iii}]}")));
     }
 
     private static void assertValueAfterJsonObject(String processedValue, String value) {
