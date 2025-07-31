@@ -19,11 +19,20 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.io.StringReader;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 /** A class with utility methods related to XML parsing. */
 public final class XmlUtils {
+
+    private static final Logger LOGGER = LogManager.getLogger(XmlUtils.class);
 
     private XmlUtils() {}
 
@@ -45,5 +54,62 @@ public final class XmlUtils {
         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         factory.setExpandEntityReferences(false);
         return factory;
+    }
+
+    public static String getXmlKeyString(String xmlString) {
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            DocumentBuilderFactory factory = newXxeDisabledDocumentBuilderFactory();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputSource inputSource = new InputSource(new StringReader(xmlString));
+            Document document = builder.parse(inputSource);
+
+            getXmlKeyString(document.getFirstChild(), sb);
+
+        } catch (Exception e) {
+            LOGGER.debug("Unable to parse as XML: {} {}", xmlString, e.getMessage(), e);
+        }
+
+        return sb.toString();
+    }
+
+    private static boolean ignoreChildNodes(Node node) {
+        return node == null
+                || !node.hasChildNodes()
+                || (node.getChildNodes().getLength() == 1
+                        && node.getFirstChild().getNodeType() == Node.TEXT_NODE);
+    }
+
+    private static void getXmlKeyString(Node node, StringBuilder sb) {
+        sb.append('<');
+        sb.append(node.getNodeName());
+
+        if (!ignoreChildNodes(node)) {
+            Node ch = node.getFirstChild();
+            String firstChild = null;
+            String postfix = "..";
+            while (ch != null) {
+                if (ch.getNodeType() != Node.TEXT_NODE) {
+                    StringBuilder sb2 = new StringBuilder();
+                    getXmlKeyString(ch, sb2);
+
+                    if (firstChild == null) {
+                        firstChild = sb2.toString();
+                        sb.append(':');
+                        sb.append(firstChild);
+                    } else if (firstChild.equals(sb2.toString())) {
+                        sb.append(postfix);
+                        postfix = "";
+                    } else {
+                        sb.append(',');
+                        sb.append(sb2.toString());
+                    }
+                }
+                ch = ch.getNextSibling();
+            }
+        }
+
+        sb.append('>');
     }
 }
