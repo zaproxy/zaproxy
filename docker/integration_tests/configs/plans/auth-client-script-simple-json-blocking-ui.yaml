@@ -12,7 +12,7 @@ env:
       parameters:
         loginPageUrl: "http://localhost:9091/auth/simple-json-blocking-ui/"
         loginPageWait: 5
-        script: /zap/wrk/configs/scripts/auth/clientScriptAuthBlocking.zst
+        script: ../scripts/auth/clientScriptAuthBlocking.zst
         scriptEngine: Mozilla Zest
       verification:
         method: "autodetect"
@@ -102,7 +102,7 @@ jobs:
     engine: "ECMAScript : Graal.js"
     name: "af-diags.js"
     target: ""
-    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+    source: "../scripts/standalone/af-diags.js"
   name: "script"
   type: "script"
 - parameters:
