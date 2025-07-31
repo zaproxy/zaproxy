@@ -66,6 +66,7 @@
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -504,11 +505,21 @@ public class HttpMessage implements Message {
         String charset = header.getCharset();
         body.setCharset(charset);
 
-        if (charset != null && !charset.equalsIgnoreCase(body.getCharset())) {
+        if (charset != null
+                && !charset.equalsIgnoreCase(body.getCharset())
+                && !isCharsetSupported(charset)) {
             LOGGER.warn(
                     "Failed to set charset {} from content-type value: {}",
                     charset,
                     header.getNormalisedContentTypeValue());
+        }
+    }
+
+    private static boolean isCharsetSupported(String charset) {
+        try {
+            return Charset.isSupported(charset);
+        } catch (IllegalArgumentException ignore) {
+            return false;
         }
     }
 
