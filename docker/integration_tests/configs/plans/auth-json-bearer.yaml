@@ -101,7 +101,7 @@ jobs:
     engine: "ECMAScript : Graal.js"
     name: "af-diags.js"
     target: ""
-    source: "/zap/wrk/configs/scripts/standalone/af-diags.js"
+    source: "../scripts/standalone/af-diags.js"
   name: "script"
   type: "script"
 - parameters:
