@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.stats;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -151,7 +151,7 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
                 statsd = null;
             }
         } else if (statsdInit) {
-            if (!StringUtils.equals(this.getStatsParam().getStatsdHost(), statsd.getHost())
+            if (!Strings.CS.equals(this.getStatsParam().getStatsdHost(), statsd.getHost())
                     || this.getStatsParam().getStatsdPort() != statsd.getPort()) {
                 // Have to re-initialise it
                 LOGGER.info("Restart sending stats to statsd server");
@@ -162,7 +162,7 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
-            } else if (!StringUtils.equals(
+            } else if (!Strings.CS.equals(
                     this.getStatsParam().getStatsdPrefix(), statsd.getPrefix())) {
                 statsd.setPrefix(this.getStatsParam().getStatsdPrefix());
             }

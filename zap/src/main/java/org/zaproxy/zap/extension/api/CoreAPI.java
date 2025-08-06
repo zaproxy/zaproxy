@@ -49,7 +49,7 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -1323,7 +1323,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             for (Logger logger : LoggerContext.getContext().getLoggers()) {
                 if (logName.isEmpty()
                         || (!logName.isEmpty()
-                                && StringUtils.startsWithIgnoreCase(logger.getName(), logName))) {
+                                && Strings.CI.startsWith(logger.getName(), logName))) {
                     loggerDetails.put(logger.getName(), logger.getLevel().name());
                 }
             }
