@@ -36,7 +36,7 @@ import java.util.TreeSet;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -433,8 +433,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
             return false;
         }
         for (String tokenName : this.getAntiCsrfTokenNames()) {
-            if (this.getParam().isPartialMatchingEnabled()
-                            && StringUtils.containsIgnoreCase(name, tokenName)
+            if (this.getParam().isPartialMatchingEnabled() && Strings.CI.contains(name, tokenName)
                     || tokenName.equalsIgnoreCase(name)) {
                 return true;
             }

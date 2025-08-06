@@ -71,7 +71,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -486,7 +486,7 @@ public class MenuFileControl implements SessionListener {
         if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
             String proposedFileName;
             // if there is already a file name, use it and add a timestamp
-            proposedFileName = StringUtils.removeEnd(session.getFileName(), ".session");
+            proposedFileName = Strings.CI.removeEnd(session.getFileName(), ".session");
             proposedFileName += "-" + dateFormat.format(new Date()) + ".session";
             fileproposal = new File(proposedFileName);
         }

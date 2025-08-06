@@ -79,7 +79,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
@@ -875,7 +875,7 @@ public class HttpMessage implements Message {
     public TreeSet<HtmlParameter> getFormParams() {
         final String contentType = mReqHeader.getHeader(HttpRequestHeader.CONTENT_TYPE);
         if (contentType == null
-                || !StringUtils.startsWithIgnoreCase(
+                || !Strings.CI.startsWith(
                         contentType.trim(), HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
             return new TreeSet<>();
         }
