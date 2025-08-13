@@ -10,7 +10,7 @@ jobs:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           sudo apt-get install xmlstarlet
           echo "REL_VERSION=$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)" >> $GITHUB_ENV

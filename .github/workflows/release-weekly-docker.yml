@@ -9,7 +9,7 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: |
           echo "REL_DATE=$(date +%F)" >> $GITHUB_ENV
           echo "REL_DATE_SHORT=$(date +%Y%m%d)" >> $GITHUB_ENV
