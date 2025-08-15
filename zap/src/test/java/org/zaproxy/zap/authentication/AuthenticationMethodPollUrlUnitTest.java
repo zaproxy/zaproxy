@@ -20,6 +20,7 @@
 package org.zaproxy.zap.authentication;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -278,5 +279,43 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         assertThat(method.isAuthenticated(testMsg, user2), is(true));
         // Second poll for user2
         assertThat(orderedReqs.size(), is(4));
+    }
+
+    @Test
+    void shouldHandlePollHeadersWithColonsInValues() throws Exception {
+        // Given
+        String test = "/test";
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+
+        setMessageHandler(pollMessages::add);
+
+        HttpMessage testMsg = this.getHttpMessage(test);
+
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+
+        method.setPollHeaders(
+                """
+                Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature
+                X-Custom-Time: 2025-07-19T10:30:45.123Z
+                Content-Type: application/json
+                """);
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        method.isAuthenticated(testMsg, user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        HttpRequestHeader requestHeader = pollMessages.get(0).getRequestHeader();
+        assertThat(
+                requestHeader.getHeader("Authorization"),
+                is("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature"));
+        assertThat(requestHeader.getHeader("X-Custom-Time"), is("2025-07-19T10:30:45.123Z"));
+        assertThat(requestHeader.getHeader("Content-Type"), is("application/json"));
     }
 }
