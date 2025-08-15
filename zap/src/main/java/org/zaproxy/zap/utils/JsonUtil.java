@@ -23,10 +23,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.regexp.RegexpMatcher;
 import net.sf.json.regexp.RegexpUtils;
 import net.sf.json.util.JSONUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utilities to workaround "quirks" of {@link JSONObject} and related classes.
@@ -36,6 +39,8 @@ import net.sf.json.util.JSONUtils;
 public final class JsonUtil {
 
     private JsonUtil() {}
+
+    private static final Logger LOGGER = LogManager.getLogger(JsonUtil.class);
 
     private static final String FUNCTION_PATTERN = "^function[ ]?\\(.*\\)[ ]?\\{.*\\}$";
     private static final RegexpMatcher FUNCTION_MACTHER = RegexpUtils.getMatcher(FUNCTION_PATTERN);
@@ -75,5 +80,57 @@ public final class JsonUtil {
             list.add(iter.next().toString());
         }
         return list;
+    }
+
+    public static String getJsonKeyString(Object obj) {
+        StringBuilder sb = new StringBuilder();
+        buildJsonKeyString(obj, sb);
+        return sb.toString();
+    }
+
+    private static void buildJsonKeyString(Object obj, StringBuilder sb) {
+        try {
+            try {
+                buildJsonObjectKeyString(JSONObject.fromObject(obj), sb);
+            } catch (JSONException e) {
+                getJsonArrayKeyString(JSONArray.fromObject(obj), sb);
+            }
+        } catch (JSONException e) {
+            LOGGER.debug("Unable to parse as JSON: {} {}", obj, e.getMessage(), e);
+        }
+    }
+
+    private static void buildJsonObjectKeyString(JSONObject jsonObject, StringBuilder sb) {
+        sb.append('{');
+        String prefix = "";
+        for (Object key : jsonObject.keySet()) {
+            sb.append(prefix);
+            prefix = ",";
+            Object obj = jsonObject.get(key);
+            sb.append(key);
+            if (obj instanceof JSONObject jObj) {
+                sb.append(":");
+                buildJsonKeyString(jObj, sb);
+            } else if (obj instanceof JSONArray jArr) {
+                sb.append(":");
+                buildJsonKeyString(jArr, sb);
+            }
+        }
+        sb.append('}');
+    }
+
+    private static void getJsonArrayKeyString(JSONArray jsonArray, StringBuilder sb) {
+        sb.append('[');
+        String prefix = "";
+        Object[] oa = jsonArray.toArray();
+        for (int i = 0; i < oa.length; i++) {
+            if (oa[i].getClass().isPrimitive() || oa[i] instanceof String) {
+                continue;
+            }
+            sb.append(prefix);
+            prefix = ",";
+            buildJsonKeyString(oa[i], sb);
+        }
+        sb.append(']');
     }
 }
