@@ -1,19 +1,14 @@
-# 1. Introducción
-El presente reporte tiene como finalidad exponer las razones por las cuales el grupo seleccionó el repositorio OWASP ZAP (Zed Attack Proxy) como objeto de análisis y estudio, destacando su relevancia técnica, su aporte en el ámbito académico y su pertinencia en entornos profesionales.
+# ¿Por qué el grupo escogió este repositorio?
+El grupo seleccionó el repositorio Zaproxy (Zed Attack Proxy) porque constituye una herramienta madura y reconocida en el ámbito de la ciberseguridad, especialmente en pruebas de aplicaciones web. ZAP se distingue por su capacidad de realizar escaneos activos y pasivos, lo que permite identificar vulnerabilidades críticas como inyección SQL, cross-site scripting (XSS) y fallos de control de acceso. 
 
-2. Justificación de la Selección del Repositorio
-El grupo seleccionó el repositorio OWASP ZAP por ser una herramienta madura, ampliamente reconocida en el ámbito de la ciberseguridad y con alto grado de adopción en pruebas de aplicaciones web. ZAP destaca por su capacidad de ejecutar análisis activos y pasivos que permiten identificar vulnerabilidades críticas como inyecciones SQL, ataques de cross-site scripting (XSS) y fallos de control de acceso. Estas funcionalidades están alineadas con los riesgos descritos en el OWASP Top 10, referente global en estándares de seguridad para el desarrollo de software seguro. Su aplicación extendida en proyectos de seguridad y el respaldo constante de la comunidad refuerzan su idoneidad como objeto de estudio.
+Estas capacidades se alinean directamente con los riesgos descritos en el OWASP Top 10, uno de los estándares más relevantes para la industria del software seguro (OWASP, 2021). Su uso en múltiples proyectos de seguridad y su continua evolución respaldan su elección como objeto de estudio.
 
-3. Tendencias Modernas y Relevancia en DevSecOps
-El repositorio responde a las tendencias actuales en DevSecOps, al ofrecer integración mediante API REST, compatibilidad con Docker y automatización en pipelines CI/CD. Estas capacidades convierten a ZAP en una herramienta flexible y escalable, apta para incorporarse en ciclos de desarrollo que requieren seguridad continua. La inclusión de pruebas dinámicas de seguridad (DAST) en etapas tempranas del ciclo de vida del software resulta esencial para mitigar riesgos y costos, consolidando a ZAP como un recurso de referencia para proyectos académicos y profesionales.
+Asimismo, el proyecto se ajusta a tendencias modernas en DevSecOps al ofrecer integración mediante API REST, compatibilidad con Docker y automatización en pipelines CI/CD. Estos atributos lo convierten en una herramienta flexible, capaz de incorporarse de forma ágil en entornos de desarrollo que requieren seguridad continua. La incorporación de pruebas de seguridad dinámicas (DAST) en fases tempranas del ciclo de vida del software es esencial para reducir costes y riesgos, lo que refuerza la pertinencia de ZAP como repositorio de referencia para el trabajo.
 
-4. Validación Académica e Industrial
-La selección se sustenta también en la validación académica e industrial del repositorio. Investigaciones recientes, como las comparativas entre versiones de OWASP ZAP v2.12.0 y v2.13.0 (Dumont et al., 2022; Li et al., 2025), demuestran mejoras significativas en la detección de vulnerabilidades y confirman su utilidad tanto en entornos empresariales como en escenarios educativos. Particularmente, su efectividad en la enseñanza de XSS (XSS for the Masses) refuerza su pertinencia en programas de formación y proyectos estudiantiles de ciberseguridad.
+Finalmente, la selección de este repositorio se justifica también en la validación académica e industrial que ha recibido. Investigaciones recientes como Benchmarking OWASP ZAP v2.12.0 vs v2.13.0 (Dumont et al., 2022) demuestran mejoras en la capacidad de detección de vulnerabilidades, mientras que estudios como XSS for the Masses (Dumont et al., 2022) evidencian su utilidad en entornos educativos al reducir fallos de seguridad en proyectos estudiantiles.
 
-5. Conclusiones
-El análisis realizado confirma que OWASP ZAP es un repositorio de referencia en ciberseguridad, que integra capacidades técnicas avanzadas, alineadas a estándares internacionales y validadas tanto en la industria como en el ámbito académico. Su aplicación práctica en entornos de desarrollo, educación y proyectos profesionales lo convierten en una herramienta idónea para garantizar procesos seguros y apoyar la formación en seguridad informática.
+Dumont, T., Fong, E., & Seitz, J. (2022). XSS for the Masses: Integrating Web Security into Programming Courses. arXiv.(https://arxiv.org/abs/2204.12416)
 
-6. Referencias
-Dumont, T., Fong, E., & Seitz, J. (2022). XSS for the Masses: Integrating Web Security into Programming Courses. arXiv. https://arxiv.org/abs/2204.12416
+Li, X., Wang, J., & Patel, R. (2025). Benchmarking OWASP ZAP v2.12.0 vs v2.13.0. arXiv. (https://arxiv.org/abs/2501.05907)
 
-Li, X., Wang, J., & Patel, R. (2025). Benchmarking OWASP ZAP v2.12.0 vs v2.13.0. arXiv. https://arxiv.org/abs/2501.05907
+OWASP. (2021). OWASP Top 10: The Ten Most Critical Web Application Security Risks. OWASP Foundation. (https://owasp.org/Top10)
