@@ -1,4 +1,4 @@
-# ¿Por qué el grupo escogió este repositorio?
+## ¿Por qué el grupo escogió este repositorio?
 El grupo seleccionó el repositorio Zaproxy (Zed Attack Proxy) porque constituye una herramienta madura y reconocida en el ámbito de la ciberseguridad, especialmente en pruebas de aplicaciones web. ZAP se distingue por su capacidad de realizar escaneos activos y pasivos, lo que permite identificar vulnerabilidades críticas como inyección SQL, cross-site scripting (XSS) y fallos de control de acceso. 
 
 Estas capacidades se alinean directamente con los riesgos descritos en el OWASP Top 10, uno de los estándares más relevantes para la industria del software seguro (OWASP, 2021). Su uso en múltiples proyectos de seguridad y su continua evolución respaldan su elección como objeto de estudio.
@@ -12,3 +12,45 @@ Dumont, T., Fong, E., & Seitz, J. (2022). XSS for the Masses: Integrating Web Se
 Li, X., Wang, J., & Patel, R. (2025). Benchmarking OWASP ZAP v2.12.0 vs v2.13.0. arXiv. (https://arxiv.org/abs/2501.05907)
 
 OWASP. (2021). OWASP Top 10: The Ten Most Critical Web Application Security Risks. OWASP Foundation. (https://owasp.org/Top10)
+
+### Proyecto OWASP ZAP – Dev Build
+
+Este proyecto documenta el proceso de levantamiento, configuración y ejecución de OWASP ZAP desde el código fuente utilizando Gradle, incluyendo la instalación de complementos y la ejecución de un escaneo automatizado sobre una aplicación web de prueba.
+
+## 📌 Objetivo
+
+Compilar OWASP ZAP desde el código fuente con Gradle.
+Instalar complementos necesarios para la ejecución.
+Ejecutar un escaneo automatizado de un sitio de prueba.
+Documentar el proceso y resultados obtenidos.
+
+## 🛠️ Preparación del Entorno
+
+Instalar JDK 11 o 17 (Eclipse Adoptium recomendado).
+Configurar la variable de entorno JAVA_HOME:
+```
+C:\Program Files\Eclipse Adoptium\jdk-11.0.28.6-hotspot\bin
+```
+
+## 🔹 Paso 2 – Compilación con Gradle
+
+En la raíz del proyecto se ejecutó:
+```
+.\gradlew :zap:run -x test
+```
+
+Inicialmente, el build fallaba por falta del add-on callhome.
+Se solucionó instalando los complementos requeridos desde el Marketplace de ZAP.
+
+## 🔹 Paso 3 – Instalación de Complementos
+
+Desde el menú Herramientas → Administrar Complementos, se instalaron los módulos esenciales:
+```
+callhome
+spider
+ajax spider
+report generation
+```
+Otros módulos recomendados.
+Con esto el proyecto pudo iniciarse correctamente.
+
