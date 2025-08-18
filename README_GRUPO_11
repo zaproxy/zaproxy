@@ -1,3 +1,9 @@
+#¿Cúal es la utilidad que tiene Zap?
+Su utilidad se encuentra en la automatización de la detección de vulnerabilidades emergentes como inyección SQL, XSS y configuraciones inseguras, mientras se desarrollan o testean las aplicaciones. 
+Además, ofrece funciones robustas para análisis manual gracias a su proxy interceptador, proporcionando flexibilidad y profundidad en el testeo de seguridad.
+Su modelo colaborativo como parte de la comunidad OWASP y su presencia en GitHub como un proyecto activo y accesible para contribuciones permiten mantener una evolución continua del código. Esto lo convierte en una herramienta técnica eficaz, tanto en entornos educativos como en equipos profesionales de seguridad que buscan una solución flexible, extendible y con respaldo comunitario.
+(https://github.com/zaproxy/zaproxy/blob/main/README.md)
+
 # ¿Por qué el grupo escogió este repositorio?
 El grupo seleccionó el repositorio Zaproxy (Zed Attack Proxy) porque constituye una herramienta madura y reconocida en el ámbito de la ciberseguridad, especialmente en pruebas de aplicaciones web. ZAP se distingue por su capacidad de realizar escaneos activos y pasivos, lo que permite identificar vulnerabilidades críticas como inyección SQL, cross-site scripting (XSS) y fallos de control de acceso. 
 
