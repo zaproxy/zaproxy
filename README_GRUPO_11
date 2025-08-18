@@ -65,3 +65,64 @@ report generation
 Otros módulos recomendados.
 Con esto el proyecto pudo iniciarse correctamente.
 
+### Ejecución del Escaneo Automatizado
+
+Ir a la pestaña Inicio Rápido.
+
+Ingresar la URL a atacar:
+
+http://pescalimentos.com
+
+
+## Configurar:
+
+Spider tradicional: ✅
+
+Spider AJAX: Sí es Moderno con navegador Edge.
+
+Presionar Atacar.
+
+📸 Captura 2 – Configuración de escaneo automatizado
+
+
+## 🔍 Progreso del Escaneo
+
+El spider recorrió el sitio y detectó:
+
+612 URLs encontradas
+
+473 nodos ingresados
+
+Se procesaron múltiples recursos externos (GitHub, YouTube, CDNs, etc.).
+
+📸 Captura 3 – Escaneo en progreso
+
+
+### 📊 Resultados
+
+Se generaron múltiples peticiones HTTP registradas.
+
+Sitio procesado con spider tradicional + AJAX.
+
+Alertas y posibles vulnerabilidades listadas en panel de resultados.
+
+📸 Captura 4 – Resultados del escaneo y tráfico HTTP
+
+
+### 📤 Exportar Informe
+
+Ir a Informe → Generar Informe.
+
+Seleccionar formato deseado (HTML recomendado).
+
+Guardar archivo para documentación.
+
+### ✅ Conclusión
+
+OWASP ZAP fue levantado exitosamente desde código fuente con Gradle.
+
+Se resolvieron dependencias faltantes instalando complementos.
+
+Se ejecutó un escaneo automatizado contra un sitio de prueba.
+
+Se documentaron los resultados con capturas e instrucciones claras.
