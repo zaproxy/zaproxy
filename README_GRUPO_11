@@ -1,0 +1,14 @@
+# ¿Por qué el grupo escogió este repositorio?
+El grupo seleccionó el repositorio Zaproxy (Zed Attack Proxy) porque constituye una herramienta madura y reconocida en el ámbito de la ciberseguridad, especialmente en pruebas de aplicaciones web. ZAP se distingue por su capacidad de realizar escaneos activos y pasivos, lo que permite identificar vulnerabilidades críticas como inyección SQL, cross-site scripting (XSS) y fallos de control de acceso. 
+
+Estas capacidades se alinean directamente con los riesgos descritos en el OWASP Top 10, uno de los estándares más relevantes para la industria del software seguro (OWASP, 2021). Su uso en múltiples proyectos de seguridad y su continua evolución respaldan su elección como objeto de estudio.
+
+Asimismo, el proyecto se ajusta a tendencias modernas en DevSecOps al ofrecer integración mediante API REST, compatibilidad con Docker y automatización en pipelines CI/CD. Estos atributos lo convierten en una herramienta flexible, capaz de incorporarse de forma ágil en entornos de desarrollo que requieren seguridad continua. La incorporación de pruebas de seguridad dinámicas (DAST) en fases tempranas del ciclo de vida del software es esencial para reducir costes y riesgos, lo que refuerza la pertinencia de ZAP como repositorio de referencia para el trabajo.
+
+Finalmente, la selección de este repositorio se justifica también en la validación académica e industrial que ha recibido. Investigaciones recientes como Benchmarking OWASP ZAP v2.12.0 vs v2.13.0 (Dumont et al., 2022) demuestran mejoras en la capacidad de detección de vulnerabilidades, mientras que estudios como XSS for the Masses (Dumont et al., 2022) evidencian su utilidad en entornos educativos al reducir fallos de seguridad en proyectos estudiantiles.
+
+Dumont, T., Fong, E., & Seitz, J. (2022). XSS for the Masses: Integrating Web Security into Programming Courses. arXiv.(https://arxiv.org/abs/2204.12416)
+
+Li, X., Wang, J., & Patel, R. (2025). Benchmarking OWASP ZAP v2.12.0 vs v2.13.0. arXiv. (https://arxiv.org/abs/2501.05907)
+
+OWASP. (2021). OWASP Top 10: The Ten Most Critical Web Application Security Risks. OWASP Foundation. (https://owasp.org/Top10)
