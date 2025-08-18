@@ -310,6 +310,52 @@ class SessionStructureUnitTest {
         assertThat(nodeName, is(equalTo(uri + " (a,c)(a,c)")));
     }
 
+    @Test
+    void shouldReturnCorrectNameForJsonPost() throws Exception {
+        // Given
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+        msg.getRequestHeader().setURI(new URI(uri + "?aa=bb&cc=dd&ee=ff", true));
+        msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, "application/json");
+        msg.setRequestBody("{\"aaa\":\"bbb\", \"ccc\":\"ddd\", \"eee\":\"fff\"}");
+        // When
+        String nodeName = SessionStructure.getNodeName(model, msg);
+        // Then
+        assertThat(nodeName, is(equalTo(uri + " (aa,cc,ee)({aaa,ccc,eee})")));
+    }
+
+    @Test
+    void shouldReturnCorrectNameForXmlPost() throws Exception {
+        // Given
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+        msg.getRequestHeader().setURI(new URI(uri + "?aa=bb&cc=dd&ee=ff", true));
+        msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/xml");
+        msg.setRequestBody("<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DDD</ddd></aaa>");
+        // When
+        String nodeName = SessionStructure.getNodeName(model, msg);
+        // Then
+        assertThat(nodeName, is(equalTo(uri + " (aa,cc,ee)(<aaa:<bbb>,<ccc>,<ddd>>)")));
+    }
+
+    @Test
+    void shouldReturnCorrectNameForMultipartPost() throws Exception {
+        // Given
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+        msg.getRequestHeader().setURI(new URI(uri + "?aa=bb&cc=dd&ee=ff", true));
+        String boundry = "----zaptestboundry6345896464398764398";
+        msg.getRequestHeader()
+                .setHeader(HttpHeader.CONTENT_TYPE, "multipart/form-data; boundary=" + boundry);
+        msg.setRequestBody(getTestMultipartData(boundry));
+        // When
+        String nodeName = SessionStructure.getNodeName(model, msg);
+        // Then
+        assertThat(
+                nodeName,
+                is(equalTo(uri + " (aa,cc,ee)(multipart:username,metadata,metadata,metadata)")));
+    }
+
     @Nested
     static class RegexGenerationTests {
 
@@ -480,7 +526,9 @@ class SessionStructureUnitTest {
         private VariantFactory factory;
 
         HttpMessage getParams;
+        HttpMessage getNoParams;
         HttpMessage postParamsFormData;
+        HttpMessage postNoParamsFormData;
         HttpMessage postParamsJsonData;
         HttpMessage postParamsXmlData;
         HttpMessage postMultipartData;
@@ -495,9 +543,12 @@ class SessionStructureUnitTest {
             given(model.getVariantFactory()).willReturn(factory);
             getParams =
                     new HttpMessage(new URI("https://www.example.com/aaa/bbb?aa=bb&cc=dd", false));
+            getNoParams = new HttpMessage(new URI("https://www.example.com/aaa/bbb", false));
             postParamsFormData =
                     getPostMsgWithFormParams(
-                            "https://www.example.com/ccc", "aa=bb&cc=dd", "ee=ff&gg=ee");
+                            "https://www.example.com/ccc", "cc=dd&aa=bb", "gg=hh&ee=ff");
+            postNoParamsFormData =
+                    getPostMsgWithFormParams("https://www.example.com/ccc", "", "ee=ff&gg=ee");
             postParamsJsonData =
                     getPostMsg(
                             "https://www.example.com/ccc",
@@ -510,6 +561,16 @@ class SessionStructureUnitTest {
                             "aa=bb&cc=dd",
                             "<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DDD</ddd></aaa>",
                             "text/xml");
+
+            String boundry = "----zaptestboundry6345896464398764398";
+
+            postMultipartData =
+                    getPostMsg(
+                            "https://www.example.com/ddd/",
+                            "aa=bb&cc=dd",
+                            getTestMultipartData(boundry),
+                            "multipart/form-data; boundary=" + boundry);
+
             Control.initSingletonForTesting(model);
         }
 
@@ -524,16 +585,25 @@ class SessionStructureUnitTest {
                     SessionStructure.getNodeName(model, getParams),
                     is(equalTo("https://www.example.com/aaa/bbb (aa,cc)")));
             assertThat(
+                    SessionStructure.getNodeName(model, getNoParams),
+                    is(equalTo("https://www.example.com/aaa/bbb")));
+            assertThat(
                     SessionStructure.getNodeName(model, postParamsFormData),
                     is(equalTo("https://www.example.com/ccc (aa,cc)(ee,gg)")));
-            // FIXME should have the JSON key names
+            assertThat(
+                    SessionStructure.getNodeName(model, postNoParamsFormData),
+                    is(equalTo("https://www.example.com/ccc ()(ee,gg)")));
             assertThat(
                     SessionStructure.getNodeName(model, postParamsJsonData),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)")));
-            // FIXME should have the XML key names
+                    is(equalTo("https://www.example.com/ccc (aa,cc)({aaa,ccc,eee})")));
             assertThat(
                     SessionStructure.getNodeName(model, postParamsXmlData),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)")));
+                    is(equalTo("https://www.example.com/ccc (aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)")));
+            assertThat(
+                    SessionStructure.getNodeName(model, postMultipartData),
+                    is(
+                            equalTo(
+                                    "https://www.example.com/ddd/ (aa,cc)(multipart:username,metadata,metadata,metadata)")));
         }
 
         @Test
@@ -542,34 +612,40 @@ class SessionStructureUnitTest {
                     SessionStructure.getLeafName(model, "test", getParams),
                     is(equalTo("GET:test(aa,cc)")));
             assertThat(
+                    SessionStructure.getLeafName(model, "test", getNoParams),
+                    is(equalTo("GET:test")));
+            assertThat(
                     SessionStructure.getLeafName(model, "test", postParamsFormData),
                     is(equalTo("POST:test(aa,cc)(ee,gg)")));
-            // FIXME should have the JSON key names
+            assertThat(
+                    SessionStructure.getLeafName(model, "test", postNoParamsFormData),
+                    is(equalTo("POST:test()(ee,gg)")));
             assertThat(
                     SessionStructure.getLeafName(model, "test", postParamsJsonData),
-                    is(
-                            equalTo(
-                                    "POST:test(aa,cc)({\"aaa\":\"bbb\", \"ccc\":\"ddd\", \"eee\":\"fff\"})")));
-            // FIXME should have the XML key names
+                    is(equalTo("POST:test(aa,cc)({aaa,ccc,eee})")));
             assertThat(
                     SessionStructure.getLeafName(model, "test", postParamsXmlData),
-                    is(equalTo("POST:test(aa,cc)(<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DD...)")));
+                    is(equalTo("POST:test(aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)")));
+            assertThat(
+                    SessionStructure.getLeafName(model, "test", postMultipartData),
+                    is(equalTo("POST:test(aa,cc)(multipart:username,metadata,metadata,metadata)")));
         }
 
         @Test
         void shouldGetLeafName2() throws Exception {
             assertThat(getLeafName2(getParams), is(equalTo("GET:test(aa,cc)")));
+            assertThat(getLeafName2(getNoParams), is(equalTo("GET:test")));
             assertThat(getLeafName2(postParamsFormData), is(equalTo("POST:test(aa,cc)(ee,gg)")));
-            // FIXME should have the JSON key names
+            assertThat(getLeafName2(postNoParamsFormData), is(equalTo("POST:test()(ee,gg)")));
             assertThat(
                     getLeafName2(postParamsJsonData),
-                    is(
-                            equalTo(
-                                    "POST:test(aa,cc)({\"aaa\":\"bbb\", \"ccc\":\"ddd\", \"eee\":\"fff\"})")));
-            // FIXME should have the XML key names
+                    is(equalTo("POST:test(aa,cc)({aaa,ccc,eee})")));
             assertThat(
                     getLeafName2(postParamsXmlData),
-                    is(equalTo("POST:test(aa,cc)(<aaa><bbb>BBB</bbb><ccc>CCC</ccc><ddd>DD...)")));
+                    is(equalTo("POST:test(aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)")));
+            assertThat(
+                    getLeafName2(postMultipartData),
+                    is(equalTo("POST:test(aa,cc)(multipart:username,metadata,metadata,metadata)")));
         }
 
         String getLeafName2(HttpMessage msg) throws Exception {
@@ -602,6 +678,21 @@ class SessionStructureUnitTest {
         message.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
         message.setRequestBody(formParams);
         return message;
+    }
+
+    private static String getTestMultipartData(String boundry) {
+        return String.join(
+                HttpHeader.CRLF,
+                "--" + boundry,
+                "Content-Disposition: form-data; name=\"username\"",
+                "",
+                "john_doe",
+                "--" + boundry,
+                "Content-Disposition: form-data; name=\"metadata\"; filename=\"blob\"",
+                "Content-Type: application/json",
+                "",
+                "{\"age\":30,\"location\":\"New York\"}",
+                "--" + boundry + "--");
     }
 
     public static final class PathTreeVariant implements Variant {
