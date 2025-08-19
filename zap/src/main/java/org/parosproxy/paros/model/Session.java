@@ -1267,6 +1267,10 @@ public class Session {
     }
 
     public void saveContext(Context c) {
+        saveContext(c, true);
+    }
+
+    private void saveContext(Context c, boolean shouldRefreshScope) {
         try {
             this.setContextData(c.getId(), RecordContext.TYPE_NAME, c.getName());
             this.setContextData(c.getId(), RecordContext.TYPE_DESCRIPTION, c.getDescription());
@@ -1312,13 +1316,18 @@ public class Session {
 
         if (View.isInitialised()) {
             View.getSingleton().changeContext(c);
-            refreshScope();
+            if (shouldRefreshScope) {
+                refreshScope();
+            }
         }
     }
 
     public void saveAllContexts() {
         for (Context c : contexts) {
-            this.saveContext(c);
+            this.saveContext(c, false);
+        }
+        if (View.isInitialised()) {
+            refreshScope();
         }
     }
 
