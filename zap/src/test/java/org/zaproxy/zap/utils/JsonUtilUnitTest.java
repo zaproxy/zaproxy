@@ -19,12 +19,16 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collections;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.zaproxy.zap.model.SessionStructure;
 
 /** Unit test for {@link JsonUtil}. */
 class JsonUtilUnitTest {
@@ -137,6 +141,86 @@ class JsonUtilUnitTest {
         // Then
         assertThat(processedValue, is(equalTo(value)));
         assertValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
+    void shouldReturnKeyStrForJsonObject() {
+        // Given
+        String json =
+                """
+                {"aaa":"bbb", "ccc":"ddd", "eee":"fff"}
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("{aaa,ccc,eee}")));
+    }
+
+    @Test
+    void shouldReturnKeyStrForJsonArray() {
+        // Given
+        String json = """
+                ["aaa", "bbb", "ccc"]
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("[]")));
+    }
+
+    @Test
+    void shouldReturnKeyStrForDeepJsonObject() {
+        // Given
+        String json =
+                """
+                {"aaa":{"bbb": "ccc", "ddd": "eee"}, fff: ["kkk", {"ggg":"hhh"}, {"iii":"jjj"}]}
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("{aaa:{bbb,ddd},fff:[{ggg},{iii}]}")));
+    }
+
+    @Test
+    void shouldReturnStrForMultipleMatchingChildNodesInJson() {
+        // given
+        String substr = "{\"aaa\":{\"bbb\": \"ccc\", \"ddd\": \"eee\"}}";
+        String json = "[" + String.join(",", Collections.nCopies(5, substr)) + "]";
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("[{aaa:{bbb,ddd}}..]")));
+    }
+
+    @Test
+    void shouldReturnTrimmedStrForVeryLongJson() {
+        // given
+        String aa = "{\"aaaaaaaaaa\": \"a\"}";
+        String bb = "{\"bbbbbbbbbb\": \"b\"}";
+        String aabbbbaa = "[" + aa + "," + bb + "],[" + bb + "," + aa + "]";
+        String json = "{\"cccc\": [" + String.join(",", Collections.nCopies(10, aabbbbaa)) + "]}";
+        String expectedStr = "[{aaaaaaaaaa},{bbbbbbbbbb}],[{bbbbbbbbbb},{aaaaaaaaaa}]";
+        String expectedName = "{cccc:[" + String.join(",", Collections.nCopies(10, expectedStr));
+        // when
+        String res = JsonUtil.getJsonKeyString(json);
+        // then
+        assertThat(
+                res,
+                is(expectedName.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "..."));
+    }
+
+    @Test
+    void shouldThrowExceptionForInvalidJson() throws Exception {
+        // given / when / then
+        assertThrows(JSONException.class, () -> JsonUtil.getJsonKeyString("{"));
     }
 
     private static void assertValueAfterJsonObject(String processedValue, String value) {

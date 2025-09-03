@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.regexp.RegexpMatcher;
 import net.sf.json.regexp.RegexpUtils;
 import net.sf.json.util.JSONUtils;
+import org.zaproxy.zap.model.SessionStructure;
 
 /**
  * Utilities to workaround "quirks" of {@link JSONObject} and related classes.
@@ -75,5 +77,76 @@ public final class JsonUtil {
             list.add(iter.next().toString());
         }
         return list;
+    }
+
+    public static String getJsonKeyString(Object obj) throws JSONException {
+        StringBuilder sb = new StringBuilder();
+        appendJsonKeyString(obj, sb);
+        if (sb.length() > SessionStructure.MAX_NODE_NAME_SIZE) {
+            return sb.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "...";
+        }
+
+        return sb.toString();
+    }
+
+    private static void appendJsonKeyString(Object obj, StringBuilder sb) throws JSONException {
+        try {
+            appendJsonObjectKeyString(JSONObject.fromObject(obj), sb);
+        } catch (JSONException e) {
+            appendJsonArrayKeyString(JSONArray.fromObject(obj), sb);
+        }
+    }
+
+    private static void appendJsonObjectKeyString(JSONObject jsonObject, StringBuilder sb) {
+        sb.append('{');
+        String prefix = "";
+        for (Object key : jsonObject.keySet()) {
+            if (sb.length() > SessionStructure.MAX_NODE_NAME_SIZE) {
+                break;
+            }
+            sb.append(prefix);
+            prefix = ",";
+            Object obj = jsonObject.get(key);
+            sb.append(key);
+            if (obj instanceof JSONObject jObj) {
+                sb.append(":");
+                appendJsonKeyString(jObj, sb);
+            } else if (obj instanceof JSONArray jArr) {
+                sb.append(":");
+                appendJsonKeyString(jArr, sb);
+            }
+        }
+        sb.append('}');
+    }
+
+    private static void appendJsonArrayKeyString(JSONArray jsonArray, StringBuilder sb) {
+        sb.append('[');
+        String postfix = "..";
+        Object[] oa = jsonArray.toArray();
+        String lastChild = null;
+        for (int i = 0; i < oa.length; i++) {
+            if (sb.length() > SessionStructure.MAX_NODE_NAME_SIZE) {
+                break;
+            }
+            if (oa[i].getClass().isPrimitive() || oa[i] instanceof String) {
+                continue;
+            }
+            StringBuilder sb2 = new StringBuilder();
+            appendJsonKeyString(oa[i], sb2);
+
+            if (lastChild == null) {
+                lastChild = sb2.toString();
+                sb.append(lastChild);
+            } else if (lastChild.equals(sb2.toString())) {
+                sb.append(postfix);
+                postfix = "";
+            } else {
+                lastChild = sb2.toString();
+                sb.append(',');
+                sb.append(lastChild);
+                postfix = "..";
+            }
+        }
+        sb.append(']');
     }
 }
