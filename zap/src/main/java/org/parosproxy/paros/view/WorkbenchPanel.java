@@ -72,6 +72,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ComponentMaximiser;
 import org.zaproxy.zap.view.ComponentMaximiserMouseListener;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -648,7 +649,7 @@ public class WorkbenchPanel extends JPanel {
         splitVert.addPropertyChangeListener(
                 JSplitPane.DIVIDER_LOCATION_PROPERTY, new DividerResizedListener(DIVIDER_VERTICAL));
 
-        splitVert.setDividerSize(3);
+        splitVert.setDividerSize(DisplayUtils.getScaledSize(8));
         splitVert.setOrientation(JSplitPane.VERTICAL_SPLIT);
         splitVert.setResizeWeight(0.5D);
 
@@ -662,7 +663,7 @@ public class WorkbenchPanel extends JPanel {
                 break;
         }
         splitVert.setBottomComponent(getPaneStatus());
-        splitVert.setContinuousLayout(false);
+        splitVert.setContinuousLayout(true);
         splitVert.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         return splitVert;
     }
@@ -695,7 +696,7 @@ public class WorkbenchPanel extends JPanel {
                 new DividerResizedListener(DIVIDER_HORIZONTAL));
 
         splitHoriz.setResizeWeight(0.3D);
-        splitHoriz.setContinuousLayout(false);
+        splitHoriz.setContinuousLayout(true);
         splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         return splitHoriz;
     }
@@ -1357,9 +1358,9 @@ public class WorkbenchPanel extends JPanel {
 
     private static JSplitPane createSplitPane(int orientation) {
         JSplitPane splitPane = new JSplitPane(orientation);
-        splitPane.setDividerSize(3);
+        splitPane.setDividerSize(DisplayUtils.getScaledSize(6));
         splitPane.setResizeWeight(0.5D);
-        splitPane.setContinuousLayout(false);
+        splitPane.setContinuousLayout(true);
         splitPane.setDoubleBuffered(true);
         splitPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         return splitPane;
