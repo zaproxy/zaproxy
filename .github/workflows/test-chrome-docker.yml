@@ -1,0 +1,18 @@
+name: Test Chrome in nightly Docker
+on:
+  workflow_dispatch:
+  #schedule:
+    # TODO schedule
+
+jobs:
+  publish:
+    name: Build Test Chrome Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build and test the image
+        run: |
+          cd docker/chrome
+          docker build -f Dockerfile --platform linux/amd64 -t zap-chrome . 
+          # The no-sandbox option does appear to be needed
+          docker run --rm -v "$(pwd)":/zap/wrk/:rw zap-chrome zap.sh -cmd -autorun /zap/wrk/chrome.yaml -config selenium.chromeArgs.arg.argument=--no-sandbox
