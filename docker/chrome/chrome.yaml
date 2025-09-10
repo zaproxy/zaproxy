@@ -1,0 +1,25 @@
+---
+env:
+  contexts:
+  - name: "Chrome Headless Test"
+    urls:
+    - "https://demo.owasp-juice.shop"
+  parameters:
+    failOnError: true
+    failOnWarning: true
+    progressToStdout: true
+jobs:
+- parameters:
+    maxDuration: 1
+    numberOfBrowsers: 1
+    browserId: "chrome-headless"
+  tests:
+  - name: "At least one URL found"
+    onFail: "WARN"
+    statistic: "spiderAjax.urls.added"
+    site: ""
+    operator: ">="
+    value: 20
+    type: "stats"
+  name: "spiderAjax"
+  type: "spiderAjax"
