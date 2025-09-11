@@ -1,8 +1,9 @@
 name: Test Chrome in nightly Docker
 on:
   workflow_dispatch:
-  #schedule:
-    # TODO schedule
+  schedule:
+    # Every Monday at 5am
+    - cron:  '0 5 * * 1'
 
 jobs:
   publish:
