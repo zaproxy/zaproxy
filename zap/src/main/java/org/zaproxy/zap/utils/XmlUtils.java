@@ -19,8 +19,16 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.io.IOException;
+import java.io.StringReader;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.zaproxy.zap.model.SessionStructure;
 
 /** A class with utility methods related to XML parsing. */
 public final class XmlUtils {
@@ -45,5 +53,64 @@ public final class XmlUtils {
         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         factory.setExpandEntityReferences(false);
         return factory;
+    }
+
+    public static String getXmlKeyString(String xmlString)
+            throws ParserConfigurationException, SAXException, IOException {
+        StringBuilder sb = new StringBuilder();
+
+        DocumentBuilderFactory factory = newXxeDisabledDocumentBuilderFactory();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        InputSource inputSource = new InputSource(new StringReader(xmlString));
+        Document document = builder.parse(inputSource);
+
+        appendXmlKeyString(document.getFirstChild(), sb);
+
+        if (sb.length() > SessionStructure.MAX_NODE_NAME_SIZE) {
+            return sb.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "...";
+        }
+
+        return sb.toString();
+    }
+
+    private static boolean ignoreChildNodes(Node node) {
+        return node == null
+                || !node.hasChildNodes()
+                || (node.getChildNodes().getLength() == 1
+                        && node.getFirstChild().getNodeType() == Node.TEXT_NODE);
+    }
+
+    private static void appendXmlKeyString(Node node, StringBuilder sb) {
+        sb.append('<');
+        sb.append(node.getNodeName());
+
+        if (!ignoreChildNodes(node)) {
+            Node ch = node.getFirstChild();
+            String lastChild = null;
+            String postfix = "..";
+            while (ch != null && sb.length() < SessionStructure.MAX_NODE_NAME_SIZE) {
+                if (ch.getNodeType() != Node.TEXT_NODE) {
+                    StringBuilder sb2 = new StringBuilder();
+                    appendXmlKeyString(ch, sb2);
+
+                    if (lastChild == null) {
+                        lastChild = sb2.toString();
+                        sb.append(':');
+                        sb.append(lastChild);
+                    } else if (lastChild.equals(sb2.toString())) {
+                        sb.append(postfix);
+                        postfix = "";
+                    } else {
+                        lastChild = sb2.toString();
+                        sb.append(',');
+                        sb.append(lastChild);
+                        postfix = "..";
+                    }
+                }
+                ch = ch.getNextSibling();
+            }
+        }
+
+        sb.append('>');
     }
 }

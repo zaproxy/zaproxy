@@ -23,12 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import net.sf.json.JSONException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Variant;
+import org.parosproxy.paros.core.scanner.VariantMultipartFormParameters;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordStructure;
 import org.parosproxy.paros.model.HistoryReference;
@@ -40,16 +44,18 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.utils.JsonUtil;
+import org.zaproxy.zap.utils.XmlUtils;
 
 public class SessionStructure {
 
     public static final String ROOT = "Root";
 
+    public static final int MAX_NODE_NAME_SIZE = 512;
+
     public static final String DATA_DRIVEN_NODE_PREFIX = "\u00AB";
     public static final String DATA_DRIVEN_NODE_POSTFIX = "\u00BB";
     public static final String DATA_DRIVEN_NODE_REGEX = "(.+?)";
-    private static final String MULTIPART_FORM_DATA_DISPLAY =
-            "(" + HttpHeader.FORM_MULTIPART_CONTENT_TYPE + ")";
 
     private static final Logger LOGGER = LogManager.getLogger(SessionStructure.class);
 
@@ -200,10 +206,16 @@ public class SessionStructure {
         String host = getHostName(uri);
         String nodeUrl = pathsToUrl(host, paths, paths.size());
 
-        String params = getParams(session, uri, postData, contentType);
-        if (params.length() > 0) {
-            nodeUrl += " " + params;
+        try {
+            HttpMessage msg = getMsg(uri, method, postData, contentType);
+            String params = getParams(session, msg);
+            if (!params.isEmpty()) {
+                nodeUrl += " " + params;
+            }
+        } catch (HttpMalformedHeaderException e) {
+            LOGGER.error(e.getMessage(), e);
         }
+
         return nodeUrl;
     }
 
@@ -214,7 +226,7 @@ public class SessionStructure {
 
         if (msg != null) {
             String params = getParams(session, msg);
-            if (params.length() > 0) {
+            if (!params.isEmpty()) {
                 nodeUrl = nodeUrl + " " + params;
             }
         }
@@ -231,12 +243,16 @@ public class SessionStructure {
      * @since 2.10.0
      */
     public static String getNodeName(Model model, HttpMessage msg) throws URIException {
-        return getNodeName(
-                model,
-                msg.getRequestHeader().getURI(),
-                msg.getRequestHeader().getMethod(),
-                msg.getRequestBody().toString(),
-                msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE));
+        Session session = model.getSession();
+        URI uri = msg.getRequestHeader().getURI();
+        List<String> paths = getTreePath(model, uri);
+        String host = getHostName(uri);
+        String nodeUrl = pathsToUrl(host, paths, paths.size());
+        String params = getParams(session, msg);
+        if (!params.isEmpty()) {
+            nodeUrl += " " + params;
+        }
+        return nodeUrl;
     }
 
     public static String getLeafName(Model model, String nodeName, HttpMessage msg) {
@@ -256,7 +272,8 @@ public class SessionStructure {
                 convertNVP(
                         model.getSession().getParameters(msg, Type.url),
                         org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING);
-        if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+
+        if (msg.getRequestBody().length() > 0) {
             params.addAll(
                     convertNVP(
                             model.getSession().getParameters(msg, Type.form),
@@ -284,13 +301,7 @@ public class SessionStructure {
             throws HttpMalformedHeaderException {
         Objects.requireNonNull(uri);
         Objects.requireNonNull(method);
-        HttpMessage msg = new HttpMessage(uri);
-        msg.getRequestHeader().setMethod(method);
-        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
-            msg.getRequestBody().setBody(postData);
-            msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-        }
-        return getLeafName(model, nodeName, msg);
+        return getLeafName(model, nodeName, getMsg(uri, method, postData, null));
     }
 
     public static String getLeafName(
@@ -303,43 +314,18 @@ public class SessionStructure {
         sb.append(":");
         sb.append(nodeName);
 
-        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
-            sb.append(
-                    getQueryParamString(
-                            convertParosNVP(
-                                    params,
-                                    org.parosproxy.paros.core.scanner.NameValuePair
-                                            .TYPE_QUERY_STRING),
-                            true));
+        List<NameValuePair> postParams =
+                convertParosNVP(
+                        params, org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA);
 
-            String contentType = message.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-            if (contentType != null
-                    && contentType.startsWith(HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
-                sb.append(MULTIPART_FORM_DATA_DISPLAY);
-            } else {
-                sb.append(
-                        getQueryParamString(
-                                convertParosNVP(
-                                        params,
-                                        org.parosproxy.paros.core.scanner.NameValuePair
-                                                .TYPE_POST_DATA),
-                                false));
-            }
-        } else {
-            sb.append(
-                    getQueryParamString(
-                            convertParosNVP(
-                                    params,
-                                    org.parosproxy.paros.core.scanner.NameValuePair
-                                            .TYPE_QUERY_STRING),
-                            false));
-            sb.append(
-                    getQueryParamString(
-                            convertParosNVP(
-                                    params,
-                                    org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA),
-                            false));
-        }
+        sb.append(
+                getQueryParamString(
+                        convertParosNVP(
+                                params,
+                                org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING),
+                        !postParams.isEmpty()));
+
+        sb.append(getPostParamString(message, getQueryParamString(postParams, false)));
 
         return sb.toString();
     }
@@ -499,7 +485,6 @@ public class SessionStructure {
             int historyId,
             boolean newOnly)
             throws DatabaseException, URIException {
-        // String nodeUrl = pathsToUrl(host, paths, size);
         Session session = model.getSession();
         String nodeName = getNodeName(session, host, msg, paths, size);
         String parentName = pathsToUrl(host, paths, size - 1);
@@ -508,7 +493,7 @@ public class SessionStructure {
         if (msg != null) {
             url = msg.getRequestHeader().getURI().toString();
             String params = getParams(session, msg);
-            if (params.length() > 0) {
+            if (!params.isEmpty()) {
                 nodeName = nodeName + " " + params;
             }
         }
@@ -649,27 +634,125 @@ public class SessionStructure {
     }
 
     private static String getParams(Session session, HttpMessage msg) throws URIException {
-        return getParams(
-                session,
-                msg.getRequestHeader().getURI(),
-                msg.getRequestBody().toString(),
-                msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE));
-    }
+        String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
+        String reqBody = msg.getRequestBody().toString();
+        boolean hasReqBody = contentType != null && !reqBody.isEmpty();
 
-    private static String getParams(
-            Session session, URI uri, String requestBody, String contentType) throws URIException {
-        boolean hasReqBody = contentType != null && requestBody != null && !requestBody.isEmpty();
-        String leafParams = getQueryParamString(session.getUrlParameters(uri), hasReqBody);
+        String leafParams =
+                getQueryParamString(
+                        session.getUrlParameters(msg.getRequestHeader().getURI()), hasReqBody);
         if (!hasReqBody) {
             return leafParams;
         }
 
-        if (contentType.startsWith(HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
-            leafParams += MULTIPART_FORM_DATA_DISPLAY;
-        } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
-            leafParams += getQueryParamString(session.getFormParameters(uri, requestBody), false);
+        return leafParams
+                + getPostParamString(
+                        msg,
+                        getQueryParamString(
+                                session.getFormParameters(msg.getRequestHeader().getURI(), reqBody),
+                                false));
+    }
+
+    private static String getPostParamString(HttpMessage msg, String fallback) {
+        String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
+        String reqBody = msg.getRequestBody().toString();
+        if (!reqBody.isEmpty()) {
+            String str;
+            if (contentType != null) {
+                str = getPostParamStringForContentType(msg, contentType, reqBody);
+            } else {
+                str = guessPostParamString(msg, reqBody);
+            }
+            if (str != null) {
+                return "(" + str + ")";
+            }
         }
-        return leafParams;
+        return fallback;
+    }
+
+    private static String getPostParamStringForContentType(
+            HttpMessage msg, String contentType, String body) {
+        if (contentType.startsWith(HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
+            VariantMultipartFormParameters mfp = new VariantMultipartFormParameters();
+            mfp.setMessage(msg);
+            return "multipart:"
+                    + getNameList(
+                            mfp.getParamList().stream()
+                                    .filter(p -> isRelevantMultipartParam(p.getType()))
+                                    .toList());
+        }
+        if (msg.getRequestHeader().hasContentType("json")) {
+            try {
+                return JsonUtil.getJsonKeyString(body);
+            } catch (JSONException e) {
+                return body.substring(0, Math.min(body.length(), MAX_NODE_NAME_SIZE));
+            }
+        }
+        if (msg.getRequestHeader().hasContentType("xml")) {
+            try {
+                return XmlUtils.getXmlKeyString(body);
+            } catch (Exception e) {
+                return body.substring(0, Math.min(body.length(), MAX_NODE_NAME_SIZE));
+            }
+        }
+        return null;
+    }
+
+    private static boolean isRelevantMultipartParam(int type) {
+        return type == org.parosproxy.paros.core.scanner.NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME
+                || type
+                        == org.parosproxy.paros.core.scanner.NameValuePair
+                                .TYPE_MULTIPART_DATA_PARAM;
+    }
+
+    private static String getNameList(List<org.parosproxy.paros.core.scanner.NameValuePair> nvp) {
+        return nvp.stream()
+                .map(org.parosproxy.paros.core.scanner.NameValuePair::getName)
+                .collect(Collectors.joining(","));
+    }
+
+    /** Try to work out the post data param string where we have no content type. */
+    private static String guessPostParamString(HttpMessage msg, String body) {
+        try {
+            String str = JsonUtil.getJsonKeyString(body);
+            if (!str.isEmpty()) {
+                return str;
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        try {
+            String str = XmlUtils.getXmlKeyString(msg.getRequestBody().toString());
+            if (!str.isEmpty()) {
+                return str;
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        try {
+            if (Strings.CI.contains(body, "Content-Disposition")) {
+                String[] bodyLines = body.split(HttpHeader.CRLF);
+                if (bodyLines.length > 2 && bodyLines[0].startsWith("--")) {
+                    // Looking likely, we need to reform the content type
+                    msg.getRequestHeader()
+                            .setHeader(
+                                    HttpHeader.CONTENT_TYPE,
+                                    HttpHeader.FORM_MULTIPART_CONTENT_TYPE
+                                            + "; boundary="
+                                            + bodyLines[0].substring(2));
+                    VariantMultipartFormParameters mfp = new VariantMultipartFormParameters();
+
+                    mfp.setMessage(msg);
+                    String str = getNameList(mfp.getParamList());
+                    if (!str.isEmpty()) {
+                        return "multipart:" + str;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        return null;
     }
 
     private static String getQueryParamString(List<NameValuePair> list, boolean isUrlWithPostData) {
@@ -696,5 +779,16 @@ public class SessionStructure {
         }
 
         return result;
+    }
+
+    private static HttpMessage getMsg(URI uri, String method, String postData, String contentType)
+            throws HttpMalformedHeaderException {
+        HttpMessage msg = new HttpMessage(uri);
+        msg.getRequestHeader().setMethod(method);
+        if (contentType != null) {
+            msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
+        }
+        msg.getRequestBody().setBody(postData);
+        return msg;
     }
 }
