@@ -1,6 +1,6 @@
 ZAP Scan Rules
 ==============
-The registry of scan rules' (passive, active, custom...) IDs.
+The Registry of Scan Rules' (Passive, Active, Custom...) IDs.
 
 Format: `<ID> <NAME>`
 
@@ -76,8 +76,8 @@ Scan rules:
 10056   X-Debug-Token Scanner
 10057   Username Hash iDOR Scanner
 10058   GET for POST Scanner
-10059	Http Parameter Pollution (Client Side)
-10060	Http Parameter Pollution (Server Side)
+10059	HTTP Parameter Pollution (Client Side)
+10060	HTTP Parameter Pollution (Server Side)
 10061   Server Leaks Information via "X-AspNet-Version"/"X-AspNetMvc-Version" HTTP Response Header Field(s)
 10062   Server Leaks PII in response body
 10063   Feature Policy Scanner
@@ -133,16 +133,16 @@ Scan rules:
 30002  Check for proper format string handling in back end c code.
 30003  Check for proper integer handling in back end c code.
 
-40000   Cross site scripting [Deprecated]
-40001   Cross site scripting in SCRIPT section [Deprecated]
-40002   Cross site scripting without brackets [Deprecated]
-40003   CRLF injection
+40000   Cross Site Scripting [Deprecated]
+40001   Cross Site Scripting In SCRIPT Section [Deprecated]
+40002   Cross Site Scripting Without Brackets [Deprecated]
+40003   CRLF Injection
 40004   SQL Injection Fingerprinting [Deprecated]
 40005   SQL Injection [Deprecated]
 40006   MS SQL Injection Enumeration [Deprecated]
 40007   Oracle SQL Injection Enumeration [Deprecated]
-40008   Parameter tampering
-40009   Server side include
+40008   Parameter Tampering
+40009   Server Side Include
 40010   Cross site scripting in TAG [Deprecated]
 40011   Cross Site Scripting in TAG Attribute [Deprecated]
 40012   Cross Site Scripting (Reflected)
