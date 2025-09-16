@@ -22,12 +22,14 @@ package org.zaproxy.zap.extension.alert;
 import java.awt.EventQueue;
 import java.util.Comparator;
 import javax.swing.tree.DefaultTreeModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
 
+@SuppressWarnings("serial")
 class AlertTreeModel extends DefaultTreeModel {
 
     private static final long serialVersionUID = 1L;
@@ -65,15 +67,27 @@ class AlertTreeModel extends DefaultTreeModel {
         }
     }
 
-    private synchronized void addPathEventHandler(Alert alert) {
-        AlertNode parent = (AlertNode) getRoot();
-        parent = findAndAddChild(parent, alert.getName(), alert);
+    /**
+     * @since 2.17.0
+     */
+    @Override
+    public AlertNode getRoot() {
+        return (AlertNode) super.getRoot();
+    }
+
+    protected synchronized AlertNode addPathEventHandler(Alert alert) {
+        AlertNode parent = findAndAddGroup(getRoot(), alert.getName(), alert);
         // Show the method first, if present
         String method = "";
         if (alert.getMethod() != null) {
-            method = alert.getMethod() + ": ";
+            method = alert.getMethod() + ":";
         }
-        addLeaf(parent, method + alert.getUri(), alert);
+        String name =
+                method
+                        + (StringUtils.isNotEmpty(alert.getNodeName())
+                                ? alert.getNodeName()
+                                : alert.getUri());
+        return addLeaf(parent, name, alert);
     }
 
     private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert) {
@@ -81,8 +95,7 @@ class AlertTreeModel extends DefaultTreeModel {
             AlertNode child = parent.getChildAt(i);
             if (child.getChildCount() == 0) {
                 // Its a leaf node
-                if (child.getUserObject() != null
-                        && child.getUserObject().getAlertId() == alert.getAlertId()) {
+                if (child.getAlert() != null && child.getAlert().compareTo(alert) == 0) {
                     return child;
                 }
             } else {
@@ -97,15 +110,15 @@ class AlertTreeModel extends DefaultTreeModel {
     }
 
     public AlertNode getAlertNode(Alert alert) {
-        AlertNode parent = (AlertNode) getRoot();
+        AlertNode parent = getRoot();
         int risk = alert.getRisk();
         if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }
 
-        AlertNode needle = new AlertNode(risk, alert.getName());
-        needle.setUserObject(alert);
+        AlertNode needle = new AlertNode(risk, alert.getName(), GROUP_ALERT_CHILD_COMPARATOR);
+        needle.setAlert(alert);
         int idx = parent.findIndex(needle);
         if (idx < 0) {
             return null;
@@ -118,16 +131,16 @@ class AlertTreeModel extends DefaultTreeModel {
         return parent.getChildAt(idx);
     }
 
-    void updatePath(final Alert originalAlert, final Alert alert) {
+    void updatePath(final Alert alert) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            updatePathEventHandler(originalAlert, alert);
+            updatePathEventHandler(alert);
         } else {
             try {
                 EventQueue.invokeLater(
                         new Runnable() {
                             @Override
                             public void run() {
-                                updatePathEventHandler(originalAlert, alert);
+                                updatePathEventHandler(alert);
                             }
                         });
             } catch (Exception e) {
@@ -136,39 +149,53 @@ class AlertTreeModel extends DefaultTreeModel {
         }
     }
 
-    private synchronized void updatePathEventHandler(Alert originalAlert, Alert alert) {
+    private synchronized void updatePathEventHandler(Alert alert) {
 
-        AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
+        AlertNode node = findLeafNodeForAlert(getRoot(), alert);
         if (node != null) {
 
             // Remove the old version
             AlertNode parent = node.getParent();
 
-            this.removeNodeFromParent(node);
+            // Cannot use removeNodeFromParent as the risk or name might have changed
+            removeChildById(parent, alert.getAlertId());
             nodeStructureChanged(parent);
 
             if (parent.getChildCount() == 0) {
                 // Parent has no other children, remove it also
                 this.removeNodeFromParent(parent);
-                nodeStructureChanged((AlertNode) this.getRoot());
+                nodeStructureChanged(this.getRoot());
             }
         }
         // Add it back in again
         this.addPath(alert);
     }
 
-    private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
+    private void removeChildById(AlertNode parent, int alertId) {
+        int idx = -1;
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            if (parent.getChildAt(i).getAlert().getAlertId() == alertId) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx >= 0) {
+            parent.remove(idx);
+        }
+    }
+
+    private AlertNode findAndAddGroup(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
         if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }
 
-        int idx = parent.findIndex(new AlertNode(risk, nodeName));
+        AlertNode node = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
+        int idx = parent.findIndex(node);
         if (idx < 0) {
             idx = -(idx + 1);
-            AlertNode node = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
-            node.setUserObject(alert);
+            node.setAlert(alert);
             parent.insert(node, idx);
             nodesWereInserted(parent, new int[] {idx});
             nodeChanged(parent);
@@ -177,27 +204,29 @@ class AlertTreeModel extends DefaultTreeModel {
         return parent.getChildAt(idx);
     }
 
-    private void addLeaf(AlertNode parent, String nodeName, Alert alert) {
+    private AlertNode addLeaf(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
         if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }
 
-        AlertNode needle = new AlertNode(risk, nodeName);
-        needle.setUserObject(alert);
+        AlertNode needle = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
+        needle.setAlert(alert);
         int idx = parent.findIndex(needle);
         if (idx < 0) {
             idx = -(idx + 1);
             parent.insert(needle, idx);
             nodesWereInserted(parent, new int[] {idx});
             nodeChanged(parent);
+            return needle;
         }
+        return null;
     }
 
     public synchronized void deletePath(Alert alert) {
 
-        AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
+        AlertNode node = findLeafNodeForAlert(getRoot(), alert);
         if (node != null) {
             AlertNode parent = node.getParent();
             if (parent.getChildCount() == 1) {
@@ -211,8 +240,8 @@ class AlertTreeModel extends DefaultTreeModel {
 
             // Remove it
             this.removeNodeFromParent(node);
-            if (parent.getUserObject() == node.getUserObject()) {
-                parent.setUserObject(parent.getChildAt(0).getUserObject());
+            if (parent.getAlert() == node.getAlert()) {
+                parent.setAlert(parent.getChildAt(0).getAlert());
             }
             this.nodeChanged(parent);
         }
@@ -236,7 +265,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
         @Override
         public int compare(AlertNode alertNode, AlertNode anotherAlertNode) {
-            return alertNode.getUserObject().compareTo(anotherAlertNode.getUserObject());
+            return alertNode.getAlert().compareTo(anotherAlertNode.getAlert());
         }
     }
 }

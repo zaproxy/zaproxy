@@ -50,7 +50,6 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.logging.log4j.LogManager;
@@ -340,7 +339,7 @@ public class AlertPanel extends AbstractPanel {
             sitesTree.addTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
         } else {
             extension.setMainTreeModel();
-            ((AlertNode) getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
+            getLinkWithSitesTreeModel().getRoot().removeAllChildren();
             view.getSiteTreePanel()
                     .getTreeSite()
                     .removeTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
@@ -390,7 +389,7 @@ public class AlertPanel extends AbstractPanel {
         if (siteNode == null) {
             throw new IllegalArgumentException("Parameter siteNode must not be null.");
         }
-        ((AlertNode) getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
+        getLinkWithSitesTreeModel().getRoot().removeAllChildren();
         if (siteNode.isRoot()) {
             getLinkWithSitesTreeModel().reload();
             extension.recalcAlerts();
@@ -479,10 +478,9 @@ public class AlertPanel extends AbstractPanel {
                                 SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
                                 for (TreePath path : treeAlert.getSelectionPaths()) {
                                     final AlertNode node = (AlertNode) path.getLastPathComponent();
-                                    final Object userObject = node.getUserObject();
-                                    if (userObject instanceof Alert) {
-                                        HistoryReference historyReference =
-                                                ((Alert) userObject).getHistoryRef();
+                                    final Alert alert = node.getAlert();
+                                    if (alert != null) {
+                                        HistoryReference historyReference = alert.getHistoryRef();
                                         if (historyReference != null
                                                 && !historyReferenceIdsAdded.contains(
                                                         historyReference.getHistoryId())) {
@@ -519,19 +517,12 @@ public class AlertPanel extends AbstractPanel {
                     new javax.swing.event.TreeSelectionListener() {
                         @Override
                         public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
-                            DefaultMutableTreeNode node =
-                                    (DefaultMutableTreeNode)
-                                            treeAlert.getLastSelectedPathComponent();
-                            if (node != null && node.getUserObject() != null) {
-                                Object obj = node.getUserObject();
-                                if (obj instanceof Alert) {
-                                    Alert alert = (Alert) obj;
-                                    setMessage(alert.getMessage(), alert.getEvidence());
-                                    treeAlert.requestFocusInWindow();
-                                    getAlertViewPanel().displayAlert(alert);
-                                } else {
-                                    getAlertViewPanel().clearAlert();
-                                }
+                            AlertNode node = (AlertNode) treeAlert.getLastSelectedPathComponent();
+                            if (node != null && node.getAlert() != null) {
+                                Alert alert = node.getAlert();
+                                setMessage(alert.getMessage(), alert.getEvidence());
+                                treeAlert.requestFocusInWindow();
+                                getAlertViewPanel().displayAlert(alert);
                             } else {
                                 getAlertViewPanel().clearAlert();
                             }
@@ -596,21 +587,20 @@ public class AlertPanel extends AbstractPanel {
 
         Set<Alert> alerts = new HashSet<>();
         if (!allAlerts) {
-            DefaultMutableTreeNode alertNode =
-                    (DefaultMutableTreeNode) paths[0].getLastPathComponent();
-            alerts.add((Alert) alertNode.getUserObject());
+            AlertNode alertNode = (AlertNode) paths[0].getLastPathComponent();
+            alerts.add(alertNode.getAlert());
             return alerts;
         }
 
         for (TreePath path : paths) {
-            DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+            AlertNode alertNode = (AlertNode) path.getLastPathComponent();
             if (alertNode.getChildCount() == 0) {
-                alerts.add((Alert) alertNode.getUserObject());
+                alerts.add(alertNode.getAlert());
                 continue;
             }
             for (int j = 0; j < alertNode.getChildCount(); j++) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) alertNode.getChildAt(j);
-                alerts.add((Alert) node.getUserObject());
+                AlertNode node = alertNode.getChildAt(j);
+                alerts.add(node.getAlert());
             }
         }
         return alerts;
@@ -762,13 +752,10 @@ public class AlertPanel extends AbstractPanel {
     }
 
     private void editSelectedAlert() {
-        DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
-        if (node != null && node.getUserObject() != null) {
-            Object obj = node.getUserObject();
-            if (obj instanceof Alert) {
-                Alert alert = (Alert) obj;
-
+        AlertNode node = (AlertNode) treeAlert.getLastSelectedPathComponent();
+        if (node != null) {
+            Alert alert = node.getAlert();
+            if (alert != null) {
                 extension.showAlertEditDialog(alert);
             }
         }

@@ -39,6 +39,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2021/04/30 Add input vector to Alert
 // ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
+// ZAP: 2025/10/01 Added support for nodeName.
 package org.parosproxy.paros.db.paros;
 
 import java.sql.CallableStatement;
@@ -82,6 +83,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
     private static final String SOURCEHISTORYID = "SOURCEHISTORYID";
     private static final String SOURCEID = "SOURCEID";
     private static final String ALERTREF = "ALERTREF";
+    private static final String NODENAME = "NODENAME";
 
     private PreparedStatement psRead = null;
     private PreparedStatement psInsert = null;
@@ -152,7 +154,9 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                     + ALERTREF
                                     + ","
                                     + INPUT_VECTOR
-                                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                    + ","
+                                    + NODENAME
+                                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
             psDeleteAlert =
                     conn.prepareStatement(
@@ -195,6 +199,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                     + SOURCEHISTORYID
                                     + " = ?, "
                                     + INPUT_VECTOR
+                                    + " = ?, "
+                                    + NODENAME
                                     + " = ? "
                                     + "WHERE "
                                     + ALERTID
@@ -307,6 +313,15 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                 + ALERTREF
                                 + " VARCHAR(256) DEFAULT ''");
             }
+            if (!DbUtils.hasColumn(connection, TABLE_NAME, NODENAME)) {
+                DbUtils.execute(
+                        connection,
+                        "ALTER TABLE "
+                                + TABLE_NAME
+                                + " ADD COLUMN "
+                                + NODENAME
+                                + " VARCHAR(1048576) DEFAULT NULL");
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -346,7 +361,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             int sourceHistoryId,
             int sourceId,
             String alertRef,
-            String inputVector)
+            String inputVector,
+            String nodeName)
             throws DatabaseException {
 
         try {
@@ -370,6 +386,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             psInsert.setInt(18, sourceId);
             psInsert.setString(19, alertRef);
             psInsert.setString(20, inputVector);
+            psInsert.setString(21, nodeName);
             psInsert.executeUpdate();
 
             int id;
@@ -409,7 +426,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                 rs.getInt(SOURCEHISTORYID),
                                 rs.getInt(SOURCEID),
                                 rs.getString(ALERTREF),
-                                rs.getString(INPUT_VECTOR));
+                                rs.getString(INPUT_VECTOR),
+                                rs.getString(NODENAME));
             }
             return alert;
         } catch (SQLException e) {
@@ -505,7 +523,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             int cweId,
             int wascId,
             int sourceHistoryId,
-            String inputVector)
+            String inputVector,
+            String nodeName)
             throws DatabaseException {
 
         try {
@@ -524,7 +543,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             psUpdate.setInt(13, wascId);
             psUpdate.setInt(14, sourceHistoryId);
             psUpdate.setString(15, inputVector);
-            psUpdate.setInt(16, alertId);
+            psUpdate.setString(16, nodeName);
+            psUpdate.setInt(17, alertId);
             psUpdate.executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseException(e);

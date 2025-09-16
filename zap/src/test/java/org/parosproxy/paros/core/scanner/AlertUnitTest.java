@@ -141,6 +141,8 @@ class AlertUnitTest {
         Alert alertA = new Alert(1);
         Alert alertB = new Alert(1);
         // When
+        alertA.setAlertId(0);
+        alertB.setAlertId(1);
         alertA.setAlertRef("1-1");
         alertB.setAlertRef("1-2");
         boolean equals = alertA.equals(alertB);
@@ -154,6 +156,8 @@ class AlertUnitTest {
         Alert alertA = new Alert(1);
         Alert alertB = new Alert(1);
         // When
+        alertA.setAlertId(0);
+        alertB.setAlertId(1);
         alertA.setAlertRef("1-1");
         alertB.setAlertRef("1-2");
         int cmp = alertA.compareTo(alertB);

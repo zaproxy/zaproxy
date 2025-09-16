@@ -68,6 +68,7 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/09/12 Add NUMBER_RISKS convenience constant.
 // ZAP: 2023/11/14 When setting CWE also add a CWE alert tag with an appropriate URL.
+// ZAP: 2025/10/01 Added support for nodeName.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -76,6 +77,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -227,6 +229,7 @@ public class Alert implements Comparable<Alert> {
     private URI msgUri = null;
     private Source source = Source.UNKNOWN;
     private String alertRef = "";
+    private String nodeName;
     private Map<String, String> tags = Collections.emptyMap();
 
     public Alert(int pluginId) {
@@ -289,6 +292,7 @@ public class Alert implements Comparable<Alert> {
         if (alertRef != null) {
             this.setAlertRef(alertRef);
         }
+        this.setNodeName(recordAlert.getNodeName());
     }
 
     public Alert(RecordAlert recordAlert, HistoryReference ref) {
@@ -438,6 +442,14 @@ public class Alert implements Comparable<Alert> {
 
     @Override
     public int compareTo(Alert alert2) {
+        if (alert2 == null) {
+            return 1;
+        }
+
+        if (this.alertId == alert2.getAlertId()) {
+            return 0;
+        }
+
         if (risk < alert2.risk) {
             return -1;
         } else if (risk > alert2.risk) {
@@ -471,19 +483,17 @@ public class Alert implements Comparable<Alert> {
             return result;
         }
 
-        // ZAP: changed to compare the field uri with alert2.uri
-        result = uri.compareToIgnoreCase(alert2.uri);
+        if (StringUtils.isNotBlank(nodeName) && StringUtils.isNotBlank(alert2.nodeName)) {
+            result = nodeName.compareToIgnoreCase(alert2.nodeName);
+        } else {
+            result = uri.compareToIgnoreCase(alert2.uri);
+        }
         if (result != 0) {
             return result;
         }
 
         // ZAP: changed to compare the field param with alert2.param
         result = param.compareToIgnoreCase(alert2.param);
-        if (result != 0) {
-            return result;
-        }
-
-        result = otherInfo.compareToIgnoreCase(alert2.otherInfo);
         if (result != 0) {
             return result;
         }
@@ -530,6 +540,10 @@ public class Alert implements Comparable<Alert> {
         }
 
         Alert item = (Alert) obj;
+        if (this.alertId == item.getAlertId()) {
+            return true;
+        }
+
         if (risk != item.risk) {
             return false;
         }
@@ -548,7 +562,11 @@ public class Alert implements Comparable<Alert> {
         if (!method.equalsIgnoreCase(item.method)) {
             return false;
         }
-        if (!uri.equalsIgnoreCase(item.uri)) {
+        if (nodeName != null && item.nodeName != null) {
+            if (!nodeName.equals(item.nodeName)) {
+                return false;
+            }
+        } else if (!uri.equalsIgnoreCase(item.uri)) {
             return false;
         }
         if (!param.equalsIgnoreCase(item.param)) {
@@ -591,7 +609,11 @@ public class Alert implements Comparable<Alert> {
         result = prime * result + pluginId;
         result = prime * result + alertRef.hashCode();
         result = prime * result + method.hashCode();
-        result = prime * result + uri.hashCode();
+        if (nodeName != null) {
+            result = prime * result + nodeName.hashCode();
+        } else {
+            result = prime * result + uri.hashCode();
+        }
         result = prime * result + ((attack == null) ? 0 : attack.hashCode());
         return result;
     }
@@ -603,6 +625,7 @@ public class Alert implements Comparable<Alert> {
      */
     public Alert newInstance() {
         Alert item = new Alert(this.pluginId);
+        item.setAlertId(alertId);
         item.setHistoryId(historyId);
         item.setRiskConfidence(this.risk, this.confidence);
         item.setName(this.name);
@@ -621,6 +644,7 @@ public class Alert implements Comparable<Alert> {
         item.setWascId(this.wascId);
         item.setSource(this.source);
         item.setTags(this.tags);
+        item.setNodeName(this.nodeName);
         return item;
     }
 
@@ -1046,6 +1070,24 @@ public class Alert implements Comparable<Alert> {
             }
         }
         this.alertRef = alertRef;
+    }
+
+    /**
+     * Get the node name.
+     *
+     * @since 2.17.0
+     */
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    /**
+     * Set the node name
+     *
+     * @since 2.17.0
+     */
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
     }
 
     /**
