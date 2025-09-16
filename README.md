@@ -23,4 +23,12 @@ It's also a great tool for experienced pentesters to use for manual security tes
 
 For more details about ZAP see the website: [zaproxy.org](https://www.zaproxy.org/)
 
+## Documentation
+
+- [User Guide](https://www.zaproxy.org/docs/)
+- [Getting Started](https://www.zaproxy.org/getting-started/)
+- [Understanding Risk Descriptions in Reports](docs/risk-descriptions.md)
+- [API Documentation](https://www.zaproxy.org/docs/api/)
+- [Desktop User Guide](https://www.zaproxy.org/docs/desktop/)
+
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap-website.png)](https://www.zaproxy.org/)
