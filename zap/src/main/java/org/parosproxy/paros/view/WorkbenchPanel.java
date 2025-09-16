@@ -663,7 +663,7 @@ public class WorkbenchPanel extends JPanel {
                 break;
         }
         splitVert.setBottomComponent(getPaneStatus());
-        splitVert.setContinuousLayout(true);
+        splitVert.setContinuousLayout(false);
         splitVert.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         return splitVert;
     }
@@ -696,7 +696,7 @@ public class WorkbenchPanel extends JPanel {
                 new DividerResizedListener(DIVIDER_HORIZONTAL));
 
         splitHoriz.setResizeWeight(0.3D);
-        splitHoriz.setContinuousLayout(true);
+        splitHoriz.setContinuousLayout(false);
         splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         return splitHoriz;
     }
@@ -1360,7 +1360,7 @@ public class WorkbenchPanel extends JPanel {
         JSplitPane splitPane = new JSplitPane(orientation);
         splitPane.setDividerSize(DisplayUtils.getScaledSize(6));
         splitPane.setResizeWeight(0.5D);
-        splitPane.setContinuousLayout(true);
+        splitPane.setContinuousLayout(false);
         splitPane.setDoubleBuffered(true);
         splitPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         return splitPane;
