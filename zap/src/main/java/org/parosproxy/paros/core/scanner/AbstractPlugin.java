@@ -87,6 +87,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -103,12 +104,13 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.extension.alert.ExampleAlertProvider;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
-public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
+public abstract class AbstractPlugin implements Plugin, Comparable<Object>, ExampleAlertProvider {
 
     private static final String[] NO_DEPENDENCIES = {};
 
@@ -1431,6 +1433,25 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     protected AlertBuilder newAlert() {
         return new AlertBuilder(this);
+    }
+
+    /**
+     * Gets a list of example alerts that the plugin can raise.
+     *
+     * <p>This method provides example alerts for documentation, testing, and UI purposes.
+     * The example alerts are not persisted to the database and should represent typical
+     * alerts that this scanner can produce.
+     *
+     * <p>By default, this method returns {@code null}, indicating that no example alerts
+     * are available. Concrete scanner implementations should override this method to
+     * provide appropriate example alerts.
+     *
+     * @return a list of example alerts, or {@code null} if no examples are available
+     * @since 2.15.0
+     */
+    @Override
+    public List<Alert> getExampleAlerts() {
+        return null;
     }
 
     /**
