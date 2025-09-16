@@ -7,6 +7,10 @@ fieldExcludes: []
 classExcludes:
   - "org.parosproxy.paros.core.scanner.VariantAbstractRPCQuery$RPCParameter"
   - "org.parosproxy.paros.core.scanner.VariantJSONQuery$SimpleStringReader"
+  - "org.parosproxy.paros.db.RecordAlert"
+  - "org.parosproxy.paros.db.TableAlert"
+  - "org.parosproxy.paros.db.paros.ParosTableAlert"
+  - "org.zaproxy.zap.db.sql.SqlTableAlert"
 methodExcludes:
   - "org.zaproxy.zap.model.SessionStructure#addPath(org.parosproxy.paros.model.Session,org.parosproxy.paros.model.HistoryReference,org.parosproxy.paros.network.HttpMessage)"
   - "org.zaproxy.zap.model.SessionStructure#addPath(org.parosproxy.paros.model.Session,org.parosproxy.paros.model.HistoryReference,org.parosproxy.paros.network.HttpMessage,boolean)"

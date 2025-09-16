@@ -35,6 +35,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -180,6 +181,43 @@ public class ExtensionAlert extends ExtensionAdaptor
             return;
         }
 
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+            alertFoundEventHandler(alert, ref);
+        } else {
+            try {
+                EventQueue.invokeLater(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                alertFoundEventHandler(alert, ref);
+                            }
+                        });
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public void alertFoundEventHandler(Alert alert, HistoryReference ref) {
+        if (alert.getMessage() != null) {
+            try {
+                alert.setNodeName(SessionStructure.getNodeName(getModel(), alert.getMessage()));
+            } catch (URIException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        synchronized (this.getTreeModel()) {
+            if (this.getTreeModel().addPathEventHandler(alert) != null) {
+                if (isInFilter(alert)) {
+                    this.getFilteredTreeModel().addPath(alert);
+                }
+                if (getView() != null) {
+                    getAlertPanel().expandRoot();
+                    this.recalcAlerts();
+                }
+            }
+        }
+
         try {
             int sourceHistoryId = alert.getSourceHistoryId();
             LOGGER.debug("alertFound {} {}", alert.getName(), alert.getUri());
@@ -237,8 +275,6 @@ public class ExtensionAlert extends ExtensionAdaptor
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
-
-            addAlertToTree(alert);
 
             // Clear the message so that it can be GC'ed
             alert.setMessage(null);
@@ -496,6 +532,10 @@ public class ExtensionAlert extends ExtensionAdaptor
         return filteredTreeModel;
     }
 
+    public String getTextAlertTree() {
+        return TextAlertTree.toString(getTreeModel());
+    }
+
     private void writeAlertToDB(Alert alert, HistoryReference ref)
             throws HttpMalformedHeaderException, DatabaseException {
 
@@ -525,7 +565,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                         alert.getSourceHistoryId(),
                         alert.getSource().getId(),
                         alert.getAlertRef(),
-                        alert.getInputVector());
+                        alert.getInputVector(),
+                        alert.getNodeName());
 
         int alertId = recordAlert.getAlertId();
         alert.setAlertId(alertId);
@@ -568,7 +609,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                 alert.getCweId(),
                 alert.getWascId(),
                 alert.getSourceHistoryId(),
-                alert.getInputVector());
+                alert.getInputVector(),
+                alert.getNodeName());
 
         int alertId = alert.getAlertId();
         TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
@@ -620,9 +662,12 @@ public class ExtensionAlert extends ExtensionAdaptor
 
         if (hasView()) {
             JTree alertTree = this.getAlertPanel().getTreeAlert();
-            TreePath alertPath = new TreePath(getTreeModel().getAlertNode(alert).getPath());
-            alertTree.setSelectionPath(alertPath);
-            alertTree.scrollPathToVisible(alertPath);
+            AlertNode node = getTreeModel().getAlertNode(alert);
+            if (node != null) {
+                TreePath alertPath = new TreePath(node.getPath());
+                alertTree.setSelectionPath(alertPath);
+                alertTree.scrollPathToVisible(alertPath);
+            }
         }
     }
 
@@ -1041,8 +1086,8 @@ public class ExtensionAlert extends ExtensionAdaptor
     public void sessionScopeChanged(Session session) {
         // Have to recheck all alerts to see if they are in scope
         synchronized (this.getTreeModel()) {
-            ((AlertNode) this.getFilteredTreeModel().getRoot()).removeAllChildren();
-            AlertNode root = (AlertNode) this.getTreeModel().getRoot();
+            (this.getFilteredTreeModel().getRoot()).removeAllChildren();
+            AlertNode root = this.getTreeModel().getRoot();
             filterTree(root);
             this.getFilteredTreeModel().nodeStructureChanged(root);
         }

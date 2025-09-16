@@ -772,6 +772,7 @@ public class AlertViewPanel extends AbstractPanel {
             alert.setWascId(alertEditWascId.getValue());
             alert.setHistoryRef(historyRef);
             alert.setTags(getAlertTags());
+            alert.setNodeName(originalAlert.getNodeName());
 
             return alert;
         }
@@ -822,6 +823,7 @@ public class AlertViewPanel extends AbstractPanel {
                 msg);
         alert.setHistoryId(historyId);
         alert.setTags(getAlertTags());
+        alert.setNodeName(originalAlert.getNodeName());
         return alert;
     }
 

@@ -21,11 +21,15 @@ package org.zaproxy.zap.extension.alert;
 
 import java.awt.EventQueue;
 import java.util.Comparator;
+import java.util.List;
 import javax.swing.tree.DefaultTreeModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.view.View;
 
 class AlertTreeModel extends DefaultTreeModel {
@@ -65,15 +69,25 @@ class AlertTreeModel extends DefaultTreeModel {
         }
     }
 
-    private synchronized void addPathEventHandler(Alert alert) {
-        AlertNode parent = (AlertNode) getRoot();
+    @Override
+    public AlertNode getRoot() {
+        return (AlertNode) super.getRoot();
+    }
+
+    protected synchronized AlertNode addPathEventHandler(Alert alert) {
+        AlertNode parent = getRoot();
         parent = findAndAddChild(parent, alert.getName(), alert);
         // Show the method first, if present
         String method = "";
         if (alert.getMethod() != null) {
             method = alert.getMethod() + ": ";
         }
-        addLeaf(parent, method + alert.getUri(), alert);
+        String name =
+                method
+                        + (StringUtils.isNotEmpty(alert.getNodeName())
+                                ? alert.getNodeName()
+                                : alert.getUri());
+        return addLeaf(parent, name, alert);
     }
 
     private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert) {
@@ -81,8 +95,7 @@ class AlertTreeModel extends DefaultTreeModel {
             AlertNode child = parent.getChildAt(i);
             if (child.getChildCount() == 0) {
                 // Its a leaf node
-                if (child.getUserObject() != null
-                        && child.getUserObject().getAlertId() == alert.getAlertId()) {
+                if (child.hasAlert(alert)) {
                     return child;
                 }
             } else {
@@ -97,7 +110,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
 
     public AlertNode getAlertNode(Alert alert) {
-        AlertNode parent = (AlertNode) getRoot();
+        AlertNode parent = getRoot();
         int risk = alert.getRisk();
         if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
@@ -138,8 +151,22 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private synchronized void updatePathEventHandler(Alert originalAlert, Alert alert) {
 
-        AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
+        List<Alert> alerts = null;
+        AlertNode node = findLeafNodeForAlert(getRoot(), originalAlert);
         if (node != null) {
+            alerts = node.getAllAlerts();
+            for (Alert a : alerts) {
+                boolean changed =
+                        a.getRisk() != alert.getRisk()
+                                || a.getConfidence() != alert.getConfidence();
+                alert.propagateInto(a);
+                if (changed) {
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionHistory.class)
+                            .notifyHistoryItemChanged(a.getHistoryRef());
+                }
+            }
 
             // Remove the old version
             AlertNode parent = node.getParent();
@@ -150,11 +177,14 @@ class AlertTreeModel extends DefaultTreeModel {
             if (parent.getChildCount() == 0) {
                 // Parent has no other children, remove it also
                 this.removeNodeFromParent(parent);
-                nodeStructureChanged((AlertNode) this.getRoot());
+                nodeStructureChanged(this.getRoot());
             }
         }
         // Add it back in again
-        this.addPath(alert);
+        node = this.addPathEventHandler(alert);
+        if (node != null && alerts != null) {
+            node.setAlerts(alerts);
+        }
     }
 
     private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
@@ -177,7 +207,7 @@ class AlertTreeModel extends DefaultTreeModel {
         return parent.getChildAt(idx);
     }
 
-    private void addLeaf(AlertNode parent, String nodeName, Alert alert) {
+    private AlertNode addLeaf(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
         if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
@@ -192,26 +222,33 @@ class AlertTreeModel extends DefaultTreeModel {
             parent.insert(needle, idx);
             nodesWereInserted(parent, new int[] {idx});
             nodeChanged(parent);
+            return needle;
         }
+        parent.getChildAt(idx).setUserObject(alert);
+        return null;
     }
 
     public synchronized void deletePath(Alert alert) {
 
-        AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
+        AlertNode node = findLeafNodeForAlert(getRoot(), alert);
         if (node != null) {
             AlertNode parent = node.getParent();
-            if (parent.getChildCount() == 1) {
-                // Parent has no other children, remove it also
-                parent.remove(0);
-                AlertNode grandParent = parent.getParent();
-                this.removeNodeFromParent(parent);
-                this.nodeChanged(grandParent);
-                return;
-            }
+            if (node.deleteAlert(alert) == 0) {
+                // No more alerts for this node
+                if (parent.getChildCount() == 1) {
+                    // Parent has no other children, remove it also
+                    parent.remove(0);
+                    AlertNode grandParent = parent.getParent();
+                    this.removeNodeFromParent(parent);
+                    this.nodeChanged(grandParent);
+                    return;
+                }
 
-            // Remove it
-            this.removeNodeFromParent(node);
-            if (parent.getUserObject() == node.getUserObject()) {
+                // Remove it
+                this.removeNodeFromParent(node);
+            }
+            if (parent.deleteAlert(alert) == 0) {
+                // We've deleted the last alert of this type the parent knows about
                 parent.setUserObject(parent.getChildAt(0).getUserObject());
             }
             this.nodeChanged(parent);

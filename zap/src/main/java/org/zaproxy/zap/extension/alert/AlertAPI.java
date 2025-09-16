@@ -285,7 +285,7 @@ public class AlertAPI extends ApiImplementor {
             }
 
             AlertTreeModel model = extension.getTreeModel();
-            AlertNode root = (AlertNode) model.getRoot();
+            AlertNode root = model.getRoot();
             Enumeration<?> enumAllAlerts = root.children();
             while (enumAllAlerts.hasMoreElements()) {
                 AlertNode child = (AlertNode) enumAllAlerts.nextElement();
@@ -306,7 +306,7 @@ public class AlertAPI extends ApiImplementor {
             int falsePositiveCount = 0;
 
             AlertTreeModel model = extension.getTreeModel();
-            AlertNode root = (AlertNode) model.getRoot();
+            AlertNode root = model.getRoot();
             Enumeration<?> enumAllAlerts = root.children();
             while (enumAllAlerts.hasMoreElements()) {
                 AlertNode child = (AlertNode) enumAllAlerts.nextElement();
@@ -525,6 +525,7 @@ public class AlertAPI extends ApiImplementor {
                 alert.getName()); // Deprecated in 2.5.0, maintain for compatibility with custom
         // code
         map.put("name", alert.getName());
+        map.put("nodeName", alert.getNodeName());
         map.put("description", alert.getDescription());
         map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
         map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);

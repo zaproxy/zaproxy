@@ -19,8 +19,11 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -33,7 +36,7 @@ public class AlertNode extends DefaultMutableTreeNode {
     private final Comparator<TreeNode> childComparator;
     private String nodeName = null;
     private int risk = -1;
-    private Alert alert;
+    private List<Alert> alerts = new ArrayList<>();
 
     public AlertNode(int risk, String nodeName) {
         this(risk, nodeName, null);
@@ -51,12 +54,15 @@ public class AlertNode extends DefaultMutableTreeNode {
         if (!(userObject instanceof Alert)) {
             throw new IllegalArgumentException("Parameter userObject must be an Alert.");
         }
-        this.alert = (Alert) userObject;
+        this.alerts.add((Alert) userObject);
     }
 
     @Override
     public Alert getUserObject() {
-        return alert;
+        if (alerts.isEmpty()) {
+            return null;
+        }
+        return alerts.get(0);
     }
 
     @Override
@@ -115,6 +121,30 @@ public class AlertNode extends DefaultMutableTreeNode {
         @SuppressWarnings("unchecked")
         int idx = Collections.binarySearch(children, aChild, childComparator);
         return idx;
+    }
+
+    public int deleteAlert(Alert alert) {
+        if (!this.alerts.remove(alert)) {
+            Optional<Alert> opt =
+                    alerts.stream().filter(a -> a.getAlertId() == a.getAlertId()).findAny();
+            if (opt.isPresent()) {
+                this.alerts.remove(opt.get());
+            }
+        }
+        return alerts.size();
+    }
+
+    public List<Alert> getAllAlerts() {
+        return Collections.unmodifiableList(alerts);
+    }
+
+    public void setAlerts(List<Alert> alerts) {
+        this.alerts.clear();
+        this.alerts.addAll(alerts);
+    }
+
+    public boolean hasAlert(Alert alert) {
+        return alerts.stream().filter(a -> a.getAlertId() == a.getAlertId()).findAny().isPresent();
     }
 
     @Override

@@ -71,10 +71,11 @@ import java.awt.EventQueue;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -92,6 +93,21 @@ public class SiteNode extends DefaultMutableTreeNode {
 
     private static final long serialVersionUID = 7987615016786179150L;
 
+    private static Comparator<Alert> alertComparator =
+            new Comparator<Alert>() {
+
+                @Override
+                public int compare(Alert o1, Alert o2) {
+                    if (o1 == null && o2 == null) {
+                        return 0;
+                    }
+                    if (o1 == null) {
+                        return -1;
+                    }
+                    return o1.compareTo(o2, false);
+                }
+            };
+
     private final String cleanName;
     private String nodeName = null;
     private String hierarchicNodeName = null;
@@ -100,7 +116,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
     // ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-    private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<>());
+    private Set<Alert> alerts = Collections.synchronizedSet(new TreeSet<Alert>(alertComparator));
     private boolean justSpidered = false;
     // private boolean justAJAXSpidered = false;
     private ArrayList<String> icons = null;
