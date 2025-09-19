@@ -340,7 +340,7 @@ public class AlertPanel extends AbstractPanel {
             sitesTree.addTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
         } else {
             extension.setMainTreeModel();
-            ((AlertNode) getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
+            (getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
             view.getSiteTreePanel()
                     .getTreeSite()
                     .removeTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
@@ -390,7 +390,7 @@ public class AlertPanel extends AbstractPanel {
         if (siteNode == null) {
             throw new IllegalArgumentException("Parameter siteNode must not be null.");
         }
-        ((AlertNode) getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
+        (getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
         if (siteNode.isRoot()) {
             getLinkWithSitesTreeModel().reload();
             extension.recalcAlerts();
@@ -479,10 +479,8 @@ public class AlertPanel extends AbstractPanel {
                                 SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
                                 for (TreePath path : treeAlert.getSelectionPaths()) {
                                     final AlertNode node = (AlertNode) path.getLastPathComponent();
-                                    final Object userObject = node.getUserObject();
-                                    if (userObject instanceof Alert) {
-                                        HistoryReference historyReference =
-                                                ((Alert) userObject).getHistoryRef();
+                                    for (Alert alert : node.getAllAlerts()) {
+                                        HistoryReference historyReference = alert.getHistoryRef();
                                         if (historyReference != null
                                                 && !historyReferenceIdsAdded.contains(
                                                         historyReference.getHistoryId())) {
@@ -519,13 +517,10 @@ public class AlertPanel extends AbstractPanel {
                     new javax.swing.event.TreeSelectionListener() {
                         @Override
                         public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
-                            DefaultMutableTreeNode node =
-                                    (DefaultMutableTreeNode)
-                                            treeAlert.getLastSelectedPathComponent();
+                            AlertNode node = (AlertNode) treeAlert.getLastSelectedPathComponent();
                             if (node != null && node.getUserObject() != null) {
-                                Object obj = node.getUserObject();
-                                if (obj instanceof Alert) {
-                                    Alert alert = (Alert) obj;
+                                Alert alert = node.getUserObject();
+                                if (alert != null) {
                                     setMessage(alert.getMessage(), alert.getEvidence());
                                     treeAlert.requestFocusInWindow();
                                     getAlertViewPanel().displayAlert(alert);

@@ -56,6 +56,7 @@ public class RecordAlert {
     private int sourceHistoryId = 0;
     private int sourceId = 0;
     private String alertRef = "";
+    private String nodeName;
 
     public RecordAlert() {}
 
@@ -80,7 +81,8 @@ public class RecordAlert {
             int sourceHistoryId,
             int sourceId,
             String alertRef,
-            String inputVector) {
+            String inputVector,
+            String nodeName) {
         setAlertId(alertId);
         setScanId(scanId);
         setPluginId(pluginId);
@@ -102,6 +104,7 @@ public class RecordAlert {
         setWascId(wascId);
         setSourceId(sourceId);
         setAlertRef(alertRef);
+        setNodeName(nodeName);
     }
 
     /**
@@ -380,5 +383,23 @@ public class RecordAlert {
      */
     public void setAlertRef(String alertRef) {
         this.alertRef = alertRef;
+    }
+
+    /**
+     * Gets the node name, which is a normalised version of the URL.
+     *
+     * @since 2.17.0
+     */
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    /**
+     * Sets the node name, which is a normalised version of the URL.
+     *
+     * @since 2.17.0
+     */
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
     }
 }
