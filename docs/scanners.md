@@ -264,6 +264,7 @@ Scan rules:
 100035  Information Disclosure - Java Stack Trace [Script]
 100036  Information Disclosure - Amazon S3 Bucket URL [Script]
 100043  Swagger Secret Disclosure and Vulnerable Version [Script]
+100044  Suspicious Input Transformation [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
