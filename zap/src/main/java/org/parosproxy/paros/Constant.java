@@ -1465,7 +1465,7 @@ public final class Constant {
 
     // Determine Linux Operating System
     // ZAP: Changed to final.
-    private static final Pattern patternLinux = 
+    private static final Pattern patternLinux =
             Pattern.compile("linux|freebsd", Pattern.CASE_INSENSITIVE);
 
     public static boolean isLinux() {
