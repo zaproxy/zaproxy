@@ -1473,16 +1473,6 @@ public final class Constant {
         return matcher.find();
     }
 
-    // Determine FreeBSD Operating System
-    // ZAP: Changed to final.
-    private static final Pattern patternFreeBSD = Pattern.compile("freebsd", Pattern.CASE_INSENSITIVE);
-
-    public static boolean isFreeBSD() {
-        String os_name = System.getProperty("os.name");
-        Matcher matcher = patternFreeBSD.matcher(os_name);
-        return matcher.find();
-    }
-
     // Determine Windows Operating System
     // ZAP: Changed to final.
     private static final Pattern patternMacOsX = Pattern.compile("mac", Pattern.CASE_INSENSITIVE);
