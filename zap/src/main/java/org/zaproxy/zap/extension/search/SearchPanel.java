@@ -421,6 +421,13 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
         return jScrollPane;
     }
 
+    void reset() {
+        resetSearchResults();
+
+        getRegExField().setText("");
+        getRegExField().discardAllEdits();
+    }
+
     public void resetSearchResults() {
         setNumberOfMatches(0);
         resultsModel.clear();
