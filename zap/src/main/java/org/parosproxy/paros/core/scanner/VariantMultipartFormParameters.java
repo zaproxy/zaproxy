@@ -78,6 +78,14 @@ public class VariantMultipartFormParameters implements Variant {
             return;
         }
 
+        try {
+            parseImpl(msg, contentType);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while parsing multipart content:", e);
+        }
+    }
+
+    private void parseImpl(HttpMessage msg, String contentType) {
         ArrayList<NameValuePair> extractedParameters = new ArrayList<>();
         int position = 0;
         int offset = 0;
