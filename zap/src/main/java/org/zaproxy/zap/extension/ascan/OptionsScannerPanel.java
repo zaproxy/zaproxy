@@ -50,6 +50,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private ZapNumberSpinner spinnerMaxRuleDuration = null;
     private ZapNumberSpinner spinnerMaxScanDuration = null;
     private ZapNumberSpinner maxAlertsPerRule;
+    private JCheckBox persistTemporaryMessages;
     private ZapNumberSpinner spinnerMaxResultsList = null;
     private JCheckBox chkInjectPluginIdInHeader = null;
     private JCheckBox chkHandleAntiCsrfTokens = null;
@@ -116,6 +117,20 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     getSpinnerThreadsPerHost(),
                     LayoutHelper.getGBC(
                             1,
+                            row++,
+                            2,
+                            0.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
+            persistTemporaryMessages =
+                    new JCheckBox(
+                            Constant.messages.getString("ascan.options.persistTempMessages.label"));
+            panelScanner.add(
+                    persistTemporaryMessages,
+                    LayoutHelper.getGBC(
+                            0,
                             row++,
                             2,
                             0.0D,
@@ -418,6 +433,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         getSliderHostPerScan().setValue(param.getHostPerScan());
         getSpinnerThreadsPerHost().setValue(param.getThreadPerHost());
         getSpinnerDelayInMs().setValue(param.getDelayInMs());
+        persistTemporaryMessages.setSelected(param.isPersistTemporaryMessages());
         getSpinnerMaxResultsList().setValue(param.getMaxResultsToList());
         getSpinnerMaxRuleDuration().setValue(param.getMaxRuleDurationInMins());
         getSpinnerMaxScanDuration().setValue(param.getMaxScanDurationInMins());
@@ -444,6 +460,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setHostPerScan(getSliderHostPerScan().getValue());
         param.setThreadPerHost(getSpinnerThreadsPerHost().getValue());
         param.setDelayInMs(getDelayInMs());
+        param.setPersistTemporaryMessages(persistTemporaryMessages.isSelected());
         param.setMaxResultsToList(this.getSpinnerMaxResultsList().getValue());
         param.setMaxRuleDurationInMins(this.getSpinnerMaxRuleDuration().getValue());
         param.setMaxScanDurationInMins(this.getSpinnerMaxScanDuration().getValue());
