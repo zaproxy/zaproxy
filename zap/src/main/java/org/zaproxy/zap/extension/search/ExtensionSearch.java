@@ -399,7 +399,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
         @Override
         public void sessionChanged(final Session session) {
             if (EventQueue.isDispatchThread()) {
-                getSearchPanel().resetSearchResults();
+                getSearchPanel().reset();
                 return;
             }
 
