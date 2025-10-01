@@ -11,7 +11,7 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/labeler@v5
+    - uses: actions/labeler@v6
       if: join(github.event.pull_request.labels) == ''
       with:
         configuration-path: .github/workflows/conf/pr-labeler.yml
