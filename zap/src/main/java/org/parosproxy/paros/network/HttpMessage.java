@@ -68,12 +68,15 @@ package org.parosproxy.paros.network;
 import java.net.HttpCookie;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -155,6 +158,9 @@ public class HttpMessage implements Message {
      * <p>Default is {@code false}.
      */
     private boolean responseFromTargetHost = false;
+
+    private static final Set<String> WARNED_CONTENT_TYPE_VALUES =
+            Collections.synchronizedSet(new HashSet<>());
 
     public HistoryReference getHistoryRef() {
         return historyRef;
@@ -508,11 +514,23 @@ public class HttpMessage implements Message {
         if (charset != null
                 && !charset.equalsIgnoreCase(body.getCharset())
                 && !isCharsetSupported(charset)) {
-            LOGGER.warn(
-                    "Failed to set charset {} from content-type value: {}",
-                    charset,
-                    header.getNormalisedContentTypeValue());
+            String contentTypeValue = header.getNormalisedContentTypeValue();
+            if (WARNED_CONTENT_TYPE_VALUES.add(contentTypeValue)) {
+                LOGGER.warn(
+                        "Failed to set charset {} from content-type value: {}",
+                        charset,
+                        header.getNormalisedContentTypeValue());
+            }
         }
+    }
+
+    /**
+     * Resets the set of warned content-type values.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     */
+    public static void resetWarnedContentTypeValues() {
+        WARNED_CONTENT_TYPE_VALUES.clear();
     }
 
     private static boolean isCharsetSupported(String charset) {
