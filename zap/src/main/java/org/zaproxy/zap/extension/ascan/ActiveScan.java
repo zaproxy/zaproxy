@@ -81,6 +81,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
 
     private static final Logger LOGGER = LogManager.getLogger(ActiveScan.class);
 
+    private boolean persistTemporaryMessages;
+
     @Deprecated
     public ActiveScan(
             String displayName,
@@ -110,6 +112,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
         super(scannerParam, scanPolicy, ruleConfigParam);
+        persistTemporaryMessages = scannerParam.isPersistTemporaryMessages();
+
         this.displayName = displayName;
         this.maxResultsToList = scannerParam.getMaxResultsToList();
         // Easiest way to get the messages and alerts ;)
@@ -277,6 +281,12 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
 
     @Override
     public void notifyNewMessage(final HttpMessage msg) {
+        this.rcTotals.incResponseCodeCount(msg.getResponseHeader().getStatusCode());
+
+        if (!persistTemporaryMessages) {
+            return;
+        }
+
         HistoryReference hRef = msg.getHistoryRef();
         if (hRef == null) {
             try {
@@ -293,8 +303,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         } else {
             hRefs.add(hRef.getHistoryId());
         }
-
-        this.rcTotals.incResponseCodeCount(msg.getResponseHeader().getStatusCode());
 
         if (hRef != null && View.isInitialised()) {
             // Very large lists significantly impact the UI responsiveness

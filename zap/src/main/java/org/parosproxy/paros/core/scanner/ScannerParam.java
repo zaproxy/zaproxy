@@ -72,6 +72,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class ScannerParam extends AbstractParam {
@@ -144,6 +145,9 @@ public class ScannerParam extends AbstractParam {
     static final String ENCODE_COOKIE_VALUES = ACTIVE_SCAN_BASE_KEY + ".encodeCookieValues";
 
     private static final String MAX_ALERTS_PER_RULE = ACTIVE_SCAN_BASE_KEY + ".maxAlertsPerRule";
+
+    private static final String PERSIST_TEMPORARY_MESSAGES =
+            ACTIVE_SCAN_BASE_KEY + ".persistTemporaryMessages";
 
     // ZAP: Configuration constants
     public static final int TARGET_QUERYSTRING = 1;
@@ -238,6 +242,8 @@ public class ScannerParam extends AbstractParam {
 
     // ZAP: internal Logger
     private static final Logger LOGGER = LogManager.getLogger(ScannerParam.class);
+
+    private boolean persistTemporaryMessages;
 
     public ScannerParam() {}
 
@@ -338,6 +344,11 @@ public class ScannerParam extends AbstractParam {
         }
 
         maxAlertsPerRule = Math.max(0, getInt(MAX_ALERTS_PER_RULE, 0));
+
+        persistTemporaryMessages =
+                getBoolean(
+                        PERSIST_TEMPORARY_MESSAGES,
+                        ZAP.getProcessType() != ZAP.ProcessType.cmdline);
     }
 
     private void migrateOldOptions() {
@@ -774,5 +785,39 @@ public class ScannerParam extends AbstractParam {
      */
     public void setEncodeCookieValues(boolean encodeCookieValues) {
         this.encodeCookieValues = encodeCookieValues;
+    }
+
+    /**
+     * Tells whether or not the temporary HTTP messages sent while active scanning should be
+     * persisted.
+     *
+     * @return {@code true} if the temporary HTTP messages should be persisted, {@code false}
+     *     otherwise.
+     * @since 2.17.0
+     * @see #setPersistTemporaryMessages(boolean)
+     */
+    public boolean isPersistTemporaryMessages() {
+        return persistTemporaryMessages;
+    }
+
+    /**
+     * Sets whether or not the temporary HTTP messages sent while active scanning should be
+     * persisted.
+     *
+     * <p>By default the HTTP messages are persisted unless in command line mode, where sessions are
+     * usually discarded once ZAP finishes.
+     *
+     * @param value {@code true} if the temporary HTTP messages should be persisted, {@code false}
+     *     otherwise.
+     * @since 2.17.0
+     * @see #isPersistTemporaryMessages()
+     */
+    public void setPersistTemporaryMessages(boolean value) {
+        if (persistTemporaryMessages == value) {
+            return;
+        }
+
+        this.persistTemporaryMessages = value;
+        getConfig().setProperty(PERSIST_TEMPORARY_MESSAGES, this.persistTemporaryMessages);
     }
 }
