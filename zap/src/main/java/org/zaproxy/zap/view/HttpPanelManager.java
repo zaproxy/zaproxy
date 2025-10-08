@@ -327,7 +327,7 @@ public class HttpPanelManager {
             componentViews.remove(viewFactoryName);
 
             if (componentViews.isEmpty()) {
-                this.views.put(componentName, null);
+                this.views.remove(componentName);
             }
         }
 
@@ -376,7 +376,7 @@ public class HttpPanelManager {
             componentDefaultViews.remove(viewFactoryName);
 
             if (componentDefaultViews.isEmpty()) {
-                this.defaultViews.put(componentName, null);
+                this.defaultViews.remove(componentName);
             }
         }
 
