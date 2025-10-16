@@ -24,6 +24,7 @@ import java.util.Comparator;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
 @SuppressWarnings("serial")
@@ -143,6 +144,11 @@ public class AlertNode extends DefaultMutableTreeNode {
 
     @Override
     public String toString() {
+        if (this.alert != null
+                && this.alert.isSystemic()
+                && ExtensionAlert.isOverSystemicLimit(this.getChildCount() + 1)) {
+            return nodeName + " (" + Constant.messages.getString("alert.label.systemic") + ")";
+        }
         if (this.getChildCount() > 1) {
             return nodeName + " (" + this.getChildCount() + ")";
         }

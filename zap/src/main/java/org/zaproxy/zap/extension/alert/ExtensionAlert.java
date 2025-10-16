@@ -93,6 +93,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     private OptionsAlertPanel optionsPanel = null;
     private Properties alertOverrides = new Properties();
     private AlertAddDialog dialogAlertAdd;
+    private static int systemicLimit = 0;
 
     public ExtensionAlert() {
         super(NAME);
@@ -1258,5 +1259,33 @@ public class ExtensionAlert extends ExtensionAdaptor
      */
     public boolean isNewAlert(Alert alertToCheck) {
         return (getTreeModel().getAlertNode(alertToCheck) == null);
+    }
+
+    /**
+     * Gets the current systemic limit.
+     *
+     * @since 2.17.0
+     */
+    public static int getSystemicLimit() {
+        return systemicLimit;
+    }
+
+    /**
+     * Returns true if the given count is over the systemic limit.
+     *
+     * @since 2.17.0
+     */
+    public static boolean isOverSystemicLimit(int count) {
+        return systemicLimit > 0 && count > systemicLimit;
+    }
+
+    /**
+     * Sets the systemic limit. If greater than zero then this is the maximum number of alerts with
+     * the "SYSTEMIC" tag that will be recorded per site.
+     *
+     * @since 2.17.0
+     */
+    public static void setSystemicLimit(int systemicLimit) {
+        ExtensionAlert.systemicLimit = systemicLimit;
     }
 }

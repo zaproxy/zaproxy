@@ -20,13 +20,18 @@
 package org.zaproxy.zap.extension.alert;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.Map;
+import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.WithConfigsTest;
 
 public class AlertTreeModelUnitTest extends WithConfigsTest {
@@ -81,10 +86,10 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                 """
                 - Alerts
                   - High: Alert A
-                    - :https://www.example.com
+                    - GET:https://www.example.com
                   - Medium: Alert A
-                    - :https://www.example.com
-                    - :https://www.example.net
+                    - GET:https://www.example.com
+                    - GET:https://www.example.net
                 """,
                 TextAlertTree.toString(atModel));
 
@@ -138,7 +143,7 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         assertEquals(1, atModel.getRoot().getChildAt(0).getChildCount());
 
         assertEquals(
-                ":https://www.example.com(a)",
+                "GET:https://www.example.com(a)",
                 atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName());
         assertEquals(Alert.RISK_MEDIUM, atModel.getRoot().getChildAt(0).getChildAt(0).getRisk());
     }
@@ -184,9 +189,9 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         AlertNode an3 = atModel.getAlertNode(a3);
 
         // Then
-        assertEquals(":https://www.example.com(a)", an1.getNodeName());
-        assertEquals(":https://www.example.com(a)", an2.getNodeName());
-        assertEquals(":https://www.example.com(a)", an3.getNodeName());
+        assertEquals("GET:https://www.example.com(a)", an1.getNodeName());
+        assertEquals("GET:https://www.example.com(a)", an2.getNodeName());
+        assertEquals("GET:https://www.example.com(a)", an3.getNodeName());
     }
 
     @Test
@@ -238,7 +243,7 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         assertEquals(1, atModel.getRoot().getChildAt(0).getChildCount());
 
         assertEquals(
-                ":https://www.example.com(a)",
+                "GET:https://www.example.com(a)",
                 atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName());
         assertEquals(Alert.RISK_HIGH, atModel.getRoot().getChildAt(0).getChildAt(0).getRisk());
     }
@@ -291,8 +296,8 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                 """
                 - Alerts
                   - Medium: Alert A
-                    - :https://www.example.com/a2
-                    - :https://www.example.net
+                    - GET:https://www.example.com/a2
+                    - GET:https://www.example.net
                 """,
                 TextAlertTree.toString(atModel));
 
@@ -347,10 +352,10 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                 """
                 - Alerts
                   - High: Alert A
-                    - :https://www.example.com/a1
+                    - GET:https://www.example.com/a1
                   - Medium: Alert A
-                    - :https://www.example.com/a2
-                    - :https://www.example.net
+                    - GET:https://www.example.com/a2
+                    - GET:https://www.example.net
                 """,
                 TextAlertTree.toString(atModel));
 
@@ -403,6 +408,59 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         assertEquals(0, atModel.getRoot().getChildCount());
     }
 
+    @Test
+    void shouldIdentifySystemicAlerts() {
+        // Given
+        ExtensionAlert.setSystemicLimit(3);
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=1",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
+        Alert a2 =
+                newAlert(
+                        1,
+                        1,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=2",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
+        Alert a3 =
+                newAlert(
+                        1,
+                        2,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=3",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
+
+        a1.setTags(Map.of("SYSTEMIC", "true"));
+        a2.setTags(Map.of("SYSTEMIC", "true"));
+        a3.setTags(Map.of("SYSTEMIC", "true"));
+
+        // When
+        Boolean b1 = atModel.isSystemicAlert(a1, true);
+        atModel.addPath(a1);
+        Boolean b2 = atModel.isSystemicAlert(a2, true);
+        atModel.addPath(a2);
+        Boolean b3 = atModel.isSystemicAlert(a3, true);
+        atModel.addPath(a3);
+
+        // Then
+        assertTrue(a1.isSystemic());
+        assertTrue(a2.isSystemic());
+        assertTrue(a3.isSystemic());
+        assertFalse(b1);
+        assertFalse(b2);
+        assertTrue(b3);
+    }
+
     private static Alert newAlert(
             int pluginId,
             int id,
@@ -415,6 +473,16 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         alert.setUri(uri);
         alert.setAlertId(id);
         alert.setNodeName(nodeName);
+
+        HistoryReference href = mock(HistoryReference.class);
+        given(href.getMethod()).willReturn("GET");
+        try {
+            given(href.getURI()).willReturn(new URI(uri, true));
+        } catch (Exception e) {
+            // Ignore
+        }
+        alert.setHistoryRef(href);
+
         return alert;
     }
 }

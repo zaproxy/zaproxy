@@ -69,6 +69,7 @@
 // ZAP: 2023/09/12 Add NUMBER_RISKS convenience constant.
 // ZAP: 2023/11/14 When setting CWE also add a CWE alert tag with an appropriate URL.
 // ZAP: 2025/10/01 Added support for nodeName.
+// ZAP: 2025/10/16 Added support for systemic alerts.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -199,6 +200,8 @@ public class Alert implements Comparable<Alert> {
     private static final String CWE_KEY = "CWE-";
     private static final String CWE_URL_BASE = "https://cwe.mitre.org/data/definitions/";
 
+    private static final String SYSTEMIC_KEY = "SYSTEMIC";
+
     private int alertId = -1; // ZAP: Changed default alertId
     private int historyId;
     private int pluginId = -1;
@@ -231,6 +234,7 @@ public class Alert implements Comparable<Alert> {
     private String alertRef = "";
     private String nodeName;
     private Map<String, String> tags = Collections.emptyMap();
+    private Boolean systemic;
 
     public Alert(int pluginId) {
         this.pluginId = pluginId;
@@ -1088,6 +1092,18 @@ public class Alert implements Comparable<Alert> {
      */
     public void setNodeName(String nodeName) {
         this.nodeName = nodeName;
+    }
+
+    /**
+     * Returns true if the alert has the "SYSTEMIC" tag
+     *
+     * @since 2.17.0
+     */
+    public boolean isSystemic() {
+        if (systemic == null) {
+            systemic = this.getTags().containsKey(SYSTEMIC_KEY);
+        }
+        return systemic;
     }
 
     /**
