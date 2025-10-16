@@ -65,16 +65,14 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2024/01/19 Accept cleanName via constructor and cache non-regex hierarchic node name.
 // ZAP: 2024/02/23 Correct name of hosts without children.
+// ZAP: 2025/10/01 Use AlertSet for alerts.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -85,6 +83,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.alert.AlertSet;
 import org.zaproxy.zap.model.SessionStructure;
 
 @SuppressWarnings("serial")
@@ -100,7 +99,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
     // ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-    private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<>());
+    private AlertSet alerts = new AlertSet();
     private boolean justSpidered = false;
     // private boolean justAJAXSpidered = false;
     private ArrayList<String> icons = null;
@@ -214,34 +213,7 @@ public class SiteNode extends DefaultMutableTreeNode {
      * @see #isHighestAlert(Alert)
      */
     private void calculateHighestAlert() {
-        synchronized (alerts) {
-            highestAlert = null;
-            for (Alert alert : alerts) {
-                if (isHighestAlert(alert)) {
-                    highestAlert = alert;
-                }
-            }
-            calculateHighestAlert = false;
-        }
-    }
-
-    /**
-     * Tells whether or not the given alert is the alert with highest risk than the current highest
-     * alert.
-     *
-     * <p>{@link Alert#CONFIDENCE_FALSE_POSITIVE False positive alerts} are ignored.
-     *
-     * @param alert the alert to check
-     * @return {@code true} if it's the alert with highest risk, {@code false} otherwise.
-     */
-    private boolean isHighestAlert(Alert alert) {
-        if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
-            return false;
-        }
-        if (highestAlert == null) {
-            return true;
-        }
-        return alert.getRisk() > highestAlert.getRisk();
+        highestAlert = alerts.getHighestRisk();
     }
 
     public Alert getHighestAlert() {
@@ -425,25 +397,23 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
 
     public boolean hasAlert(Alert alert) {
-        if (alert == null) {
-            throw new IllegalArgumentException("Alert must not be null");
-        }
-        return alerts.contains(alert);
+        return alerts.hasAlert(alert.getAlertId());
     }
 
     public void addAlert(Alert alert) {
         if (alert == null) {
             throw new IllegalArgumentException("Alert must not be null");
         }
-        if (!this.alerts.add(alert)) {
+        if (this.getParent() == null) {
+            // This is the top "Sites" node, no need to record the alerts here
             return;
         }
-        if (isHighestAlert(alert)) {
-            highestAlert = alert;
+        if (this.alerts.hasSimilar(alert)) {
+            return;
         }
-        if (this.getParent() != null) {
-            this.getParent().addAlert(alert);
-        }
+        this.alerts.add(alert);
+        this.getParent().addAlert(alert);
+        highestAlert = alerts.getHighestRisk();
         if (this.siteMap != null) {
             // Adding alert might affect the nodes visibility in a filtered tree
             siteMap.applyFilter(this);
@@ -456,19 +426,10 @@ public class SiteNode extends DefaultMutableTreeNode {
             throw new IllegalArgumentException("Alert must not be null");
         }
         boolean updated = false;
-        synchronized (alerts) {
-            for (Iterator<Alert> it = alerts.iterator(); it.hasNext(); ) {
-                if (it.next().getAlertId() == alert.getAlertId()) {
-                    it.remove();
-                    updated = true;
-                    this.alerts.add(alert);
-                    setCalculateHighestAlertIfSameAlert(alert);
-                    break;
-                }
-            }
-        }
+        updated = alerts.add(alert);
 
         if (updated) {
+            setCalculateHighestAlertIfSameAlert(alert);
             if (this.getParent() != null) {
                 this.getParent().updateAlert(alert);
             }
@@ -488,9 +449,7 @@ public class SiteNode extends DefaultMutableTreeNode {
      * @return a new {@code List} containing the {@code Alert}s
      */
     public List<Alert> getAlerts() {
-        synchronized (alerts) {
-            return new ArrayList<>(alerts);
-        }
+        return alerts.getAllUnique();
     }
 
     private void clearChildAlert(Alert alert, SiteNode child) {
@@ -593,7 +552,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         if (this.getChildCount() > 0) {
             SiteNode c = (SiteNode) this.getFirstChild();
             while (c != null) {
-                alertsToRemove.removeAll(c.alerts);
+                alertsToRemove.removeAll(c.alerts.getAll());
                 c = (SiteNode) this.getChildAfter(c);
             }
         }

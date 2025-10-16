@@ -755,25 +755,22 @@ public class AlertViewPanel extends AbstractPanel {
     }
 
     public Alert getAlert() {
-        if (!editable && originalAlert != null) {
-            Alert alert = originalAlert.newInstance();
-            alert.setAlertId(originalAlert.getAlertId());
-            alert.setName((String) alertEditName.getSelectedItem());
-            alert.setParam((String) alertEditParam.getSelectedItem());
-            alert.setRiskConfidence(
+        if (originalAlert != null) {
+            originalAlert.setName((String) alertEditName.getSelectedItem());
+            originalAlert.setParam((String) alertEditParam.getSelectedItem());
+            originalAlert.setRiskConfidence(
                     alertEditRisk.getSelectedIndex(), alertEditConfidence.getSelectedIndex());
-            alert.setDescription(alertDescription.getText());
-            alert.setOtherInfo(alertOtherInfo.getText());
-            alert.setSolution(alertSolution.getText());
-            alert.setReference(alertReference.getText());
-            alert.setEvidence(alertEvidence.getText());
-            alert.setInputVector(originalAlert.getInputVector());
-            alert.setCweId(alertEditCweId.getValue());
-            alert.setWascId(alertEditWascId.getValue());
-            alert.setHistoryRef(historyRef);
-            alert.setTags(getAlertTags());
+            originalAlert.setDescription(alertDescription.getText());
+            originalAlert.setOtherInfo(alertOtherInfo.getText());
+            originalAlert.setSolution(alertSolution.getText());
+            originalAlert.setReference(alertReference.getText());
+            originalAlert.setEvidence(alertEditEvidence.getText());
+            originalAlert.setCweId(alertEditCweId.getValue());
+            originalAlert.setWascId(alertEditWascId.getValue());
+            originalAlert.setHistoryRef(historyRef);
+            originalAlert.setTags(getAlertTags());
 
-            return alert;
+            return originalAlert;
         }
 
         Alert alert =
@@ -822,6 +819,9 @@ public class AlertViewPanel extends AbstractPanel {
                 msg);
         alert.setHistoryId(historyId);
         alert.setTags(getAlertTags());
+        if (originalAlert != null) {
+            alert.setNodeName(originalAlert.getNodeName());
+        }
         return alert;
     }
 

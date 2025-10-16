@@ -67,6 +67,7 @@
 // ZAP: 2022/06/27 Add TYPE_PARAM_DIGGER.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2025/10/01 Alert handling tweaks.
 package org.parosproxy.paros.model;
 
 import java.util.ArrayList;
@@ -670,38 +671,37 @@ public class HistoryReference {
             alert.setHistoryRef(this);
             added = true;
         }
-        // Try to add to the SiteHNode anyway - that will also check if its already added
+        // Try to add to the SiteNode anyway - that will also check if its already added
         if (this.siteNode != null) {
             siteNode.addAlert(alert);
         }
         return added;
     }
 
-    public synchronized void updateAlert(Alert alert) {
-        // If there are no alerts yet
+    private Alert getAlert(int alertId) {
         if (alerts == null) {
-            return;
+            return null;
         }
+        return alerts.stream().filter(a -> a.getAlertId() == alertId).findFirst().orElse(null);
+    }
 
-        for (Alert a : alerts) {
-            if (a.getAlertId() == alert.getAlertId()) {
-                // Have to use the alertId instead of 'equals' as any of the
-                // other params might have changed
-                this.alerts.remove(a);
-                this.alerts.add(alert);
-                if (this.siteNode != null) {
-                    siteNode.updateAlert(alert);
-                }
-                return;
+    public synchronized void updateAlert(Alert alert) {
+        Alert a = getAlert(alert.getAlertId());
+        if (a != null) {
+            this.alerts.remove(a);
+            this.alerts.add(alert);
+            if (this.siteNode != null) {
+                siteNode.updateAlert(alert);
             }
         }
     }
 
     public synchronized void deleteAlert(Alert alert) {
-        if (alerts != null) {
-            alerts.remove(alert);
+        Alert a = getAlert(alert.getAlertId());
+        if (a != null) {
+            alerts.remove(a);
             if (siteNode != null) {
-                siteNode.deleteAlert(alert);
+                siteNode.deleteAlert(a);
             }
         }
     }
@@ -722,10 +722,7 @@ public class HistoryReference {
      * @see #addAlert(Alert)
      */
     public synchronized boolean hasAlert(Alert alert) {
-        if (alerts == null) {
-            return false;
-        }
-        return alerts.contains(alert);
+        return this.getAlert(alert.getAlertId()) != null;
     }
 
     /**

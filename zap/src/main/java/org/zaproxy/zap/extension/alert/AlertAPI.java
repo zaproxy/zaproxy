@@ -285,11 +285,11 @@ public class AlertAPI extends ApiImplementor {
             }
 
             AlertTreeModel model = extension.getTreeModel();
-            AlertNode root = (AlertNode) model.getRoot();
+            AlertNode root = model.getRoot();
             Enumeration<?> enumAllAlerts = root.children();
             while (enumAllAlerts.hasMoreElements()) {
                 AlertNode child = (AlertNode) enumAllAlerts.nextElement();
-                Alert alert = child.getUserObject();
+                Alert alert = child.getAlert();
 
                 ApiResponseList alertList = filterAlertInstances(child, url, recurse);
                 if (!alertList.getItems().isEmpty()) {
@@ -306,11 +306,11 @@ public class AlertAPI extends ApiImplementor {
             int falsePositiveCount = 0;
 
             AlertTreeModel model = extension.getTreeModel();
-            AlertNode root = (AlertNode) model.getRoot();
+            AlertNode root = model.getRoot();
             Enumeration<?> enumAllAlerts = root.children();
             while (enumAllAlerts.hasMoreElements()) {
                 AlertNode child = (AlertNode) enumAllAlerts.nextElement();
-                Alert alert = child.getUserObject();
+                Alert alert = child.getAlert();
 
                 ApiResponseList alertList = filterAlertInstances(child, url, recurse);
                 if (!alertList.getItems().isEmpty()) {
@@ -444,12 +444,12 @@ public class AlertAPI extends ApiImplementor {
 
     private static ApiResponseList filterAlertInstances(
             AlertNode alertNode, String url, boolean recurse) {
-        ApiResponseList alertList = new ApiResponseList(alertNode.getUserObject().getName());
+        ApiResponseList alertList = new ApiResponseList(alertNode.getAlert().getName());
         Enumeration<?> enumAlertInsts = alertNode.children();
         while (enumAlertInsts.hasMoreElements()) {
             AlertNode childAlert = (AlertNode) enumAlertInsts.nextElement();
             if (!url.isEmpty()) {
-                String alertUrl = childAlert.getUserObject().getUri();
+                String alertUrl = childAlert.getAlert().getUri();
                 if (!alertUrl.startsWith(url)) {
                     continue;
                 }
@@ -463,7 +463,7 @@ public class AlertAPI extends ApiImplementor {
                     }
                 }
             }
-            alertList.addItem(alertSummaryToSet(childAlert.getUserObject()));
+            alertList.addItem(alertSummaryToSet(childAlert.getAlert()));
         }
         return alertList;
     }
@@ -525,6 +525,7 @@ public class AlertAPI extends ApiImplementor {
                 alert.getName()); // Deprecated in 2.5.0, maintain for compatibility with custom
         // code
         map.put("name", alert.getName());
+        map.put("nodeName", alert.getNodeName());
         map.put("description", alert.getDescription());
         map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
         map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
