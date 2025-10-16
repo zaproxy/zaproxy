@@ -34,6 +34,7 @@ public class AlertNode extends DefaultMutableTreeNode {
     private String nodeName = null;
     private int risk = -1;
     private Alert alert;
+    private boolean systemic;
 
     public AlertNode(int risk, String nodeName) {
         this(risk, nodeName, null);
@@ -143,9 +144,6 @@ public class AlertNode extends DefaultMutableTreeNode {
 
     @Override
     public String toString() {
-        if (this.getChildCount() > 1) {
-            return nodeName + " (" + this.getChildCount() + ")";
-        }
         return nodeName;
     }
 
@@ -159,6 +157,14 @@ public class AlertNode extends DefaultMutableTreeNode {
 
     public int getRisk() {
         return risk;
+    }
+
+    public boolean isSystemic() {
+        return systemic;
+    }
+
+    public void setSystemic(boolean systemic) {
+        this.systemic = systemic;
     }
 
     private static class AlertNodeComparatorWrapper implements Comparator<TreeNode> {

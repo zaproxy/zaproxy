@@ -359,7 +359,7 @@ public class AlertPanel extends AbstractPanel {
      */
     private AlertTreeModel getLinkWithSitesTreeModel() {
         if (linkWithSitesTreeModel == null) {
-            linkWithSitesTreeModel = new AlertTreeModel();
+            linkWithSitesTreeModel = new AlertTreeModel(this.extension);
         }
         return linkWithSitesTreeModel;
     }

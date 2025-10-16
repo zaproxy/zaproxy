@@ -22,6 +22,8 @@ package org.zaproxy.zap.extension.alert;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -51,6 +53,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 class ExtensionAlertUnitTest {
 
@@ -688,5 +691,80 @@ class ExtensionAlertUnitTest {
         assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
         assertEquals(ORIGINAL_REF, alert2.getReference());
         assertEquals(ORIGINAL_TAG, alert2.getTags());
+    }
+
+    @Test
+    void shouldIdentifySystemicAlerts() {
+        // Given
+        extAlert.getAlertParam().load(new ZapXmlConfiguration());
+        extAlert.getAlertParam().setSystemicLimit(3);
+
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=1");
+        Alert a2 =
+                newAlert(
+                        1,
+                        1,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=2");
+        Alert a3 =
+                newAlert(
+                        1,
+                        2,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=3");
+        Alert a4 =
+                newAlert(
+                        1,
+                        3,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=4");
+
+        a1.setTags(Map.of("SYSTEMIC", "true"));
+        a2.setTags(Map.of("SYSTEMIC", "true"));
+        a3.setTags(Map.of("SYSTEMIC", "true"));
+        a4.setTags(Map.of("SYSTEMIC", "true"));
+
+        // When
+        boolean b1 = extAlert.isOverSystemicLimit(a1);
+        boolean b2 = extAlert.isOverSystemicLimit(a2);
+        boolean b3 = extAlert.isOverSystemicLimit(a3);
+        boolean b4 = extAlert.isOverSystemicLimit(a4);
+
+        // Then
+        assertTrue(a1.isSystemic());
+        assertTrue(a2.isSystemic());
+        assertTrue(a3.isSystemic());
+        assertTrue(a4.isSystemic());
+        assertFalse(b1);
+        assertFalse(b2);
+        assertFalse(b3);
+        assertTrue(b4);
+    }
+
+    private static Alert newAlert(int pluginId, int id, String name, String nodeName, String uri) {
+        Alert alert = new Alert(pluginId, Alert.RISK_MEDIUM, Alert.RISK_MEDIUM, name);
+        alert.setUri(uri);
+        alert.setAlertId(id);
+        alert.setNodeName(nodeName);
+
+        HistoryReference href = mock(HistoryReference.class);
+        given(href.getMethod()).willReturn("GET");
+        try {
+            given(href.getURI()).willReturn(new URI(uri, true));
+        } catch (Exception e) {
+            // Ignore
+        }
+        alert.setHistoryRef(href);
+
+        return alert;
     }
 }
