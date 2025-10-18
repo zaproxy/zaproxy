@@ -129,7 +129,11 @@ public class HttpMessage implements Message {
                 body.setContentEncodings(encodings);
             };
 
+    private static final CharsetProvider DEFAULT_CHARSET_PROVIDER =
+            (header, body) -> header.getCharset();
+
     private static HttpEncodingsHandler contentEncodingsHandler;
+    private static CharsetProvider charsetProvider;
 
     private HttpRequestHeader mReqHeader = new HttpRequestHeader();
     private HttpRequestBody mReqBody = new HttpRequestBody();
@@ -508,7 +512,7 @@ public class HttpMessage implements Message {
     }
 
     private static void setBodyCharset(HttpBody body, HttpHeader header) {
-        String charset = header.getCharset();
+        String charset = getCharset(header, body);
         body.setCharset(charset);
 
         if (charset != null
@@ -522,6 +526,25 @@ public class HttpMessage implements Message {
                         header.getNormalisedContentTypeValue());
             }
         }
+    }
+
+    /**
+     * Sets the provider of charset.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param provider the provider.
+     */
+    public static void setCharsetProvider(CharsetProvider provider) {
+        charsetProvider = provider;
+    }
+
+    private static String getCharset(HttpHeader header, HttpBody body) {
+        var localProvider = charsetProvider;
+        if (localProvider == null) {
+            localProvider = DEFAULT_CHARSET_PROVIDER;
+        }
+        return localProvider.get(header, body);
     }
 
     /**
@@ -1326,5 +1349,10 @@ public class HttpMessage implements Message {
     public interface HttpEncodingsHandler {
 
         void handle(HttpHeader header, HttpBody body);
+    }
+
+    /** <strong>Note:</strong> Not part of the public API. */
+    public interface CharsetProvider {
+        String get(HttpHeader header, HttpBody body);
     }
 }

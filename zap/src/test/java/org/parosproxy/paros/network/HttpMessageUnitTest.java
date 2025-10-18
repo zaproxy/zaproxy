@@ -73,6 +73,7 @@ class HttpMessageUnitTest {
     @AfterEach
     void cleanUp() throws Exception {
         HttpMessage.setContentEncodingsHandler(null);
+        HttpMessage.setCharsetProvider(null);
         HttpMessage.resetWarnedContentTypeValues();
         Configurator.reconfigure(getClass().getResource("/log4j2-test.properties").toURI());
     }
@@ -586,6 +587,19 @@ class HttpMessageUnitTest {
         assertThat(webSocketUpgrade, is(equalTo(false)));
     }
 
+    @Test
+    void shouldUseCharsetProviderWhenSettingRequestBody() {
+        // Given
+        HttpMessage.setCharsetProvider((header, body) -> "UTF-16BE");
+        HttpMessage message = new HttpMessage();
+        withLoggerAppender();
+        // When
+        message.setRequestBody("");
+        // Then
+        assertThat(message.getRequestBody().getCharset(), is(equalTo("UTF-16BE")));
+        assertThat(testAppender.getLogEvents(), hasSize(0));
+    }
+
     @ParameterizedTest
     @MethodSource(value = "setBodyData")
     void shouldUseContentTypeCharsetWhenSettingRequestBody(
@@ -696,6 +710,19 @@ class HttpMessageUnitTest {
         return Stream.of(HttpRequestHeader.METHODS)
                 .filter(method -> !method.equals(HttpRequestHeader.POST))
                 .map(Arguments::arguments);
+    }
+
+    @Test
+    void shouldUseCharsetProviderWhenSettingResponseBody() {
+        // Given
+        HttpMessage.setCharsetProvider((header, body) -> "UTF-16LE");
+        HttpMessage message = new HttpMessage();
+        withLoggerAppender();
+        // When
+        message.setResponseBody("");
+        // Then
+        assertThat(message.getResponseBody().getCharset(), is(equalTo("UTF-16LE")));
+        assertThat(testAppender.getLogEvents(), hasSize(0));
     }
 
     @ParameterizedTest
