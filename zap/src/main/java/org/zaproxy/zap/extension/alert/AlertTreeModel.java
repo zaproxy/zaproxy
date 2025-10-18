@@ -21,13 +21,18 @@ package org.zaproxy.zap.extension.alert;
 
 import java.awt.EventQueue;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.tree.DefaultTreeModel;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.SessionStructure;
 
 @SuppressWarnings("serial")
 class AlertTreeModel extends DefaultTreeModel {
@@ -38,6 +43,9 @@ class AlertTreeModel extends DefaultTreeModel {
             new GroupAlertChildNodeComparator();
     private static final Comparator<AlertNode> ALERT_CHILD_COMPARATOR =
             new AlertChildNodeComparator();
+
+    private Map<String, Map<String, AtomicInteger>> siteToSystemicAlertMap =
+            new ConcurrentHashMap<>();
 
     private static final Logger LOGGER = LogManager.getLogger(AlertTreeModel.class);
 
@@ -215,6 +223,10 @@ class AlertTreeModel extends DefaultTreeModel {
         needle.setAlert(alert);
         int idx = parent.findIndex(needle);
         if (idx < 0) {
+            // Not a duplicate alert
+            if (this.isSystemicAlert(alert, true)) {
+                return null;
+            }
             idx = -(idx + 1);
             parent.insert(needle, idx);
             nodesWereInserted(parent, new int[] {idx});
@@ -245,6 +257,23 @@ class AlertTreeModel extends DefaultTreeModel {
             }
             this.nodeChanged(parent);
         }
+    }
+
+    public boolean isSystemicAlert(Alert alert, boolean countAlert) {
+        if (!alert.isSystemic()) {
+            return false;
+        }
+        try {
+            Map<String, AtomicInteger> m =
+                    siteToSystemicAlertMap.computeIfAbsent(
+                            SessionStructure.getHostName(alert.getMsgUri()),
+                            a -> new ConcurrentHashMap<>());
+            AtomicInteger ai = m.computeIfAbsent(alert.getAlertRef(), a -> new AtomicInteger());
+            return ExtensionAlert.isOverSystemicLimit(countAlert ? ai.incrementAndGet() : ai.get());
+        } catch (URIException e) {
+            // Ignore
+        }
+        return false;
     }
 
     private static class GroupAlertChildNodeComparator implements Comparator<AlertNode> {
