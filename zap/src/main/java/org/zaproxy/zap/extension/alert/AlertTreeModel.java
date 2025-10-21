@@ -41,12 +41,15 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private static final Logger LOGGER = LogManager.getLogger(AlertTreeModel.class);
 
-    AlertTreeModel() {
+    private ExtensionAlert ext;
+
+    AlertTreeModel(ExtensionAlert ext) {
         super(
                 new AlertNode(
                         -1,
                         Constant.messages.getString("alerts.tree.title"),
                         GROUP_ALERT_CHILD_COMPARATOR));
+        this.ext = ext;
     }
 
     void addPath(final Alert alert) {
@@ -215,6 +218,14 @@ class AlertTreeModel extends DefaultTreeModel {
         needle.setAlert(alert);
         int idx = parent.findIndex(needle);
         if (idx < 0) {
+            // Not a duplicate alert
+            if (ext.isOverSystemicLimit(alert)) {
+                if (!parent.isSystemic()) {
+                    parent.setSystemic(true);
+                    nodeChanged(parent);
+                }
+                return null;
+            }
             idx = -(idx + 1);
             parent.insert(needle, idx);
             nodesWereInserted(parent, new int[] {idx});

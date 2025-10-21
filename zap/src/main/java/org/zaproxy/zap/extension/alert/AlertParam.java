@@ -37,7 +37,11 @@ public class AlertParam extends AbstractParam {
 
     private static final String PARAM_OVERRIDES_FILENAME = PARAM_BASE_KEY + ".overridesFilename";
 
+    private static final String PARAM_SYSTEMIC_LIMIT = PARAM_BASE_KEY + ".systemicLimit";
+
     private static final int DEFAULT_MAXIMUM_INSTANCES = 20;
+
+    private static final int DEFAULT_SYSTEMIC_LIMIT = 0;
 
     /**
      * The number of maximum instances of each vulnerability included in a report.
@@ -45,6 +49,8 @@ public class AlertParam extends AbstractParam {
      * <p>Default is {@value #DEFAULT_MAXIMUM_INSTANCES}.
      */
     private int maximumInstances = DEFAULT_MAXIMUM_INSTANCES;
+
+    private int systemicLimit = DEFAULT_SYSTEMIC_LIMIT;
 
     private boolean mergeRelatedIssues = true;
 
@@ -58,6 +64,7 @@ public class AlertParam extends AbstractParam {
     @Override
     protected void parse() {
         maximumInstances = getInt(PARAM_MAXIMUM_INSTANCES, DEFAULT_MAXIMUM_INSTANCES);
+        systemicLimit = getInt(PARAM_SYSTEMIC_LIMIT, DEFAULT_SYSTEMIC_LIMIT);
         mergeRelatedIssues = getBoolean(PARAM_MERGE_RELATED_ISSUES, true);
         overridesFilename = getString(PARAM_OVERRIDES_FILENAME, "");
     }
@@ -84,6 +91,20 @@ public class AlertParam extends AbstractParam {
      */
     public int getMaximumInstances() {
         return maximumInstances;
+    }
+
+    public int getSystemicLimit() {
+        return systemicLimit;
+    }
+
+    public void setSystemicLimit(int systemicLimit) {
+        int newValue = Math.max(0, systemicLimit);
+
+        if (this.systemicLimit != newValue) {
+            this.systemicLimit = newValue;
+
+            getConfig().setProperty(PARAM_SYSTEMIC_LIMIT, this.systemicLimit);
+        }
     }
 
     public boolean isMergeRelatedIssues() {

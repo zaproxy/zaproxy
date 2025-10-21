@@ -33,6 +33,8 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import org.apache.commons.httpclient.URIException;
@@ -93,6 +95,9 @@ public class ExtensionAlert extends ExtensionAdaptor
     private OptionsAlertPanel optionsPanel = null;
     private Properties alertOverrides = new Properties();
     private AlertAddDialog dialogAlertAdd;
+
+    private Map<String, Map<String, AtomicInteger>> siteToSystemicAlertMap =
+            new ConcurrentHashMap<>();
 
     public ExtensionAlert() {
         super(NAME);
@@ -170,7 +175,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         return optionsPanel;
     }
 
-    private AlertParam getAlertParam() {
+    protected AlertParam getAlertParam() {
         if (alertParam == null) {
             alertParam = new AlertParam();
         }
@@ -502,14 +507,14 @@ public class ExtensionAlert extends ExtensionAdaptor
 
     AlertTreeModel getTreeModel() {
         if (treeModel == null) {
-            treeModel = new AlertTreeModel();
+            treeModel = new AlertTreeModel(this);
         }
         return treeModel;
     }
 
     private AlertTreeModel getFilteredTreeModel() {
         if (filteredTreeModel == null) {
-            filteredTreeModel = new AlertTreeModel();
+            filteredTreeModel = new AlertTreeModel(this);
         }
         return filteredTreeModel;
     }
@@ -689,11 +694,12 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     private void sessionChangedEventHandler(Session session) {
-        setTreeModel(new AlertTreeModel());
+        setTreeModel(new AlertTreeModel(this));
 
         treeModel = null;
         filteredTreeModel = null;
         hrefs = new HashMap<>();
+        siteToSystemicAlertMap = new ConcurrentHashMap<>();
 
         if (session == null) {
             // Null session indicated we're shutting down
@@ -1258,5 +1264,32 @@ public class ExtensionAlert extends ExtensionAdaptor
      */
     public boolean isNewAlert(Alert alertToCheck) {
         return (getTreeModel().getAlertNode(alertToCheck) == null);
+    }
+
+    /**
+     * Returns true if the given alert is over the systemic limit. If the alert is systemic then it
+     * will increment the count of that type of alert.
+     *
+     * @since 2.17.0
+     */
+    public boolean isOverSystemicLimit(Alert alert) {
+        if (alert == null || !alert.isSystemic()) {
+            return false;
+        }
+        try {
+            // Always count locally, even if the systemicLimit is zero as that could be changed
+            Map<String, AtomicInteger> m =
+                    siteToSystemicAlertMap.computeIfAbsent(
+                            SessionStructure.getHostName(alert.getMsgUri()),
+                            a -> new ConcurrentHashMap<>());
+            int count =
+                    m.computeIfAbsent(alert.getAlertRef(), a -> new AtomicInteger())
+                            .incrementAndGet();
+            int limit = getAlertParam().getSystemicLimit();
+            return limit > 0 && count > limit;
+        } catch (URIException e) {
+            // Ignore
+        }
+        return false;
     }
 }

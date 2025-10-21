@@ -61,6 +61,8 @@ public class OptionsAlertPanel extends AbstractParamPanel {
      */
     private ZapNumberSpinner maxInstances;
 
+    private ZapNumberSpinner systemicLimit;
+
     private JCheckBox mergeRelatedIssues;
     private JTextField overridesFilename;
 
@@ -72,15 +74,23 @@ public class OptionsAlertPanel extends AbstractParamPanel {
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(new EmptyBorder(2, 2, 2, 2));
+        int y = 0;
 
         panel.add(
-                getMergeRelatedIssues(), LayoutHelper.getGBC(0, 0, 2, 1.0, new Insets(2, 2, 2, 2)));
+                getMergeRelatedIssues(),
+                LayoutHelper.getGBC(0, y++, 2, 1.0, new Insets(2, 2, 2, 2)));
 
         JLabel maxInstancesLabel =
                 new JLabel(Constant.messages.getString("alert.optionspanel.label.maxinstances"));
         maxInstancesLabel.setLabelFor(getMaxInstances());
-        panel.add(maxInstancesLabel, LayoutHelper.getGBC(0, 1, 1, 1.0, new Insets(2, 2, 2, 2)));
-        panel.add(getMaxInstances(), LayoutHelper.getGBC(1, 1, 1, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(maxInstancesLabel, LayoutHelper.getGBC(0, y, 1, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(getMaxInstances(), LayoutHelper.getGBC(1, y++, 1, 1.0, new Insets(2, 2, 2, 2)));
+
+        JLabel systemicLimitLabel =
+                new JLabel(Constant.messages.getString("alert.optionspanel.label.systemiclimit"));
+        systemicLimitLabel.setLabelFor(getSystemicLimit());
+        panel.add(systemicLimitLabel, LayoutHelper.getGBC(0, y, 1, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(getSystemicLimit(), LayoutHelper.getGBC(1, y++, 1, 1.0, new Insets(2, 2, 2, 2)));
 
         JButton overridesButton =
                 new JButton(
@@ -94,8 +104,8 @@ public class OptionsAlertPanel extends AbstractParamPanel {
         overridesPanel.add(getOverridesFilename());
         overridesPanel.add(overridesButton);
 
-        panel.add(overridesLabel, LayoutHelper.getGBC(0, 2, 1, 1.0, new Insets(2, 2, 2, 2)));
-        panel.add(overridesPanel, LayoutHelper.getGBC(1, 2, 1, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(overridesLabel, LayoutHelper.getGBC(0, y, 1, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(overridesPanel, LayoutHelper.getGBC(1, y++, 1, 1.0, new Insets(2, 2, 2, 2)));
 
         add(panel);
     }
@@ -123,6 +133,13 @@ public class OptionsAlertPanel extends AbstractParamPanel {
         return maxInstances;
     }
 
+    private ZapNumberSpinner getSystemicLimit() {
+        if (systemicLimit == null) {
+            systemicLimit = new ZapNumberSpinner();
+        }
+        return systemicLimit;
+    }
+
     private JTextField getOverridesFilename() {
         if (overridesFilename == null) {
             overridesFilename = new JTextField(20);
@@ -136,6 +153,7 @@ public class OptionsAlertPanel extends AbstractParamPanel {
         final AlertParam param = options.getParamSet(AlertParam.class);
 
         getMaxInstances().setValue(Integer.valueOf(param.getMaximumInstances()));
+        getSystemicLimit().setValue(param.getSystemicLimit());
         getMergeRelatedIssues().setSelected(param.isMergeRelatedIssues());
         getMaxInstances().setEditable(param.isMergeRelatedIssues());
         getOverridesFilename().setText(param.getOverridesFilename());
@@ -160,6 +178,7 @@ public class OptionsAlertPanel extends AbstractParamPanel {
         final AlertParam param = options.getParamSet(AlertParam.class);
 
         param.setMaximumInstances(getMaxInstances().getValue());
+        param.setSystemicLimit(getSystemicLimit().getValue());
         param.setMergeRelatedIssues(getMergeRelatedIssues().isSelected());
         param.setOverridesFilename(getOverridesFilename().getText());
     }
