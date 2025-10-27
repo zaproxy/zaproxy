@@ -128,6 +128,7 @@ dependencies {
     testCompileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
 
     testImplementation("net.bytebuddy:byte-buddy:1.17.4")
+    testImplementation("org.assertj:assertj-core:3.27.6")
     testImplementation("org.hamcrest:hamcrest-core:3.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.12.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

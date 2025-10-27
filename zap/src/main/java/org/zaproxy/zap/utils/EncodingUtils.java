@@ -43,10 +43,13 @@ public class EncodingUtils {
 
     public static Map<String, String> stringToMap(String input) {
         Map<String, String> map = new HashMap<>();
+        if (input.isEmpty()) {
+            return map;
+        }
 
         String[] nameValuePairs = input.split("&");
         for (String nameValuePair : nameValuePairs) {
-            String[] nameValue = nameValuePair.split(":");
+            String[] nameValue = nameValuePair.split(":", 2);
             map.put(
                     new String(Base64.decodeBase64(nameValue[0])),
                     nameValue.length > 1 ? new String(Base64.decodeBase64(nameValue[1])) : "");
