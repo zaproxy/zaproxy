@@ -27,11 +27,17 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+import java.util.stream.Collectors;
 import net.sf.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.quality.Strictness;
+import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.model.Model;
@@ -39,10 +45,12 @@ import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.db.TableAlertTag;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiResponseList;
 
 /** Unit test for {@link AlertAPI}. */
 public class AlertAPIUnitTest {
 
+    private int alertIdCount;
     private TableAlert tableAlert;
     private TableAlertTag tableAlertTag;
     private ExtensionAlert extensionAlert;
@@ -64,6 +72,7 @@ public class AlertAPIUnitTest {
         given(db.getTableAlert()).willReturn(tableAlert);
         tableAlertTag = mock(TableAlertTag.class);
         given(db.getTableAlertTag()).willReturn(tableAlertTag);
+        alertIdCount = 1;
 
         api = new AlertAPI(extensionAlert);
     }
@@ -118,5 +127,64 @@ public class AlertAPIUnitTest {
                 is(
                         equalTo(
                                 "{\"alert\":{\"sourceid\":\"2\",\"other\":\"other info\",\"method\":\"\",\"evidence\":\"evidence\",\"pluginId\":\"1234\",\"cweid\":\"10\",\"confidence\":\"Medium\",\"sourceMessageId\":1234,\"wascid\":\"11\",\"description\":\"Alert Description\",\"messageId\":\"123\",\"inputVector\":\"input Vector\",\"url\":\"uri\",\"tags\":{},\"reference\":\"reference\",\"solution\":\"solution\",\"alert\":\"Alert Name\",\"param\":\"param\",\"attack\":\"attack\",\"name\":\"Alert Name\",\"risk\":\"Low\",\"id\":\"1\",\"alertRef\":\"1234-1\"}}")));
+    }
+
+    @Test
+    void shouldNotReturnFalsePositiveAlertsByDefault() throws Exception {
+        // Given
+        String name = "alerts";
+        JSONObject params = new JSONObject();
+        alertsWithConfidence(Alert.CONFIDENCE_HIGH, Alert.CONFIDENCE_FALSE_POSITIVE);
+
+        // When
+        ApiResponse response = api.handleApiView(name, params);
+        // Then
+        assertThat(response.getName(), is(equalTo(name)));
+        assertThat(response, is(instanceOf(ApiResponseList.class)));
+        assertThat(
+                response.toJSON().toString(),
+                is(
+                        equalTo(
+                                "{\"alerts\":[{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"High\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Informational\",\"id\":\"1\",\"alertRef\":\"0\"}]}")));
+    }
+
+    @Test
+    void shouldReturnFalsePositiveAlertsWhenSpecified() throws Exception {
+        // Given
+        String name = "alerts";
+        JSONObject params = new JSONObject();
+        params.put("falsePositive", true);
+        alertsWithConfidence(Alert.CONFIDENCE_HIGH, Alert.CONFIDENCE_FALSE_POSITIVE);
+
+        // When
+        ApiResponse response = api.handleApiView(name, params);
+        // Then
+        assertThat(response.getName(), is(equalTo(name)));
+        assertThat(response, is(instanceOf(ApiResponseList.class)));
+        assertThat(
+                response.toJSON().toString(),
+                is(
+                        equalTo(
+                                "{\"alerts\":[{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"High\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Informational\",\"id\":\"1\",\"alertRef\":\"0\"},"
+                                        + "{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"False Positive\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Informational\",\"id\":\"2\",\"alertRef\":\"0\"}]}")));
+    }
+
+    private void alertsWithConfidence(int... confidences) throws DatabaseException {
+        List<RecordAlert> alerts = Arrays.stream(confidences).mapToObj(this::recordAlert).toList();
+        Vector<Integer> alertIds =
+                alerts.stream()
+                        .map(RecordAlert::getAlertId)
+                        .collect(Collectors.toCollection(Vector::new));
+        given(tableAlert.getAlertList()).willReturn(alertIds);
+        for (RecordAlert alert : alerts) {
+            given(tableAlert.read(alert.getAlertId())).willReturn(alert);
+        }
+    }
+
+    private RecordAlert recordAlert(int confidence) {
+        RecordAlert recordAlert = mock();
+        given(recordAlert.getAlertId()).willReturn(alertIdCount++);
+        given(recordAlert.getConfidence()).willReturn(confidence);
+        return recordAlert;
     }
 }
