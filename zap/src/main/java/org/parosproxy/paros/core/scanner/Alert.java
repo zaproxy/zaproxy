@@ -70,6 +70,7 @@
 // ZAP: 2023/11/14 When setting CWE also add a CWE alert tag with an appropriate URL.
 // ZAP: 2025/10/01 Added support for nodeName.
 // ZAP: 2025/10/16 Added support for systemic alerts.
+// ZAP: 2025/10/30 Adjust compateTo and equals handling of nodeName and uri (now case sensitive)
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -488,9 +489,9 @@ public class Alert implements Comparable<Alert> {
         }
 
         if (StringUtils.isNotBlank(nodeName) && StringUtils.isNotBlank(alert2.nodeName)) {
-            result = nodeName.compareToIgnoreCase(alert2.nodeName);
+            result = nodeName.compareTo(alert2.nodeName);
         } else {
-            result = uri.compareToIgnoreCase(alert2.uri);
+            result = uri.compareTo(alert2.uri);
         }
         if (result != 0) {
             return result;
@@ -570,7 +571,7 @@ public class Alert implements Comparable<Alert> {
             if (!nodeName.equals(item.nodeName)) {
                 return false;
             }
-        } else if (!uri.equalsIgnoreCase(item.uri)) {
+        } else if (!uri.equals(item.uri)) {
             return false;
         }
         if (!param.equalsIgnoreCase(item.param)) {
