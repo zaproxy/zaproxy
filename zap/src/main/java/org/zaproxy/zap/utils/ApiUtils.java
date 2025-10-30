@@ -96,7 +96,7 @@ public final class ApiUtils {
      * @param params the params
      * @param paramName the param name
      * @return the non empty string param
-     * @throws ApiException the api exception thown if param not found or string empty
+     * @throws ApiException the api exception thrown if param not found or string empty
      */
     public static String getNonEmptyStringParam(JSONObject params, String paramName)
             throws ApiException {
