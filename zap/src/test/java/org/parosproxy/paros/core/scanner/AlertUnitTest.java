@@ -289,7 +289,6 @@ class AlertUnitTest {
         // Then
         Map<String, String> tags = alert.getTags();
         assertThat(tagCount, is(equalTo(1)));
-        System.out.println(tags);
         assertThat(tags.containsKey(cwe2Key), is(equalTo(true)));
         assertThat(tags.get(cwe2Key), is(equalTo(cwe2Url)));
     }
