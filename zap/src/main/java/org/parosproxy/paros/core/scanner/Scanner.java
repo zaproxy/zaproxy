@@ -99,6 +99,7 @@ import org.zaproxy.zap.utils.Stats;
 public class Scanner implements Runnable {
 
     public static final String ASCAN_SCAN_STARTED_STATS = "stats.ascan.started";
+    public static final String ASCAN_SCAN_STARTED_USER_STATS = "stats.ascan.started.user";
     public static final String ASCAN_SCAN_STOPPED_STATS = "stats.ascan.stopped";
     public static final String ASCAN_SCAN_TIME_STATS = "stats.ascan.time";
     public static final String ASCAN_URLS_STATS = "stats.ascan.urls";
@@ -209,6 +210,9 @@ public class Scanner implements Runnable {
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_STARTED_EVENT, this.getId(), target, this.user);
         Stats.incCounter(ASCAN_SCAN_STARTED_STATS);
+        if (this.user != null) {
+            Stats.incCounter(ASCAN_SCAN_STARTED_USER_STATS);
+        }
     }
 
     public void stop() {
