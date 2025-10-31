@@ -179,6 +179,7 @@ def main(argv):
     use_af = True
     af_supported = True
     af_override = False
+    no_af_reason = ''
 
     pass_count = 0
     warn_count = 0
@@ -211,6 +212,7 @@ def main(argv):
         elif opt == '-g':
             generate = arg
             af_supported = False
+            no_af_reason = 'gen'
         elif opt == '-d':
             logging.getLogger().setLevel(logging.DEBUG)
             debug = True
@@ -221,12 +223,15 @@ def main(argv):
         elif opt == '-D':
             delay = int(arg)
             af_supported = False
+            no_af_reason = 'delay'
         elif opt == '-n':
             context_file = arg
             af_supported = False
+            no_af_reason = 'context'
         elif opt == '-p':
             progress_file = arg
             af_supported = False
+            no_af_reason = 'progress'
         elif opt == '-r':
             report_html = arg
         elif opt == '-J':
@@ -240,6 +245,7 @@ def main(argv):
         elif opt == '-i':
             info_unspecified = True
             af_supported = False
+            no_af_reason = 'info'
         elif opt == '-I':
             ignore_warn = True
         elif opt == '-j':
@@ -252,6 +258,7 @@ def main(argv):
                 usage()
                 sys.exit(3)
             af_supported = False
+            no_af_reason = 'level'
         elif opt == '-z':
             zap_options = arg
         elif opt == '-s':
@@ -261,14 +268,17 @@ def main(argv):
         elif opt == '-U':
             user = arg
             af_supported = False
+            no_af_reason = 'user'
         elif opt == '--hook':
             hook_file = arg
             af_supported = False
+            no_af_reason = 'hook'
         elif opt == '--auto':
             use_af = True
             af_override = True
         elif opt == '--autooff':
             use_af = False
+            no_af_reason = 'optout'
 
     check_zap_client_version()
 
@@ -415,7 +425,7 @@ def main(argv):
                     run_zap_inline(port, install_opts)
 
                 # Run ZAP inline with the yaml file
-                params = ['-autorun', yaml_file]
+                params = ['-autorun', yaml_file, '-config', 'stats.pkg.baseline-af=1']
 
                 add_zap_options(params, zap_options)
 
@@ -457,7 +467,10 @@ def main(argv):
 
         else:
             try:
-                params = ['-config', 'spider.maxDuration=' + str(mins)]
+                params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.baseline-api=1']
+                
+                if len(no_af_reason) > 0:
+                    params.extend(['-config', 'stats.pkg.xbaseline-' + no_af_reason + '=1'])
 
                 if "-silent" not in zap_options:
                     params.append('-addonupdate')
@@ -482,7 +495,7 @@ def main(argv):
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
 
-        params = ['-config', 'spider.maxDuration=' + str(mins)]
+        params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.baseline-api=1']
 
         if "-silent" not in zap_options:
             params.append('-addonupdate')

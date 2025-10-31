@@ -344,7 +344,7 @@ def main(argv):
 
     if running_in_docker():
         try:
-            params = []
+            params = ['-config', 'stats.pkg.apiscan-api=1']
 
             if "-silent" not in zap_options:
                 params.append('-addonupdate')
@@ -368,7 +368,7 @@ def main(argv):
         if context_file:
             mount_dir =  os.path.dirname(os.path.abspath(context_file))
 
-        params = []
+        params = ['-config', 'stats.pkg.apiscan-api=1']
 
         if "-silent" not in zap_options:
             params.append('-addonupdate')

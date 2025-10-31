@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2025-10-31
+- Added config options for recording which packaged scan is being run.
+
 ### 2025-03-25
 - Update ZAP API scan to support host override for local OpenAPI spec.
 

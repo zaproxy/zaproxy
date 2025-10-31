@@ -281,7 +281,7 @@ def main(argv):
 
     if running_in_docker():
         try:
-            params = ['-config', 'spider.maxDuration=' + str(mins)]
+            params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.fullscan-api=1']
             
             if "-silent" not in zap_options:
                 params.append('-addonupdate')
@@ -307,7 +307,7 @@ def main(argv):
         if context_file:
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
-        params = ['-config', 'spider.maxDuration=' + str(mins)]
+        params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.fullscan-api=1']
 
         if "-silent" not in zap_options:
             params.append('-addonupdate')
