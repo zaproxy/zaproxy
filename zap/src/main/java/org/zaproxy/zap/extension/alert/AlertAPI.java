@@ -86,6 +86,7 @@ public class AlertAPI extends ApiImplementor {
     private static final String PARAM_RECURSE = "recurse";
     private static final String PARAM_RISK = "riskId";
     private static final String PARAM_START = "start";
+    private static final String PARAM_FALSE_POSITIVE = "falsePositive";
 
     private static final String PARAM_MESSAGE_ID = "messageId";
     private static final String PARAM_ALERT_ID = "id";
@@ -127,7 +128,12 @@ public class AlertAPI extends ApiImplementor {
                         VIEW_ALERTS,
                         null,
                         new String[] {
-                            PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK, PARAM_CONTEXT_NAME
+                            PARAM_BASE_URL,
+                            PARAM_START,
+                            PARAM_COUNT,
+                            PARAM_RISK,
+                            PARAM_CONTEXT_NAME,
+                            PARAM_FALSE_POSITIVE
                         }));
         this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
         this.addApiView(
@@ -236,7 +242,8 @@ public class AlertAPI extends ApiImplementor {
                         if (context == null || context.isInContext(alert.getUri())) {
                             resultList.addItem(alertToSet(alert));
                         }
-                    });
+                    },
+                    this.getParam(params, PARAM_FALSE_POSITIVE, false));
             result = resultList;
         } else if (VIEW_NUMBER_OF_ALERTS.equals(name)) {
             CounterProcessor<Alert> counter = new CounterProcessor<>();
@@ -245,7 +252,8 @@ public class AlertAPI extends ApiImplementor {
                     this.getParam(params, PARAM_START, -1),
                     this.getParam(params, PARAM_COUNT, -1),
                     getRiskId(params),
-                    counter);
+                    counter,
+                    false);
 
             result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
         } else if (VIEW_ALERTS_SUMMARY.equals(name)) {
@@ -256,7 +264,8 @@ public class AlertAPI extends ApiImplementor {
                     -1,
                     -1,
                     NO_RISK_ID,
-                    counter);
+                    counter,
+                    false);
 
             Map<String, Object> alertData = new HashMap<>();
             for (int i = 0; i < riskSummary.length; i++) {
@@ -361,7 +370,8 @@ public class AlertAPI extends ApiImplementor {
                     -1,
                     -1,
                     getRiskId(params),
-                    counter);
+                    counter,
+                    false);
             return new ApiResponseElement(ACTION_DELETE_ALERTS, String.valueOf(count[0]));
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
@@ -469,7 +479,12 @@ public class AlertAPI extends ApiImplementor {
     }
 
     private static void processAlerts(
-            String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
+            String baseUrl,
+            int start,
+            int count,
+            int riskId,
+            Processor<Alert> processor,
+            boolean falsePositive)
             throws ApiException {
         List<Alert> alerts = new ArrayList<>();
         try {
@@ -485,7 +500,7 @@ public class AlertAPI extends ApiImplementor {
                 RecordAlert recAlert = tableAlert.read(alertId);
                 Alert alert = new Alert(recAlert);
 
-                if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE
+                if ((falsePositive || alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE)
                         && !alerts.contains(alert)) {
                     if (baseUrl != null && !alert.getUri().startsWith(baseUrl)) {
                         // Not subordinate to the specified URL

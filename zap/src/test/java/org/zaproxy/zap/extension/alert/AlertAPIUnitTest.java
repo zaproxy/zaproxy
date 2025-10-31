@@ -27,6 +27,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
+import java.util.Vector;
 import net.sf.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.db.TableAlertTag;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiResponseList;
 
 /** Unit test for {@link AlertAPI}. */
 public class AlertAPIUnitTest {
@@ -118,5 +120,108 @@ public class AlertAPIUnitTest {
                 is(
                         equalTo(
                                 "{\"alert\":{\"sourceid\":\"2\",\"other\":\"other info\",\"method\":\"\",\"evidence\":\"evidence\",\"pluginId\":\"1234\",\"cweid\":\"10\",\"confidence\":\"Medium\",\"sourceMessageId\":1234,\"wascid\":\"11\",\"description\":\"Alert Description\",\"messageId\":\"123\",\"inputVector\":\"input Vector\",\"url\":\"uri\",\"tags\":{},\"reference\":\"reference\",\"solution\":\"solution\",\"alert\":\"Alert Name\",\"param\":\"param\",\"attack\":\"attack\",\"name\":\"Alert Name\",\"risk\":\"Low\",\"id\":\"1\",\"alertRef\":\"1234-1\"}}")));
+    }
+
+    @Test
+    void shouldReturnAlertsNoneFalsePositive() throws Exception {
+        // Given
+        String name = "alerts";
+        JSONObject params = new JSONObject();
+        // Setup mock alerts
+        Vector<RecordAlert> mockAlertsList = new Vector<>();
+        mockAlertsList.add(mock(RecordAlert.class));
+        mockAlertsList.add(mock(RecordAlert.class));
+        mockAlertsList.add(mock(RecordAlert.class));
+        // Alert 1
+        given(mockAlertsList.get(0).getAlertId()).willReturn(1);
+        given(mockAlertsList.get(0).getConfidence()).willReturn(1);
+        given(mockAlertsList.get(0).getUri()).willReturn("MockUri1");
+        given(mockAlertsList.get(0).getRisk()).willReturn(1);
+        // Alert 2
+        given(mockAlertsList.get(1).getAlertId()).willReturn(2);
+        given(mockAlertsList.get(1).getConfidence()).willReturn(1);
+        given(mockAlertsList.get(1).getUri()).willReturn("MockUri2");
+        given(mockAlertsList.get(1).getRisk()).willReturn(1);
+        // Alert 3 False positive
+        given(mockAlertsList.get(2).getAlertId()).willReturn(3);
+        given(mockAlertsList.get(2).getConfidence()).willReturn(0);
+        given(mockAlertsList.get(2).getUri()).willReturn("MockUri3");
+        given(mockAlertsList.get(2).getRisk()).willReturn(1);
+
+        Vector<Integer> MockAlertList = new Vector<>();
+        for (RecordAlert alert : mockAlertsList) {
+            MockAlertList.add(alert.getAlertId());
+        }
+
+        given(tableAlert.getAlertList()).willReturn(MockAlertList);
+        given(tableAlert.read(1)).willReturn(mockAlertsList.get(0));
+        given(tableAlert.read(2)).willReturn(mockAlertsList.get(1));
+        given(tableAlert.read(3)).willReturn(mockAlertsList.get(2));
+
+        // When
+        ApiResponse response = api.handleApiView(name, params);
+        // Then
+        assertThat(response.getName(), is(equalTo(name)));
+        assertThat(response, is(instanceOf(ApiResponseList.class)));
+        if (ApiResponseList.class.isInstance(response)) {
+            assertThat(((ApiResponseList) response).getItems().size(), is(equalTo(2)));
+            assertThat(
+                    response.toJSON().toString(),
+                    is(
+                            equalTo(
+                                    "{\"alerts\":[{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"Low\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"MockUri1\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Low\",\"id\":\"1\",\"alertRef\":\"0\"},{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"Low\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"MockUri2\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Low\",\"id\":\"2\",\"alertRef\":\"0\"}]}")));
+        }
+    }
+
+    @Test
+    void shouldReturnAlertsWithFalsePositive() throws Exception {
+        // Given
+        String name = "alerts";
+        JSONObject params = new JSONObject();
+        params.put("falsePositive", true);
+        // Setup mock alerts
+        Vector<RecordAlert> mockAlertsList = new Vector<>();
+        mockAlertsList.add(mock(RecordAlert.class));
+        mockAlertsList.add(mock(RecordAlert.class));
+        mockAlertsList.add(mock(RecordAlert.class));
+        // Alert 1
+        given(mockAlertsList.get(0).getAlertId()).willReturn(1);
+        given(mockAlertsList.get(0).getConfidence()).willReturn(1);
+        given(mockAlertsList.get(0).getUri()).willReturn("MockUri1");
+        given(mockAlertsList.get(0).getRisk()).willReturn(1);
+        // Alert 2
+        given(mockAlertsList.get(1).getAlertId()).willReturn(2);
+        given(mockAlertsList.get(1).getConfidence()).willReturn(1);
+        given(mockAlertsList.get(1).getUri()).willReturn("MockUri2");
+        given(mockAlertsList.get(1).getRisk()).willReturn(1);
+        // Alert 3 False positive
+        given(mockAlertsList.get(2).getAlertId()).willReturn(3);
+        given(mockAlertsList.get(2).getConfidence()).willReturn(0);
+        given(mockAlertsList.get(2).getUri()).willReturn("MockUri3");
+        given(mockAlertsList.get(2).getRisk()).willReturn(1);
+
+        Vector<Integer> MockAlertList = new Vector<>();
+        for (RecordAlert alert : mockAlertsList) {
+            MockAlertList.add(alert.getAlertId());
+        }
+
+        given(tableAlert.getAlertList()).willReturn(MockAlertList);
+        given(tableAlert.read(1)).willReturn(mockAlertsList.get(0));
+        given(tableAlert.read(2)).willReturn(mockAlertsList.get(1));
+        given(tableAlert.read(3)).willReturn(mockAlertsList.get(2));
+
+        // When
+        ApiResponse response = api.handleApiView(name, params);
+        // Then
+        assertThat(response.getName(), is(equalTo(name)));
+        assertThat(response, is(instanceOf(ApiResponseList.class)));
+        if (ApiResponseList.class.isInstance(response)) {
+            assertThat(((ApiResponseList) response).getItems().size(), is(equalTo(3)));
+            assertThat(
+                    response.toJSON().toString(),
+                    is(
+                            equalTo(
+                                    "{\"alerts\":[{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"Low\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"MockUri1\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Low\",\"id\":\"1\",\"alertRef\":\"0\"},{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"Low\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"MockUri2\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Low\",\"id\":\"2\",\"alertRef\":\"0\"},{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"False Positive\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"MockUri3\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Low\",\"id\":\"3\",\"alertRef\":\"0\"}]}")));
+        }
     }
 }
