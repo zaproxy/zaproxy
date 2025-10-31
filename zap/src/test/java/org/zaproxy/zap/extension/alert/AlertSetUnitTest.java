@@ -157,20 +157,20 @@ public class AlertSetUnitTest {
                 getAlert(
                         0,
                         "Test Alert",
-                        "https://www.example.com/(test)",
+                        "https://www.example.com/ (test)",
                         "https://www.example.com/?test=1");
         Alert a2 =
                 getAlert(
                         1,
                         "Test Alert",
-                        "https://www.example.com/(test)",
+                        "https://www.example.com/ (test)",
                         "https://www.example.com/?test=2");
         Alert a3 =
                 getAlert(
                         2,
                         "Test Alert",
-                        "https://www.example.com/(x)",
-                        "https://www.example.com/?test=2");
+                        "https://www.example.com/ (x)",
+                        "https://www.example.com/?x=2");
 
         // When
         alertSet.add(a1);

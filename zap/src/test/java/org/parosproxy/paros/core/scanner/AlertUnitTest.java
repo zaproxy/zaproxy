@@ -22,6 +22,7 @@ package org.parosproxy.paros.core.scanner;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -151,6 +152,36 @@ class AlertUnitTest {
     }
 
     @Test
+    void shouldNotEqualIfAlertUriDifferentCapitalization() {
+        // Given
+        Alert alertA = new Alert(1);
+        Alert alertB = new Alert(1);
+        // When
+        alertA.setAlertId(0);
+        alertB.setAlertId(1);
+        alertA.setUri("https://example.com/SCRIPT?q=a");
+        alertB.setUri("https://example.com/script?q=a");
+        boolean equals = alertA.equals(alertB);
+        // Then
+        assertThat(equals, is(equalTo(false)));
+    }
+
+    @Test
+    void shouldNotEqualIfAlertNodeNameDifferentCapitalization() {
+        // Given
+        Alert alertA = new Alert(1);
+        Alert alertB = new Alert(1);
+        // When
+        alertA.setAlertId(0);
+        alertB.setAlertId(1);
+        alertA.setNodeName("https://example.com/SCRIPT (q)");
+        alertB.setNodeName("https://example.com/script (q)");
+        boolean equals = alertA.equals(alertB);
+        // Then
+        assertThat(equals, is(equalTo(false)));
+    }
+
+    @Test
     void shouldNotCompareIfAlertRefDifferent() {
         // Given
         Alert alertA = new Alert(1);
@@ -163,6 +194,36 @@ class AlertUnitTest {
         int cmp = alertA.compareTo(alertB);
         // Then
         assertThat(cmp, is(equalTo(-1)));
+    }
+
+    @Test
+    void shouldCompareDissimilarIfAlertNodeNameDifferentByCapitalization() {
+        // Given
+        Alert alertA = new Alert(1);
+        Alert alertB = new Alert(1);
+        // When
+        alertA.setAlertId(0);
+        alertB.setAlertId(1);
+        alertA.setNodeName("https://example.com/SCRIPT (q)");
+        alertB.setNodeName("https://example.com/script (q)");
+        int cmp = alertA.compareTo(alertB);
+        // Then
+        assertThat(cmp, is(lessThan(0)));
+    }
+
+    @Test
+    void shouldCompareDissimilarIfAlertUriDifferentByCapitalization() {
+        // Given
+        Alert alertA = new Alert(1);
+        Alert alertB = new Alert(1);
+        // When
+        alertA.setAlertId(0);
+        alertB.setAlertId(1);
+        alertA.setUri("https://example.com/SCRIPT?q=a");
+        alertB.setUri("https://example.com/script?q=a");
+        int cmp = alertA.compareTo(alertB);
+        // Then
+        assertThat(cmp, is(lessThan(0)));
     }
 
     @Test
