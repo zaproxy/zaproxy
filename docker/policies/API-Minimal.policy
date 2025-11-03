@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 <policy>API Minimal</policy>
+<statsId>dock-api-min<statsId>
+<readonly>true</readonly>
 <scanner>
 <level>OFF</level>
 <strength>MEDIUM</strength>

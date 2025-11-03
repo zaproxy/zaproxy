@@ -59,6 +59,7 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/30 Stop HostProcess to stop the Analyser.
 // ZAP: 2024/11/20 Include ID of the scan in relevant log messages.
+// ZAP: 2025/11/03 Record stats for built-in policies.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -213,6 +214,10 @@ public class Scanner implements Runnable {
         if (this.user != null) {
             Stats.incCounter(ASCAN_SCAN_STARTED_USER_STATS);
         }
+        Stats.incCounter(
+                "stats.ascan.started.policy." + this.scanPolicy.getStatsId() != null
+                        ? this.scanPolicy.getStatsId()
+                        : "user");
     }
 
     public void stop() {

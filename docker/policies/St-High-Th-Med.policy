@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 	<policy>St-High-Th-Med</policy>
+	<statsId>dock-high-med<statsId>
+	<readonly>true</readonly>
 	<scanner>
 		<level>MEDIUM</level>
 		<strength>HIGH</strength>
