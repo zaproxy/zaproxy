@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 	<policy>St-Low-Th-Low</policy>
+	<statsId>dock-low-low<statsId>
+	<readonly>true</readonly>
 	<scanner>
 		<level>LOW</level>
 		<strength>LOW</strength>

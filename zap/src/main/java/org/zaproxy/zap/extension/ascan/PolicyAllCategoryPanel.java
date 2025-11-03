@@ -541,6 +541,9 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                 throw new Exception(Constant.messages.getString("ascan.policy.warn.exists"));
             }
         }
+        if (policy.isReadOnly() && newName.equals(currentName)) {
+            throw new Exception(Constant.messages.getString("ascan.policy.warn.readonly"));
+        }
     }
 
     @Override
