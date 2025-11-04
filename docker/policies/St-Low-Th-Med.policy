@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 	<policy>St-Low-Th-Med</policy>
-	<statsId>dock-low-med<statsId>
+	<statsId>dock-low-med</statsId>
 	<readonly>true</readonly>
 	<scanner>
 		<level>MEDIUM</level>
