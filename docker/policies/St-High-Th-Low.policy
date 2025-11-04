@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 	<policy>St-High-Th-Low</policy>
-	<statsId>dock-high-low<statsId>
+	<statsId>dock-high-low</statsId>
 	<readonly>true</readonly>
 	<scanner>
 		<level>LOW</level>

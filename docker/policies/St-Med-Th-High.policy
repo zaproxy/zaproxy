@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 	<policy>St-Med-Th-High</policy>
-	<statsId>dock-med-high<statsId>
+	<statsId>dock-med-high</statsId>
 	<readonly>true</readonly>
 	<scanner>
 		<level>HIGH</level>
