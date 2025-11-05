@@ -57,6 +57,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAuthenticationCredentialsOptionsPanel;
+import org.zaproxy.zap.authentication.ScriptBasedAuthenticationMethodType.AuthenticationScript;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -97,7 +98,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     private static final String METHOD_NAME =
             Constant.messages.getString("authentication.method.script.name");
 
-    private ExtensionScript extensionScript;
+    private static ExtensionScript extensionScript;
 
     public class ScriptBasedAuthenticationMethod extends AuthenticationMethod {
 
@@ -117,6 +118,55 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         }
 
         /**
+         * Gets the script wrapper.
+         *
+         * @return the script wrapper, might be {@code null}.
+         * @since 2.17.0
+         */
+        protected ScriptWrapper getScript() {
+            return script;
+        }
+
+        /**
+         * Sets the script wrapper.
+         *
+         * @param script the script wrapper.
+         * @since 2.17.0
+         */
+        protected void setScript(ScriptWrapper script) {
+            this.script = script;
+        }
+
+        /**
+         * Gets the credential parameter names.
+         *
+         * @return the credential parameter names, might be {@code null}.
+         * @since 2.17.0
+         */
+        protected String[] getCredentialsParamNames() {
+            return credentialsParamNames;
+        }
+
+        /**
+         * Sets the parameter values.
+         *
+         * @since 2.17.0
+         */
+        protected void setParamValues(Map<String, String> paramValues) {
+            this.paramValues = paramValues;
+        }
+
+        /**
+         * Gets the parameter values.
+         *
+         * @return the parameter values, might be {@code null}.
+         * @since 2.17.0
+         */
+        protected Map<String, String> getParamValues() {
+            return paramValues;
+        }
+
+        /**
          * Load a script and fills in the method's filled according to the values specified by the
          * script.
          *
@@ -128,10 +178,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
          * @throws IllegalArgumentException if an error occurs while loading the script.
          */
         public void loadScript(ScriptWrapper scriptW) {
-            AuthenticationScript script = getScriptInterfaceV2(scriptW);
-            if (script == null) {
-                script = getScriptInterface(scriptW);
-            }
+            AuthenticationScript script = getAuthenticationScript(scriptW);
             if (script == null) {
                 LOGGER.warn(
                         "The script {} does not properly implement the Authentication Script interface.",
@@ -170,8 +217,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                     this.paramValues.put(param, oldValues.get(param));
 
                 this.script = scriptW;
-                LOGGER.info(
-                        "Successfully loaded new script for ScriptBasedAuthentication: {}", this);
+                LOGGER.info("Successfully loaded new script: {}", this);
             } catch (Exception e) {
                 LOGGER.error("Error while loading authentication script", e);
                 getScriptsExtension().handleScriptException(this.script, e);
@@ -184,7 +230,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         @Override
         public String toString() {
-            return "ScriptBasedAuthenticationMethod [script="
+            return getClass().getSimpleName()
+                    + " [script="
                     + script
                     + ", paramValues="
                     + paramValues
@@ -200,11 +247,22 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         @Override
         public AuthenticationMethod duplicate() {
-            ScriptBasedAuthenticationMethod method = new ScriptBasedAuthenticationMethod();
+            ScriptBasedAuthenticationMethod method = createInstance();
             method.script = script;
             method.paramValues = this.paramValues != null ? new HashMap<>(this.paramValues) : null;
             method.credentialsParamNames = this.credentialsParamNames;
             return method;
+        }
+
+        /**
+         * Creates a new instance to use for duplication.
+         *
+         * @return the new instance.
+         * @since 2.17.0
+         * @see #duplicate()
+         */
+        protected ScriptBasedAuthenticationMethod createInstance() {
+            return new ScriptBasedAuthenticationMethod();
         }
 
         @Override
@@ -253,10 +311,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
             // Call the script to get an authenticated message from which we can then extract the
             // session
-            AuthenticationScript script = getScriptInterfaceV2(this.script);
-            if (script == null) {
-                script = getScriptInterface(this.script);
-            }
+            AuthenticationScript script = getAuthenticationScript(this.script);
 
             if (script == null) {
                 return null;
@@ -361,7 +416,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         private ScriptWrapper loadedScript;
 
-        private JPanel dynamicContentPanel;
+        private final JPanel dynamicContentPanel;
 
         private DynamicFieldsPanel dynamicFieldsPanel;
 
@@ -369,13 +424,11 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         public ScriptBasedAuthenticationMethodOptionsPanel() {
             super();
-            initialize();
-        }
 
-        private void initialize() {
             this.setLayout(new GridBagLayout());
 
-            this.add(new JLabel(SCRIPT_NAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d, 0.0d));
+            int y = 0;
+            this.add(new JLabel(SCRIPT_NAME_LABEL), LayoutHelper.getGBC(0, y, 1, 0.0d, 0.0d));
 
             scriptsComboBox = new JXComboBox();
             scriptsComboBox.addHighlighter(
@@ -396,13 +449,13 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                                 }
                                 return name;
                             }));
-            this.add(this.scriptsComboBox, LayoutHelper.getGBC(1, 0, 1, 1.0d, 0.0d));
+            this.add(this.scriptsComboBox, LayoutHelper.getGBC(1, y, 1, 1.0d, 0.0d));
 
             this.loadScriptButton =
                     new JButton(
                             Constant.messages.getString(
                                     "authentication.method.script.load.button"));
-            this.add(this.loadScriptButton, LayoutHelper.getGBC(2, 0, 1, 0.0d, 0.0d));
+            this.add(this.loadScriptButton, LayoutHelper.getGBC(2, y, 1, 0.0d, 0.0d));
             this.loadScriptButton.addActionListener(
                     new ActionListener() {
                         @Override
@@ -421,9 +474,22 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                         }
                     });
 
+            y++;
+            y = addCustomFields(y);
             this.dynamicContentPanel = new JPanel(new BorderLayout());
-            this.add(this.dynamicContentPanel, LayoutHelper.getGBC(0, 1, 3, 1.0d, 0.0d));
+            this.add(this.dynamicContentPanel, LayoutHelper.getGBC(0, y, 3, 1.0d, 0.0d));
             this.dynamicContentPanel.add(new ZapHtmlLabel(LABEL_NOT_LOADED));
+        }
+
+        /**
+         * Adds custom fields to the panel.
+         *
+         * @param row the new row to add the custom fields.
+         * @return the row after adding the custom fields.
+         * @since 2.17.0
+         */
+        protected int addCustomFields(int y) {
+            return y;
         }
 
         @Override
@@ -456,7 +522,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             this.method = (ScriptBasedAuthenticationMethod) method;
 
             // Make sure the list of scripts is refreshed
-            List<ScriptWrapper> scripts = getScriptsExtension().getScripts(SCRIPT_TYPE_AUTH);
+            List<ScriptWrapper> scripts = getAuthenticationScripts();
             DefaultComboBoxModel<ScriptWrapper> model =
                     new DefaultComboBoxModel<>(scripts.toArray(new ScriptWrapper[scripts.size()]));
             this.scriptsComboBox.setModel(model);
@@ -469,6 +535,16 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 if (this.dynamicFieldsPanel != null)
                     this.dynamicFieldsPanel.bindFieldValues(this.method.paramValues);
             }
+        }
+
+        /**
+         * Gets the scripts to show in the combo box.
+         *
+         * @return the scripts to show in the combo box.
+         * @since 2.17.0
+         */
+        protected List<ScriptWrapper> getAuthenticationScripts() {
+            return getScriptsExtension().getScripts(SCRIPT_TYPE_AUTH);
         }
 
         @Override
@@ -485,10 +561,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         }
 
         private void loadScript(ScriptWrapper scriptW, boolean adaptOldValues) {
-            AuthenticationScript script = getScriptInterfaceV2(scriptW);
-            if (script == null) {
-                script = getScriptInterface(scriptW);
-            }
+            AuthenticationScript script = getAuthenticationScript(scriptW);
 
             if (script == null) {
                 LOGGER.warn(
@@ -680,10 +753,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             method.script = script;
 
             // Check script interface and make sure we load the credentials parameter names
-            AuthenticationScript s = getScriptInterfaceV2(script);
-            if (s == null) {
-                s = getScriptInterface(script);
-            }
+            AuthenticationScript s = getAuthenticationScript(script);
             if (s == null) {
                 LOGGER.error(
                         "Unable to load Script Based Authentication method. The script {} does not properly implement the Authentication Script interface.",
@@ -720,10 +790,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     public void persistMethodToSession(
             Session session, int contextId, AuthenticationMethod authMethod)
             throws UnsupportedAuthenticationMethodException, DatabaseException {
-        if (!(authMethod instanceof ScriptBasedAuthenticationMethod))
-            throw new UnsupportedAuthenticationMethodException(
-                    "Script based authentication type only supports: "
-                            + ScriptBasedAuthenticationMethod.class);
+        validateAuthenticationMethod(authMethod);
 
         ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
         session.setContextData(
@@ -732,6 +799,21 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 contextId,
                 RecordContext.TYPE_AUTH_METHOD_FIELD_2,
                 EncodingUtils.mapToString(method.paramValues));
+    }
+
+    /**
+     * Validates that this authentication method type supports the given authentication method.
+     *
+     * @param method the method to validate.
+     * @throws UnsupportedAuthenticationMethodException if the given method is not supported.
+     * @since 2.17.0
+     */
+    protected void validateAuthenticationMethod(AuthenticationMethod method) {
+        if (!(method instanceof ScriptBasedAuthenticationMethod)) {
+            throw new UnsupportedAuthenticationMethodException(
+                    "Script based authentication type only supports: "
+                            + ScriptBasedAuthenticationMethod.class);
+        }
     }
 
     @Override
@@ -746,14 +828,28 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         return GenericAuthenticationCredentials.class;
     }
 
-    private ExtensionScript getScriptsExtension() {
+    private static ExtensionScript getScriptsExtension() {
         if (extensionScript == null)
             extensionScript =
                     Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         return extensionScript;
     }
 
-    private AuthenticationScript getScriptInterface(ScriptWrapper script) {
+    /**
+     * Gets the {@code AuthenticationScript} from the given script.
+     *
+     * @return the {@code AuthenticationScript} or {@code null} if the script does not implement it.
+     * @since 2.17.0
+     */
+    protected static AuthenticationScript getAuthenticationScript(ScriptWrapper script) {
+        AuthenticationScript authScript = getScriptInterfaceV2(script);
+        if (authScript != null) {
+            return authScript;
+        }
+        return getScriptInterface(script);
+    }
+
+    private static AuthenticationScript getScriptInterface(ScriptWrapper script) {
         try {
             return getScriptsExtension().getInterface(script, AuthenticationScript.class);
         } catch (Exception e) {
@@ -767,7 +863,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         return null;
     }
 
-    private AuthenticationScriptV2 getScriptInterfaceV2(ScriptWrapper script) {
+    private static AuthenticationScriptV2 getScriptInterfaceV2(ScriptWrapper script) {
         try {
             AuthenticationScriptV2 authScript =
                     getScriptsExtension().getInterface(script, AuthenticationScriptV2.class);
@@ -878,10 +974,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 method.script = script;
 
                 // Check script interface and make sure we load the credentials parameter names
-                AuthenticationScript s = getScriptInterfaceV2(script);
-                if (s == null) {
-                    s = getScriptInterface(script);
-                }
+                AuthenticationScript s = getAuthenticationScript(script);
                 if (s == null) {
                     LOGGER.error(
                             "Unable to load Script Based Authentication method. The script {} does not properly implement the Authentication Script interface.",
@@ -943,11 +1036,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
     @Override
     public void exportData(Configuration config, AuthenticationMethod authMethod) {
-        if (!(authMethod instanceof ScriptBasedAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "Script based authentication type only supports: "
-                            + ScriptBasedAuthenticationMethod.class.getName());
-        }
+        validateAuthenticationMethod(authMethod);
+
         ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
         config.setProperty(CONTEXT_CONFIG_AUTH_SCRIPT_NAME, method.script.getName());
         config.setProperty(
@@ -957,11 +1047,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     @Override
     public void importData(Configuration config, AuthenticationMethod authMethod)
             throws ConfigurationException {
-        if (!(authMethod instanceof ScriptBasedAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "Script based authentication type only supports: "
-                            + ScriptBasedAuthenticationMethod.class.getName());
-        }
+        validateAuthenticationMethod(authMethod);
+
         ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
         this.loadMethod(
                 method,
