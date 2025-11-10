@@ -126,6 +126,7 @@
 // ZAP: 2023/09/14 Lock home directory.
 // ZAP: 2024/04/25 Add new autoTagScanner regex patterns when upgrading from 2.14 or earlier.
 // ZAP: 2024/11/06 Add branding related constants.
+// ZAP: 2025/11/10 Updated VERSION_TAG.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -209,7 +210,7 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 20016001;
+    static final long VERSION_TAG = 20017000;
 
     // Old version numbers - for upgrade
     private static final long V_2_14_0_TAG = 20014000;
