@@ -96,8 +96,12 @@ public class VariantMultipartFormParameters implements Variant {
         String boundaryCrlf = bareBoundary + HttpHeader.CRLF;
         for (String part : msg.getRequestBody().toString().split(Pattern.quote(boundaryCrlf))) {
             if (!StringUtils.isBlank(part)) {
-                String partHeaderLine =
-                        part.substring(0, part.indexOf(HttpHeader.CRLF + HttpHeader.CRLF));
+                int partOffset = part.indexOf(HttpHeader.CRLF + HttpHeader.CRLF);
+                if (partOffset < 0) {
+                    // Move on, nothing to see here
+                    continue;
+                }
+                String partHeaderLine = part.substring(0, partOffset);
                 boolean isFileParam = partHeaderLine.contains("filename=");
                 part = boundaryCrlf + part;
                 Matcher nameMatcher = FIELD_NAME_PATTERN.matcher(partHeaderLine);
