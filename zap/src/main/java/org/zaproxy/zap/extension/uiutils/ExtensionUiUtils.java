@@ -60,6 +60,10 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     @Override
     public void initView(ViewDelegate view) {
         Arrays.asList(
+                        // Modern ZAP Custom Themes
+                        new LookAndFeelInfo("ZAP Turquoise (Light)", "org.zaproxy.zap.view.theme.ZapTurquoiseTheme"),
+                        new LookAndFeelInfo("ZAP Navy (Dark)", "org.zaproxy.zap.view.theme.ZapNavyTheme"),
+                        // Classic FlatLAF Themes
                         new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf"),
                         new LookAndFeelInfo("Flat Dark", "com.formdev.flatlaf.FlatDarkLaf"),
                         new LookAndFeelInfo("Flat IntelliJ", "com.formdev.flatlaf.FlatIntelliJLaf"),

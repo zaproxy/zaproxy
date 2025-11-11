@@ -140,13 +140,13 @@ public class OptionsParamView extends AbstractParam {
     public static final String ALLOW_APP_INTEGRATION_IN_CONTAINERS = "view.allowAppsInContainers";
 
     /**
-     * The default look and feel: Flat Light.
+     * The default look and feel: ZAP Turquoise (Light).
      *
      * @since 2.10.0
      */
-    public static final String DEFAULT_LOOK_AND_FEEL_NAME = "Flat Light";
+    public static final String DEFAULT_LOOK_AND_FEEL_NAME = "ZAP Turquoise (Light)";
 
-    public static final String DEFAULT_LOOK_AND_FEEL_CLASS = "com.formdev.flatlaf.FlatLightLaf";
+    public static final String DEFAULT_LOOK_AND_FEEL_CLASS = "org.zaproxy.zap.view.theme.ZapTurquoiseTheme";
     public static final LookAndFeelInfo DEFAULT_LOOK_AND_FEEL =
             new LookAndFeelInfo(DEFAULT_LOOK_AND_FEEL_NAME, DEFAULT_LOOK_AND_FEEL_CLASS);
 
