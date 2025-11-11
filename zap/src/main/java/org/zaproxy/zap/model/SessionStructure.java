@@ -208,7 +208,7 @@ public class SessionStructure {
 
         try {
             HttpMessage msg = getMsg(uri, method, postData, contentType);
-            String params = getParams(session, msg);
+            String params = getParamsString(session, msg);
             if (!params.isEmpty()) {
                 nodeUrl += " " + params;
             }
@@ -225,7 +225,7 @@ public class SessionStructure {
         String nodeUrl = pathsToUrl(host, paths, size);
 
         if (msg != null) {
-            String params = getParams(session, msg);
+            String params = getParamsString(session, msg);
             if (!params.isEmpty()) {
                 nodeUrl = nodeUrl + " " + params;
             }
@@ -248,7 +248,7 @@ public class SessionStructure {
         List<String> paths = getTreePath(model, uri);
         String host = getHostName(uri);
         String nodeUrl = pathsToUrl(host, paths, paths.size());
-        String params = getParams(session, msg);
+        String params = getParamsString(session, msg);
         if (!params.isEmpty()) {
             nodeUrl += " " + params;
         }
@@ -268,19 +268,23 @@ public class SessionStructure {
             }
         }
 
+        return getLeafName(nodeName, msg, getParameters(model.getSession(), msg));
+    }
+
+    private static List<org.parosproxy.paros.core.scanner.NameValuePair> getParameters(
+            Session session, HttpMessage msg) {
         List<org.parosproxy.paros.core.scanner.NameValuePair> params =
                 convertNVP(
-                        model.getSession().getParameters(msg, Type.url),
+                        session.getParameters(msg, Type.url),
                         org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING);
 
         if (msg.getRequestBody().length() > 0) {
             params.addAll(
                     convertNVP(
-                            model.getSession().getParameters(msg, Type.form),
+                            session.getParameters(msg, Type.form),
                             org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA));
         }
-
-        return getLeafName(nodeName, msg, params);
+        return params;
     }
 
     /**
@@ -313,21 +317,27 @@ public class SessionStructure {
         sb.append(method);
         sb.append(":");
         sb.append(nodeName);
+        sb.append(getParamsString(params, message));
 
+        return sb.toString();
+    }
+
+    private static String getParamsString(Session session, HttpMessage message) {
+        return getParamsString(getParameters(session, message), message);
+    }
+
+    private static String getParamsString(
+            List<org.parosproxy.paros.core.scanner.NameValuePair> params, HttpMessage message) {
         List<NameValuePair> postParams =
                 convertParosNVP(
                         params, org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA);
 
-        sb.append(
-                getQueryParamString(
+        return getQueryParamString(
                         convertParosNVP(
                                 params,
                                 org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING),
-                        !postParams.isEmpty()));
-
-        sb.append(getPostParamString(message, getQueryParamString(postParams, false)));
-
-        return sb.toString();
+                        !postParams.isEmpty())
+                + getPostParamString(message, getQueryParamString(postParams, false));
     }
 
     private static List<org.parosproxy.paros.core.scanner.NameValuePair> convertNVP(
@@ -492,7 +502,7 @@ public class SessionStructure {
 
         if (msg != null) {
             url = msg.getRequestHeader().getURI().toString();
-            String params = getParams(session, msg);
+            String params = getParamsString(session, msg);
             if (!params.isEmpty()) {
                 nodeName = nodeName + " " + params;
             }
@@ -631,26 +641,6 @@ public class SessionStructure {
             LOGGER.error(e.getMessage(), e);
         }
         return null;
-    }
-
-    private static String getParams(Session session, HttpMessage msg) throws URIException {
-        String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        String reqBody = msg.getRequestBody().toString();
-        boolean hasReqBody = contentType != null && !reqBody.isEmpty();
-
-        String leafParams =
-                getQueryParamString(
-                        session.getUrlParameters(msg.getRequestHeader().getURI()), hasReqBody);
-        if (!hasReqBody) {
-            return leafParams;
-        }
-
-        return leafParams
-                + getPostParamString(
-                        msg,
-                        getQueryParamString(
-                                session.getFormParameters(msg.getRequestHeader().getURI(), reqBody),
-                                false));
     }
 
     private static String getPostParamString(HttpMessage msg, String fallback) {
