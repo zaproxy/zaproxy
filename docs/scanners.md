@@ -265,6 +265,7 @@ Scan rules:
 100036  Information Disclosure - Amazon S3 Bucket URL [Script]
 100043  Swagger Secret Disclosure and Vulnerable Version [Script]
 100044  Suspicious Input Transformation [Script]
+100045  Open MCP Server Detection [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
