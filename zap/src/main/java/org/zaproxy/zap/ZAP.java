@@ -113,12 +113,6 @@ public class ZAP {
 
                     @Override
                     public void println(String x) {
-                        // Suppress Nashorn removal warnings, too verbose (a warn each time is
-                        // used).
-                        if ("Warning: Nashorn engine is planned to be removed from a future JDK release"
-                                .equals(x)) {
-                            return;
-                        }
                         if (x != null && x.startsWith("Multiplexing LAF")) {
                             return;
                         }
