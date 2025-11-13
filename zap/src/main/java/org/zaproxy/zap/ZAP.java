@@ -154,7 +154,7 @@ public class ZAP {
         @SuppressWarnings("removal")
         public void uncaughtException(Thread t, Throwable e) {
             if (!(e instanceof ThreadDeath)) {
-                updateStats();
+                updateStats(e);
 
                 if (loggerConfigured || isLoggerConfigured()) {
                     LOGGER.error("Exception in thread \"{}\"", t.getName(), e);
@@ -166,9 +166,11 @@ public class ZAP {
             }
         }
 
-        private static void updateStats() {
+        private static void updateStats(Throwable e) {
             try {
-                Stats.incCounter("stats.error.core.uncaught");
+                String baseKey = "stats.error.core.uncaught";
+                Stats.incCounter(baseKey);
+                Stats.incCounter(baseKey + "." + e.getClass().getSimpleName());
             } catch (Throwable ignore) {
                 // Already handling an earlier error...
             }
