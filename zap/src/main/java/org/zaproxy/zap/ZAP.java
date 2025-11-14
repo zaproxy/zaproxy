@@ -22,6 +22,7 @@ package org.zaproxy.zap;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 import org.apache.commons.io.output.NullOutputStream;
@@ -110,6 +111,26 @@ public class ZAP {
     private static void setCustomErrStream() {
         System.setErr(
                 new DelegatorPrintStream(System.err) {
+
+                    private static final byte[] XML_PROLOG_ERROR =
+                            "[Fatal Error] :1:1: Content is not allowed in prolog."
+                                    .getBytes(StandardCharsets.US_ASCII);
+                    private static final int XML_PROLOG_ERROR_LEN = XML_PROLOG_ERROR.length;
+
+                    @Override
+                    public void write(byte[] buf, int off, int len) {
+                        if (len >= XML_PROLOG_ERROR_LEN
+                                && Arrays.equals(
+                                        buf,
+                                        off,
+                                        XML_PROLOG_ERROR_LEN,
+                                        XML_PROLOG_ERROR,
+                                        0,
+                                        XML_PROLOG_ERROR_LEN)) {
+                            return;
+                        }
+                        super.write(buf, off, len);
+                    }
 
                     @Override
                     public void println(String x) {
