@@ -33,8 +33,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.TreeSet;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -51,6 +53,9 @@ import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.StandardParameterParser;
 
@@ -313,6 +318,100 @@ class SiteMapUnitTest {
         assertThat(leaf.getCleanNodeName(), is(equalTo("cat")));
     }
 
+    @Test
+    void shouldPublishAddedEvents() throws Exception {
+        // Given
+        String uri = "http://example.com/";
+        HistoryReference href = createHistoryReference(uri);
+        given(href.getHistoryType()).willReturn(HistoryReference.TYPE_ZAP_USER);
+        given(href.getHistoryId()).willReturn(100);
+
+        TestEventConsumer testConsumer = new TestEventConsumer();
+        ZAP.getEventBus()
+                .registerConsumer(testConsumer, SiteMapEventPublisher.class.getCanonicalName());
+
+        // When
+        siteMap.addPath(href);
+        // Then
+        assertThat(testConsumer.events.size(), is(equalTo(3)));
+        assertThat(testConsumer.events.get(0).getEventType(), is(equalTo("siteNode.added")));
+        assertThat(
+                testConsumer.events.get(0).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com")));
+        assertThat(testConsumer.events.get(0).getParameters().size(), is(equalTo(0)));
+
+        assertThat(testConsumer.events.get(1).getEventType(), is(equalTo("site.added")));
+        assertThat(
+                testConsumer.events.get(1).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com")));
+        assertThat(testConsumer.events.get(1).getParameters().size(), is(equalTo(0)));
+
+        assertThat(testConsumer.events.get(2).getEventType(), is(equalTo("siteNode.added")));
+        assertThat(
+                testConsumer.events.get(2).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com/")));
+        assertThat(testConsumer.events.get(2).getParameters().size(), is(equalTo(1)));
+        assertThat(
+                testConsumer.events.get(2).getParameters().containsKey("contentType"),
+                is(equalTo(true)));
+        assertThat(
+                testConsumer.events.get(2).getParameters().get("contentType"),
+                is(equalTo("text/html")));
+    }
+
+    @Test
+    void shouldOnlyAddContentTypeToLeafPublishEvents() throws Exception {
+        // Given
+        String uri = "http://example.com/a/b/c";
+        HistoryReference href = createHistoryReference(uri);
+        given(href.getHistoryType()).willReturn(HistoryReference.TYPE_ZAP_USER);
+        given(href.getHistoryId()).willReturn(100);
+
+        TestEventConsumer testConsumer = new TestEventConsumer();
+        ZAP.getEventBus()
+                .registerConsumer(testConsumer, SiteMapEventPublisher.class.getCanonicalName());
+
+        // When
+        siteMap.addPath(href);
+        // Then
+        assertThat(testConsumer.events.size(), is(equalTo(5)));
+        assertThat(testConsumer.events.get(0).getEventType(), is(equalTo("siteNode.added")));
+        assertThat(
+                testConsumer.events.get(0).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com")));
+        assertThat(testConsumer.events.get(0).getParameters().size(), is(equalTo(0)));
+
+        assertThat(testConsumer.events.get(1).getEventType(), is(equalTo("site.added")));
+        assertThat(
+                testConsumer.events.get(1).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com")));
+        assertThat(testConsumer.events.get(1).getParameters().size(), is(equalTo(0)));
+
+        assertThat(testConsumer.events.get(2).getEventType(), is(equalTo("siteNode.added")));
+        assertThat(
+                testConsumer.events.get(2).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com/a")));
+        assertThat(testConsumer.events.get(2).getParameters().size(), is(equalTo(0)));
+
+        assertThat(testConsumer.events.get(3).getEventType(), is(equalTo("siteNode.added")));
+        assertThat(
+                testConsumer.events.get(3).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com/a/b")));
+        assertThat(testConsumer.events.get(3).getParameters().size(), is(equalTo(0)));
+
+        assertThat(testConsumer.events.get(4).getEventType(), is(equalTo("siteNode.added")));
+        assertThat(
+                testConsumer.events.get(4).getTarget().getStartNode().getHierarchicNodeName(),
+                is(equalTo("http://example.com/a/b/c")));
+        assertThat(testConsumer.events.get(4).getParameters().size(), is(equalTo(1)));
+        assertThat(
+                testConsumer.events.get(4).getParameters().containsKey("contentType"),
+                is(equalTo(true)));
+        assertThat(
+                testConsumer.events.get(4).getParameters().get("contentType"),
+                is(equalTo("text/html")));
+    }
+
     private void siteMapWithNodes(String... uris) {
         Arrays.stream(uris).forEach(uri -> siteMap.addPath(createHistoryReference(uri)));
     }
@@ -328,6 +427,7 @@ class SiteMapUnitTest {
         try {
             HttpMessage httpMessage = new HttpMessage(requestUri);
             httpMessage.getRequestHeader().setMethod(method);
+            httpMessage.getResponseHeader().addHeader("content-type", "text/html");
             given(historyReference.getHttpMessage()).willReturn(httpMessage);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
             throw new RuntimeException(e);
@@ -340,6 +440,16 @@ class SiteMapUnitTest {
             return new URI(uri, true);
         } catch (URIException | NullPointerException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private class TestEventConsumer implements EventConsumer {
+
+        List<Event> events = new ArrayList<>();
+
+        @Override
+        public void eventReceived(Event event) {
+            events.add(event);
         }
     }
 }

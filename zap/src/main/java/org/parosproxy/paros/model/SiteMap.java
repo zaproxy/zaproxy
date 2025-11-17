@@ -79,6 +79,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2024/01/19 Store clean node name when adding leaf node.
+// ZAP: 2025/11/17 Add contentType to ADD events.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -530,7 +531,11 @@ public class SiteMap extends SortedTreeModel {
             hrefMap.put(result.getHistoryReference().getHistoryId(), result);
 
             applyFilter(newNode);
-            handleEvent(parent, result, EventType.ADD);
+            handleEvent(
+                    parent,
+                    result,
+                    EventType.ADD,
+                    getAddEventParameters(HistoryReference.TYPE_TEMPORARY, baseMsg));
         }
         // ZAP: Cope with getSiteNode() returning null
         if (baseRef.getSiteNode() == null) {
@@ -597,7 +602,8 @@ public class SiteMap extends SortedTreeModel {
 
             this.applyFilter(node);
 
-            handleEvent(parent, node, EventType.ADD);
+            handleEvent(
+                    parent, node, EventType.ADD, getAddEventParameters(ref.getHistoryType(), msg));
         } else if (hrefMap.get(ref.getHistoryId()) != node) {
 
             // Give preference to successful requests but update same statuses'.
@@ -613,6 +619,16 @@ public class SiteMap extends SortedTreeModel {
             hrefMap.put(ref.getHistoryId(), node);
         }
         return node;
+    }
+
+    private Map<String, String> getAddEventParameters(int hrefType, HttpMessage msg) {
+        if (hrefType != HistoryReference.TYPE_TEMPORARY) {
+            String contentType = msg.getResponseHeader().getNormalisedContentTypeValue();
+            if (contentType != null) {
+                return Map.of("contentType", contentType);
+            }
+        }
+        return Map.of();
     }
 
     public HistoryReference createReference(
@@ -761,7 +777,7 @@ public class SiteMap extends SortedTreeModel {
     public void removeNodeFromParent(MutableTreeNode node) {
         SiteNode parent = (SiteNode) node.getParent();
         super.removeNodeFromParent(node);
-        handleEvent(parent, (SiteNode) node, EventType.REMOVE);
+        handleEvent(parent, (SiteNode) node, EventType.REMOVE, Map.of());
     }
 
     /**
@@ -774,18 +790,19 @@ public class SiteMap extends SortedTreeModel {
      * @see EventType
      * @since 2.5.0
      */
-    private void handleEvent(SiteNode parent, SiteNode node, EventType eventType) {
+    private void handleEvent(
+            SiteNode parent, SiteNode node, EventType eventType, Map<String, String> parameters) {
         switch (eventType) {
             case ADD:
-                publishEvent(SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, node);
+                publishEvent(SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, node, parameters);
                 if (parent == getRoot()) {
-                    publishEvent(SiteMapEventPublisher.SITE_ADDED_EVENT, node);
+                    publishEvent(SiteMapEventPublisher.SITE_ADDED_EVENT, node, parameters);
                 }
                 break;
             case REMOVE:
-                publishEvent(SiteMapEventPublisher.SITE_NODE_REMOVED_EVENT, node);
+                publishEvent(SiteMapEventPublisher.SITE_NODE_REMOVED_EVENT, node, parameters);
                 if (parent == getRoot()) {
-                    publishEvent(SiteMapEventPublisher.SITE_REMOVED_EVENT, node);
+                    publishEvent(SiteMapEventPublisher.SITE_REMOVED_EVENT, node, parameters);
                 }
         }
     }
@@ -797,11 +814,15 @@ public class SiteMap extends SortedTreeModel {
      * @param node the node being acted upon
      * @since 2.5.0
      */
-    private static void publishEvent(String event, SiteNode node) {
+    private static void publishEvent(String event, SiteNode node, Map<String, String> parameters) {
         ZAP.getEventBus()
                 .publishSyncEvent(
                         SiteMapEventPublisher.getPublisher(),
-                        new Event(SiteMapEventPublisher.getPublisher(), event, new Target(node)));
+                        new Event(
+                                SiteMapEventPublisher.getPublisher(),
+                                event,
+                                new Target(node),
+                                parameters));
     }
 
     @Override
