@@ -39,6 +39,7 @@ public class ScanPolicy {
     private String name;
     private String statsId;
     private boolean readOnly;
+    private boolean locked;
     private PluginFactory pluginFactory = new PluginFactory();
     private AlertThreshold defaultThreshold;
     private AttackStrength defaultStrength;
@@ -57,10 +58,12 @@ public class ScanPolicy {
         name = conf.getString("policy", "");
         statsId = conf.getString("statsId", null);
         readOnly = conf.getBoolean("readonly", false);
+        locked = conf.getBoolean("locked", false);
         if (statsId == null
                 && name.equals(Constant.messages.getString("ascan.policymgr.default.name"))) {
             statsId = "default";
         }
+        pluginFactory.setLocked(locked);
         pluginFactory.loadAllPlugin(conf);
 
         setDefaultThreshold(getAlertThresholdFromConfig());
@@ -85,6 +88,7 @@ public class ScanPolicy {
         policy.defaultThreshold = this.getDefaultThreshold();
         policy.statsId = this.statsId;
         policy.readOnly = this.readOnly;
+        policy.locked = this.locked;
     }
 
     /**
@@ -94,6 +98,7 @@ public class ScanPolicy {
      */
     public void saveTo(Configuration conf) throws ConfigurationException {
         conf.setProperty("policy", getName());
+        conf.setProperty("locked", isLocked());
         conf.setProperty("scanner.level", getDefaultThreshold().name());
         conf.setProperty("scanner.strength", getDefaultStrength().name());
         getPluginFactory().saveTo(conf);
@@ -189,5 +194,30 @@ public class ScanPolicy {
      */
     public boolean isReadOnly() {
         return readOnly;
+    }
+
+    /**
+     * Tells whether or not the policy is locked.
+     *
+     * <p>Locked policies do not allow the use of any other scan rules than the ones defined in
+     * their configuration.
+     *
+     * @return {@code true} if the policy is locked, {@code false} otherwise.
+     * @since 2.17.0
+     */
+    public boolean isLocked() {
+        return locked;
+    }
+
+    /**
+     * Sets whether or not this policy should be locked.
+     *
+     * @param locked {@code true} if the policy should be locked, {@code false} otherwise.
+     * @since 2.17.0
+     * @see #isLocked()
+     */
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+        pluginFactory.setLocked(locked);
     }
 }
