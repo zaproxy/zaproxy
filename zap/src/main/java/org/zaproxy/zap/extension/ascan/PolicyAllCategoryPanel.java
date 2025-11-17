@@ -28,6 +28,7 @@
 // not important).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2025/11/17 Support locked policy.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
@@ -44,6 +45,7 @@ import java.util.Locale;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -75,6 +77,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private static final Logger LOGGER = LogManager.getLogger(PolicyAllCategoryPanel.class);
 
     private ZapTextField policyName = null;
+    private JCheckBox locked;
     private JTable tableTest = null;
     private JScrollPane jScrollPane = null;
     private AllCategoryTableModel allCategoryTableModel = null;
@@ -138,6 +141,30 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         } else {
             this.add(
                     getPolicyName(),
+                    LayoutHelper.getGBC(
+                            1,
+                            row,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
+            locked = new JCheckBox();
+            locked.setSelected(policy.isLocked());
+            row++;
+            this.add(
+                    new JLabel(Constant.messages.getString("ascan.policy.locked.label")),
+                    LayoutHelper.getGBC(
+                            0,
+                            row,
+                            1,
+                            0.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+            this.add(
+                    locked,
                     LayoutHelper.getGBC(
                             1,
                             row,
@@ -549,6 +576,9 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
         this.policy.setName(getPolicyName().getText());
+        if (locked != null) {
+            policy.setLocked(locked.isSelected());
+        }
     }
 
     /**
