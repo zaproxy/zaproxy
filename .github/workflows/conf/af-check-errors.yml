@@ -10,28 +10,59 @@ jobs:
       action: "add"
       type: "standalone"
       engine: "ECMAScript : Graal.js"
+      name: "error-test-setup"
+      inline: |
+        const ArrayList = Java.type("java.util.ArrayList")
+        const Collections = Java.type("java.util.Collections")
+        const DelegatorPrintStream = Java.extend(Java.type("org.zaproxy.zap.ZAP$DelegatorPrintStream"))
+        const ScriptVars = Java.type("org.zaproxy.zap.extension.script.ScriptVars")
+        const System = Java.type("java.lang.System")
+
+        const errors = Collections.synchronizedList(new ArrayList())
+        ScriptVars.setGlobalCustomVar("errors", errors)
+
+        const previousSysErr = System.err
+        const ps = new DelegatorPrintStream(previousSysErr) {
+          println: function(x) {
+            previousSysErr.println(x)
+
+            // Strings are split as scripts are shown in the log file
+            if (x && (x.startsWith("SLF" + "4J") || x.startsWith("log" + "4j:"))) {
+              errors.add(x)
+            }
+          }
+        }
+        System.setErr(ps)
+  - type: script
+    parameters:
+      action: "run"
+      type: "standalone"
+      name: "error-test-setup"
+  - type: script
+    parameters:
+      action: "add"
+      type: "standalone"
+      engine: "ECMAScript : Graal.js"
       name: "error-test"
       inline: |
+        const Constant = Java.type("org.parosproxy.paros.Constant");
         var extAF = control.getExtensionLoader().getExtension("ExtensionAutomation");
         var plans = extAF.getRunningPlans();
         var File = Java.type("java.io.File");
         var Scanner = Java.type("java.util.Scanner");
-        var zaplog = new File("/home/zap/.ZAP/zap.log")
-        if (!zaplog.exists()) {
-          // Not stable so check for nightly/weekly
-          zaplog = new File("/home/zap/.ZAP_D/zap.log")
-        }
+        const ScriptVars = Java.type("org.zaproxy.zap.extension.script.ScriptVars")
+        const zaplog = new File(Constant.getZapHome(), "zap.log")
+        const errors = ScriptVars.getGlobalCustomVar("errors")
         if (!zaplog.exists()) {
           plans.get(0).getProgress().error("Failed to read zap.log file");
         } else {
           var scan = new Scanner(zaplog);
-          var errors = [];
           while(scan.hasNext()){
             var line = scan.nextLine().toString();
             // String is split as scripts are shown in the log file
             if (line.contains("ERR" + "OR") && 
                 ! line.contains("Adding message bundle with duplicate prefix: dev")){ // Fixed in main
-              errors.push(line);
+              errors.add(line);
             }
           }
           errors.forEach((item, index) => {
