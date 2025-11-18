@@ -218,7 +218,8 @@ public class ZAP {
         }
     }
 
-    private static class DelegatorPrintStream extends PrintStream {
+    /** Not part of the public API. */
+    public static class DelegatorPrintStream extends PrintStream {
 
         private final PrintStream delegatee;
 
