@@ -14,25 +14,29 @@ jobs:
       inline: |
         const ArrayList = Java.type("java.util.ArrayList")
         const Collections = Java.type("java.util.Collections")
-        const DelegatorPrintStream = Java.extend(Java.type("org.zaproxy.zap.ZAP$DelegatorPrintStream"))
+        const Constant = Java.type("org.parosproxy.paros.Constant")
         const ScriptVars = Java.type("org.zaproxy.zap.extension.script.ScriptVars")
         const System = Java.type("java.lang.System")
 
         const errors = Collections.synchronizedList(new ArrayList())
         ScriptVars.setGlobalCustomVar("errors", errors)
 
-        const previousSysErr = System.err
-        const ps = new DelegatorPrintStream(previousSysErr) {
-          println: function(x) {
-            previousSysErr.println(x)
+        if (Constant.isDailyBuild() || Constant.isDevBuild()) {
+          const DelegatorPrintStream = Java.extend(Java.type("org.zaproxy.zap.ZAP$DelegatorPrintStream"))
 
-            // Strings are split as scripts are shown in the log file
-            if (x && (x.startsWith("SLF" + "4J") || x.startsWith("log" + "4j:"))) {
-              errors.add(x)
+          const previousSysErr = System.err
+          const ps = new DelegatorPrintStream(previousSysErr) {
+            println: function(x) {
+              previousSysErr.println(x)
+
+              // Strings are split as scripts are shown in the log file
+              if (x && (x.startsWith("SLF" + "4J") || x.startsWith("log" + "4j:"))) {
+                errors.add(x)
+              }
             }
           }
+          System.setErr(ps)
         }
-        System.setErr(ps)
   - type: script
     parameters:
       action: "run"
