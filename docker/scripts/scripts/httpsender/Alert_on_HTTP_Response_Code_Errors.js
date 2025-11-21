@@ -76,9 +76,7 @@ function responseReceived(msg, initiator, helper) {
 			alert.setDescription("A response code of " + code + " was returned by the server.\n" +
 				"This may indicate that the application is failing to handle unexpected input correctly.\n" +
 				"Raised by the 'Alert on HTTP Response Code Error' script");
-			// Use a regex to extract the evidence from the response header
-			var regex = new RegExp("^HTTP.*" + code)
-			alert.setEvidence(msg.getResponseHeader().toString().match(regex))
+			alert.setEvidence(code.toString())
 			alert.setCweId(388)	// CWE CATEGORY: Error Handling
 			alert.setWascId(20)	// WASC  Improper Input Handling
 			extensionAlert.alertFound(alert , ref)
