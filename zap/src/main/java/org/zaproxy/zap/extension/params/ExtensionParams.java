@@ -57,6 +57,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.utils.ErrorUtils;
 import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -78,8 +79,6 @@ public class ExtensionParams extends ExtensionAdaptor
 
     private ExtensionHttpSessions extensionHttpSessions;
     private ParamScanner paramScanner;
-
-    private boolean warnDbFull = true;
 
     public ExtensionParams() {
         super(NAME);
@@ -198,8 +197,6 @@ public class ExtensionParams extends ExtensionAdaptor
 
     @Override
     public void sessionChanged(final Session session) {
-        warnDbFull = true;
-
         if (EventQueue.isDispatchThread()) {
             sessionChangedEventHandler(session);
 
@@ -385,33 +382,16 @@ public class ExtensionParams extends ExtensionAdaptor
                                 setToString(param.getValues()));
             }
         } catch (DatabaseException e) {
-            if (hasCause(e, "truncation")) {
+            if (ErrorUtils.hasCause(e, "truncation")) {
                 LOGGER.warn("Could not add or update param: {}", param.getName());
                 LOGGER.warn(
                         "It is likely that the length of one of the data elements exceeded the column size.");
                 LOGGER.warn(e.getMessage());
                 LOGGER.debug(e.getMessage(), e);
-            } else if (hasCause(e, "Data File size limit is reached")) {
-                if (warnDbFull) {
-                    warnDbFull = false;
-                    LOGGER.warn("Unable to persist parameter, database is full.", e);
-                }
-            } else {
+            } else if (!ErrorUtils.handleDiskSpaceException(e)) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-    }
-
-    private static boolean hasCause(Exception e, String wantedMessage) {
-        Throwable cause = e.getCause();
-        if (cause == null) {
-            return false;
-        }
-        String message = cause.getMessage();
-        if (message == null) {
-            return false;
-        }
-        return message.contains(wantedMessage);
     }
 
     public boolean onHttpResponseReceive(HttpMessage msg) {

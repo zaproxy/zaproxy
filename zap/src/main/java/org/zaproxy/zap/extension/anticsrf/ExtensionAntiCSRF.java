@@ -55,6 +55,7 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.utils.ErrorUtils;
 
 /**
  * An {@code Extension} that handles anti-csrf tokens.
@@ -253,7 +254,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 token.setHistoryReferenceId(hRef.getHistoryId());
                 valueToToken.put(getURLEncode(token.getValue()), token);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                LOGGER.error("Failed to persist the message: ", e);
+                if (!ErrorUtils.handleDiskSpaceException(e)) {
+                    LOGGER.error("Failed to persist the message: ", e);
+                }
             }
         }
     }
@@ -424,7 +427,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 }
             }
         } catch (DatabaseException | HttpMalformedHeaderException e) {
-            LOGGER.error(e.getMessage(), e);
+            if (!ErrorUtils.handleDiskSpaceException(e)) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
     }
 
