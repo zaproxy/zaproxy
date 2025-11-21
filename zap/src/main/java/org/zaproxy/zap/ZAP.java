@@ -191,10 +191,19 @@ public class ZAP {
             try {
                 String baseKey = "stats.error.core.uncaught";
                 Stats.incCounter(baseKey);
-                Stats.incCounter(baseKey + "." + e.getClass().getSimpleName());
+                Stats.incCounter(baseKey + "." + e.getClass().getSimpleName() + getSource(e));
             } catch (Throwable ignore) {
                 // Already handling an earlier error...
             }
+        }
+
+        private static String getSource(Throwable t) {
+            StackTraceElement[] trace = t.getStackTrace();
+            if (trace == null || trace.length == 0) {
+                return "";
+            }
+            StackTraceElement top = trace[0];
+            return "(" + top.getFileName() + ":" + top.getLineNumber() + ")";
         }
 
         private boolean isLoggerConfigured() {
