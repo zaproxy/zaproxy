@@ -46,6 +46,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.ErrorUtils;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         implements GenericScanner2, ScannerListener {
@@ -82,7 +83,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private static final Logger LOGGER = LogManager.getLogger(ActiveScan.class);
 
     private boolean persistTemporaryMessages;
-    private boolean warnDbFull = true;
 
     @Deprecated
     public ActiveScan(
@@ -299,14 +299,12 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
                 msg.setHistoryRef(null);
                 hRefs.add(hRef.getHistoryId());
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                if (hasCause(e, "Data File size limit is reached")) {
-                    if (warnDbFull) {
-                        warnDbFull = false;
-                        LOGGER.warn("Unable to persist temporary message, database is full.", e);
-                    }
-                } else {
-                    LOGGER.error(e.getMessage(), e);
+                if (ErrorUtils.handleDiskSpaceException(e)) {
+                    // Its serious, stop the scans
+                    this.getHostProcesses().forEach(HostProcess::stop);
+                    return;
                 }
+                LOGGER.error(e.getMessage(), e);
             }
         } else {
             hRefs.add(hRef.getHistoryId());
@@ -320,18 +318,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
             }
             addHistoryReferenceInEdt(hRef);
         }
-    }
-
-    private static boolean hasCause(Exception e, String wantedMessage) {
-        Throwable cause = e.getCause();
-        if (cause == null) {
-            return false;
-        }
-        String message = cause.getMessage();
-        if (message == null) {
-            return false;
-        }
-        return message.contains(wantedMessage);
     }
 
     private void addHistoryReferenceInEdt(final HistoryReference hRef) {
