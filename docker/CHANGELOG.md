@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2025-11-21
+- Updated `Alert_on_HTTP_Response_Code_Errors.js` to work with GraalVM JavaScript engine.
+
 ### 2025-11-03
 - Set statsId and readonly for scan policies.
 
