@@ -117,11 +117,7 @@ public class SiteNode extends DefaultMutableTreeNode {
      */
     private boolean calculateHighestAlert;
 
-    /**
-     * The {@code Alert} with highest risk (and not a false positive).
-     *
-     * @see #isHighestAlert(Alert)
-     */
+    /** The {@code Alert} with highest risk (and not a false positive). */
     private Alert highestAlert;
 
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
@@ -209,8 +205,6 @@ public class SiteNode extends DefaultMutableTreeNode {
      * <p>After a call to this method the {@link #highestAlert} will have the highest alert (or
      * {@code null} if none) and the flag {@link #calculateHighestAlert} will have the value {@code
      * false}.
-     *
-     * @see #isHighestAlert(Alert)
      */
     private void calculateHighestAlert() {
         highestAlert = alerts.getHighestRisk();

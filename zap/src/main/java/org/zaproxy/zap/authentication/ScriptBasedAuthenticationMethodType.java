@@ -484,7 +484,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         /**
          * Adds custom fields to the panel.
          *
-         * @param row the new row to add the custom fields.
+         * @param y the new row to add the custom fields.
          * @return the row after adding the custom fields.
          * @since 2.17.0
          */
