@@ -12,10 +12,27 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 WORKDIR /zap
 
-# Download and expand the latest stable release
-RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
-	mv ZAP*/* . && \
-	rm -R ZAP*
+# Old insecure version of code
+#RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
+#	mv ZAP*/* . && \
+#	rm -R ZAP*
+
+# Pinned URL and checksum for the stable release
+ARG ZAP_LINUX_URL
+ARG ZAP_LINUX_SHA256
+
+# Download and expand the latest stable release with pinning URL of fixed version, integrity check for signature verification, and unpacking tar to verify artifact
+RUN wget -O zap-linux.tgz "$ZAP_LINUX_URL" && \
+    echo "${ZAP_LINUX_SHA256}  zap-linux.tgz" | sha256sum -c - && \
+    tar zxvf zap-linux.tgz && \
+    mv ZAP*/* . && \
+    rm -R ZAP* zap-linux.tgz
+
+#Build command looks like:
+# docker build \
+#  --build-arg ZAP_LINUX_URL=https://example.com/path/to/ZAP_2.16.0_Linux.tar.gz \
+#  --build-arg ZAP_LINUX_SHA256=your_real_checksum_here \
+#  -f Dockerfile-bare .
 
 # Update add-ons
 RUN ./zap.sh -cmd -silent -addonupdate

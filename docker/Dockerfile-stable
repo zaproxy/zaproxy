@@ -12,10 +12,28 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 WORKDIR /zap
 
-# Download and expand the latest stable release
-RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
-	mv ZAP*/* . && \
-	rm -R ZAP*
+# Download and expand the latest stable release with Linux tarball URL and checksum 
+ARG ZAP_LINUX_URL
+ARG ZAP_LINUX_SHA256
+
+# Old insecure code
+# RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
+#	mv ZAP*/* . && \
+#	rm -R ZAP*
+
+# Securely download ZAP by pinning the tarball URL and verifying its SHA-256 checksum before extraction, preventing tampered or untrusted binaries.
+RUN wget -O zap-linux.tgz "$ZAP_LINUX_URL" && \
+    echo "${ZAP_LINUX_SHA256}  zap-linux.tgz" | sha256sum -c - && \
+    tar zxvf zap-linux.tgz && \
+    mv ZAP*/* . && \
+    rm -R ZAP* zap-linux.tgz
+
+# on build-time, pass command looking like:
+#	RUN wget -O zap-linux.tgz "$ZAP_LINUX_URL" && \
+#    echo "${ZAP_LINUX_SHA256}  zap-linux.tgz" | sha256sum -c - && \
+#    tar zxvf zap-linux.tgz && \
+#    mv ZAP*/* . && \
+#    rm -R ZAP* zap-linux.tgz
 
 # Update add-ons
 RUN ./zap.sh -cmd -silent -addonupdate
@@ -24,15 +42,28 @@ RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
 # Setup Webswing
 ENV WEBSWING_VERSION=24.2.2
-RUN --mount=type=secret,id=webswing_url \
-	if [ -s /run/secrets/webswing_url ] ; \
-	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-	unzip webswing.zip && \
-	rm webswing.zip && \
-	mv webswing-* webswing && \
+ARG WEBSWING_SHA256
+
+#RUN --mount=type=secret,id=webswing_url \
+#	if [ -s /run/secrets/webswing_url ] ; \
+#	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+#	else curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+#	unzip webswing.zip && \
+#	rm webswing.zip && \
+#	mv webswing-* webswing && \
 	# Remove Webswing bundled examples
-	rm -Rf webswing/apps/
+#	rm -Rf webswing/apps/
+
+# At build time you’ll pass --build-arg WEBSWING_SHA256={ZAP_LINUX_SHA256}. This addresses problem of downloadding and then unzipping with no verification as shown in previous commented-out code
+RUN --mount=type=secret,id=webswing_url \
+    if [ -s /run/secrets/webswing_url ] ; \
+    then curl -s -L "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" -o webswing.zip; \
+    else curl -s -L "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" -o webswing.zip; fi && \
+    echo "${WEBSWING_SHA256}  webswing.zip" | sha256sum -c - && \
+    unzip webswing.zip && \
+    rm webswing.zip && \
+    mv webswing-* webswing && \
+    rm -Rf webswing/apps/
 
 FROM debian:bookworm-slim AS final
 LABEL maintainer="psiinon@gmail.com"
