@@ -1,6 +1,10 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds the zap weekly release
-FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+# Old insecure version of code
+# FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+# This code uses a specific and immutable builder image from the debian SHA256 digest, making it pinned to digests rather than floating tags. This allows us to change the digest explicitly when you choose to bump the base, instead of silently whenever Debian updates the tag.
+FROM --platform=linux/amd64 debian@sha256:<debian_bookworm_slim_digest> AS builder
+
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
@@ -21,7 +25,7 @@ RUN --mount=type=secret,id=webswing_url \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:bookworm-slim AS final
+FROM debian@sha256:<debian_bookworm_slim_digest> AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive

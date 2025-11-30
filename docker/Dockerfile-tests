@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a ZAP docker image used for integration tests
-FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+# Old insecure version of code
+# FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+# This code uses a specific and immutable builder image from the debian SHA256 digest, making it pinned to digests rather than floating tags. This allows us to change the digest explicitly when you choose to bump the base, instead of silently whenever Debian updates the tag.
+FROM --platform=linux/amd64 debian@sha256:<debian_bookworm_slim_digest> AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -17,7 +20,8 @@ RUN git clone --depth 1 https://github.com/zaproxy/zap-extensions.git && \
 	cd zap-extensions && \
 	./gradlew :aO:dev:cZAO --into /zap-src/zap/plugin/
 
-FROM ghcr.io/zaproxy/zaproxy:nightly
+# Pinned ZAP nightly base image, allowing us to buil "from nightly" and freeze a speficic nightly via its digest, create a test image that won't randomly change even if a new nightly is pushed, and consuming a newer nightly required explicit update of <zaproxy_nightly_digest>
+FROM ghcr.io/zaproxy/zaproxy@sha256:<zaproxy_nightly_digest>
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
