@@ -71,9 +71,8 @@ RUN pip3 install \
 	pyyaml \
 	urllib3
 
-RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap
-RUN echo zap:zap | chpasswd
-RUN mkdir /zap && chown zap:zap /zap
+RUN useradd -u 1000 -d /home/zap -m -s /bin/bash -p '!' zap && \
+ mkdir /zap && chown zap:zap /zap
 
 WORKDIR /zap
 

@@ -46,8 +46,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xvfb \
 	x11vnc && \
 	rm -rf /var/lib/apt/lists/* && \
-    useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
-    echo zap:zap | chpasswd && \
+    useradd -u 1000 -d /home/zap -m -s /bin/bash -p '!' zap && \
     mkdir /zap  && \
     chown zap:zap /zap
 
