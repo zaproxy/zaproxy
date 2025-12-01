@@ -10,7 +10,7 @@ jobs:
     name: Build Test Chrome Docker Image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Build and test the image
         run: |
           cd docker/chrome

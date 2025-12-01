@@ -9,7 +9,7 @@ jobs:
   CheckForErrors:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: "Check For Errors: Stable"
         id: "check-stable"
         run: |

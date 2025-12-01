@@ -8,7 +8,7 @@ jobs:
     name: Upload Files
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup Java
       uses: actions/setup-java@v5
       with:
