@@ -123,7 +123,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
          * @return the script wrapper, might be {@code null}.
          * @since 2.17.0
          */
-        protected ScriptWrapper getScript() {
+        public ScriptWrapper getScript() {
             return script;
         }
 
@@ -152,7 +152,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
          *
          * @since 2.17.0
          */
-        protected void setParamValues(Map<String, String> paramValues) {
+        public void setParamValues(Map<String, String> paramValues) {
             this.paramValues = paramValues;
         }
 
@@ -162,7 +162,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
          * @return the parameter values, might be {@code null}.
          * @since 2.17.0
          */
-        protected Map<String, String> getParamValues() {
+        public Map<String, String> getParamValues() {
             return paramValues;
         }
 
