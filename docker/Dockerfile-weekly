@@ -26,6 +26,7 @@ LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -q -y --fix-missing \
+	python3-venv \
 	make \
 	automake \
 	autoconf \
@@ -51,12 +52,19 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
     mkdir /zap  && \
     chown zap:zap /zap
 
-RUN pip3 install --break-system-packages --no-cache-dir --upgrade awscli pip zaproxy pyyaml requests urllib3 
+# Same issue as Dockerfile-live
+#RUN pip3 install --break-system-packages --no-cache-dir --upgrade awscli pip zaproxy pyyaml requests urllib3 
+
+USER zap
+RUN python3 -m venv /home/zap/zap-venv && \
+    /home/zap/zap-venv/bin/pip install --no-cache-dir --upgrade \
+        pip \
+        zaproxy \
+        pyyaml
+
+ENV PATH=/opt/zap-venv/bin:$PATH
 
 WORKDIR /zap
-
-#Change to the zap user so things get done as the right person (apart from copy)
-USER zap
 
 RUN mkdir /home/zap/.vnc
 

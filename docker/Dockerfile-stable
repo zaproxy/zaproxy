@@ -40,6 +40,7 @@ LABEL maintainer="psiinon@gmail.com"
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
+	python3-venv \
 	make \
 	automake \
 	autoconf \
@@ -61,15 +62,27 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install \
-	--break-system-packages \
-	--no-cache-dir \
-	--upgrade \
-	awscli \
-	pip \
-	zaproxy \
-	pyyaml \
-	urllib3
+# Same issues as in Dockerfile-live 
+#RUN pip3 install \
+#	--break-system-packages \
+#	--no-cache-dir \
+#	--upgrade \
+#	awscli \
+#	pip \
+#	zaproxy \
+#	pyyaml \
+#	urllib3
+
+# Create dedicated virtualenv for ZAP Python tooling
+RUN python3 -m venv /opt/zap-venv && \
+    /opt/zap-venv/bin/pip install --no-cache-dir --upgrade \
+        pip \
+        zaproxy \
+        pyyaml && \
+    chown -R zap:zap /opt/zap-venv
+
+# Ensure the venv is used by default
+ENV PATH=/opt/zap-venv/bin:$PATH
 
 RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd

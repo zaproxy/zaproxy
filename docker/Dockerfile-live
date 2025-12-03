@@ -40,6 +40,7 @@ LABEL maintainer="psiinon@gmail.com"
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
+	python3-venv \
 	make \
 	ant \
 	automake \
@@ -67,16 +68,33 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	mkdir /zap  && \
 	chown zap:zap /zap
 
-RUN pip3 install \
-	--break-system-packages \
-	--no-cache-dir \
-	--upgrade \
-	awscli \
-	pip \
-	zaproxy \
-	pyyaml \
-	requests \
-	urllib3
+# The old RUN command's use of "--break-system-packages" forces pip to overwrite or bypass the distro-managed Python packages under /usr/lib/python3*/site-packages.
+# This defeats the distro’s protection against conflicting versions, 
+#	can break system tools that rely on the OS’s Python libs,
+#	makes patching & CVE management harder (packages no longer tracked by apt),
+#	Violates the Docker/OWASP guidance to avoid modifying system Python and to prefer isolated environments such as the Python best-practice of using virtualenvs.
+#	In general, this Violates the Docker/OWASP guidance to avoid modifying system Python and to prefer isolated environments (virtualenvs).
+#RUN pip3 install \
+#	--break-system-packages \
+#	--no-cache-dir \
+#	--upgrade \
+#	awscli \
+#	pip \
+#	zaproxy \
+#	pyyaml \
+#	requests \
+#	urllib3
+
+# Create dedicated virtualenv for ZAP Python tooling
+RUN python3 -m venv /opt/zap-venv && \
+    /opt/zap-venv/bin/pip install --no-cache-dir --upgrade \
+        pip \
+        zaproxy \
+        pyyaml && \
+    chown -R zap:zap /opt/zap-venv
+
+# Ensure the venv is used by default
+ENV PATH=/opt/zap-venv/bin:$PATH
 
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
