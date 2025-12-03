@@ -1,7 +1,5 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
-# Old insecure version of code
-# FROM --platform=linux/amd64 debian:bookworm-slim AS builder
 
 # This code uses a specific and immutable builder image from the debian SHA256 digest, making it pinned to digests rather than floating tags
 FROM --platform=linux/amd64 debian@sha256:<debian_bookworm_slim_digest> AS builder
@@ -38,8 +36,6 @@ RUN --mount=type=secret,id=webswing_url \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-# Old insecure version of code
-# FROM debian:bookworm-slim AS final
 # This code uses a specific and immutable final image from the debian SHA256 digest 
 FROM debian@sha256:<debian_bookworm_slim_digest> AS final
 LABEL maintainer="psiinon@gmail.com"

@@ -22,8 +22,6 @@ RUN ./zap.sh -cmd -silent -addonupdate
 # Copy them to installation directory
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
-# Old insecure version of code where the tag us a floating tag that could be rebuilt with new packages, JDK patches, etc. For runtime patching it makes sense but bad for reproducibility and supply-chain traceability
-# FROM eclipse-temurin:17-jre-alpine AS final
 FROM eclipse-temurin@sha256:<temurin_17_jre_alpine_digest> AS final 
 
 LABEL maintainer="psiinon@gmail.com"
@@ -50,14 +48,3 @@ ENV ZAP_PORT=8080
 ENV IS_CONTAINERIZED=true
 
 HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1
-
-# Example practical steps with security implementations:
-# Example for debian:bookworm-slim
-# docker pull debian:bookworm-slim
-# docker inspect --format='{{index .RepoDigests 0}}' debian:bookworm-slim
-# Outputs something like:
-# debian@sha256:abcd1234...
-
-# Example for eclipse-temurin:17-jre-alpine
-# docker pull eclipse-temurin:17-jre-alpine
-# docker inspect --format='{{index .RepoDigests 0}}' eclipse-temurin:17-jre-alpine

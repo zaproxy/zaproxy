@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds the zap weekly release
-# Old insecure version of code
-# FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+
 # This code uses a specific and immutable builder image from the debian SHA256 digest, making it pinned to digests rather than floating tags. This allows us to change the digest explicitly when you choose to bump the base, instead of silently whenever Debian updates the tag.
 FROM --platform=linux/amd64 debian@sha256:<debian_bookworm_slim_digest> AS builder
 
