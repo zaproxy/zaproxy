@@ -12,11 +12,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 WORKDIR /zap-src
 
-# Old insecure version of code 
-# RUN git clone --depth 1 https://github.com/zaproxy/zap-extensions.git && \
-#	cd zap-extensions && \
-#	./gradlew :aO:dev:cZAO --into /zap-src/zap/plugin/
-
 # This could be a commit hash
 ARG ZAP_EXTENSIONS_REF=refs/tags/vX.Y.Z  
 

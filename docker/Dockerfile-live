@@ -15,12 +15,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 WORKDIR /zap-src
 
-#Old insecure version of code
 # Pull the ZAP repo and build ZAP with weekly add-ons that utilizes a specific git ref
-#RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
-#	cd zaproxy && \
-#	ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly
-
 # Example pinned tag that needs to be changed
 ARG ZAPROXY_REF=refs/tags/v2.16.0  
 
@@ -37,18 +32,7 @@ WORKDIR /zap
 ENV WEBSWING_VERSION=24.2.2
 ARG WEBSWING_SHA256
 
-# Old insecure version of code
-#RUN --mount=type=secret,id=webswing_url \
-#	if [ -s /run/secrets/webswing_url ] ; \
-#	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-#	else curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-#	unzip webswing.zip && \
-#	rm webswing.zip && \
-#	mv webswing-* webswing && \
-	# Remove Webswing bundled examples
-#	rm -Rf webswing/apps/
-
-# At build time you’ll pass --build-arg WEBSWING_SHA256={ZAP_LINUX_SHA256}. This addresses problem of downloadding and then unzipping with no verification as shown in previous commented-out code
+# At build time you’ll pass --build-arg WEBSWING_SHA256={ZAP_LINUX_SHA256}. 
 RUN --mount=type=secret,id=webswing_url \
     if [ -s /run/secrets/webswing_url ] ; \
     then curl -s -L "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" -o webswing.zip; \

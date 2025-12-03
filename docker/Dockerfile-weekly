@@ -13,17 +13,6 @@ WORKDIR /zap
 ENV WEBSWING_VERSION=24.2.2
 ARG WEBSWING_SHA256
 
-# Old insecure version of code
-#RUN --mount=type=secret,id=webswing_url \
-#	if [ -s /run/secrets/webswing_url ] ; \
-#	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-#	else curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-#	unzip webswing.zip && \
-#	rm webswing.zip && \
-#	mv webswing-* webswing && \
-	# Remove Webswing bundled examples
-#	rm -Rf webswing/apps/
-
 # Securely download Webswing by verifying the archive's SHA-256 checksum before extraction, preventing untrusted or tampered downloads
 RUN --mount=type=secret,id=webswing_url \
     if [ -s /run/secrets/webswing_url ] ; \
@@ -75,12 +64,6 @@ RUN mkdir /home/zap/.vnc
 
 ARG ZAP_WEEKLY_URL
 ARG ZAP_WEEKLY_SHA256
-
-#RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - && \
-#	unzip *.zip && \
-#	rm *.zip && \
-#	cp -R ZAP*/* . &&  \
-#	rm -R ZAP*
 
 RUN wget -O zap-weekly.zip "$ZAP_WEEKLY_URL" && \
     echo "${ZAP_WEEKLY_SHA256}  zap-weekly.zip" | sha256sum -c - && \
