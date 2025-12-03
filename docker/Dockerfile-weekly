@@ -52,9 +52,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
     mkdir /zap  && \
     chown zap:zap /zap
 
-# Same issue as Dockerfile-live
-#RUN pip3 install --break-system-packages --no-cache-dir --upgrade awscli pip zaproxy pyyaml requests urllib3 
-
 USER zap
 RUN python3 -m venv /home/zap/zap-venv && \
     /home/zap/zap-venv/bin/pip install --no-cache-dir --upgrade \

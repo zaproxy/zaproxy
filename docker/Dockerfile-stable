@@ -62,17 +62,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	rm -rf /var/lib/apt/lists/*
 
-# Same issues as in Dockerfile-live 
-#RUN pip3 install \
-#	--break-system-packages \
-#	--no-cache-dir \
-#	--upgrade \
-#	awscli \
-#	pip \
-#	zaproxy \
-#	pyyaml \
-#	urllib3
-
 # Create dedicated virtualenv for ZAP Python tooling
 RUN python3 -m venv /opt/zap-venv && \
     /opt/zap-venv/bin/pip install --no-cache-dir --upgrade \
