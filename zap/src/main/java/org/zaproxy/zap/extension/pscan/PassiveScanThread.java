@@ -23,6 +23,7 @@ import java.util.Set;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.utils.SensitiveDataMasker;
 
 /**
  * @deprecated (2.12.0) Use {@link org.zaproxy.zap.extension.pscan.PassiveScanController} instead.

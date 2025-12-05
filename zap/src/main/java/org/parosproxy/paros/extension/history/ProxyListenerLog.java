@@ -59,6 +59,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.ErrorUtils;
+import org.zaproxy.zap.utils.SensitiveDataMasker;
 
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
@@ -97,17 +98,19 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
 
     @Override
     public boolean onHttpResponseReceive(final HttpMessage msg) {
-
+        //sensitive data masking HTTP panel, History, UI
+        HttpMessage masked = SensitiveDataMasker.buildMaskedMessage(msg);
+        //using masked message instead of msg
         int type = HistoryReference.TYPE_PROXIED;
-        if (isSkipImage(msg.getRequestHeader()) || isSkipImage(msg.getResponseHeader())) {
-            if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
+        if (isSkipImage(masked.getRequestHeader()) || isSkipImage(masked.getResponseHeader())) {
+            if (masked.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
                 type = HistoryReference.TYPE_HIDDEN;
             } else {
                 return true;
             }
         }
         final int finalType = type;
-        final HistoryReference href = createHistoryReference(msg, type);
+        final HistoryReference href = createHistoryReference(masked, type);
         Thread t =
                 new Thread(
                         new Runnable() {

@@ -385,6 +385,7 @@ public class SiteMapPanel extends AbstractPanel {
     public JTree getTreeSite() {
         if (treeSite == null) {
             treeSite = new JTree(new DefaultTreeModel(new DefaultMutableTreeNode()));
+            treeSite.setToolTipText("");
             treeSite.setShowsRootHandles(true);
             treeSite.setName("treeSite");
             treeSite.setToggleClickCount(1);

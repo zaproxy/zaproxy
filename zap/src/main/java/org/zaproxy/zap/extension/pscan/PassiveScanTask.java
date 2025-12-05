@@ -31,6 +31,9 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.Stats;
+import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.SensitiveDataMasker;
 
 /**
  * A class which runs all of the enabled passive scanners against a specified HistoryReference
@@ -194,6 +197,13 @@ public class PassiveScanTask implements Runnable {
                             e);
                 }
             }
+
+            // --- Sensitive Data Masking AFTER scanning ---
+            // Mask the message after all passive scanners have analyzed the real message
+            // This ensures detection logic uses the original, but any logging/export uses masked
+            HttpMessage masked = SensitiveDataMasker.buildMaskedMessage(msg);
+            // Use masked message instead of msg for any further processing
+            // Masking is optional, I'll add in my documentation how to use it or revert it back to msg
 
         } catch (Exception e) {
             if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {

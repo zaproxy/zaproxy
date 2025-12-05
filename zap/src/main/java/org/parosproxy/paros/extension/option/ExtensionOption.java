@@ -43,6 +43,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.autoupdate.OptionsCheckForUpdatesPanel;
 import org.zaproxy.zap.extension.lang.OptionsLangPanel;
+import org.parosproxy.paros.extension.option.OptionsSensitiveDataPanel;
 
 public class ExtensionOption extends ExtensionAdaptor {
 
@@ -75,7 +76,7 @@ public class ExtensionOption extends ExtensionAdaptor {
         super.hook(extensionHook);
         if (getView() != null) {
             extensionHook.getHookMenu().addViewMenuItem(getMenuViewImage());
-
+            extensionHook.getHookView().addOptionPanel(new OptionsSensitiveDataPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsViewPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsCheckForUpdatesPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsLangPanel());
