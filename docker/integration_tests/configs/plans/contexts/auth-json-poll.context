@@ -23,6 +23,9 @@
             <include>Db.SAP MaxDB</include>
             <include>Db.SQLite</include>
             <include>Db.Sybase</include>
+            <include>Framework</include>
+            <include>Framework.Next.js</include>
+            <include>Framework.React</include>
             <include>Language</include>
             <include>Language.ASP</include>
             <include>Language.C</include>
