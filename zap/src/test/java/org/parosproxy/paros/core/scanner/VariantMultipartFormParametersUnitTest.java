@@ -274,6 +274,45 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
+    void shouldExtractParametersFromAllPartsEvenIfSomeAreEmpty() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createBaseMessage();
+        StringBuilder bodySb = new StringBuilder();
+        bodySb.append("--------------------------d74496d66958873e").append(CRLF);
+        bodySb.append("Content-Disposition: form-data; name=\"param\"").append(CRLF);
+        bodySb.append("--------------------------d74496d66958873e").append(CRLF);
+        bodySb.append("Content-Disposition: form-data; name=\"somefile\"; filename=\"file\"")
+                .append(CRLF);
+        bodySb.append("Content-Type: ContentType").append(CRLF);
+        bodySb.append(CRLF);
+        bodySb.append("filecontent").append(CRLF);
+        bodySb.append("--------------------------d74496d66958873e--").append(CRLF);
+        message.setRequestBody(bodySb.toString());
+        // When
+        variant.setMessage(message);
+        // Then
+        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
+        assertThat(variant.getParamList().get(0).getName(), is(equalTo("somefile")));
+        assertThat(variant.getParamList().get(0).getValue(), is(equalTo("file")));
+        assertThat(
+                variant.getParamList().get(0).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
+        assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
+        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("ContentType")));
+        assertThat(
+                variant.getParamList().get(1).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
+        assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
+        assertThat(variant.getParamList().get(2).getValue(), is(equalTo("filecontent")));
+        assertThat(
+                variant.getParamList().get(2).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+    }
+
+    @Test
     void shouldInjectParamValueModificationInGeneralParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
