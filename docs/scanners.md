@@ -181,6 +181,7 @@ Scan rules:
 40045   Spring4Shell (CVE-2022-22965)
 40046   Server Side Request Forgery
 40047   Text4Shell (CVE-2022-42889)
+40048   React4Shell (CVE-2025-55182, CVE-2025-66478)
 40100   Client-Side Data Flow (Foxhound)
 40101   Client-Side Cross-Site Scripting (Foxhound)
 40102   Stored Client-Side Cross-Site Scripting (Foxhound)
