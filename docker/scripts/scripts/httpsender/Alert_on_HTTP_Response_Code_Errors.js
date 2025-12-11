@@ -2,7 +2,14 @@
 // By default it will raise 'Info' level alerts for Client Errors (4xx) (apart from 404s) and 'Low' Level alerts for Server Errors (5xx)
 // But it can be easily changed.
 
-var Pattern = Java.type("java.util.regex.Pattern")
+const Integer = Java.type("java.lang.Integer")
+const Pattern = Java.type("java.util.regex.Pattern")
+
+const Alert = Java.type("org.parosproxy.paros.core.scanner.Alert")
+const ExtensionAlert = Java.type("org.zaproxy.zap.extension.alert.ExtensionAlert")
+const HistoryReference = Java.type("org.parosproxy.paros.model.HistoryReference")
+
+const extensionAlert = control.getExtensionLoader().getExtension(ExtensionAlert.NAME)
 
 pluginid = 100000	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md
 
@@ -16,7 +23,6 @@ function responseReceived(msg, initiator, helper) {
 		return
 	}
 
-	var extensionAlert = control.getExtensionLoader().getExtension(org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
 	if (extensionAlert != null) {
 		var code = msg.getResponseHeader().getStatusCode()
 		if (code < 400 || code >= 600) {
@@ -30,10 +36,9 @@ function responseReceived(msg, initiator, helper) {
 				title = "A Server Error response code was returned by the server"
 			}
 			// CONFIDENCE_HIGH = 3 (we can be pretty sure we're right)
-			var alert = new org.parosproxy.paros.core.scanner.Alert(pluginid, risk, 3, title)
+			var alert = new Alert(pluginid, risk, 3, title)
 			var ref = msg.getHistoryRef()
-			if (ref != null && org.parosproxy.paros.model.HistoryReference.getTemporaryTypes().contains(
-						java.lang.Integer.valueOf(ref.getHistoryType()))) {
+			if (ref != null && HistoryReference.getTemporaryTypes().contains(Integer.valueOf(ref.getHistoryType()))) {
 				// Dont use temporary types as they will get deleted
 				ref = null
 			}
@@ -69,7 +74,7 @@ function responseReceived(msg, initiator, helper) {
 						type = 15 // User - fallback
 						break
 				}
-				ref = new org.parosproxy.paros.model.HistoryReference(model.getSession(), type, msg)
+				ref = new HistoryReference(model.getSession(), type, msg)
 			}
 			alert.setMessage(msg)
 			alert.setUri(msg.getRequestHeader().getURI().toString())
