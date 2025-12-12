@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2025-12-11
+- Update `Alert_on_HTTP_Response_Code_Errors.js` and `Alert_on_Unexpected_Content_Types.js` to reduce classloading (Issue 9187).
+
 ### 2025-11-21
 - Updated `Alert_on_HTTP_Response_Code_Errors.js` to work with GraalVM JavaScript engine.
 
