@@ -1,5 +1,7 @@
 name: Release Live Docker
 on:
+  repository_dispatch:
+    types: 'release-nightly-docker'
   workflow_dispatch:
   schedule:
     # Every day at the start of the day
