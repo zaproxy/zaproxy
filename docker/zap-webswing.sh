@@ -66,7 +66,7 @@ case "$1" in
         cd $HOME
         
         # Set up the ZAP runtime options
-        ZAP_OPTS="-host 0.0.0.0 -port 8090"
+        ZAP_OPTS="-host 0.0.0.0 -port 8090 -config stats.pkg.webswing=1"
         ZAP_PUBLIC="/zap/wrk/zap_root_ca.cer"
         ZAP_PRIVATE="/zap/wrk/zap_root_ca.key"
 

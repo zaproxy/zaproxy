@@ -25,6 +25,7 @@
       ":addOns:graaljs",
       ":addOns:graphql",
       ":addOns:grpc",
+	  ":addOns:insights",
       ":addOns:invoke",
       ":addOns:network",
       ":addOns:oast",

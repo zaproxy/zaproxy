@@ -39,6 +39,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/08/22 Do not modify the requests being proxied (Issue 7353).
+// ZAP: 2025/11/21 From now on we will not be recording changes here as the files have changed so
+// much.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -56,6 +58,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.utils.ErrorUtils;
 
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
@@ -148,8 +151,9 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         try {
             return new HistoryReference(model.getSession(), type, message);
         } catch (Exception e) {
-            // ZAP: Log exceptions
-            LOGGER.warn(e.getMessage(), e);
+            if (!ErrorUtils.handleDiskSpaceException(e)) {
+                LOGGER.warn(e.getMessage(), e);
+            }
         }
         return null;
     }

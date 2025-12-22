@@ -19,11 +19,13 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -35,6 +37,9 @@ public class ScanPolicy {
     private static final Logger LOGGER = LogManager.getLogger(ScanPolicy.class);
 
     private String name;
+    private String statsId;
+    private boolean readOnly;
+    private boolean locked;
     private PluginFactory pluginFactory = new PluginFactory();
     private AlertThreshold defaultThreshold;
     private AttackStrength defaultStrength;
@@ -51,6 +56,14 @@ public class ScanPolicy {
     public ScanPolicy(ZapXmlConfiguration conf) throws ConfigurationException {
         this.conf = conf;
         name = conf.getString("policy", "");
+        statsId = conf.getString("statsId", null);
+        readOnly = conf.getBoolean("readonly", false);
+        locked = conf.getBoolean("locked", false);
+        if (statsId == null
+                && name.equals(Constant.messages.getString("ascan.policymgr.default.name"))) {
+            statsId = "default";
+        }
+        pluginFactory.setLocked(locked);
         pluginFactory.loadAllPlugin(conf);
 
         setDefaultThreshold(getAlertThresholdFromConfig());
@@ -73,6 +86,22 @@ public class ScanPolicy {
         policy.pluginFactory.loadFrom(this.pluginFactory);
         policy.defaultStrength = this.getDefaultStrength();
         policy.defaultThreshold = this.getDefaultThreshold();
+        policy.statsId = this.statsId;
+        policy.readOnly = this.readOnly;
+        policy.locked = this.locked;
+    }
+
+    /**
+     * Saves the policy to the specified file. Will not maintain the readonly or statsId properties.
+     *
+     * @since 2.17.0
+     */
+    public void saveTo(Configuration conf) throws ConfigurationException {
+        conf.setProperty("policy", getName());
+        conf.setProperty("locked", isLocked());
+        conf.setProperty("scanner.level", getDefaultThreshold().name());
+        conf.setProperty("scanner.strength", getDefaultStrength().name());
+        getPluginFactory().saveTo(conf);
     }
 
     public String getName() {
@@ -145,5 +174,50 @@ public class ScanPolicy {
             return AttackStrength.MEDIUM;
         }
         return AttackStrength.valueOf(attackStrength);
+    }
+
+    /**
+     * Returns a string to be used when recording stats. Only expected to be supplied for 'built in'
+     * policies.
+     *
+     * @since 2.17.0
+     */
+    public String getStatsId() {
+        return statsId;
+    }
+
+    /**
+     * Returns true if the policy is 'built in' (according to the configs) - the UI should ensure it
+     * is not changed.
+     *
+     * @since 2.17.0
+     */
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    /**
+     * Tells whether or not the policy is locked.
+     *
+     * <p>Locked policies do not allow the use of any other scan rules than the ones defined in
+     * their configuration.
+     *
+     * @return {@code true} if the policy is locked, {@code false} otherwise.
+     * @since 2.17.0
+     */
+    public boolean isLocked() {
+        return locked;
+    }
+
+    /**
+     * Sets whether or not this policy should be locked.
+     *
+     * @param locked {@code true} if the policy should be locked, {@code false} otherwise.
+     * @since 2.17.0
+     * @see #isLocked()
+     */
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+        pluginFactory.setLocked(locked);
     }
 }

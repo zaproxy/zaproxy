@@ -32,7 +32,7 @@
       "elementType": "ZestClientElementClick"
     },
     {
-      "value": "test@test.com",
+      "value": "{{username}}",
       "windowHandle": "windowHandle1",
       "type": "id",
       "element": "user",
@@ -41,7 +41,7 @@
       "elementType": "ZestClientElementSendKeys"
     },
     {
-      "value": "password123",
+      "value": "{{password}}",
       "windowHandle": "windowHandle1",
       "type": "id",
       "element": "password",

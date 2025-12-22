@@ -68,6 +68,8 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2025/10/01 Alert handling tweaks.
+// ZAP: 2025/11/21 From now on we will not be recording changes here as the files have changed so
+// much.
 package org.parosproxy.paros.model;
 
 import java.util.ArrayList;
@@ -94,6 +96,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.ErrorUtils;
 
 /**
  * This class abstracts a reference to a http message stored in database. It reads the whole http
@@ -595,7 +598,9 @@ public class HistoryReference {
             staticTableTag.insert(historyId, tag);
             return true;
         } catch (DatabaseException e) {
-            LOGGER.error("Failed to persist tag: {}", e.getMessage(), e);
+            if (!ErrorUtils.handleDiskSpaceException(e)) {
+                LOGGER.error("Failed to persist tag: {}", e.getMessage(), e);
+            }
         }
         return false;
     }
@@ -643,7 +648,9 @@ public class HistoryReference {
             httpMessageCachedData.setNote(note != null && note.length() > 0);
             notifyEvent(HistoryReferenceEventPublisher.EVENT_NOTE_SET);
         } catch (DatabaseException e) {
-            LOGGER.error(e.getMessage(), e);
+            if (!ErrorUtils.handleDiskSpaceException(e)) {
+                LOGGER.error("Failed to persist tag: {}", e.getMessage(), e);
+            }
         }
     }
 

@@ -102,8 +102,7 @@ public class PolicyDialog extends AbstractParamDialog {
     @Override
     public void saveParam() throws Exception {
         super.saveParam();
-
-        extension.getPolicyManager().savePolicy(policy, currentName);
+        extension.getPolicyManager().savePolicy(policy, policy.isReadOnly() ? null : currentName);
         pmd.policyNamesChanged();
     }
 }

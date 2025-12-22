@@ -29,6 +29,8 @@ abstract class AbstractStreamHttpEncoding implements HttpEncoding {
 
     private static final int BUFFER_SIZE = 2048;
 
+    private static final byte[] EMPTY = {};
+
     private final OutputStreamSupplier outputStreamSupplier;
     private final InputStreamSupplier inputStreamSupplier;
 
@@ -49,6 +51,10 @@ abstract class AbstractStreamHttpEncoding implements HttpEncoding {
 
     @Override
     public byte[] decode(byte[] content) throws IOException {
+        if (content.length == 0) {
+            return EMPTY;
+        }
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ByteArrayInputStream bais = new ByteArrayInputStream(content);
                 InputStream is = inputStreamSupplier.get(bais)) {

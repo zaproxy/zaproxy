@@ -71,6 +71,7 @@ import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.ErrorUtils;
 import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.popup.MenuWeights;
 
@@ -233,6 +234,10 @@ public class ExtensionAlert extends ExtensionAdaptor
 
             writeAlertToDB(alert, ref);
         } catch (Exception e) {
+            if (ErrorUtils.handleDiskSpaceException(e)) {
+                // No point doing anything else
+                return;
+            }
             LOGGER.error(e.getMessage(), e);
         }
 

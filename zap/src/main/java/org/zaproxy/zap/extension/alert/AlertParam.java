@@ -41,7 +41,7 @@ public class AlertParam extends AbstractParam {
 
     private static final int DEFAULT_MAXIMUM_INSTANCES = 20;
 
-    private static final int DEFAULT_SYSTEMIC_LIMIT = 0;
+    private static final int DEFAULT_SYSTEMIC_LIMIT = 5;
 
     /**
      * The number of maximum instances of each vulnerability included in a report.

@@ -98,11 +98,7 @@ public class PolicyManager {
         File file = new File(Constant.getPoliciesDir(), policy.getName() + POLICY_EXTENSION);
 
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
-        conf.setProperty("policy", policy.getName());
-        conf.setProperty("scanner.level", policy.getDefaultThreshold().name());
-        conf.setProperty("scanner.strength", policy.getDefaultStrength().name());
-
-        policy.getPluginFactory().saveTo(conf);
+        policy.saveTo(conf);
 
         if (previousName != null && !previousName.equals(policy.getName())) {
             File oldFile = new File(Constant.getPoliciesDir(), previousName + POLICY_EXTENSION);

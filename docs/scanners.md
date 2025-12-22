@@ -181,6 +181,11 @@ Scan rules:
 40045   Spring4Shell (CVE-2022-22965)
 40046   Server Side Request Forgery
 40047   Text4Shell (CVE-2022-42889)
+40048   React4Shell (CVE-2025-55182, CVE-2025-66478)
+40100   Client-Side Data Flow (Foxhound)
+40101   Client-Side Cross-Site Scripting (Foxhound)
+40102   Stored Client-Side Cross-Site Scripting (Foxhound)
+40103   Client-Side Cross-Site Request Forgery (Foxhound)
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
@@ -265,6 +270,7 @@ Scan rules:
 100036  Information Disclosure - Amazon S3 Bucket URL [Script]
 100043  Swagger Secret Disclosure and Vulnerable Version [Script]
 100044  Suspicious Input Transformation [Script]
+100045  Open MCP Server Detection [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]

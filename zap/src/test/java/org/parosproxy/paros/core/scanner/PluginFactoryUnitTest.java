@@ -36,11 +36,15 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link PluginFactory}. */
 @ExtendWith(MockitoExtension.class)
@@ -181,6 +185,97 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         assertThat(
                 pluginFactory.getAllPlugin().get(0),
                 is(not(sameInstance(otherPluginFactory.getAllPlugin().get(0)))));
+    }
+
+    @Test
+    void shouldNotBeLockedByDefault() {
+        // Given
+        PluginFactory pluginFactory = new PluginFactory();
+        // When / Then
+        assertThat(pluginFactory.isLocked(), is(equalTo(false)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldSetLocked(boolean locked) {
+        // Given
+        PluginFactory pluginFactory = new PluginFactory();
+        // When
+        pluginFactory.setLocked(locked);
+        // Then
+        assertThat(pluginFactory.isLocked(), is(equalTo(locked)));
+    }
+
+    @Test
+    void shouldDisableUnconfiguredPluginsWhenLocked() {
+        // Given
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.setLocked(true);
+        ZapXmlConfiguration conf = configWithPlugin();
+        // When
+        pluginFactory.loadAllPlugin(conf);
+        // Then
+        List<Plugin> plugins = pluginFactory.getAllPlugin();
+        assertThat(plugins.get(0).getId(), is(equalTo(1)));
+        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
+        assertThat(plugins.get(1).getId(), is(equalTo(2)));
+        assertThat(plugins.get(1).isEnabled(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldDisableUnconfiguredPluginsWhenLockedThroughScanPolicy() throws Exception {
+        // Given
+        ZapXmlConfiguration conf = configWithPlugin();
+        conf.setProperty("locked", true);
+        // When
+        ScanPolicy scanPolicy = new ScanPolicy(conf);
+        // Then
+        List<Plugin> plugins = scanPolicy.getPluginFactory().getAllPlugin();
+        assertThat(plugins.get(0).getId(), is(equalTo(1)));
+        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
+        assertThat(plugins.get(1).getId(), is(equalTo(2)));
+        assertThat(plugins.get(1).isEnabled(), is(equalTo(false)));
+    }
+
+    static ZapXmlConfiguration configWithPlugin() {
+        AbstractPlugin plugin1 = createAbstractPlugin(1);
+        AbstractPlugin plugin2 = createAbstractPlugin(2);
+        PluginFactory.loadedPlugin(plugin1);
+        PluginFactory.loadedPlugin(plugin2);
+        ZapXmlConfiguration conf = new ZapXmlConfiguration();
+        conf.setProperty("plugins.p1.level", "DEFAULT");
+        return conf;
+    }
+
+    @Test
+    void shouldUseUnconfiguredPluginsWhenNotLocked() {
+        // Given
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.setLocked(false);
+        ZapXmlConfiguration conf = configWithPlugin();
+        // When
+        pluginFactory.loadAllPlugin(conf);
+        // Then
+        List<Plugin> plugins = pluginFactory.getAllPlugin();
+        assertThat(plugins.get(0).getId(), is(equalTo(1)));
+        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
+        assertThat(plugins.get(1).getId(), is(equalTo(2)));
+        assertThat(plugins.get(1).isEnabled(), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldUseUnconfiguredPluginsWhenNotLockedThroughScanPolicy() throws Exception {
+        // Given
+        ZapXmlConfiguration conf = configWithPlugin();
+        conf.setProperty("locked", false);
+        // When
+        ScanPolicy scanPolicy = new ScanPolicy(conf);
+        // Then
+        List<Plugin> plugins = scanPolicy.getPluginFactory().getAllPlugin();
+        assertThat(plugins.get(0).getId(), is(equalTo(1)));
+        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
+        assertThat(plugins.get(1).getId(), is(equalTo(2)));
+        assertThat(plugins.get(1).isEnabled(), is(equalTo(true)));
     }
 
     @Test

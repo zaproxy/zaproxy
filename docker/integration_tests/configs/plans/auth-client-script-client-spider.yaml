@@ -27,8 +27,8 @@ env:
     users:
     - name: test
       credentials:
-        Username: test@test.com
-        Password: password123
+        username: test@test.com
+        password: password123
   parameters: {}
 jobs:
 - type: spiderClient

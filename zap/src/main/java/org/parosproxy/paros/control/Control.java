@@ -90,6 +90,8 @@
 // ZAP: 2022/02/24 Remove code deprecated in 2.5.0
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2025/11/21 From now on we will not be recording changes here as the files have changed so
+// much.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -113,6 +115,7 @@ import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.utils.ErrorUtils;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 /** Overall control with interaction on model and view. */
@@ -522,7 +525,9 @@ public class Control extends AbstractControl implements SessionListener {
                     .getTableSession()
                     .insert(session.getSessionId(), session.getSessionName());
         } catch (DatabaseException e) {
-            LOGGER.error(e.getMessage(), e);
+            if (!ErrorUtils.handleDiskSpaceException(e)) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
 
         return session;

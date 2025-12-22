@@ -37,7 +37,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.alert.ExampleAlertProvider;
 import org.zaproxy.zap.utils.Enableable;
-import org.zaproxy.zap.utils.Stats;
 
 public abstract class PluginPassiveScanner extends Enableable
         implements PassiveScanner, ExampleAlertProvider {
@@ -665,7 +664,6 @@ public abstract class PluginPassiveScanner extends Enableable
         /** Raises the alert with specified data. */
         public void raise() {
             plugin.actions.raiseAlert(message.getHistoryRef(), build());
-            Stats.incCounter("stats.pscan." + plugin.getPluginId() + ".alerts");
         }
     }
 }

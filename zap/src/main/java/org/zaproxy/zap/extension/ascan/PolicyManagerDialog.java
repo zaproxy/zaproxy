@@ -155,7 +155,19 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                                     .getValueAt(
                                                             getParamsTable().getSelectedRow(), 0);
                             if (name != null) {
-                                if (View.getSingleton()
+                                ScanPolicy policy = null;
+                                try {
+                                    policy = extension.getPolicyManager().getPolicy(name);
+                                } catch (ConfigurationException e1) {
+                                    // Ignore
+                                }
+                                if (policy != null && policy.isReadOnly()) {
+                                    View.getSingleton()
+                                            .showWarningDialog(
+                                                    PolicyManagerDialog.this,
+                                                    Constant.messages.getString(
+                                                            "ascan.policymgr.warn.builtin"));
+                                } else if (View.getSingleton()
                                                 .showConfirmDialog(
                                                         PolicyManagerDialog.this,
                                                         Constant.messages.getString(

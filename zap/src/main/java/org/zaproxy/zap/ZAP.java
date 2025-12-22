@@ -22,6 +22,7 @@ package org.zaproxy.zap;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 import org.apache.commons.io.output.NullOutputStream;
@@ -111,14 +112,28 @@ public class ZAP {
         System.setErr(
                 new DelegatorPrintStream(System.err) {
 
+                    private static final byte[] XML_PROLOG_ERROR =
+                            "[Fatal Error] :1:1: Content is not allowed in prolog."
+                                    .getBytes(StandardCharsets.US_ASCII);
+                    private static final int XML_PROLOG_ERROR_LEN = XML_PROLOG_ERROR.length;
+
                     @Override
-                    public void println(String x) {
-                        // Suppress Nashorn removal warnings, too verbose (a warn each time is
-                        // used).
-                        if ("Warning: Nashorn engine is planned to be removed from a future JDK release"
-                                .equals(x)) {
+                    public void write(byte[] buf, int off, int len) {
+                        if (len >= XML_PROLOG_ERROR_LEN
+                                && Arrays.equals(
+                                        buf,
+                                        off,
+                                        XML_PROLOG_ERROR_LEN,
+                                        XML_PROLOG_ERROR,
+                                        0,
+                                        XML_PROLOG_ERROR_LEN)) {
                             return;
                         }
+                        super.write(buf, off, len);
+                    }
+
+                    @Override
+                    public void println(String x) {
                         if (x != null && x.startsWith("Multiplexing LAF")) {
                             return;
                         }
@@ -160,7 +175,7 @@ public class ZAP {
         @SuppressWarnings("removal")
         public void uncaughtException(Thread t, Throwable e) {
             if (!(e instanceof ThreadDeath)) {
-                updateStats();
+                updateStats(e);
 
                 if (loggerConfigured || isLoggerConfigured()) {
                     LOGGER.error("Exception in thread \"{}\"", t.getName(), e);
@@ -172,12 +187,23 @@ public class ZAP {
             }
         }
 
-        private static void updateStats() {
+        private static void updateStats(Throwable e) {
             try {
-                Stats.incCounter("stats.error.core.uncaught");
+                String baseKey = "stats.error.core.uncaught";
+                Stats.incCounter(baseKey);
+                Stats.incCounter(baseKey + "." + e.getClass().getSimpleName() + getSource(e));
             } catch (Throwable ignore) {
                 // Already handling an earlier error...
             }
+        }
+
+        private static String getSource(Throwable t) {
+            StackTraceElement[] trace = t.getStackTrace();
+            if (trace == null || trace.length == 0) {
+                return "";
+            }
+            StackTraceElement top = trace[0];
+            return "(" + top.getFileName() + ":" + top.getLineNumber() + ")";
         }
 
         private boolean isLoggerConfigured() {
@@ -201,7 +227,8 @@ public class ZAP {
         }
     }
 
-    private static class DelegatorPrintStream extends PrintStream {
+    /** Not part of the public API. */
+    public static class DelegatorPrintStream extends PrintStream {
 
         private final PrintStream delegatee;
 
