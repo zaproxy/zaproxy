@@ -19,6 +19,8 @@ import org.zaproxy.zap.tasks.UploadAssetsGitHubRelease
 val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
 val zaproxyRepo = GitHubRepo("zaproxy", "zaproxy", rootDir)
 
+fun isEnvVarTrue(envvar: String) = System.getenv(envvar) == "true"
+
 tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
     val dateProvider = provider { project.extra["creationDate"] }
     val tagName = dateProvider.map { "w$it" }
@@ -31,7 +33,7 @@ tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
     title.set(tagName)
     body.set("")
     checksumAlgorithm.set("SHA-256")
-    draft.set(true)
+    draft.set(if (isEnvVarTrue("ZAP_WEEKLY_PUBLISH")) false else true)
     prerelease.set(true)
 
     assets {
