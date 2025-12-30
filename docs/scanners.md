@@ -106,6 +106,7 @@ Scan rules:
 10114   Same Origin Method Execution (SOME)
 10115   Script served from malicious polyfill.io domain
 10116   ZAP is out of date
+10117   Referrer Policy
 
 10200   Beast (via HTTPS Info Extension) [Deprecated]
 10201   Crime (via HTTPS Info Extension) [Deprecated]
