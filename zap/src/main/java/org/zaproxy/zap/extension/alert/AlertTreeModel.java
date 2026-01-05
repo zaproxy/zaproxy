@@ -120,7 +120,9 @@ class AlertTreeModel extends DefaultTreeModel {
             risk = -1;
         }
 
-        AlertNode needle = new AlertNode(risk, alert.getName(), GROUP_ALERT_CHILD_COMPARATOR);
+        AlertNode needle =
+                new AlertNode(
+                        risk, alert.getName(), alert.getAlertRef(), GROUP_ALERT_CHILD_COMPARATOR);
         needle.setAlert(alert);
         int idx = parent.findIndex(needle);
         if (idx < 0) {
@@ -194,7 +196,7 @@ class AlertTreeModel extends DefaultTreeModel {
             risk = -1;
         }
 
-        AlertNode node = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
+        AlertNode node = new AlertNode(risk, nodeName, alert.getAlertRef(), ALERT_CHILD_COMPARATOR);
         int idx = parent.findIndex(node);
         if (idx < 0) {
             idx = -(idx + 1);
@@ -214,7 +216,8 @@ class AlertTreeModel extends DefaultTreeModel {
             risk = -1;
         }
 
-        AlertNode needle = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
+        AlertNode needle =
+                new AlertNode(risk, nodeName, alert.getAlertRef(), ALERT_CHILD_COMPARATOR);
         needle.setAlert(alert);
         int idx = parent.findIndex(needle);
         if (idx < 0) {
@@ -268,7 +271,11 @@ class AlertTreeModel extends DefaultTreeModel {
                 return -1;
             }
 
-            return alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
+            int res = alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
+            if (res == 0) {
+                return alertNode.getAlertRef().compareTo(anotherAlertNode.getAlertRef());
+            }
+            return res;
         }
     }
 
