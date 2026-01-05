@@ -73,11 +73,22 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                         "https://www.example.com",
                         Alert.RISK_MEDIUM,
                         Alert.CONFIDENCE_MEDIUM);
+        Alert a4 =
+                newAlert(
+                        1,
+                        "1-2",
+                        3,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
 
         // When
         atModel.addPath(a1);
         atModel.addPath(a3);
         atModel.addPath(a2);
+        atModel.addPath(a4);
 
         // Then
 
@@ -89,12 +100,15 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                   - Medium: Alert A
                     - GET:https://www.example.com
                     - GET:https://www.example.net
+                  - Medium: Alert A
+                    - GET:https://www.example.com
                 """,
                 TextAlertTree.toString(atModel));
 
         assertEquals(a1, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
         assertEquals(a3, atModel.getRoot().getChildAt(1).getChildAt(0).getAlert());
         assertEquals(a2, atModel.getRoot().getChildAt(1).getChildAt(1).getAlert());
+        assertEquals(a4, atModel.getRoot().getChildAt(2).getChildAt(0).getAlert());
     }
 
     @Test
@@ -177,11 +191,22 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                         "https://www.example.com?a=3",
                         Alert.RISK_MEDIUM,
                         Alert.CONFIDENCE_MEDIUM);
+        Alert a4 =
+                newAlert(
+                        1,
+                        "1-2",
+                        3,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=4",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
 
         // When
         atModel.addPath(a1);
         atModel.addPath(a2);
         atModel.addPath(a3);
+        atModel.addPath(a4);
 
         AlertNode an1 = atModel.getAlertNode(a1);
         AlertNode an2 = atModel.getAlertNode(a2);
@@ -191,6 +216,7 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         assertEquals("GET:https://www.example.com(a)", an1.getNodeName());
         assertEquals("GET:https://www.example.com(a)", an2.getNodeName());
         assertEquals("GET:https://www.example.com(a)", an3.getNodeName());
+        assertEquals("GET:https://www.example.com(a)", atModel.getAlertNode(a4).getNodeName());
     }
 
     @Test
@@ -225,16 +251,27 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                         "https://www.example.com?a=3",
                         Alert.RISK_MEDIUM,
                         Alert.CONFIDENCE_MEDIUM);
+        Alert a4 =
+                newAlert(
+                        1,
+                        "1-2",
+                        3,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=4",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
 
         // When
         atModel.addPath(a1);
         atModel.addPath(a2);
         atModel.addPath(a3);
+        atModel.addPath(a4);
         a1.setRisk(Alert.RISK_HIGH);
         atModel.updatePath(a1);
 
         // Then
-        assertEquals(1, atModel.getRoot().getChildCount());
+        assertEquals(2, atModel.getRoot().getChildCount());
 
         // Only child - Medium risk
         assertEquals("Alert A", atModel.getRoot().getChildAt(0).getNodeName());
@@ -245,6 +282,11 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                 "GET:https://www.example.com(a)",
                 atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName());
         assertEquals(Alert.RISK_HIGH, atModel.getRoot().getChildAt(0).getChildAt(0).getRisk());
+
+        assertEquals(
+                "GET:https://www.example.com(a)",
+                atModel.getRoot().getChildAt(1).getChildAt(0).getNodeName());
+        assertEquals(Alert.RISK_MEDIUM, atModel.getRoot().getChildAt(1).getChildAt(0).getRisk());
     }
 
     @Test
@@ -280,16 +322,27 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                         "https://www.example.net",
                         Alert.RISK_MEDIUM,
                         Alert.CONFIDENCE_MEDIUM);
+        Alert a4 =
+                newAlert(
+                        1,
+                        "1-2",
+                        3,
+                        "Alert A",
+                        "https://www.example.com/a1",
+                        "https://www.example.com/a1",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
 
         // When
         atModel.addPath(a1);
         atModel.addPath(a2);
         atModel.addPath(a3);
+        atModel.addPath(a4);
 
         atModel.deletePath(a1);
 
         // Then
-        assertEquals(1, atModel.getRoot().getChildCount());
+        assertEquals(2, atModel.getRoot().getChildCount());
 
         assertEquals(
                 """
@@ -297,11 +350,14 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                   - Medium: Alert A
                     - GET:https://www.example.com/a2
                     - GET:https://www.example.net
+                  - Medium: Alert A
+                    - GET:https://www.example.com/a1
                 """,
                 TextAlertTree.toString(atModel));
 
         assertEquals(a2, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
         assertEquals(a3, atModel.getRoot().getChildAt(0).getChildAt(1).getAlert());
+        assertEquals(a4, atModel.getRoot().getChildAt(1).getChildAt(0).getAlert());
     }
 
     @Test
@@ -337,11 +393,22 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                         "https://www.example.com/a2",
                         Alert.RISK_MEDIUM,
                         Alert.CONFIDENCE_MEDIUM);
+        Alert a4 =
+                newAlert(
+                        1,
+                        "1-2",
+                        3,
+                        "Alert A",
+                        "https://www.example.com/a1",
+                        "https://www.example.com/a1",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
 
         // When
         atModel.addPath(a1);
         atModel.addPath(a2);
         atModel.addPath(a3);
+        atModel.addPath(a4);
 
         a1.setRisk(Alert.RISK_HIGH);
         atModel.updatePath(a1);
@@ -355,12 +422,15 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                   - Medium: Alert A
                     - GET:https://www.example.com/a2
                     - GET:https://www.example.net
+                  - Medium: Alert A
+                    - GET:https://www.example.com/a1
                 """,
                 TextAlertTree.toString(atModel));
 
         assertEquals(a1, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
         assertEquals(a3, atModel.getRoot().getChildAt(1).getChildAt(0).getAlert());
         assertEquals(a2, atModel.getRoot().getChildAt(1).getChildAt(1).getAlert());
+        assertEquals(a4, atModel.getRoot().getChildAt(2).getChildAt(0).getAlert());
     }
 
     @Test
@@ -393,18 +463,30 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                         "https://www.example.com?a=3",
                         Alert.RISK_MEDIUM,
                         Alert.CONFIDENCE_MEDIUM);
+        Alert a4 =
+                newAlert(
+                        1,
+                        "1-2",
+                        3,
+                        "Alert A",
+                        "https://www.example.com(a)",
+                        "https://www.example.com?a=4",
+                        Alert.RISK_MEDIUM,
+                        Alert.CONFIDENCE_MEDIUM);
 
         // When
         atModel.addPath(a1);
         atModel.addPath(a2);
         atModel.addPath(a3);
+        atModel.addPath(a4);
 
         atModel.deletePath(a1);
         atModel.deletePath(a3);
         atModel.deletePath(a2);
 
         // Then
-        assertEquals(0, atModel.getRoot().getChildCount());
+        assertEquals(1, atModel.getRoot().getChildCount());
+        assertEquals(a4, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
     }
 
     private static Alert newAlert(
@@ -415,7 +497,22 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
             String uri,
             int risk,
             int confidence) {
+        return newAlert(pluginId, null, id, name, nodeName, uri, risk, confidence);
+    }
+
+    private static Alert newAlert(
+            int pluginId,
+            String alertRef,
+            int id,
+            String name,
+            String nodeName,
+            String uri,
+            int risk,
+            int confidence) {
         Alert alert = new Alert(pluginId, risk, confidence, name);
+        if (alertRef != null) {
+            alert.setAlertRef(alertRef);
+        }
         alert.setUri(uri);
         alert.setAlertId(id);
         alert.setNodeName(nodeName);
