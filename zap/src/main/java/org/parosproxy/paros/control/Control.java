@@ -411,6 +411,10 @@ public class Control extends AbstractControl implements SessionListener {
         control = new Control(model, null);
     }
 
+    public static void setSingletonForTesting(Control control) {
+        Control.control = control;
+    }
+
     /**
      * Initialises the {@code Control} singleton with the given data.
      *
