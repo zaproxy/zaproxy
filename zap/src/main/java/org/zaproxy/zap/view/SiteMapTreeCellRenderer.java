@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,6 +111,16 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
             boolean hasFocus) {
 
         component.removeAll();
+        super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+
+        // Explicitly set foreground and background colors from UIManager to ensure
+        // readability when Look & Feel changes. This ensures colors are always
+        // read from the current LAF rather than relying on cached values.
+        setForeground(
+                UIManager.getColor(sel ? "Tree.selectionForeground" : "Tree.textForeground"));
+        setBackground(
+                UIManager.getColor(sel ? "Tree.selectionBackground" : "Tree.textBackground"));
+
         SiteNode node = null;
         if (value instanceof SiteNode) {
             node = (SiteNode) value;
@@ -123,7 +134,6 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
             }
 
             setPreferredSize(null); // clears the preferred size, making the node visible
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
             // folder / file icons with scope 'target' if relevant
             if (node.isRoot()) {
