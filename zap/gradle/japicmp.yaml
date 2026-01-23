@@ -2,7 +2,11 @@
 #
 # Any binary incompatible changes deemed acceptable should be added to this file.
 ---
-packageExcludes: []
+packageExcludes:
+ - "org.zaproxy.zap.extension.spider"
+ - "org.zaproxy.zap.spider"
+ - "org.zaproxy.zap.spider.filters"
+ - "org.zaproxy.zap.spider.parser"
 fieldExcludes: []
 classExcludes: []
 methodExcludes: []
