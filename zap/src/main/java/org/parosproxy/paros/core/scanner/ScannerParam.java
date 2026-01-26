@@ -348,7 +348,7 @@ public class ScannerParam extends AbstractParam {
         persistTemporaryMessages =
                 getBoolean(
                         PERSIST_TEMPORARY_MESSAGES,
-                        ZAP.getProcessType() != ZAP.ProcessType.cmdline);
+                        ZAP.getProcessType() == ZAP.ProcessType.desktop);
     }
 
     private void migrateOldOptions() {
