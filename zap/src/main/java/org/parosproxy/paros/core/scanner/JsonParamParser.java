@@ -102,6 +102,7 @@ public class JsonParamParser {
         int endToken;
         int chr;
 
+        boolean primitive = false;
         while (!done) {
             switch (state) {
                 case STATE_INIT:
@@ -115,7 +116,7 @@ public class JsonParamParser {
                         state = STATE_READ_VALUE;
 
                     } else {
-                        // Lets see if its just a primitive string
+                        primitive = true;
                         sr.unreadLastCharacter();
                         state = STATE_READ_VALUE;
                     }
@@ -176,13 +177,13 @@ public class JsonParamParser {
                     break;
 
                 case STATE_READ_VALUE:
-                    if (field == null) {
+                    if (!primitive && field == null) {
                         // field is null when you have an untyped Object[], so we place
                         // the JsonArray on the @items field.
                         field = "@items";
                     }
 
-                    parseValue(field, list);
+                    parseValue(primitive, field, list);
                     state = STATE_READ_POST_VALUE;
                     break;
 
@@ -211,7 +212,7 @@ public class JsonParamParser {
         return StringEscapeUtils.unescapeJava(value);
     }
 
-    private void parseValue(String fieldName, List<RPCParameter> list) {
+    private void parseValue(boolean primitive, String fieldName, List<RPCParameter> list) {
         int chr = sr.read();
 
         // Check if the value is a string
@@ -233,7 +234,11 @@ public class JsonParamParser {
             int beginToken = sr.getPosition();
             do {
                 chr = sr.read();
+
                 if (chr == -1) {
+                    if (primitive) {
+                        break;
+                    }
                     throw new IllegalArgumentException("Reached EOF while reading number");
                 }
 
@@ -244,7 +249,9 @@ public class JsonParamParser {
                     || (chr == '+')
                     || (chr == '-'));
 
-            sr.unreadLastCharacter();
+            if (!primitive) {
+                sr.unreadLastCharacter();
+            }
             // Now we have the int object value
             // Put everything inside the parameter array
             int endToken = sr.getPosition();
@@ -298,7 +305,7 @@ public class JsonParamParser {
         while (true) {
             sr.skipWhitespaceRead();
             sr.unreadLastCharacter();
-            parseValue(fieldName + "[" + (idx++) + "]", list);
+            parseValue(false, fieldName + "[" + (idx++) + "]", list);
 
             chr = sr.skipWhitespaceRead();
             if (chr == END_ARRAY) {
