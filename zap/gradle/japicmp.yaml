@@ -3,10 +3,19 @@
 # Any binary incompatible changes deemed acceptable should be added to this file.
 ---
 packageExcludes:
+ - "ch.csnc.extension.httpclient"
+ - "ch.csnc.extension.ui"
+ - "ch.csnc.extension.util"
  - "org.zaproxy.zap.extension.spider"
  - "org.zaproxy.zap.spider"
  - "org.zaproxy.zap.spider.filters"
  - "org.zaproxy.zap.spider.parser"
 fieldExcludes: []
-classExcludes: []
-methodExcludes: []
+classExcludes:
+ - "org.parosproxy.paros.extension.option.OptionsCertificatePanel"
+ - "org.parosproxy.paros.extension.option.OptionsParamCertificate"
+ - "org.parosproxy.paros.network.SSLConnector"
+methodExcludes:
+ - "org.parosproxy.paros.model.OptionsParam#getCertificateParam()"
+ - "org.parosproxy.paros.model.OptionsParam#getExperimentalFeaturesParam()"
+ - "org.parosproxy.paros.model.OptionsParam#setCertificateParam(org.parosproxy.paros.extension.option.OptionsParamCertificate)"

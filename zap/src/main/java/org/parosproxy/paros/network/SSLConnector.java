@@ -194,9 +194,6 @@ public class SSLConnector
     @SuppressWarnings("deprecation")
     private static org.parosproxy.paros.security.SslCertificateService sslCertificateService;
 
-    @SuppressWarnings("deprecation")
-    private static ch.csnc.extension.httpclient.SSLContextManager sslContextManager = null;
-
     /*
      * If relaxedTrust then we ignore all of the 'usual' https checks.
      * This is needed in order to test sites with custom certs
@@ -218,39 +215,6 @@ public class SSLConnector
             clientSSLSockFactory = getClientSocketFactory(SSL);
             misconfiguredHosts = new LRUMap(10);
         }
-        // ZAP: removed ServerSocketFaktory
-        if (sslContextManager == null) {
-            sslContextManager = new ch.csnc.extension.httpclient.SSLContextManager();
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public ch.csnc.extension.httpclient.SSLContextManager getSSLContextManager() {
-        return sslContextManager;
-    }
-
-    @SuppressWarnings("deprecation")
-    public void setEnableClientCert(boolean enabled) {
-        if (enabled) {
-            if (clientSSLSockCertFactory == null) {
-                return;
-            }
-
-            clientSSLSockFactory = clientSSLSockCertFactory;
-            logger.info("ClientCert enabled using: {}", sslContextManager.getDefaultKey());
-        } else {
-            clientSSLSockFactory = getClientSocketFactory(SSL);
-            logger.info("ClientCert disabled");
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void setActiveCertificate() {
-
-        SSLContext sslcont = sslContextManager.getSSLContext(sslContextManager.getDefaultKey());
-        clientSSLSockCertFactory =
-                createDecoratedClientSslSocketFactory(sslcont.getSocketFactory());
-        logger.info("ActiveCertificate set to: {}", sslContextManager.getDefaultKey());
     }
 
     // ZAP: removed server socket methods
