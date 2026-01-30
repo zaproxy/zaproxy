@@ -412,6 +412,7 @@ public class MainFrame extends AbstractFrame {
     private JToggleButton getShowTabIconNamesButton() {
         if (showTabIconNamesButton == null) {
             showTabIconNamesButton = new ZapToggleButton();
+            showTabIconNamesButton.setName("main.toolbar.toggle.tabNames");
             showTabIconNamesButton.setIcon(
                     new ImageIcon(
                             WorkbenchPanel.class.getResource("/resource/icon/ui_tab_icon.png")));
@@ -461,6 +462,7 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/expand_sites.png"),
                                     WorkbenchPanel.Layout.EXPAND_SELECT));
+            expandSelectLayoutButton.setName("main.toolbar.toggle.expandSelect");
             expandSelectLayoutButton.setToolTipText(
                     Constant.messages.getString("view.toolbar.expandSites"));
         }
@@ -475,6 +477,7 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/expand_info.png"),
                                     WorkbenchPanel.Layout.EXPAND_STATUS));
+            expandStatusLayoutButton.setName("main.toolbar.toggle.expandStatus");
             expandStatusLayoutButton.setToolTipText(
                     Constant.messages.getString("view.toolbar.expandInfo"));
         }
@@ -489,6 +492,7 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/expand_full.png"),
                                     WorkbenchPanel.Layout.FULL));
+            fullLayoutButton.setName("main.toolbar.toggle.full");
             fullLayoutButton.setToolTipText(Constant.messages.getString("view.toolbar.expandFull"));
         }
         return fullLayoutButton;
@@ -502,6 +506,7 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/layout_tabbed.png"),
                                     WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE));
+            tabsResponsePanelPositionButton.setName("main.toolbar.toggle.response.tabsSideBySide");
             tabsResponsePanelPositionButton.setToolTipText(TABS_VIEW_TOOL_TIP);
         }
         return tabsResponsePanelPositionButton;
@@ -515,6 +520,8 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/layout_tabbed_split.png"),
                                     WorkbenchPanel.ResponsePanelPosition.TAB_SIDE_BY_SIDE));
+            tabSideBySideResponsePanelPositionButton.setName(
+                    "main.toolbar.toggle.response.tabSideBySide");
             tabSideBySideResponsePanelPositionButton.setToolTipText(TAB_SIDE_BY_SIDE_VIEW_TOOL_TIP);
         }
         return tabSideBySideResponsePanelPositionButton;
@@ -528,6 +535,8 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/layout_horizontal_split.png"),
                                     WorkbenchPanel.ResponsePanelPosition.PANELS_SIDE_BY_SIDE));
+            panelsResponsePanelPositionButton.setName(
+                    "main.toolbar.toggle.response.panelsSideBySide");
             panelsResponsePanelPositionButton.setToolTipText(SIDE_BY_SIDE_VIEW_TOOL_TIP);
             panelsResponsePanelPositionButton.setDisabledToolTipText(
                     DISABLED_SIDE_BY_SIDE_VIEW_TOOL_TIP);
@@ -543,6 +552,7 @@ public class MainFrame extends AbstractFrame {
                                     WorkbenchPanel.class.getResource(
                                             "/resource/icon/layout_vertical_split.png"),
                                     WorkbenchPanel.ResponsePanelPosition.PANEL_ABOVE));
+            aboveResponsePanelPositionButton.setName("main.toolbar.toggle.response.above");
             aboveResponsePanelPositionButton.setToolTipText(ABOVE_VIEW_TOOL_TIP);
             aboveResponsePanelPositionButton.setDisabledToolTipText(DISABLED_ABOVE_VIEW_TOOL_TIP);
         }
