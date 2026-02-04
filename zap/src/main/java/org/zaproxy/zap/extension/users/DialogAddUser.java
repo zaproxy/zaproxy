@@ -130,6 +130,9 @@ public class DialogAddUser extends AbstractFormDialog {
 
     @Override
     protected boolean validateFields() {
+        if (credentialsPanel == null) {
+            return true;
+        }
         return credentialsPanel.validateFields();
     }
 
@@ -143,9 +146,10 @@ public class DialogAddUser extends AbstractFormDialog {
                             this.user.getId());
         else this.user = new User(workingContext.getId(), getNameTextField().getText());
         this.user.setEnabled(getEnabledCheckBox().isSelected());
-        // Make sure the credentials panel saves its changes first
-        credentialsPanel.saveCredentials();
-        this.user.setAuthenticationCredentials(credentialsPanel.getCredentials());
+        if (credentialsPanel != null) {
+            credentialsPanel.saveCredentials();
+            this.user.setAuthenticationCredentials(credentialsPanel.getCredentials());
+        }
     }
 
     @Override
