@@ -103,6 +103,7 @@ def usage():
     print('    --hook            path to python file that define your custom hooks')
     print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
+    print('    --plan-only       generate an automation framework plan but do not run it')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
@@ -128,6 +129,11 @@ def usage():
     -T mins
     -z zap_options
 
+    The following option can be used to just generate an Authentication Framework plan but not run it.
+    It will fail if you specify any unsupported parameters.
+
+    --plan-only
+
     The following parameters are partially supported.
     If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
 
@@ -147,6 +153,74 @@ def usage():
 
 
     '''
+
+def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout,
+                     detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
+                     report_json, base_dir):
+    with open(yaml_file, 'w') as yf:
+
+        # Add the top level to the scope for backwards compatibility
+        top_levels = [ target ]
+        if target.count('/') > 2:
+            # The url can include a valid path, but always reset to spider the host (backwards compatibility)
+            t2 = target[0:target.index('/', 8)+1]
+            if not t2 == target:
+                target = t2
+                top_levels.append(target)
+
+        yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
+
+        alertFilters = []
+
+        # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
+        for id in out_of_scope_dict:
+            if id != '*':
+                for regex in out_of_scope_dict[id]:
+                    alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
+
+        jobs = [get_af_pscan_config()]
+
+        if len(alertFilters) > 0:
+            jobs.append(get_af_alertFilter(alertFilters))
+
+        jobs.append(get_af_spider(target, mins))
+
+        if ajax:
+            jobs.append(get_af_spiderAjax(target, mins))
+
+        jobs.append(get_af_pscan_wait(timeout))
+        jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
+
+        if report_html:
+            jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
+
+        if report_md:
+            jobs.append(get_af_report('traditional-md', base_dir, report_md, 'ZAP Scanning Report', ''))
+
+        if report_xml:
+            jobs.append(get_af_report('traditional-xml', base_dir, report_xml, 'ZAP Scanning Report', ''))
+
+        if report_json:
+            jobs.append(get_af_report('traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
+
+        yaml.dump({'jobs': jobs}, yf)
+
+        if os.path.exists('/zap/wrk'):
+            yaml_copy_file = '/zap/wrk/zap.yaml'
+            try:
+                # Write the yaml file to the mapped directory, if there is one
+                if os.path.abspath(yaml_file) != os.path.abspath(yaml_copy_file):
+                    copyfile(yaml_file, yaml_copy_file)
+            except OSError as err:
+                logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
+
+def add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, opt, reason):
+    af_supported = False
+    if opt not in af_unsupported_opts:
+        af_unsupported_opts.append(opt)
+    if not no_af_reason:
+        no_af_reason = reason
+    return af_supported, no_af_reason
 
 def main(argv):
     global min_level
@@ -180,6 +254,8 @@ def main(argv):
     af_supported = True
     af_override = False
     no_af_reason = ''
+    plan_only = False
+    af_unsupported_opts = []
 
     pass_count = 0
     warn_count = 0
@@ -192,7 +268,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff", "plan-only"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -211,8 +287,7 @@ def main(argv):
             config_url = arg
         elif opt == '-g':
             generate = arg
-            af_supported = False
-            no_af_reason = 'gen'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-g', 'gen')
         elif opt == '-d':
             logging.getLogger().setLevel(logging.DEBUG)
             debug = True
@@ -222,16 +297,13 @@ def main(argv):
             port = int(arg)
         elif opt == '-D':
             delay = int(arg)
-            af_supported = False
-            no_af_reason = 'delay'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-D', 'delay')
         elif opt == '-n':
             context_file = arg
-            af_supported = False
-            no_af_reason = 'context'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-n', 'context')
         elif opt == '-p':
             progress_file = arg
-            af_supported = False
-            no_af_reason = 'progress'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-p', 'progress')
         elif opt == '-r':
             report_html = arg
         elif opt == '-J':
@@ -244,8 +316,7 @@ def main(argv):
             zap_alpha = True
         elif opt == '-i':
             info_unspecified = True
-            af_supported = False
-            no_af_reason = 'info'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-i', 'info')
         elif opt == '-I':
             ignore_warn = True
         elif opt == '-j':
@@ -257,8 +328,7 @@ def main(argv):
                 logging.warning('Level must be one of ' + str(zap_conf_lvls))
                 usage()
                 sys.exit(3)
-            af_supported = False
-            no_af_reason = 'level'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-l', 'level')
         elif opt == '-z':
             zap_options = arg
         elif opt == '-s':
@@ -267,18 +337,18 @@ def main(argv):
             timeout = int(arg)
         elif opt == '-U':
             user = arg
-            af_supported = False
-            no_af_reason = 'user'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-U', 'user')
         elif opt == '--hook':
             hook_file = arg
-            af_supported = False
-            no_af_reason = 'hook'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '--hook', 'hook')
         elif opt == '--auto':
             use_af = True
             af_override = True
         elif opt == '--autooff':
             use_af = False
-            no_af_reason = 'optout'
+            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '--autooff', 'optout')
+        elif opt == '--plan-only':
+            plan_only = True
 
     check_zap_client_version()
 
@@ -301,7 +371,7 @@ def main(argv):
 
     if running_in_docker():
         base_dir = '/zap/wrk/'
-        if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
+        if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file or plan_only:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
@@ -350,70 +420,36 @@ def main(argv):
                 if issue["state"] == "inprogress":
                     in_progress_issues[issue["id"]] = issue
 
+    if plan_only:
+        use_af = True
+        if not af_supported:
+            logging.warning('Automation Framework does not support the following options with --plan-only: ' +
+                            ', '.join(af_unsupported_opts))
+            sys.exit(3)
+
+        home_dir = str(Path.home())
+        yaml_file = os.path.join(base_dir, 'zap.yaml')
+        summary_file = os.path.join(home_dir, 'zap_out.json')
+
+        print('Generating the Automation Framework plan only: zap.yaml')
+
+        generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout,
+                         detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
+                         report_json, base_dir)
+
+        sys.exit(0)
+
     if running_in_docker():
         if use_af and af_supported:
             print('Using the Automation Framework')
 
             # Generate the yaml file
             home_dir = str(Path.home())
-            yaml_file = os.path.join(home_dir, 'zap.yaml')
+            yaml_file = os.path.join(base_dir, 'zap.yaml')
             summary_file = os.path.join(home_dir, 'zap_out.json')
-
-            with open(yaml_file, 'w') as yf:
-
-                # Add the top level to the scope for backwards compatibility
-                top_levels = [ target ]
-                if target.count('/') > 2:
-                    # The url can include a valid path, but always reset to spider the host (backwards compatibility)
-                    t2 = target[0:target.index('/', 8)+1]
-                    if not t2 == target:
-                        target = t2
-                        top_levels.append(target)
-
-                yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
-
-                alertFilters = []
-
-                # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
-                for id in out_of_scope_dict:
-                    if id != '*':
-                        for regex in out_of_scope_dict[id]:
-                            alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
-
-                jobs = [get_af_pscan_config()]
-
-                if len(alertFilters) > 0:
-                    jobs.append(get_af_alertFilter(alertFilters))
-
-                jobs.append(get_af_spider(target, mins))
-
-                if ajax:
-                    jobs.append(get_af_spiderAjax(target, mins))
-
-                jobs.append(get_af_pscan_wait(timeout))
-                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
-
-                if report_html:
-                    jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
-
-                if report_md:
-                    jobs.append(get_af_report('traditional-md', base_dir, report_md, 'ZAP Scanning Report', ''))
-
-                if report_xml:
-                    jobs.append(get_af_report('traditional-xml', base_dir, report_xml, 'ZAP Scanning Report', ''))
-
-                if report_json:
-                    jobs.append(get_af_report('traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
-
-                yaml.dump({'jobs': jobs}, yf)
-
-                if os.path.exists('/zap/wrk'):
-                    yaml_copy_file = '/zap/wrk/zap.yaml'
-                    try:
-                        # Write the yaml file to the mapped directory, if there is one
-                        copyfile(yaml_file, yaml_copy_file)
-                    except OSError as err:
-                        logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
+            generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout,
+                             detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
+                             report_json, base_dir)
 
             try:
                 if "-silent" not in zap_options:
