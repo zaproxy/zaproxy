@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2026-02-04
+- Added --plan-only option to the baseline scan.
+- Fixed the directory used for the plan.
+
 ### 2025-12-11
 - Update `Alert_on_HTTP_Response_Code_Errors.js` and `Alert_on_Unexpected_Content_Types.js` to reduce classloading (Issue 9187).
 
