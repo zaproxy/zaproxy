@@ -12,6 +12,8 @@ packageExcludes:
  - "org.zaproxy.zap.spider.parser"
 fieldExcludes: []
 classExcludes:
+ - "org.zaproxy.zap.httputils.HtmlContext"
+ - "org.zaproxy.zap.httputils.HtmlContextAnalyser"
  - "org.parosproxy.paros.extension.option.OptionsCertificatePanel"
  - "org.parosproxy.paros.extension.option.OptionsParamCertificate"
  - "org.parosproxy.paros.network.SSLConnector"
