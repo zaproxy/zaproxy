@@ -2,7 +2,6 @@ env:
   contexts:
   - name: baseline
     urls:
-    - https://example.com/path
     - https://example.com/
     excludePaths: []
   parameters:
@@ -16,16 +15,19 @@ jobs:
 - type: spider
   parameters:
     url: https://example.com/
-    maxDuration: 5
-- type: spiderAjax
-  parameters:
-    url: https://example.com/
-    maxDuration: 5
+    maxDuration: 1
 - type: passiveScan-wait
   parameters:
-    maxDuration: 10
+    maxDuration: 0
 - type: outputSummary
   parameters:
-    format: Short
+    format: Long
     summaryFile: {SUMMARY_FILE}
   rules: []
+- type: report
+  parameters:
+    template: traditional-xml
+    reportDir: ''
+    reportFile: report.xml
+    reportTitle: ZAP Scanning Report
+    reportDescription: ''
