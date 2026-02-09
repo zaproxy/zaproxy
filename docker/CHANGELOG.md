@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2026-02-09
+- Added support for the delay job in the baseline
+
 ### 2026-02-04
 - Added --plan-only option to the baseline scan.
 - Fixed the directory used for the plan.

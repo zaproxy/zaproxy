@@ -141,13 +141,17 @@ class TestZapBaselinePlan(unittest.TestCase):
         args = ["--plan-only", "-t", self.target, "-T", "10"]
         self.assert_plan_matches_fixture(args, "baseline_plan_param_uc_t.yaml")
 
+    def test_param_D(self):
+        args = ["--plan-only", "-t", self.target, "-D", "5"]
+        self.assert_plan_matches_fixture(args, "baseline_plan_param_uc_d.yaml")
+
     def test_param_z(self):
         args = ["--plan-only", "-t", self.target, "-z", "-config aaa=bbb"]
         self.assert_plan_matches_fixture(args, "baseline_plan_param_lc_z.yaml")
 
     def test_plan_only_unsupported_option(self):
         zap_baseline = self.load_module()
-        args = ["--plan-only", "-t", self.target, "-D", "5"]
+        args = ["--plan-only", "-t", self.target, "-n", "context.context"]
 
         with tempfile.TemporaryDirectory() as home_dir:
             plan_path = os.path.join(home_dir, "zap.yaml")
@@ -165,7 +169,7 @@ class TestZapBaselinePlan(unittest.TestCase):
             finally:
                 os.chdir(original_cwd)
 
-            self.assertTrue(any("-D" in message for message in log_capture.output))
+            self.assertTrue(any("-n" in message for message in log_capture.output))
             self.assertFalse(os.path.exists(plan_path))
 
     def test_plan_only_requires_mounted_workdir_in_docker(self):
