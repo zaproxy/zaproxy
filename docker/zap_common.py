@@ -633,6 +633,13 @@ def get_af_pscan_wait(mins):
             'maxDuration': mins}
         }
 
+def get_af_delay(time_value):
+    return {
+        'type': 'delay',
+        'parameters': {
+            'time': str(time_value)}
+        }
+
 def get_af_spider(target, mins):
     return {
         'type': 'spider',

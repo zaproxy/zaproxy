@@ -123,6 +123,7 @@ def usage():
     -a
     -d
     -P
+    -D secs
     -I
     -j
     -s
@@ -140,8 +141,6 @@ def usage():
     Currently none.
 
     If any of the next set of parameters are used then the existing code will be used instead:
-
-    -D secs           need new delay/sleep job
     -i                need to support config files
     -l level          ditto
     -n context file   will need full context support in the AF
@@ -154,7 +153,7 @@ def usage():
 
     '''
 
-def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout,
+def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout, delay,
                      detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
                      report_json, base_dir):
     with open(yaml_file, 'w') as yf:
@@ -187,6 +186,9 @@ def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, 
 
         if ajax:
             jobs.append(get_af_spiderAjax(target, mins))
+
+        if delay:
+            jobs.append(get_af_delay(delay))
 
         jobs.append(get_af_pscan_wait(timeout))
         jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
@@ -297,7 +299,6 @@ def main(argv):
             port = int(arg)
         elif opt == '-D':
             delay = int(arg)
-            af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-D', 'delay')
         elif opt == '-n':
             context_file = arg
             af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '-n', 'context')
@@ -433,7 +434,7 @@ def main(argv):
 
         print('Generating the Automation Framework plan only: zap.yaml')
 
-        generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout,
+        generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout, delay,
                          detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
                          report_json, base_dir)
 
@@ -447,7 +448,7 @@ def main(argv):
             home_dir = str(Path.home())
             yaml_file = os.path.join(base_dir, 'zap.yaml')
             summary_file = os.path.join(home_dir, 'zap_out.json')
-            generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout,
+            generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout, delay,
                              detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
                              report_json, base_dir)
 
