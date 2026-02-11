@@ -66,7 +66,7 @@ jobs:
       - name: Create or Update Sync PR
         if: steps.sync.outputs.changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SYNC_BOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           pr_number="$(gh pr list --head chore/nightly-upstream-sync --base main --state open --json number --jq '.[0].number')"
 
@@ -85,7 +85,7 @@ jobs:
       - name: Create Conflict Issue
         if: steps.sync.outputs.merge_conflict == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SYNC_BOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           issue_body="$(cat <<EOF
           The nightly upstream sync workflow encountered a merge conflict. Please resolve conflicts manually.
@@ -94,7 +94,15 @@ jobs:
           EOF
           )"
 
-          gh issue create \
-            --title "Nightly upstream sync conflict" \
-            --body "${issue_body}" \
-            --assignee "0xMattijs"
+          if gh api "repos/${GITHUB_REPOSITORY}/assignees/0xMattijs" >/dev/null 2>&1; then
+            gh issue create \
+              --title "Nightly upstream sync conflict" \
+              --body "${issue_body}" \
+              --assignee "0xMattijs"
+          else
+            gh issue create \
+              --title "Nightly upstream sync conflict" \
+              --body "${issue_body}
+
+          Could not auto-assign @0xMattijs with the current token permissions. Set secret SYNC_BOT_TOKEN with repo scope to enable assignment."
+          fi
