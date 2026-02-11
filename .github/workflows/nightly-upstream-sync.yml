@@ -14,11 +14,6 @@ jobs:
   sync-upstream:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Configure Git Identity
         run: |
           git config user.name "github-actions[bot]"
@@ -26,6 +21,8 @@ jobs:
 
       - name: Merge Upstream Changes
         id: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -33,6 +30,11 @@ jobs:
           UPSTREAM_BRANCH="${{ vars.UPSTREAM_BRANCH || 'main' }}"
           TARGET_BRANCH="main"
           SYNC_BRANCH="chore/nightly-upstream-sync"
+
+          git init
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin "${TARGET_BRANCH}"
+          git checkout -B "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}"
 
           git remote add upstream "https://github.com/${UPSTREAM_REPO}.git" || git remote set-url upstream "https://github.com/${UPSTREAM_REPO}.git"
           git fetch upstream "${UPSTREAM_BRANCH}"
