@@ -68,18 +68,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SYNC_BOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          pr_number="$(gh pr list --head chore/nightly-upstream-sync --base main --state open --json number --jq '.[0].number')"
+          pr_number="$(gh api "repos/${GITHUB_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:chore/nightly-upstream-sync&base=main" --jq '.[0].number')"
 
           if [ -z "${pr_number}" ]; then
-            gh pr create \
-              --base main \
-              --head chore/nightly-upstream-sync \
-              --title "chore: nightly upstream sync" \
-              --body "Automated nightly sync from upstream."
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/pulls" \
+              -f base="main" \
+              -f head="chore/nightly-upstream-sync" \
+              -f title="chore: nightly upstream sync" \
+              -f body="Automated nightly sync from upstream."
           else
-            gh pr edit "${pr_number}" \
-              --title "chore: nightly upstream sync" \
-              --body "Automated nightly sync from upstream."
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/pulls/${pr_number}" \
+              -f title="chore: nightly upstream sync" \
+              -f body="Automated nightly sync from upstream."
           fi
 
       - name: Create Conflict Issue
@@ -94,15 +94,19 @@ jobs:
           EOF
           )"
 
-          if gh api "repos/${GITHUB_REPOSITORY}/assignees/0xMattijs" >/dev/null 2>&1; then
-            gh issue create \
-              --title "Nightly upstream sync conflict" \
-              --body "${issue_body}" \
-              --assignee "0xMattijs"
-          else
-            gh issue create \
-              --title "Nightly upstream sync conflict" \
-              --body "${issue_body}
+          set +e
+          issue_number="$(gh api --method POST "repos/${GITHUB_REPOSITORY}/issues" \
+            -f title="Nightly upstream sync conflict" \
+            -f body="${issue_body}" \
+            --jq '.number')"
+          create_exit=$?
+          set -e
 
-          Could not auto-assign @0xMattijs with the current token permissions. Set secret SYNC_BOT_TOKEN with repo scope to enable assignment."
+          if [ "${create_exit}" -ne 0 ] || [ -z "${issue_number}" ]; then
+            echo "Could not create conflict issue with current token permissions."
+            exit 0
+          fi
+
+          if ! gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${issue_number}/assignees" -f assignees[]="0xMattijs" >/dev/null 2>&1; then
+            echo "Could not auto-assign @0xMattijs. Set secret SYNC_BOT_TOKEN with repo scope to enable assignment."
           fi
