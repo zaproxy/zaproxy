@@ -1,0 +1,26 @@
+env:
+  contexts:
+  - name: baseline
+    urls:
+    - https://example.com/
+    excludePaths: []
+  parameters:
+    failOnError: true
+    progressToStdout: false
+jobs:
+- type: passiveScan-config
+  parameters:
+    enableTags: false
+    maxAlertsPerRule: 10
+- type: spider
+  parameters:
+    url: https://example.com/
+    maxDuration: 1
+- type: passiveScan-wait
+  parameters:
+    maxDuration: 10
+- type: outputSummary
+  parameters:
+    format: Long
+    summaryFile: {SUMMARY_FILE}
+  rules: []

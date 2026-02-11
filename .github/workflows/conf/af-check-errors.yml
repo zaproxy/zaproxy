@@ -33,6 +33,8 @@ jobs:
           }
         }
         System.setErr(ps)
+        // Eval to errors (a global var) to prevent the engine from being closed.
+        errors
   - type: script
     parameters:
       action: "run"

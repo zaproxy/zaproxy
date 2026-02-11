@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.core.scanner.InputVector.PayloadFormat;
 import org.zaproxy.zap.core.scanner.InputVectorBuilder;
 
@@ -310,6 +311,53 @@ class VariantMultipartFormParametersUnitTest {
         assertThat(
                 variant.getParamList().get(2).getType(),
                 is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+    }
+
+    @Test
+    void shouldExtractParametersWhenBoundyHasMixedCapitalization()
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpRequestHeader reqHdr =
+                new HttpRequestHeader(
+                        """
+                        POST https://127.0.0.1:8000/login HTTP/1.1
+                        host: 127.0.0.1:8000
+                        User-Agent: curl/8.7.1
+                        Accept: */*
+                        Content-Length: 282
+                        Content-Type: multipart/form-data; boundary=------------------------o4XsAqQ54LPupcrI0dfahp
+                        """);
+        String body =
+                """
+                --------------------------o4XsAqQ54LPupcrI0dfahp\r
+                Content-Disposition: form-data; name="email"\r
+                \r
+                test@example.com\r
+                --------------------------o4XsAqQ54LPupcrI0dfahp\r
+                Content-Disposition: form-data; name="password"\r
+                \r
+                testpass123\r
+                --------------------------o4XsAqQ54LPupcrI0dfahp--\r
+                \r
+                """;
+        HttpMessage message = new HttpMessage(reqHdr);
+        message.setRequestBody(body);
+        // When
+        variant.setMessage(message);
+        // Then
+        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
+        assertThat(variant.getParamList().get(0).getName(), is(equalTo("email")));
+        assertThat(variant.getParamList().get(0).getValue(), is(equalTo("test@example.com")));
+        assertThat(
+                variant.getParamList().get(0).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
+        assertThat(variant.getParamList().get(1).getName(), is(equalTo("password")));
+        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("testpass123")));
+        assertThat(
+                variant.getParamList().get(1).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
     }
 
     @Test

@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 
 public class ErrorUtilsUnitTest {
 
@@ -66,6 +67,20 @@ public class ErrorUtilsUnitTest {
         // When / Then
         assertThat(ErrorUtils.handleDiskSpaceException(e), is(equalTo(true)));
         assertThat(ErrorUtils.getOutOfDiskSpaceHandler().isOutOfSpace(), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldExitWhenExitOnOutOfSpaceEnabled() {
+        // Given
+        Control control = mock();
+        Control.setSingletonForTesting(control);
+        Exception e = new Exception("Test", new Exception("Data File size limit is reached"));
+        ErrorUtils.getOutOfDiskSpaceHandler().setExitOnOutOfSpace(true);
+        // When
+        ErrorUtils.handleDiskSpaceException(e);
+        // Then
+        verify(control).setExitStatus(2, null);
+        verify(control).exit(true, null);
     }
 
     @Test

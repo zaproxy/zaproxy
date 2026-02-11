@@ -8,5 +8,5 @@ WARN-NEW: Retrieved from Cache [10050] x X
 WARN-NEW: CSP: Failure to Define Directive with No Fallback [10055] x X 
 WARN-NEW: Permissions Policy Header Not Set [10063] x X 
 WARN-NEW: Cross-Domain Misconfiguration [10098] x X 
-WARN-NEW: Insufficient Site Isolation Against Spectre Vulnerability [90004] x X 
+WARN-NEW: Cross-Origin-Embedder-Policy Header Missing or Invalid [90004] x X 
 FAIL-NEW: 0	FAIL-INPROG: 0	WARN-NEW: 10	WARN-INPROG: 0	INFO: 0	IGNORE: 0	PASS: 57

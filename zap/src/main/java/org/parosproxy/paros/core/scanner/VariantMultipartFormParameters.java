@@ -79,7 +79,7 @@ public class VariantMultipartFormParameters implements Variant {
         }
 
         try {
-            parseImpl(msg, contentType);
+            parseImpl(msg, msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE));
         } catch (Exception e) {
             LOGGER.error("An error occurred while parsing multipart content:", e);
         }

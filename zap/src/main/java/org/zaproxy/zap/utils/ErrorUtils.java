@@ -110,7 +110,7 @@ public final class ErrorUtils {
                     logAndStderr("Shutting down ZAP due to space issues...");
                     Control control = Control.getSingleton();
                     control.setExitStatus(2, errorMsg);
-                    control.exit(false, null);
+                    control.exit(true, null);
                 }
             }
 

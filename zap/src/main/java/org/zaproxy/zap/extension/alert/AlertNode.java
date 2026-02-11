@@ -32,19 +32,29 @@ public class AlertNode extends DefaultMutableTreeNode {
 
     private final Comparator<TreeNode> childComparator;
     private String nodeName = null;
+    private String alertRef;
     private int risk = -1;
     private Alert alert;
     private boolean systemic;
 
     public AlertNode(int risk, String nodeName) {
-        this(risk, nodeName, null);
+        this(risk, nodeName, null, null);
     }
 
     public AlertNode(int risk, String nodeName, Comparator<AlertNode> childComparator) {
+        this(risk, nodeName, null, childComparator);
+    }
+
+    AlertNode(int risk, String nodeName, String alertRef, Comparator<AlertNode> childComparator) {
         super();
         this.nodeName = nodeName;
+        this.alertRef = alertRef;
         this.setRisk(risk);
         this.childComparator = new AlertNodeComparatorWrapper(childComparator);
+    }
+
+    String getAlertRef() {
+        return alertRef;
     }
 
     /** Sets an alert for this node. The {@link #setAlert(Alert)} method should be used instead. */

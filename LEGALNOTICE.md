@@ -54,10 +54,10 @@ and subject to their respective licenses.
 | jfreechart-1.5.6.jar                | LGPL                      |
 | jgrapht-core-0.9.2.jar              | LGPL 2.1                  |
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
-| log4j-1.2-api-2.25.2.jar            | Apache 2.0                |
-| log4j-api-2.25.2.jar                | Apache 2.0                |
-| log4j-core-2.25.2.jar               | Apache 2.0                |
-| log4j-jul-2.25.2.jar                | Apache 2.0                |
+| log4j-1.2-api-2.25.3.jar            | Apache 2.0                |
+| log4j-api-2.25.3.jar                | Apache 2.0                |
+| log4j-core-2.25.3.jar               | Apache 2.0                |
+| log4j-jul-2.25.3.jar                | Apache 2.0                |
 | rsyntaxtextarea-3.6.0.jar           | BSD-3 clause              |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.3.9.jar                       | LGPL                      |

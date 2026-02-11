@@ -1,0 +1,33 @@
+env:
+  contexts:
+  - excludePaths: []
+    name: baseline
+    urls:
+    - https://example.com/
+  parameters:
+    failOnError: true
+    progressToStdout: false
+jobs:
+- parameters:
+    enableTags: false
+    maxAlertsPerRule: 10
+  type: passiveScan-config
+- parameters:
+    maxDuration: 1
+    url: https://example.com/
+  type: spider
+- parameters:
+    maxDuration: 0
+  type: passiveScan-wait
+- parameters:
+    format: Long
+    summaryFile: {SUMMARY_FILE}
+  rules: []
+  type: outputSummary
+- parameters:
+    reportDescription: ''
+    reportDir: ''
+    reportFile: report.json
+    reportTitle: ZAP Scanning Report
+    template: traditional-json
+  type: report

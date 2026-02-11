@@ -23,9 +23,9 @@ These tasks use checkboxes so that they can be copied into an issue.
 ### Release Process
 
 - [ ] Run the workflow [Prepare Release Main Version](https://github.com/zaproxy/zaproxy/actions/workflows/prepare-release-main-version.yml),     to prepare the release. It creates a pull request updating the version;
+- [ ] Update latest ZapVersions file in [build.gradle.kts](https://github.com/zaproxy/zap-admin/blob/master/build.gradle.kts)
+- [ ] Release add-ons.
 - [ ] Finish the following tasks in the pull request:
-  - [ ] Update latest ZapVersions file in [build.gradle.kts](https://github.com/zaproxy/zap-admin/blob/master/build.gradle.kts)
-  - [ ] Release add-ons.
   - [ ] Update main add-ons declared in [main-add-ons.yml](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/main-add-ons.yml):
      - [ ] Add new add-ons.
      - [ ] Remove add-ons no longer needed.
@@ -33,9 +33,7 @@ These tasks use checkboxes so that they can be copied into an issue.
 - [ ] Merge the pull request, to create the tag and the draft release (done by [Release Main Version](https://github.com/zaproxy/zaproxy/actions/workflows/release-main-version.yml));
 - [ ] Verify the draft release.
 - [ ] Publish the release.
-- [ ] Regenerate and publish the Weekly and Live releases.
 - [ ] Update the [Linux Repos](https://software.opensuse.org/download.html?project=home%3Acabelo&package=owasp-zap)
-- [ ] Update the stats scripts [github.py](https://github.com/zapbot/zap-mgmt-scripts/blob/master/stats/github.py) and [zap_services.py](https://github.com/zapbot/zap-mgmt-scripts/blob/master/stats/zap_services.py)
 
 Once published the [Handle Release](https://github.com/zaproxy/zaproxy/actions/workflows/handle-release.yml) workflow
 will trigger the update of the marketplace with the new release, it will also create a pull request preparing the next
@@ -53,7 +51,6 @@ The resulting localized resources are added/updated in the repository periodical
 ### Post Release
 
 - [ ] Publish blog post
-- [ ] Update latest News file to point to blog / release notes?
 - [ ] Announce on
   - [ ] ZAP User and Dev groups
   - [ ] @zaproxy twitter account
@@ -62,6 +59,8 @@ The resulting localized resources are added/updated in the repository periodical
   - [ ] [Java](https://github.com/zaproxy/zap-api-java/blob/main/RELEASING.md)
   - [ ] [Python](https://github.com/zaproxy/zap-api-python/blob/master/RELEASING.md)
 - [ ] Review automated updates:
+  - [ ] [zap-mgmt-scripts](https://github.com/zapbot/zap-mgmt-scripts/pulls)
+  - [ ] [weekly release](https://github.com/zaproxy/zap-admin/pulls)
   - [ ] [Flathub](https://github.com/flathub/org.zaproxy.ZAP/pulls)
   - [ ] [Snap](https://github.com/zaproxy/zaproxy/actions/workflows/release-snap.yml)
 - [ ] Update major projects using ZAP

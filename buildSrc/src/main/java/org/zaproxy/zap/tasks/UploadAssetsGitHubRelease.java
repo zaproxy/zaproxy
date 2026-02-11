@@ -130,7 +130,7 @@ public abstract class UploadAssetsGitHubRelease extends DefaultTask {
         String releaseBody = release.getBody();
         if (addChecksums.get()) {
             releaseBody = updateChecksumsTable(releaseBody);
-            release.update().body(releaseBody).update();
+            release.update().body(releaseBody).tag(tagName).update();
         }
 
         for (Asset asset : assets) {

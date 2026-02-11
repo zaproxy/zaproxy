@@ -12,7 +12,7 @@ def module_name_to_class(module_name):
 
 
 def get_test_cases(directory):
-    directory = directory[0:-1] if directory[-1:] is '/' else directory
+    directory = directory[0:-1] if directory[-1:] == '/' else directory
     tests = glob(directory + '/test_*.py')
     test_list = []
     for module_path in tests:

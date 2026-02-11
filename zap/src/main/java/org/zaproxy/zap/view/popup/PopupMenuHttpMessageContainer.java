@@ -350,7 +350,6 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * @return the invoker or {@code Invoker#UNKNOWN} if the message container was not identified.
      * @see Invoker
      */
-    @SuppressWarnings("deprecation")
     protected static final Invoker getInvoker(HttpMessageContainer httpMessageContainer) {
         Invoker invoker;
         switch (httpMessageContainer.getName()) {
@@ -366,7 +365,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
             case SearchPanel.HTTP_MESSAGE_CONTAINER_NAME:
                 invoker = Invoker.SEARCH_PANEL;
                 break;
-            case org.zaproxy.zap.extension.spider.SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
+            case "SpiderHttpMessageContainer":
                 invoker = Invoker.SPIDER_PANEL;
                 break;
             case ActiveScanPanel.MESSAGE_CONTAINER_NAME:

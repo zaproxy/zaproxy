@@ -85,10 +85,6 @@ public class OptionsParam extends AbstractParam {
 
     private OptionsParamView viewParam = new OptionsParamView();
 
-    @SuppressWarnings("deprecation")
-    private org.parosproxy.paros.extension.option.OptionsParamCertificate certificateParam =
-            new org.parosproxy.paros.extension.option.OptionsParamCertificate();
-
     // ZAP: Added many instance variables for new functionality.
     private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
     private OptionsParamApi apiParam = new OptionsParamApi();
@@ -102,10 +98,6 @@ public class OptionsParam extends AbstractParam {
                     return List.of();
                 }
             };
-
-    @SuppressWarnings("deprecation")
-    private ch.csnc.extension.util.OptionsParamExperimentalSliSupport experimentalFeaturesParam =
-            new ch.csnc.extension.util.OptionsParamExperimentalSliSupport();
 
     /** The database configurations. */
     // ZAP: Added the instance variable.
@@ -175,25 +167,6 @@ public class OptionsParam extends AbstractParam {
      */
     public OptionsParamCheckForUpdates getCheckForUpdatesParam() {
         return checkForUpdatesParam;
-    }
-
-    /**
-     * @param certificateParam The certificateParam to set.
-     * @deprecated (2.12.0)
-     */
-    @Deprecated
-    public void setCertificateParam(
-            org.parosproxy.paros.extension.option.OptionsParamCertificate certificateParam) {
-        this.certificateParam = certificateParam;
-    }
-
-    /**
-     * @return Returns the certificateParam.
-     * @deprecated (2.12.0)
-     */
-    @Deprecated
-    public org.parosproxy.paros.extension.option.OptionsParamCertificate getCertificateParam() {
-        return certificateParam;
     }
 
     public void addParamSet(AbstractParam paramSet) {
@@ -313,15 +286,6 @@ public class OptionsParam extends AbstractParam {
 
     public OptionsParamApi getApiParam() {
         return apiParam;
-    }
-
-    /**
-     * @deprecated (2.12.0)
-     */
-    @Deprecated
-    public ch.csnc.extension.util.OptionsParamExperimentalSliSupport
-            getExperimentalFeaturesParam() {
-        return experimentalFeaturesParam;
     }
 
     /**
