@@ -47,9 +47,34 @@ jobs:
           set -e
 
           if [ "${merge_exit}" -ne 0 ]; then
-            echo "merge_conflict=true" >> "${GITHUB_OUTPUT}"
-            echo "changes=false" >> "${GITHUB_OUTPUT}"
-            exit 0
+            mapfile -t unmerged_files < <(git diff --name-only --diff-filter=U)
+
+            only_known_conflicts=true
+            for file in "${unmerged_files[@]}"; do
+              case "${file}" in
+                .github/workflows/ci.yml|\
+                .github/workflows/lock.yml|\
+                .github/workflows/release-live-docker.yml|\
+                .github/workflows/release-main-docker.yml|\
+                .github/workflows/release-weekly-docker.yml|\
+                .github/workflows/release-weekly.yml|\
+                .github/workflows/run-integration-tests.yml)
+                  ;;
+                *)
+                  only_known_conflicts=false
+                  break
+                  ;;
+              esac
+            done
+
+            if [ "${only_known_conflicts}" = "true" ] && [ "${#unmerged_files[@]}" -gt 0 ]; then
+              git rm --ignore-unmatch "${unmerged_files[@]}"
+              git commit --no-edit
+            else
+              echo "merge_conflict=true" >> "${GITHUB_OUTPUT}"
+              echo "changes=false" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
           fi
 
           if git diff --quiet "origin/${TARGET_BRANCH}...HEAD"; then
