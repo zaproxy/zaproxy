@@ -1,0 +1,98 @@
+name: Nightly Upstream Sync
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge Upstream Changes
+        id: sync
+        run: |
+          set -euo pipefail
+
+          UPSTREAM_REPO="${{ vars.UPSTREAM_REPO || 'zaproxy/zaproxy' }}"
+          UPSTREAM_BRANCH="${{ vars.UPSTREAM_BRANCH || 'main' }}"
+          TARGET_BRANCH="main"
+          SYNC_BRANCH="chore/nightly-upstream-sync"
+
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git" || git remote set-url upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch upstream "${UPSTREAM_BRANCH}"
+
+          git checkout -B "${SYNC_BRANCH}" "origin/${TARGET_BRANCH}"
+
+          set +e
+          git merge --no-edit "upstream/${UPSTREAM_BRANCH}"
+          merge_exit=$?
+          set -e
+
+          if [ "${merge_exit}" -ne 0 ]; then
+            echo "merge_conflict=true" >> "${GITHUB_OUTPUT}"
+            echo "changes=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          if git diff --quiet "origin/${TARGET_BRANCH}...HEAD"; then
+            echo "changes=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "changes=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Push Sync Branch
+        if: steps.sync.outputs.changes == 'true'
+        run: |
+          git push --force-with-lease origin HEAD:chore/nightly-upstream-sync
+
+      - name: Create or Update Sync PR
+        if: steps.sync.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_number="$(gh pr list --head chore/nightly-upstream-sync --base main --state open --json number --jq '.[0].number')"
+
+          if [ -z "${pr_number}" ]; then
+            gh pr create \
+              --base main \
+              --head chore/nightly-upstream-sync \
+              --title "chore: nightly upstream sync" \
+              --body "Automated nightly sync from upstream."
+          else
+            gh pr edit "${pr_number}" \
+              --title "chore: nightly upstream sync" \
+              --body "Automated nightly sync from upstream."
+          fi
+
+      - name: Create Conflict Issue
+        if: steps.sync.outputs.merge_conflict == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          issue_body="$(cat <<EOF
+          The nightly upstream sync workflow encountered a merge conflict. Please resolve conflicts manually.
+
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EOF
+          )"
+
+          gh issue create \
+            --title "Nightly upstream sync conflict" \
+            --body "${issue_body}" \
+            --assignee "0xMattijs"
