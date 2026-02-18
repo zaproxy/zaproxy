@@ -88,7 +88,7 @@ Scan rules:
 10097   Hash Disclosure
 10098   Cross-Domain Misconfiguration
 10099   Source Code Disclosure
-
+10100   Web Cache Deception
 10101   Insufficient Authentication
 10102   Insufficient Authorization
 
