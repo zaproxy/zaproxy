@@ -288,6 +288,34 @@ Scan rules:
 120001  Information Disclosure - Sensitive Information in Browser Storage
 120002  Information Disclosure - JWT in Browser Storage
 
+200000  PTK - DAST - SQL Injection
+200001  PTK - DAST - OS command injection
+200002  PTK - DAST - Reflected Cross-Site Scripting (XSS)
+200003  PTK - DAST - JSON Web Token attacks
+200004  PTK - DAST - Exposure of Version-Control Repository
+200005  PTK - DAST - OWASP Secure Headers
+200006  PTK - DAST - Sensitive data exposure
+200007  PTK - DAST - SPA hash-based DOM XSS
+200008  PTK - DAST - WebSocket security indicators
+200009  PTK - DAST - Passive Recon: Source Maps & Debug Artifacts
+200010  PTK - DAST - Passive Recon: Error & Stack Trace Disclosure
+200011  PTK - DAST - Passive Recon: Client Config & Secret-Like Values
+200012  PTK - DAST - Passive Recon: API Docs & Specs Exposure
+200013  PTK - DAST - Passive Recon: .well-known & Metadata Files
+200014  PTK - DAST - Passive Recon: Tokens & Secrets in URLs
+200015  PTK - DAST - Passive Recon: High-Risk Parameter Names
+200016  PTK - DAST - Passive Recon: Internal Hosts & Environment Hints
+200017  PTK - DAST - Passive Recon: CORS Posture Indicators
+200018  PTK - DAST - Passive Recon: Cache & Privacy Posture
+200019  PTK - DAST - Passive Recon: Interesting Endpoint Patterns
+210000  PTK - IAST - DOM XSS sinks
+210001  PTK - IAST - Dynamic JS execution
+210002  PTK - IAST - Client-side navigation sinks
+220000  PTK - SAST - DOM-based XSS
+220001  PTK - SAST - DOM-based Cookie Manipulation
+220002  PTK - SAST - Open Redirection
+220003  PTK - SAST - DOM-based JavaScript Injection
+
 322420463 Retire.js (3rd Party)
 
 ```
