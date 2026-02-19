@@ -88,7 +88,6 @@ Scan rules:
 10097   Hash Disclosure
 10098   Cross-Domain Misconfiguration
 10099   Source Code Disclosure
-10100   Web Cache Deception [script]
 10101   Insufficient Authentication
 10102   Insufficient Authorization
 
@@ -272,6 +271,7 @@ Scan rules:
 100043  Swagger Secret Disclosure and Vulnerable Version [Script]
 100044  Suspicious Input Transformation [Script]
 100045  Open MCP Server Detection [Script]
+100046 Web Cache Deception [script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
