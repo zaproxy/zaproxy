@@ -17,7 +17,7 @@ env:
         method: "response"
         loggedInRegex: "\\Q\" >MY ACCOUNT</a>\\E"
         pollFrequency: 60
-        pollUnits: "requests"
+        pollUnits: "seconds"
         pollUrl: ""
         pollPostData: ""
     sessionManagement:

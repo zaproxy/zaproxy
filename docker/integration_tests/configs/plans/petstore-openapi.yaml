@@ -12,7 +12,7 @@ env:
       verification:
         method: "response"
         pollFrequency: 60
-        pollUnits: "requests"
+        pollUnits: "seconds"
         pollUrl: ""
         pollPostData: ""
     sessionManagement:

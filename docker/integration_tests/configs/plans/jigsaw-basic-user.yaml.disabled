@@ -18,7 +18,7 @@ env:
         loggedInRegex: "Your browser made it!"
         loggedOutRegex: ""
         pollFrequency: 60
-        pollUnits: "requests"
+        pollUnits: "seconds"
         pollUrl: ""
         pollPostData: ""
     sessionManagement:
