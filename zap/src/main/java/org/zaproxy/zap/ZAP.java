@@ -98,9 +98,7 @@ public class ZAP {
         ZapBootstrap bootstrap = createZapBootstrap(cmdLine);
         try {
             int rc = bootstrap.start();
-            if (rc != 0) {
-                System.exit(rc);
-            }
+            System.exit(rc);
 
         } catch (final Exception e) {
             LOGGER.fatal(e.getMessage(), e);
