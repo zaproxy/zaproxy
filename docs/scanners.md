@@ -272,6 +272,7 @@ Scan rules:
 100043  Swagger Secret Disclosure and Vulnerable Version [Script]
 100044  Suspicious Input Transformation [Script]
 100045  Open MCP Server Detection [Script]
+100046  Web Cache Deception [script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
