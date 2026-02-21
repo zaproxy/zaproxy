@@ -23,11 +23,13 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -89,6 +91,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private List<SiteMapListener> listeners;
     private JPanel component;
+    private String lastLookAndFeel = "";
 
     public SiteMapTreeCellRenderer(List<SiteMapListener> listeners) {
         this.listeners = listeners;
@@ -96,6 +99,14 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
         component.setOpaque(false);
         this.setLabelFor(component);
         this.putClientProperty("html.disable", Boolean.TRUE);
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        if (component != null) {
+            component.updateUI();
+        }
     }
 
     /** Sets custom tree node logos. */
@@ -124,6 +135,36 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
             setPreferredSize(null); // clears the preferred size, making the node visible
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+
+            // === PHASE 1: DIAGNOSTIC INSTRUMENTATION ===
+            String currentLaf = javax.swing.UIManager.getLookAndFeel().getName();
+            boolean lafChanged = !currentLaf.equals(lastLookAndFeel);
+            if (lafChanged) {
+                lastLookAndFeel = currentLaf;
+            }
+            
+            if (lafChanged || sel) {
+                LOGGER.info("=== Sites Tree Renderer Diagnostics (row={}, selected={}, lafChanged={}) ===", row, sel, lafChanged);
+                LOGGER.info("  Current LAF: {}", currentLaf);
+                LOGGER.info("  selected: {}", sel);
+                LOGGER.info("  renderer.getForeground(): {}", getForeground());
+                LOGGER.info("  renderer.getBackground(): {}", getBackground());
+                LOGGER.info("  tree.getBackground(): {}", tree.getBackground());
+                LOGGER.info("  renderer.getFont(): {}", getFont());
+                LOGGER.info("  renderer.isOpaque(): {}", isOpaque());
+                LOGGER.info("  component.getForeground(): {}", component.getForeground());
+                LOGGER.info("  component.getBackground(): {}", component.getBackground());
+                LOGGER.info("  component.getFont(): {}", component.getFont());
+                LOGGER.info("  component.isOpaque(): {}", component.isOpaque());
+                LOGGER.info("  Tree.rendererFillBackground: {}", javax.swing.UIManager.get("Tree.rendererFillBackground"));
+                LOGGER.info("  tree.getRowHeight(): {}", tree.getRowHeight());
+                LOGGER.info("  tree.getUI().getClass(): {}", tree.getUI().getClass().getName());
+                LOGGER.info("  textSelectionColor: {}", getTextSelectionColor());
+                LOGGER.info("  textNonSelectionColor: {}", getTextNonSelectionColor());
+                LOGGER.info("  backgroundSelectionColor: {}", getBackgroundSelectionColor());
+                LOGGER.info("  backgroundNonSelectionColor: {}", getBackgroundNonSelectionColor());
+            }
+            // === END DIAGNOSTIC INSTRUMENTATION ===
 
             // folder / file icons with scope 'target' if relevant
             if (node.isRoot()) {
