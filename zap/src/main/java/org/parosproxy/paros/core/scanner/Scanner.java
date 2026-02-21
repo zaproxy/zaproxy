@@ -108,7 +108,6 @@ import org.zaproxy.zap.utils.Stats;
 
 public class Scanner implements Runnable {
 
-    private static final double DOUBLE_ONE_THOUSAND = 1000.0;
     public static final String ASCAN_SCAN_STARTED_STATS = "stats.ascan.started";
     public static final String ASCAN_SCAN_STARTED_USER_STATS = "stats.ascan.started.user";
     public static final String ASCAN_SCAN_STOPPED_STATS = "stats.ascan.stopped";
@@ -130,7 +129,6 @@ public class Scanner implements Runnable {
     private final StopWatch watch = new StopWatch();
 
     private volatile Instant startInstant = null;
-    private volatile Instant finishInstant = null;
 
     private Vector<ScannerListener> listenerList = new Vector<>();
 
@@ -231,7 +229,6 @@ public class Scanner implements Runnable {
             } else if (watch.isSuspended()) {
                 watch.resume();
             }
-            finishInstant = null;
         } finally {
             pauseLock.unlock();
         }
@@ -262,11 +259,6 @@ public class Scanner implements Runnable {
         pauseLock.lock();
         try {
             stopTheWatch();
-            if (startInstant != null) {
-                finishInstant = startInstant.plusMillis(getElapsedMillis());
-            } else {
-                finishInstant = Instant.now();
-            }
             isStop = true;
         } finally {
             pauseLock.unlock();
@@ -468,7 +460,7 @@ public class Scanner implements Runnable {
 
     void notifyScannerComplete() {
         long diffTimeMillis = getElapsedMillis();
-        String diffTimeString = decimalFormat.format(diffTimeMillis / DOUBLE_ONE_THOUSAND) + "s";
+        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
         LOGGER.info("scanner with ID {} completed in {}", id, diffTimeString);
         isStop = true;
 

@@ -453,16 +453,14 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         return alerts;
     }
 
+    /**
+     * Returns the current scan state. The state is updated on start, pause, resume, stop, and when
+     * the scan completes naturally (scannerComplete).
+     *
+     * @return the current state; never {@code null}
+     */
     public State getState() {
-        if (this.timeStarted == null) {
-            return State.NOT_STARTED;
-        } else if (this.isStop()) {
-            return State.FINISHED;
-        } else if (this.isPaused()) {
-            return State.PAUSED;
-        } else {
-            return State.RUNNING;
-        }
+        return state;
     }
 
     @Override
