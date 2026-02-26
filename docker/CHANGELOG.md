@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2026-02-26
+- Updated weekly image to debian:trixie and JDK 21
+
 ### 2026-02-25
 - Updated live image to debian:trixie and JDK 21
 
