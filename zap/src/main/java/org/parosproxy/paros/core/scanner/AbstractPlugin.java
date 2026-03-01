@@ -79,6 +79,7 @@
 // ZAP: 2023/07/06 Deprecate delayInMs.
 // ZAP: 2024/10/16 Remove isFileExist call from isSuccess and isPage200 - it results in too many
 // FPs.
+// ZAP: 2025/12/08 Pause timers when pausing the scan (Issue 3455).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -86,6 +87,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
@@ -398,15 +400,15 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         try {
             if (!isStop()) {
-                this.started = new Date();
+                setTimeStarted();
                 scan();
             }
 
         } catch (Exception e) {
             getLog().error(e.getMessage(), e);
         } finally {
+            setTimeFinished();
             notifyPluginCompleted(getParent());
-            this.finished = new Date();
         }
     }
 
@@ -842,6 +844,23 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     protected boolean isStop() {
         // ZAP: added skipping controls
         return parent.isStop() || parent.isSkipped(this);
+    }
+
+    /** Helper to block efficiently while the parent scanner is paused. */
+    public void handlePause() {
+        if (parent == null) {
+            return;
+        }
+
+        // Parent is a HostProcess; HostProcess delegates wait/isPaused to the Scanner.
+        if (isStop()) {
+            parent.stop();
+            return;
+        }
+        parent.waitIfPaused();
+        if (isStop()) {
+            return;
+        }
     }
 
     @Override
@@ -1353,13 +1372,26 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void setTimeStarted() {
-        this.started = new Date();
+        Instant now = getNowInstant();
+        this.started = Date.from(now);
         this.finished = null;
     }
 
     @Override
     public void setTimeFinished() {
-        this.finished = new Date();
+        Instant now = getNowInstant();
+        this.finished = Date.from(now);
+    }
+
+    private Instant getNowInstant() {
+        Instant now = null;
+        if (parent != null) {
+            now = parent.getEffectiveInstant();
+        }
+        if (now == null) {
+            now = Instant.now();
+        }
+        return now;
     }
 
     @Override
