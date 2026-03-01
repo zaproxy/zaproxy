@@ -19,6 +19,10 @@
  */
 package org.zaproxy.testutils;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import org.assertj.swing.edt.FailOnThreadViolationRepaintManager;
 import org.assertj.swing.edt.GuiActionRunnable;
@@ -29,10 +33,39 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.parosproxy.paros.Constant;
 
 /** Base class for GUI tests. */
 @ExtendWith(GuiCondition.class)
 public abstract class AbstractGuiTest extends AssertJSwingTestCaseTemplate {
+
+    /**
+     * A temporary directory where ZAP home/installation dirs are created.
+     *
+     * <p>Can be used for other temporary files/dirs.
+     */
+    @TempDir protected static Path tempDir;
+
+    private static String zapInstallDir;
+    private static String zapHomeDir;
+
+    @BeforeAll
+    static void beforeClass() throws Exception {
+        zapInstallDir =
+                Files.createDirectories(tempDir.resolve("install")).toAbsolutePath().toString();
+        zapHomeDir = Files.createDirectories(tempDir.resolve("home")).toAbsolutePath().toString();
+
+        InputStream resourceStream =
+                AbstractGuiTest.class.getResourceAsStream("/log4j2-test.properties");
+        if (resourceStream == null) {
+            Path fallback = Paths.get("src", "test", "resources", "log4j2-test.properties");
+            resourceStream = Files.newInputStream(fallback);
+        }
+        try (InputStream in = resourceStream) {
+            Files.copy(in, Paths.get(zapHomeDir, "log4j2.properties"));
+        }
+    }
 
     @BeforeAll
     static void installEdtCheck() {
@@ -46,6 +79,8 @@ public abstract class AbstractGuiTest extends AssertJSwingTestCaseTemplate {
 
     @BeforeEach
     void setup() {
+        Constant.setZapInstall(zapInstallDir);
+        Constant.setZapHome(zapHomeDir);
         setUpRobot();
     }
 
