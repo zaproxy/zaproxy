@@ -2,7 +2,8 @@
 
 # Dereference from link to the real directory
 SCRIPTNAME="$0"
-
+# for blank window issue (https://www.zaproxy.org/faq/why-am-i-getting-blank-zap-windows-on-linux/)
+export _JAVA_AWT_WM_NONREPARENTING=1
 # While name of this script is symbolic link
 while [ -L "${SCRIPTNAME}" ] ; do
   cd "`dirname "${SCRIPTNAME}"`" > /dev/null
