@@ -47,7 +47,7 @@ public class TextAlertTree {
 
     private static void dumpAlert(AlertNode node, StringBuilder sb) {
         sb.append("  - ");
-        sb.append(Alert.MSG_RISK[node.getRisk()]);
+        sb.append(Alert.getRiskLabel(node.getRisk()));
         sb.append(": ");
         sb.append(node.getNodeName());
         sb.append("\n");
