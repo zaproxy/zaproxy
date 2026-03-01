@@ -24,6 +24,7 @@ import java.net.URLDecoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -399,9 +400,9 @@ public class StandardParameterParser implements ParameterParser {
         // Add any structural params (form params) in key order
         List<NameValuePair> formParams = this.parseParameters(msg.getRequestBody().toString());
         formParams.stream()
-                .map(NameValuePair::getName)
-                .filter(structuralParameters::contains)
-                .sorted()
+                .filter(nameValuePair -> structuralParameters.contains(nameValuePair.getName()))
+                .sorted(Comparator.comparing(NameValuePair::getName))
+                .map(NameValuePair::getValue)
                 .forEach(list::add);
         return list;
     }
