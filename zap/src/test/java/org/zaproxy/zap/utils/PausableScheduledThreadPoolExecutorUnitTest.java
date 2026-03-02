@@ -19,20 +19,20 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.time.StopWatch;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -42,170 +42,244 @@ class PausableScheduledThreadPoolExecutorUnitTest {
     private static final int BULK_TASK_COUNT = 5;
     private static final long DELAY_MS = 300;
 
-    private PausableScheduledThreadPoolExecutor executor;
+    private RecordingExecutor executor;
 
     @BeforeEach
     void setUp() {
-        executor = new PausableScheduledThreadPoolExecutor(1);
+        executor = new RecordingExecutor(1);
+    }
+
+    @AfterEach
+    void tearDown() {
+        executor.shutdownNow();
     }
 
     @ParameterizedTest
     @MethodSource("taskDispatchMethods")
-    void shouldExecuteTasksDelayedBySpecifiedAmount(ExecutorDispathMethod method) {
-        // Given
+    void shouldExecuteTasksDelayedBySpecifiedAmount(ExecutorDispathMethod method) throws Exception {
         executor.setDefaultDelay(DELAY_MS, TimeUnit.MILLISECONDS);
-        List<TestTask> tasks = createTasks(BULK_TASK_COUNT);
-        // When
-        dispatch(method, executor, tasks);
-        // Then
-        tasks.forEach(task -> assertTaskExecutedAfter(task, DELAY_MS));
+
+        executor.freezeCompletion();
+        executor.expectAfterExecutes(BULK_TASK_COUNT);
+
+        dispatch(method, executor, BULK_TASK_COUNT);
+
+        // Assert the computed delay values (deterministic, no wall-clock timing).
+        assertThat(
+                executor.drainRequestedDelaysMs(),
+                is(Collections.nCopies(BULK_TASK_COUNT, DELAY_MS)));
+
+        executor.unfreezeCompletion();
+        executor.awaitAfterExecutes();
     }
 
     @ParameterizedTest
     @MethodSource("taskDispatchMethods")
-    void shouldExecuteTasksIncrementallyDelayedBySpecifiedAmount(ExecutorDispathMethod method) {
-        // Given
+    void shouldExecuteTasksIncrementallyDelayedBySpecifiedAmount(ExecutorDispathMethod method)
+            throws Exception {
         executor.setDefaultDelay(DELAY_MS, TimeUnit.MILLISECONDS);
         executor.setIncrementalDefaultDelay(true);
-        List<TestTask> tasks = createTasks(BULK_TASK_COUNT);
-        // When
-        dispatch(method, executor, tasks);
-        // Then
-        for (int i = 0; i < tasks.size(); i++) {
-            assertTaskExecutedAfter(tasks.get(i), DELAY_MS * (i + 1));
-        }
+
+        executor.freezeCompletion();
+        executor.expectAfterExecutes(BULK_TASK_COUNT);
+
+        dispatch(method, executor, BULK_TASK_COUNT);
+
+        // While completion is frozen, queuedTaskCount cannot decrement, so delays are stable:
+        assertThat(executor.drainRequestedDelaysMs(), is(expectedIncrementalDelays()));
+
+        executor.unfreezeCompletion();
+        executor.awaitAfterExecutes();
     }
 
     @ParameterizedTest
     @MethodSource("taskDispatchMethods")
     void shouldExecutePeriodicallySubmittedTasksIncrementallyDelayedBySpecifiedAmount(
-            ExecutorDispathMethod method) {
-        // Given
+            ExecutorDispathMethod method) throws Exception {
         executor.setDefaultDelay(DELAY_MS, TimeUnit.MILLISECONDS);
         executor.setIncrementalDefaultDelay(true);
-        List<TestTask> tasks = createTasks(BULK_TASK_COUNT);
-        // When
-        dispatch(method, executor, tasks);
-        waitForTasksExecuted(tasks);
-        tasks.forEach(TestTask::reset);
-        dispatch(method, executor, tasks);
-        // Then
-        for (int i = 0; i < tasks.size(); i++) {
-            assertTaskExecutedAfter(tasks.get(i), DELAY_MS * (i + 1));
+
+        // Batch 1
+        executor.freezeCompletion();
+        executor.expectAfterExecutes(BULK_TASK_COUNT);
+
+        dispatch(method, executor, BULK_TASK_COUNT);
+
+        assertThat(executor.drainRequestedDelaysMs(), is(expectedIncrementalDelays()));
+
+        executor.unfreezeCompletion();
+        executor.awaitAfterExecutes();
+
+        // Batch 2: verifies queuedTaskCount has been decremented back down by afterExecute()
+        executor.freezeCompletion();
+        executor.expectAfterExecutes(BULK_TASK_COUNT);
+
+        dispatch(method, executor, BULK_TASK_COUNT);
+
+        assertThat(executor.drainRequestedDelaysMs(), is(expectedIncrementalDelays()));
+
+        executor.unfreezeCompletion();
+        executor.awaitAfterExecutes();
+    }
+
+    @Test
+    void shouldNotRunTaskWhilePausedAndRunAfterResume() throws Exception {
+        CountDownLatch enteredBeforeExecute = new CountDownLatch(1);
+        CountDownLatch ranTask = new CountDownLatch(1);
+
+        PausableScheduledThreadPoolExecutor pausable =
+                new PausableScheduledThreadPoolExecutor(1) {
+                    @Override
+                    protected void beforeExecute(Thread t, Runnable r) {
+                        enteredBeforeExecute.countDown();
+                        super.beforeExecute(t, r);
+                    }
+                };
+
+        try {
+            pausable.pause();
+            pausable.execute(ranTask::countDown);
+
+            // Ensure the worker thread reached the pause gate (beforeExecute).
+            assertThat(enteredBeforeExecute.await(5, TimeUnit.SECONDS), is(true));
+
+            // While paused, the task must not have run.
+            assertThat(ranTask.getCount(), is(1L));
+
+            pausable.resume();
+
+            // After resume, task should run.
+            assertThat(ranTask.await(5, TimeUnit.SECONDS), is(true));
+        } finally {
+            pausable.shutdownNow();
         }
     }
 
+    @FunctionalInterface
     private static interface ExecutorDispathMethod {
-        void dispatch(PausableScheduledThreadPoolExecutor executor, TestTask task);
+        void dispatch(PausableScheduledThreadPoolExecutor executor, Runnable task);
     }
 
     static Stream<ExecutorDispathMethod> taskDispatchMethods() {
         return Stream.of(
-                (executor, task) -> {
-                    task.dispatched();
-                    executor.execute(task);
-                },
-                (executor, task) -> {
-                    task.dispatched();
-                    executor.submit(task);
-                },
-                (executor, task) -> {
-                    task.dispatched();
-                    executor.submit(task, true);
-                },
-                (executor, task) -> {
-                    task.dispatched();
-                    executor.submit(
-                            () -> {
-                                task.run();
-                                return null;
-                            });
-                });
+                (executor, task) -> executor.execute(task),
+                (executor, task) -> executor.submit(task),
+                (executor, task) -> executor.submit(task, true),
+                (executor, task) ->
+                        executor.submit(
+                                (Callable<Void>)
+                                        () -> {
+                                            task.run();
+                                            return null;
+                                        }));
     }
 
     private static void dispatch(
-            ExecutorDispathMethod method,
-            PausableScheduledThreadPoolExecutor executor,
-            List<TestTask> tasks) {
-        tasks.forEach(task -> method.dispatch(executor, task));
+            ExecutorDispathMethod method, PausableScheduledThreadPoolExecutor executor, int count) {
+        for (int i = 0; i < count; i++) {
+            method.dispatch(executor, () -> {});
+        }
     }
 
-    private static void assertTaskExecuted(TestTask task) {
-        assertTaskExcutedState(task, true);
+    private static List<Long> expectedIncrementalDelays() {
+        List<Long> expected = new ArrayList<>(BULK_TASK_COUNT);
+        for (int i = 1; i <= BULK_TASK_COUNT; i++) {
+            expected.add(DELAY_MS * i);
+        }
+        return expected;
     }
 
-    private static void assertTaskExcutedState(TestTask task, boolean state) {
-        int ellapsed = 0;
-        long max = getDelayWithMargin(DELAY_MS);
-        while (ellapsed <= max) {
-            if (task.isExecuted()) {
-                return;
+    /**
+     * Test-only executor that:
+     *
+     * <ul>
+     *   <li>Records the computed delay passed to schedule(...)
+     *   <li>Runs scheduled work with delay 0 for speed
+     *   <li>Can freeze completion to prevent afterExecute() from decrementing the queued-task counter
+     *       while tasks are still being submitted (keeps incremental-delay tests deterministic)
+     * </ul>
+     */
+    private static class RecordingExecutor extends PausableScheduledThreadPoolExecutor {
+
+        private final List<Long> requestedDelaysMs =
+                Collections.synchronizedList(new ArrayList<>());
+
+        private volatile CountDownLatch completionGate = new CountDownLatch(0);
+        private volatile CountDownLatch afterExecuteLatch = new CountDownLatch(0);
+
+        RecordingExecutor(int corePoolSize) {
+            super(corePoolSize);
+        }
+
+        void freezeCompletion() {
+            completionGate = new CountDownLatch(1);
+        }
+
+        void unfreezeCompletion() {
+            completionGate.countDown();
+        }
+
+        void expectAfterExecutes(int count) {
+            afterExecuteLatch = new CountDownLatch(count);
+        }
+
+        void awaitAfterExecutes() throws InterruptedException {
+            if (!afterExecuteLatch.await(5, TimeUnit.SECONDS)) {
+                throw new AssertionError("Timed out waiting for tasks to complete.");
             }
+        }
 
-            try {
-                ellapsed += 10;
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for the task.", e);
+        List<Long> drainRequestedDelaysMs() {
+            synchronized (requestedDelaysMs) {
+                List<Long> copy = new ArrayList<>(requestedDelaysMs);
+                requestedDelaysMs.clear();
+                return copy;
             }
-        }
-        assertThat(task.isExecuted(), is(equalTo(state)));
-    }
-
-    private static void assertTaskExecutedAfter(TestTask task, long delay) {
-        assertTaskExecuted(task);
-        assertThat(
-                task.getEllapsedTime(),
-                is(both(greaterThanOrEqualTo(delay)).and(lessThan(getDelayWithMargin(delay)))));
-    }
-
-    private static long getDelayWithMargin(long delay) {
-        return delay + delay / 3;
-    }
-
-    private static void waitForTasksExecuted(List<TestTask> tasks) {
-        tasks.forEach(PausableScheduledThreadPoolExecutorUnitTest::assertTaskExecuted);
-    }
-
-    private static class TestTask implements Runnable {
-
-        private AtomicBoolean executed;
-        private StopWatch watch;
-
-        TestTask() {
-            reset();
-        }
-
-        void reset() {
-            executed = new AtomicBoolean();
-            watch = new StopWatch();
-        }
-
-        void dispatched() {
-            watch.start();
-        }
-
-        boolean isExecuted() {
-            return executed.get();
-        }
-
-        long getEllapsedTime() {
-            return watch.getDuration().toMillis();
         }
 
         @Override
-        public void run() {
-            watch.stop();
-            executed.set(true);
-        }
-    }
+        public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+            requestedDelaysMs.add(TimeUnit.MILLISECONDS.convert(delay, unit));
 
-    private static List<TestTask> createTasks(int count) {
-        List<TestTask> tasks = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            tasks.add(new TestTask());
+            Runnable wrapped =
+                    () -> {
+                        try {
+                            completionGate.await();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            return;
+                        }
+                        command.run();
+                    };
+
+            // Execute immediately to keep tests fast; delay correctness is asserted via recording.
+            return super.schedule(wrapped, 0, TimeUnit.MILLISECONDS);
         }
-        return tasks;
+
+        @Override
+        public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
+            requestedDelaysMs.add(TimeUnit.MILLISECONDS.convert(delay, unit));
+
+            Callable<V> wrapped =
+                    () -> {
+                        try {
+                            completionGate.await();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            throw e;
+                        }
+                        return callable.call();
+                    };
+
+            // Execute immediately to keep tests fast; delay correctness is asserted via recording.
+            return super.schedule(wrapped, 0, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        protected void afterExecute(Runnable r, Throwable t) {
+            super.afterExecute(r, t); // preserves queuedTaskCount decrement logic
+            afterExecuteLatch.countDown();
+        }
     }
 }
+
