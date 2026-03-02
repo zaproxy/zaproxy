@@ -25,12 +25,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Vector;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.apache.commons.httpclient.URI;
 
 class KbUnitTest {
 
@@ -57,9 +56,13 @@ class KbUnitTest {
     }
 
     @Test
-    @Disabled
-    void shouldStoreValueForGivenUriAndKey() {
-        fail("Not yet implemented");
+    void shouldStoreValueForGivenUriAndKey() throws Exception {
+    	// Given/When
+        URI uriWithQuery = new URI("https://example.com/path?x=1", true);
+        URI samePathDifferentQuery = new URI("https://example.com/path?x=2", true);
+        knowledgeBase.add(uriWithQuery, TEST_KEY, TEST_OBJECT_1);
+        // Then
+        assertThat(knowledgeBase.get(samePathDifferentQuery, TEST_KEY), is(equalTo(TEST_OBJECT_1)));
     }
 
     @Test
@@ -74,9 +77,16 @@ class KbUnitTest {
     }
 
     @Test
-    @Disabled
-    void shouldRetrieveStoredObjectsForGivenUriAndKey() {
-        fail("Not yet implemented");
+    void shouldRetrieveStoredObjectsForGivenUriAndKey() throws Exception {
+    	// Given/When
+        URI uriWithQuery = new URI("https://example.com/path?x=1", true);
+        URI samePathDifferentQuery = new URI("https://example.com/path?x=2", true);
+        knowledgeBase.add(uriWithQuery, TEST_KEY, TEST_OBJECT_1);
+        knowledgeBase.add(uriWithQuery, TEST_KEY, TEST_OBJECT_2);
+        // Then
+        Vector<Object> result = knowledgeBase.getList(samePathDifferentQuery, TEST_KEY);
+        assertThat(result, hasSize(2));
+        assertThat(result, contains(TEST_OBJECT_1, TEST_OBJECT_2));
     }
 
     @Test
@@ -88,9 +98,13 @@ class KbUnitTest {
     }
 
     @Test
-    @Disabled
-    void shouldRetrieveStoredBooleanForGivenUriAndKey() {
-        fail("Not yet implemented");
+    void shouldRetrieveStoredBooleanForGivenUriAndKey() throws Exception {
+    	// Given/When
+        URI uri = new URI("https://example.com/path?x=1", true);
+        URI samePathDifferentQuery = new URI("https://example.com/path?x=2", true);
+        knowledgeBase.add(uri, TEST_KEY, TEST_BOOLEAN);
+        // Then
+        assertThat(knowledgeBase.getBoolean(samePathDifferentQuery, TEST_KEY), is(equalTo(TEST_BOOLEAN)));
     }
 
     @Test
@@ -102,9 +116,13 @@ class KbUnitTest {
     }
 
     @Test
-    @Disabled
-    void shouldRetrieveStoredStringForGivenUriAndKey() {
-        fail("Not yet implemented");
+    void shouldRetrieveStoredStringForGivenUriAndKey() throws Exception {
+    	// Given/When
+        URI uri = new URI("https://example.com/path?x=1", true);
+        URI samePathDifferentQuery = new URI("https://example.com/path?x=2", true);
+        knowledgeBase.add(uri, TEST_KEY, TEST_STRING);
+        // Then
+        assertThat(knowledgeBase.getString(samePathDifferentQuery, TEST_KEY), is(equalTo(TEST_STRING)));
     }
 
     @Test
