@@ -22,6 +22,7 @@ package org.zaproxy.zap.utils;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +32,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.jupiter.api.Test;
+import org.apache.commons.configuration.ConversionException;
+
 
 /** Unit test for {@link ZapXmlConfiguration}. */
 class ZapXmlConfigurationUnitTest {
@@ -159,6 +162,25 @@ class ZapXmlConfigurationUnitTest {
         conf.save(outputStream);
         // Then
         assertThat(contents(outputStream), is(equalTo(INDENTED_XML)));
+    }
+
+    //protects against crashes on invalid config files
+    @Test
+    void shouldThrowConfigurationExceptionForMalformedXml(){
+        String malformedXml = "<a><b></a>";
+
+        assertThrows(
+            ConfigurationException.class, () -> new ZapXmlConfiguration(new ByteArrayInputStream(malformedXml.getBytes(StandardCharsets.UTF_8)))
+        );
+    }
+
+    //protects against silent corruption when values cannot parsed
+    @Test
+    void shouldThrowExceptionWhenGettingInvalidInteger(){
+        ZapXmlConfiguration config = new ZapXmlConfiguration();
+        config.setProperty("invalidInt", "notANumber");
+
+        assertThrows(org.apache.commons.configuration.ConversionException.class, () -> config.getInt("invalidInt"));
     }
 
     private static String contents(ByteArrayOutputStream outputStream)
