@@ -88,7 +88,11 @@ abstract class ZapBootstrap {
         LoggerContext.getContext().getConfiguration().getRootLogger().removeAppender("stdout");
     }
 
-    private static void setLogLevel(Level level) {
+    static void setLogLevel(Level level) {
+        if (level == null) {
+            return;
+        }
+
         var config = LoggerContext.getContext().getConfiguration();
         config.getLoggerConfig("org.parosproxy.paros").setLevel(level);
         config.getLoggerConfig("org.zaproxy").setLevel(level);
