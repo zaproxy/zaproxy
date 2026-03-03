@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.params;
 
-import java.awt.EventQueue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -197,22 +196,7 @@ public class ExtensionParams extends ExtensionAdaptor
 
     @Override
     public void sessionChanged(final Session session) {
-        if (EventQueue.isDispatchThread()) {
-            sessionChangedEventHandler(session);
-
-        } else {
-            try {
-                EventQueue.invokeAndWait(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                sessionChangedEventHandler(session);
-                            }
-                        });
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
+        ThreadUtils.invokeAndWaitHandled(() -> sessionChangedEventHandler(session));
     }
 
     /**

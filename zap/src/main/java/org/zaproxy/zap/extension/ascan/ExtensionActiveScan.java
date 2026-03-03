@@ -20,10 +20,8 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -60,6 +58,7 @@ import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionActiveScan extends ExtensionAdaptor
@@ -423,23 +422,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
 
     @Override
     public void sessionChanged(final Session session) {
-        if (EventQueue.isDispatchThread()) {
-            sessionChangedEventHandler(session);
-
-        } else {
-            try {
-                EventQueue.invokeAndWait(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                sessionChangedEventHandler(session);
-                            }
-                        });
-
-            } catch (InterruptedException | InvocationTargetException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
+        ThreadUtils.invokeAndWaitHandled(() -> sessionChangedEventHandler(session));
     }
 
     private void sessionChangedEventHandler(Session session) {
