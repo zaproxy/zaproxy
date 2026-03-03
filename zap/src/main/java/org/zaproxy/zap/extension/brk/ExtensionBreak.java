@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +54,7 @@ import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface
 import org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionBreak extends ExtensionAdaptor
@@ -548,21 +548,11 @@ public class ExtensionBreak extends ExtensionAdaptor
 
     @Override
     public void sessionAboutToChange(final Session session) {
-        if (EventQueue.isDispatchThread()) {
-            sessionAboutToChange();
-        } else {
-            try {
-                EventQueue.invokeAndWait(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                sessionAboutToChange();
-                            }
-                        });
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+        if (!hasView()) {
+            return;
         }
+
+        ThreadUtils.invokeAndWaitHandled(() -> breakpointManagementInterface.reset());
     }
 
     @Override
@@ -571,13 +561,6 @@ public class ExtensionBreak extends ExtensionAdaptor
             return;
         }
         breakpointManagementInterface.init();
-    }
-
-    private void sessionAboutToChange() {
-        if (getView() == null) {
-            return;
-        }
-        breakpointManagementInterface.reset();
     }
 
     @Override

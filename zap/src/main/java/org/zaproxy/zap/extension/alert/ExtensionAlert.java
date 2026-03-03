@@ -680,22 +680,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
     @Override
     public void sessionChanged(final Session session) {
-        if (EventQueue.isDispatchThread()) {
-            sessionChangedEventHandler(session);
-
-        } else {
-            try {
-                EventQueue.invokeAndWait(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                sessionChangedEventHandler(session);
-                            }
-                        });
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
+        ThreadUtils.invokeAndWaitHandled(() -> sessionChangedEventHandler(session));
     }
 
     private void sessionChangedEventHandler(Session session) {
