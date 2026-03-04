@@ -669,11 +669,10 @@ public class OptionsParamView extends AbstractParam {
                                 e -> {
                                     try {
                                         UIManager.setLookAndFeel(lookAndFeelInfo.getClassName());
-                                        Arrays.asList(Window.getWindows()).stream()
-                                                .forEach(SwingUtilities::updateComponentTreeUI);
-                                        View.getSingleton()
-                                                .getPopupList()
-                                                .forEach(SwingUtilities::updateComponentTreeUI);
+                                        updateUiComponentTree();
+                                        // A second pass is needed to ensure all components;
+                                        // trees in particular, are updated.
+                                        updateUiComponentTree();
                                     } catch (Exception e2) {
                                         LOGGER.warn(
                                                 "Failed to set the look and feel: {}",
@@ -688,6 +687,11 @@ public class OptionsParamView extends AbstractParam {
                 timer.start();
             }
         }
+    }
+
+    private static void updateUiComponentTree() {
+        Arrays.stream(Window.getWindows()).forEach(SwingUtilities::updateComponentTreeUI);
+        View.getSingleton().getPopupList().forEach(SwingUtilities::updateComponentTreeUI);
     }
 
     public boolean isScaleImages() {
