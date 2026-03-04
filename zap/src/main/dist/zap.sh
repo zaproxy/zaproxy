@@ -1,5 +1,32 @@
 #!/usr/bin/env bash
 
+# Thanks OS X
+realishpath() {
+  local IFS_PRE=$IFS
+  local IFS=$'\n'
+
+  # Handle whitespace in paths
+  local PATHS=( $( ls -d "$@" ) )
+
+  local NEWPATHS=()
+
+  for TARGET in "${PATHS[@]}"; do
+    pushd . > /dev/null
+
+    if [ -f "$TARGET" ]; then
+      cd $( dirname "$TARGET" )
+      NEWPATHS+=( "$( pwd -P )/$( basename "$TARGET" )" )
+    else
+      cd "$TARGET"
+      NEWPATHS+=( "$( pwd -P )" )
+    fi
+
+    popd > /dev/null
+  done
+
+  echo "${NEWPATHS[*]}"
+}
+
 # Dereference from link to the real directory
 SCRIPTNAME="$0"
 
@@ -8,13 +35,10 @@ while [ -L "${SCRIPTNAME}" ] ; do
   cd "`dirname "${SCRIPTNAME}"`" > /dev/null
   SCRIPTNAME="$(readlink "`basename "${SCRIPTNAME}"`")"
 done
-cd "`dirname "${SCRIPTNAME}"`" > /dev/null
 
 # Base directory where ZAP is installed
-BASEDIR="`pwd -P`"
-
-# Switch to the directory where ZAP is installed
-cd "$BASEDIR"
+BASEDIR=$( realishpath $( dirname "${SCRIPTNAME}" ) )
+PARENTDIR=$( dirname "${BASEDIR}" )
 
 # Get Operating System
 OS=$(uname -s)
@@ -22,11 +46,11 @@ OS=$(uname -s)
 # If we're on OS X, try to use the bundled Java; if it's not there, then the system Java
 # Life would be much easier if OS X had readlink -f
 if [ "$OS" = "Darwin" ]; then
-  if [ -e ../PlugIns/jre*/Contents/Home/bin/java ]; then
-    pushd ../PlugIns/jre*/Contents/Home/bin > /dev/null
-    JAVA_PATH=`pwd -P`
-    PATH="$JAVA_PATH:$PATH"
-    popd > /dev/null
+  BUNDLED_JAVA_DIR=$( realishpath "${PARENTDIR}/PlugIns/jre*/Contents/Home/bin" )
+
+  if [ -e "${BUNDLED_JAVA_DIR}/java" ]; then
+    JAVA_PATH="${BUNDLED_JAVA_DIR}"
+    PATH="${JAVA_PATH}:${PATH}"
   fi
 elif [ "$OS" = "Linux" ] && [ -n "$JAVA_HOME" ]; then
   # On Linux, respect JAVA_HOME if it exists in the environment
@@ -121,11 +145,11 @@ for var in "$@"; do
     # Overridden by the user
     JMEM="$var"
   elif [[ $var == --jvmdebug* ]]; then
-	JAVADEBUGPORT=`echo "$var" | sed -e "s/--jvmdebug//g" | sed -e "s/=//g"`
-	if [ ! "$JAVADEBUGPORT" ]; then
-		JAVADEBUGPORT=1044
-	fi
-	JAVADEBUG="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:$JAVADEBUGPORT"
+    JAVADEBUGPORT=`echo "$var" | sed -e "s/--jvmdebug//g" | sed -e "s/=//g"`
+  if [ ! "$JAVADEBUGPORT" ]; then
+    JAVADEBUGPORT=1044
+  fi
+    JAVADEBUG="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:$JAVADEBUGPORT"
   elif [[ $var != -psn_* ]]; then
     # Strip the automatic -psn_x_xxxxxxx argument that OS X automatically passes into apps, since
     # it freaks out ZAP
@@ -146,7 +170,7 @@ fi
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
   # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
-  exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
+  exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -Xdock:icon="${PARENTDIR}/Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 else
   exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 fi
