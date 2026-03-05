@@ -100,7 +100,8 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
         public HttpResponseAllPanelSyntaxHighlightTextArea(ContentSplitter contentSplitter) {
             this.contentSplitter = contentSplitter;
 
-            addSyntaxStyle(HTTP_RESPONSE_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
+            addSyntaxStyle(
+                    HTTP_RESPONSE_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
             addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
             addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
             addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
@@ -167,6 +168,10 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
         @Override
         protected String detectSyntax(HttpMessage httpMessage) {
+            // Always use the full response style so that the status line and headers
+            // are highlighted. HttpResponseTokenMaker handles body auto-detection
+            // internally via Content-Type. Per-body styles (HTML, JS, JSON, XML, CSS)
+            // remain available via the Syntax menu for manual selection.
             return SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY;
         }
 
@@ -181,8 +186,7 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
         private static class ResponseAllTokenMakerFactory extends CustomTokenMakerFactory {
 
             public ResponseAllTokenMakerFactory() {
-                String zapPkg =
-                        "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                String zapPkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
                 putMapping(
                         SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY,
                         zapPkg + "HttpResponseTokenMaker");

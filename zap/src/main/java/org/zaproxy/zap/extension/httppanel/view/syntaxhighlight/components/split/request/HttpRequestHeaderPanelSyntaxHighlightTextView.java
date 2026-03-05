@@ -101,11 +101,9 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         // "text/http-request-header";
 
         private static final String HTTP_REQUEST_HEADER =
-                Constant.messages.getString(
-                        "http.panel.view.syntaxtext.syntax.httpRequestHeader");
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.httpRequestHeader");
 
-        private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER =
-                "text/http-request-header";
+        private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER = "text/http-request-header";
 
         private static RequestHeaderTokenMakerFactory tokenMakerFactory = null;
 
@@ -228,10 +226,8 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         private static class RequestHeaderTokenMakerFactory extends CustomTokenMakerFactory {
 
             public RequestHeaderTokenMakerFactory() {
-                String pkg =
-                        "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
-                putMapping(
-                        SYNTAX_STYLE_HTTP_REQUEST_HEADER, pkg + "HttpRequestHeaderTokenMaker");
+                String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER, pkg + "HttpRequestHeaderTokenMaker");
             }
         }
     }

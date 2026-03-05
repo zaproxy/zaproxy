@@ -21,12 +21,8 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 
 import javax.swing.text.Segment;
 import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.TokenImpl;
-import org.fife.ui.rsyntaxtextarea.TokenMakerBase;
-import org.fife.ui.rsyntaxtextarea.modes.CSSTokenMaker;
 import org.fife.ui.rsyntaxtextarea.modes.HTMLTokenMaker;
 import org.fife.ui.rsyntaxtextarea.modes.JavaScriptTokenMaker;
-import org.fife.ui.rsyntaxtextarea.modes.JsonTokenMaker;
 import org.fife.ui.rsyntaxtextarea.modes.XMLTokenMaker;
 
 /**
@@ -50,7 +46,7 @@ import org.fife.ui.rsyntaxtextarea.modes.XMLTokenMaker;
  * Latin-1-decoded binary) that include Unicode line terminators such as U+0085, which JFlex {@code
  * %unicode} mode cannot match.
  */
-public class HttpResponseTokenMaker extends TokenMakerBase {
+public class HttpResponseTokenMaker extends AbstractHttpTokenMaker {
 
     /* ------------------------------------------------------------------
      * Internal (negative) token types for body lines.
@@ -60,9 +56,23 @@ public class HttpResponseTokenMaker extends TokenMakerBase {
     /** Plain body line — JFlex is never invoked for these. */
     static final int INTERNAL_BODY_PLAIN = -30;
 
+    /*
+     * Delegated body types use a base-plus-offset encoding: the end-token type for a body line is
+     * INTERNAL_BODY_X + delegateLastTokenType, where delegateLastTokenType <= Token.NULL (0).
+     * Each base must therefore be spaced at least as far apart as the maximum number of internal
+     * states the corresponding delegate lexer can produce (empirically ~100 for RSTA's built-in
+     * lexers). A gap of 200 is used here to leave room for future delegate changes.
+     *
+     * The range comparisons in getTokenList() depend on these ranges being non-overlapping and
+     * all being <= INTERNAL_BODY_PLAIN (-30). Adding a new body type requires:
+     *   1. A new INTERNAL_BODY_X constant spaced ≥200 below the previous one.
+     *   2. A range guard in getTokenList() ordered from least (most negative) to greatest.
+     *   3. A case in getClosestStandardTokenTypeForInternalType().
+     */
+
     /**
-     * HTML body line. The value encodes the delegate's own last-token type: {@code
-     * INTERNAL_BODY_HTML + htmlLastType}, where {@code htmlLastType <= 0}.
+     * HTML body line. Encodes delegate's last-token type: {@code INTERNAL_BODY_HTML +
+     * htmlLastType}, where {@code htmlLastType <= 0}.
      */
     static final int INTERNAL_BODY_HTML = -200;
 
@@ -99,31 +109,68 @@ public class HttpResponseTokenMaker extends TokenMakerBase {
     private XMLTokenMaker xmlTokenMaker;
 
     @Override
+    protected int internalBodyPlain() {
+        return INTERNAL_BODY_PLAIN;
+    }
+
+    @Override
+    protected int translateSignal(int signal) {
+        if (signal == HttpResponseHeaderTokenMaker.SIGNAL_BODY_PLAIN) {
+            return INTERNAL_BODY_PLAIN;
+        }
+        if (signal == HttpResponseHeaderTokenMaker.SIGNAL_BODY_HTML) {
+            return INTERNAL_BODY_HTML;
+        }
+        if (signal == HttpResponseHeaderTokenMaker.SIGNAL_BODY_JS) {
+            return INTERNAL_BODY_JS;
+        }
+        if (signal == HttpResponseHeaderTokenMaker.SIGNAL_BODY_JSON) {
+            return INTERNAL_BODY_JSON;
+        }
+        if (signal == HttpResponseHeaderTokenMaker.SIGNAL_BODY_XML) {
+            return INTERNAL_BODY_XML;
+        }
+        return signal;
+    }
+
+    @Override
     public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
         resetTokenList();
 
         /* ---- HTML body ---- */
         if (initialTokenType <= INTERNAL_BODY_HTML && initialTokenType > INTERNAL_BODY_JS) {
+            if (htmlTokenMaker == null) {
+                htmlTokenMaker = new HTMLTokenMaker();
+            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, getHtmlTokenMaker(), INTERNAL_BODY_HTML);
+                    text, initialTokenType, startOffset, htmlTokenMaker, INTERNAL_BODY_HTML);
         }
 
         /* ---- JavaScript body ---- */
         if (initialTokenType <= INTERNAL_BODY_JS && initialTokenType > INTERNAL_BODY_JSON) {
+            if (jsTokenMaker == null) {
+                jsTokenMaker = new JavaScriptTokenMaker();
+            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, getJsTokenMaker(), INTERNAL_BODY_JS);
+                    text, initialTokenType, startOffset, jsTokenMaker, INTERNAL_BODY_JS);
         }
 
         /* ---- JSON body ---- */
         if (initialTokenType <= INTERNAL_BODY_JSON && initialTokenType > INTERNAL_BODY_XML) {
+            if (jsonTokenMaker == null) {
+                jsonTokenMaker = new HttpBodyJsonTokenMaker();
+            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, getJsonTokenMaker(), INTERNAL_BODY_JSON);
+                    text, initialTokenType, startOffset, jsonTokenMaker, INTERNAL_BODY_JSON);
         }
 
         /* ---- XML body ---- */
         if (initialTokenType <= INTERNAL_BODY_XML) {
+            if (xmlTokenMaker == null) {
+                xmlTokenMaker = new XMLTokenMaker();
+            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, getXmlTokenMaker(), INTERNAL_BODY_XML);
+                    text, initialTokenType, startOffset, xmlTokenMaker, INTERNAL_BODY_XML);
         }
 
         /* ---- Plain body ---- */
@@ -132,11 +179,19 @@ public class HttpResponseTokenMaker extends TokenMakerBase {
         }
 
         /* ---- Header section (status line + headers) ---- */
-        return tokenizeHeader(text, initialTokenType, startOffset);
+        if (headerTokenMaker == null) {
+            headerTokenMaker = new HttpResponseHeaderTokenMaker();
+        }
+        return tokenizeHeader(text, initialTokenType, startOffset, headerTokenMaker);
     }
 
     @Override
     public int getLastTokenTypeOnLine(Segment text, int initialTokenType) {
+        // Short-circuit for body types that bypass or delegate without re-entry, so we never
+        // call getTokenList unnecessarily (and never risk feeding binary body content to yylex()).
+        if (initialTokenType <= INTERNAL_BODY_HTML) {
+            return initialTokenType;
+        }
         if (initialTokenType == INTERNAL_BODY_PLAIN) {
             return INTERNAL_BODY_PLAIN;
         }
@@ -167,155 +222,5 @@ public class HttpResponseTokenMaker extends TokenMakerBase {
                 }
                 return type;
         }
-    }
-
-    // ------------------------------------------------------------------
-    // Header delegation
-    // ------------------------------------------------------------------
-
-    private Token tokenizeHeader(Segment text, int initialTokenType, int startOffset) {
-        if (headerTokenMaker == null) {
-            headerTokenMaker = new HttpResponseHeaderTokenMaker();
-        }
-        Token src = headerTokenMaker.getTokenList(text, initialTokenType, startOffset);
-
-        // Deep-copy the delegate's token list and translate body-signal end tokens.
-        TokenImpl head = null;
-        TokenImpl tail = null;
-        for (Token t = src; t != null; t = t.getNextToken()) {
-            TokenImpl copy = new TokenImpl(t);
-            copy.setNextToken(null);
-
-            if (t.getNextToken() == null) {
-                int sig = t.getType();
-                if (sig == HttpResponseHeaderTokenMaker.SIGNAL_BODY_PLAIN) {
-                    copy.setType(INTERNAL_BODY_PLAIN);
-                } else if (sig == HttpResponseHeaderTokenMaker.SIGNAL_BODY_HTML) {
-                    copy.setType(INTERNAL_BODY_HTML);
-                } else if (sig == HttpResponseHeaderTokenMaker.SIGNAL_BODY_JS) {
-                    copy.setType(INTERNAL_BODY_JS);
-                } else if (sig == HttpResponseHeaderTokenMaker.SIGNAL_BODY_JSON) {
-                    copy.setType(INTERNAL_BODY_JSON);
-                } else if (sig == HttpResponseHeaderTokenMaker.SIGNAL_BODY_XML) {
-                    copy.setType(INTERNAL_BODY_XML);
-                }
-                // Otherwise it is a header-section internal type — keep as-is.
-            }
-
-            if (head == null) {
-                head = copy;
-            } else {
-                tail.setNextToken(copy);
-            }
-            tail = copy;
-        }
-
-        if (head == null) {
-            head = new TokenImpl();
-            head.setType(INTERNAL_BODY_PLAIN);
-        }
-        return head;
-    }
-
-    // ------------------------------------------------------------------
-    // Plain body
-    // ------------------------------------------------------------------
-
-    private Token tokenizePlainBody(Segment text, int startOffset) {
-        if (text.count > 0) {
-            addToken(
-                    text.array,
-                    text.offset,
-                    text.offset + text.count - 1,
-                    Token.IDENTIFIER,
-                    startOffset);
-        }
-        addEndToken(text, startOffset, INTERNAL_BODY_PLAIN);
-        return firstToken;
-    }
-
-    // ------------------------------------------------------------------
-    // Delegated body tokenisation (HTML / JS / JSON / XML)
-    // ------------------------------------------------------------------
-
-    private Token tokenizeDelegate(
-            Segment text,
-            int initialTokenType,
-            int startOffset,
-            TokenMakerBase delegate,
-            int bodyBase) {
-        int delegateInitialType = Math.min(initialTokenType - bodyBase, Token.NULL);
-        Token src = delegate.getTokenList(text, delegateInitialType, startOffset);
-
-        // Deep-copy and encode the delegate's last token type back into our body base.
-        TokenImpl head = null;
-        TokenImpl tail = null;
-        int delegateLastType = Token.NULL;
-        for (Token t = src; t != null; t = t.getNextToken()) {
-            TokenImpl copy = new TokenImpl(t);
-            copy.setNextToken(null);
-            if (head == null) {
-                head = copy;
-            } else {
-                tail.setNextToken(copy);
-            }
-            tail = copy;
-            delegateLastType = t.getType();
-        }
-
-        int encodedType = bodyBase + Math.min(delegateLastType, Token.NULL);
-        if (tail != null) {
-            tail.setType(encodedType);
-        } else {
-            head = new TokenImpl();
-            head.setType(encodedType);
-        }
-        return head;
-    }
-
-    // ------------------------------------------------------------------
-    // Lazy delegate accessors
-    // ------------------------------------------------------------------
-
-    private HTMLTokenMaker getHtmlTokenMaker() {
-        if (htmlTokenMaker == null) {
-            htmlTokenMaker = new HTMLTokenMaker();
-        }
-        return htmlTokenMaker;
-    }
-
-    private JavaScriptTokenMaker getJsTokenMaker() {
-        if (jsTokenMaker == null) {
-            jsTokenMaker = new JavaScriptTokenMaker();
-        }
-        return jsTokenMaker;
-    }
-
-    private HttpBodyJsonTokenMaker getJsonTokenMaker() {
-        if (jsonTokenMaker == null) {
-            jsonTokenMaker = new HttpBodyJsonTokenMaker();
-        }
-        return jsonTokenMaker;
-    }
-
-    private XMLTokenMaker getXmlTokenMaker() {
-        if (xmlTokenMaker == null) {
-            xmlTokenMaker = new XMLTokenMaker();
-        }
-        return xmlTokenMaker;
-    }
-
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
-
-    private void addEndToken(Segment text, int startOffset, int type) {
-        int endPos = text.offset + text.count;
-        addToken(text.array, endPos, endPos - 1, type, startOffset + text.count);
-    }
-
-    @Override
-    public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
-        super.addToken(array, start, end, tokenType, startOffset);
     }
 }

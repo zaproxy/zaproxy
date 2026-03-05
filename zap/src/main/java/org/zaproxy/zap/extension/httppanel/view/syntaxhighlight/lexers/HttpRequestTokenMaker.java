@@ -21,8 +21,6 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 
 import javax.swing.text.Segment;
 import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.TokenImpl;
-import org.fife.ui.rsyntaxtextarea.TokenMakerBase;
 
 /**
  * Token maker for a full HTTP request (request line + headers + body).
@@ -62,7 +60,7 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerBase;
  *   <li>Form {@code &} → {@code VARIABLE}
  * </ul>
  */
-public class HttpRequestTokenMaker extends TokenMakerBase {
+public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
 
     /* ------------------------------------------------------------------
      * Internal (negative) token types for body lines.
@@ -78,10 +76,23 @@ public class HttpRequestTokenMaker extends TokenMakerBase {
     /** Form-urlencoded body, inside a value. */
     static final int INTERNAL_BODY_FORM_VALUE = -22;
 
+    /*
+     * Delegated body types use a base-plus-offset encoding: the end-token type for a body line is
+     * INTERNAL_BODY_X + delegateLastTokenType, where delegateLastTokenType <= Token.NULL (0).
+     * The base must be spaced at least as far apart as the maximum number of internal states the
+     * delegate lexer can produce (empirically ~100 for RSTA's JsonTokenMaker). A gap of 100 is
+     * used here; use ≥200 for any new body type added in future.
+     *
+     * Adding a new body type requires:
+     *   1. A new INTERNAL_BODY_X constant spaced ≥(delegate max states) below the previous one.
+     *   2. A range guard in getTokenList() ordered from least (most negative) to greatest.
+     *   3. A case in getClosestStandardTokenTypeForInternalType().
+     */
+
     /**
-     * JSON body line. The value encodes the delegate's own last-token type: {@code
-     * INTERNAL_BODY_JSON + jsonLastType}, where {@code jsonLastType <= 0}. This allows mid-string
-     * continuation highlighting across lines.
+     * JSON body line. Encodes the delegate's own last-token type: {@code INTERNAL_BODY_JSON +
+     * jsonLastType}, where {@code jsonLastType <= 0}. This allows mid-string continuation
+     * highlighting across lines.
      */
     static final int INTERNAL_BODY_JSON = -100;
 
@@ -92,12 +103,35 @@ public class HttpRequestTokenMaker extends TokenMakerBase {
     private HttpBodyJsonTokenMaker jsonTokenMaker;
 
     @Override
+    protected int internalBodyPlain() {
+        return INTERNAL_BODY_PLAIN;
+    }
+
+    @Override
+    protected int translateSignal(int signal) {
+        if (signal == HttpRequestHeaderTokenMaker.SIGNAL_BODY_PLAIN) {
+            return INTERNAL_BODY_PLAIN;
+        }
+        if (signal == HttpRequestHeaderTokenMaker.SIGNAL_BODY_FORM) {
+            return INTERNAL_BODY_FORM_KEY;
+        }
+        if (signal == HttpRequestHeaderTokenMaker.SIGNAL_BODY_JSON) {
+            return INTERNAL_BODY_JSON;
+        }
+        return signal;
+    }
+
+    @Override
     public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
         resetTokenList();
 
         /* ---- JSON body ---- */
         if (initialTokenType <= INTERNAL_BODY_JSON) {
-            return tokenizeJsonBody(text, initialTokenType, startOffset);
+            if (jsonTokenMaker == null) {
+                jsonTokenMaker = new HttpBodyJsonTokenMaker();
+            }
+            return tokenizeDelegate(
+                    text, initialTokenType, startOffset, jsonTokenMaker, INTERNAL_BODY_JSON);
         }
 
         /* ---- Plain body ---- */
@@ -112,7 +146,10 @@ public class HttpRequestTokenMaker extends TokenMakerBase {
         }
 
         /* ---- Header section (request line + headers) ---- */
-        return tokenizeHeader(text, initialTokenType, startOffset);
+        if (headerTokenMaker == null) {
+            headerTokenMaker = new HttpRequestHeaderTokenMaker();
+        }
+        return tokenizeHeader(text, initialTokenType, startOffset, headerTokenMaker);
     }
 
     @Override
@@ -153,76 +190,6 @@ public class HttpRequestTokenMaker extends TokenMakerBase {
                 }
                 return type;
         }
-    }
-
-    // ------------------------------------------------------------------
-    // Header delegation
-    // ------------------------------------------------------------------
-
-    private Token tokenizeHeader(Segment text, int initialTokenType, int startOffset) {
-        if (headerTokenMaker == null) {
-            headerTokenMaker = new HttpRequestHeaderTokenMaker();
-        }
-        Token src = headerTokenMaker.getTokenList(text, initialTokenType, startOffset);
-
-        // Deep-copy the delegate's token list so that RSyntaxDocument's cached
-        // token list is not corrupted when the delegate's pool recycles tokens
-        // on the next getTokenList call.
-        // While copying, translate any body-signal end token to our own body
-        // internal types so the next line's getTokenList enters the right branch.
-        TokenImpl head = null;
-        TokenImpl tail = null;
-        for (Token t = src; t != null; t = t.getNextToken()) {
-            TokenImpl copy = new TokenImpl(t);
-            copy.setNextToken(null);
-
-            // Translate body signal on the last (end) token
-            if (t.getNextToken() == null) {
-                int sig = t.getType();
-                if (sig == HttpRequestHeaderTokenMaker.SIGNAL_BODY_PLAIN) {
-                    copy.setType(INTERNAL_BODY_PLAIN);
-                } else if (sig == HttpRequestHeaderTokenMaker.SIGNAL_BODY_FORM) {
-                    copy.setType(INTERNAL_BODY_FORM_KEY);
-                } else if (sig == HttpRequestHeaderTokenMaker.SIGNAL_BODY_JSON) {
-                    copy.setType(INTERNAL_BODY_JSON);
-                }
-                // Otherwise it is a header-section internal type — keep as-is.
-            }
-
-            if (head == null) {
-                head = copy;
-            } else {
-                tail.setNextToken(copy);
-            }
-            tail = copy;
-        }
-
-        if (head == null) {
-            // Delegate returned null (shouldn't happen) — emit a safe end token.
-            head = new TokenImpl();
-            head.setType(INTERNAL_BODY_PLAIN);
-        }
-        return head;
-    }
-
-    // ------------------------------------------------------------------
-    // Plain body
-    // ------------------------------------------------------------------
-
-    private Token tokenizePlainBody(Segment text, int startOffset) {
-        // Emit the line as a plain IDENTIFIER token (visible but unstyled), then
-        // an INTERNAL_BODY_PLAIN end-token to carry state to the next line.
-        // The JFlex lexer is never called, so binary/Latin-1 content is safe.
-        if (text.count > 0) {
-            addToken(
-                    text.array,
-                    text.offset,
-                    text.offset + text.count - 1,
-                    Token.IDENTIFIER,
-                    startOffset);
-        }
-        addEndToken(text, startOffset, INTERNAL_BODY_PLAIN);
-        return firstToken;
     }
 
     // ------------------------------------------------------------------
@@ -277,65 +244,5 @@ public class HttpRequestTokenMaker extends TokenMakerBase {
 
         addEndToken(text, startOffset, inValue ? INTERNAL_BODY_FORM_VALUE : INTERNAL_BODY_FORM_KEY);
         return firstToken;
-    }
-
-    // ------------------------------------------------------------------
-    // JSON body
-    // ------------------------------------------------------------------
-
-    private Token tokenizeJsonBody(Segment text, int initialTokenType, int startOffset) {
-        if (jsonTokenMaker == null) {
-            jsonTokenMaker = new HttpBodyJsonTokenMaker();
-        }
-        int jsonInitialType = Math.min(initialTokenType - INTERNAL_BODY_JSON, Token.NULL);
-        Token src = jsonTokenMaker.getTokenList(text, jsonInitialType, startOffset);
-
-        // Deep-copy the delegate's token list so that RSyntaxDocument's cached
-        // token list is not corrupted when the delegate's pool recycles tokens.
-        TokenImpl head = null;
-        TokenImpl tail = null;
-        int jsonLastType = Token.NULL;
-        for (Token t = src; t != null; t = t.getNextToken()) {
-            TokenImpl copy = new TokenImpl(t);
-            copy.setNextToken(null);
-            if (head == null) {
-                head = copy;
-            } else {
-                tail.setNextToken(copy);
-            }
-            tail = copy;
-            jsonLastType = t.getType();
-        }
-
-        // Encode the delegate's last token type into INTERNAL_BODY_JSON so that
-        // the next line's getTokenList knows both that it is a JSON body line and
-        // what internal state the delegate left off in.
-        int encodedType = INTERNAL_BODY_JSON + Math.min(jsonLastType, Token.NULL);
-        if (tail != null) {
-            tail.setType(encodedType);
-        } else {
-            head = new TokenImpl();
-            head.setType(encodedType);
-        }
-        return head;
-    }
-
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
-
-    /**
-     * Emits a non-paintable end token with the given internal type. The token points past the end
-     * of the segment (start > end), which is the convention used by JFlex-generated token makers
-     * for addEndToken().
-     */
-    private void addEndToken(Segment text, int startOffset, int type) {
-        int endPos = text.offset + text.count;
-        addToken(text.array, endPos, endPos - 1, type, startOffset + text.count);
-    }
-
-    @Override
-    public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
-        super.addToken(array, start, end, tokenType, startOffset);
     }
 }

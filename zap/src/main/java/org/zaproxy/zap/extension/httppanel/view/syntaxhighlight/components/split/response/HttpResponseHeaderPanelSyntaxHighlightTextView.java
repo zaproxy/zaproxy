@@ -53,11 +53,9 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView
         // "text/http-response-header";
 
         private static final String HTTP_RESPONSE_HEADER =
-                Constant.messages.getString(
-                        "http.panel.view.syntaxtext.syntax.httpRequestHeader");
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.httpRequestHeader");
 
-        private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER =
-                "text/http-response-header";
+        private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER = "text/http-response-header";
 
         private static ResponseHeaderTokenMakerFactory tokenMakerFactory = null;
 
@@ -112,10 +110,8 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView
         private static class ResponseHeaderTokenMakerFactory extends CustomTokenMakerFactory {
 
             public ResponseHeaderTokenMakerFactory() {
-                String pkg =
-                        "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
-                putMapping(
-                        SYNTAX_STYLE_HTTP_RESPONSE_HEADER, pkg + "HttpRequestHeaderTokenMaker");
+                String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                putMapping(SYNTAX_STYLE_HTTP_RESPONSE_HEADER, pkg + "HttpRequestHeaderTokenMaker");
             }
         }
     }
