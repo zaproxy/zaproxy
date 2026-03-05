@@ -20,7 +20,10 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 
 import javax.swing.text.Segment;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rsyntaxtextarea.TokenMaker;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 /**
  * Token maker for a full HTTP request (request line + headers + body).
@@ -30,8 +33,8 @@ import org.fife.ui.rsyntaxtextarea.Token;
  *
  * <ul>
  *   <li>Request line and headers → {@link HttpRequestHeaderTokenMaker}
- *   <li>JSON body → {@link HttpBodyJsonTokenMaker}
- *   <li>Form-urlencoded body → form key/value rules (inline)
+ *   <li>Form-urlencoded body → {@link WwwFormTokenMaker}
+ *   <li>JSON body → {@code JsonTokenMaker} (via installed {@link TokenMakerFactory})
  *   <li>Plain/unrecognised body → emitted as unstyled {@code IDENTIFIER} tokens
  * </ul>
  *
@@ -40,9 +43,6 @@ import org.fife.ui.rsyntaxtextarea.Token;
  * plain text without passing through any lexer. This is necessary because HTTP bodies may contain
  * arbitrary bytes (e.g. Latin-1-decoded binary) that include Unicode line terminators such as
  * U+0085, which JFlex {@code %unicode} mode cannot match.
- *
- * <p>To add highlighting for a new body type (e.g. XML), add a new {@code INTERNAL_BODY_*} constant
- * and a corresponding branch in {@link #getTokenList} delegating to its token maker.
  *
  * <p>Token colour mapping:
  *
@@ -54,10 +54,6 @@ import org.fife.ui.rsyntaxtextarea.Token;
  *   <li>Colon separator → {@code SEPARATOR}
  *   <li>Header value → {@code LITERAL_CHAR}
  *   <li>Plain body text → {@code IDENTIFIER} (unstyled)
- *   <li>Form key → {@code RESERVED_WORD}
- *   <li>Form {@code =} → {@code SEPARATOR}
- *   <li>Form value → {@code DATA_TYPE}
- *   <li>Form {@code &} → {@code VARIABLE}
  * </ul>
  */
 public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
@@ -69,12 +65,6 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
 
     /** Plain body line — JFlex is never invoked for these. */
     static final int INTERNAL_BODY_PLAIN = -20;
-
-    /** Form-urlencoded body, at the start of a key. */
-    static final int INTERNAL_BODY_FORM_KEY = -21;
-
-    /** Form-urlencoded body, inside a value. */
-    static final int INTERNAL_BODY_FORM_VALUE = -22;
 
     /*
      * Delegated body types use a base-plus-offset encoding: the end-token type for a body line is
@@ -90,17 +80,26 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
      */
 
     /**
+     * Form-urlencoded body line. Encodes delegate's last-token type: {@code INTERNAL_BODY_FORM +
+     * formLastType}, where {@code formLastType <= 0}.
+     */
+    static final int INTERNAL_BODY_FORM = -100;
+
+    /**
      * JSON body line. Encodes the delegate's own last-token type: {@code INTERNAL_BODY_JSON +
      * jsonLastType}, where {@code jsonLastType <= 0}. This allows mid-string continuation
      * highlighting across lines.
      */
-    static final int INTERNAL_BODY_JSON = -100;
+    static final int INTERNAL_BODY_JSON = -200;
 
     /** Delegate for header-line tokenisation. Created lazily. */
     private HttpRequestHeaderTokenMaker headerTokenMaker;
 
-    /** Delegate for JSON body lines. Created lazily. */
-    private HttpBodyJsonTokenMaker jsonTokenMaker;
+    /** Delegate for form-urlencoded body lines. Created lazily. */
+    private WwwFormTokenMaker formTokenMaker;
+
+    /** Delegate for JSON body lines. Resolved via installed factory, lazily. */
+    private TokenMaker jsonTokenMaker;
 
     @Override
     protected int internalBodyPlain() {
@@ -113,7 +112,7 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
             return INTERNAL_BODY_PLAIN;
         }
         if (signal == HttpRequestHeaderTokenMaker.SIGNAL_BODY_FORM) {
-            return INTERNAL_BODY_FORM_KEY;
+            return INTERNAL_BODY_FORM;
         }
         if (signal == HttpRequestHeaderTokenMaker.SIGNAL_BODY_JSON) {
             return INTERNAL_BODY_JSON;
@@ -125,24 +124,24 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
     public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
         resetTokenList();
 
-        /* ---- JSON body ---- */
-        if (initialTokenType <= INTERNAL_BODY_JSON) {
-            if (jsonTokenMaker == null) {
-                jsonTokenMaker = new HttpBodyJsonTokenMaker();
+        /* ---- Form body ---- */
+        if (initialTokenType <= INTERNAL_BODY_FORM && initialTokenType > INTERNAL_BODY_JSON) {
+            if (formTokenMaker == null) {
+                formTokenMaker = new WwwFormTokenMaker();
             }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, jsonTokenMaker, INTERNAL_BODY_JSON);
+                    text, initialTokenType, startOffset, formTokenMaker, INTERNAL_BODY_FORM);
+        }
+
+        /* ---- JSON body ---- */
+        if (initialTokenType <= INTERNAL_BODY_JSON) {
+            return tokenizeDelegate(
+                    text, initialTokenType, startOffset, getJsonTokenMaker(), INTERNAL_BODY_JSON);
         }
 
         /* ---- Plain body ---- */
         if (initialTokenType == INTERNAL_BODY_PLAIN) {
             return tokenizePlainBody(text, startOffset);
-        }
-
-        /* ---- Form body ---- */
-        if (initialTokenType == INTERNAL_BODY_FORM_KEY
-                || initialTokenType == INTERNAL_BODY_FORM_VALUE) {
-            return tokenizeFormBody(text, initialTokenType, startOffset);
         }
 
         /* ---- Header section (request line + headers) ---- */
@@ -157,8 +156,8 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
         // Short-circuit for body types that bypass the JFlex lexer, so we never
         // call getTokenList unnecessarily (and never risk feeding binary body
         // content to yylex()).
-        if (initialTokenType <= INTERNAL_BODY_JSON) {
-            return INTERNAL_BODY_JSON;
+        if (initialTokenType <= INTERNAL_BODY_FORM) {
+            return initialTokenType;
         }
         if (initialTokenType == INTERNAL_BODY_PLAIN) {
             return INTERNAL_BODY_PLAIN;
@@ -180,12 +179,8 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
                 return Token.LITERAL_CHAR;
             case INTERNAL_BODY_PLAIN:
                 return Token.IDENTIFIER;
-            case INTERNAL_BODY_FORM_KEY:
-                return Token.RESERVED_WORD;
-            case INTERNAL_BODY_FORM_VALUE:
-                return Token.DATA_TYPE;
             default:
-                if (type <= INTERNAL_BODY_JSON) {
+                if (type <= INTERNAL_BODY_FORM) {
                     return Token.IDENTIFIER;
                 }
                 return type;
@@ -193,56 +188,15 @@ public class HttpRequestTokenMaker extends AbstractHttpTokenMaker {
     }
 
     // ------------------------------------------------------------------
-    // Form-urlencoded body
+    // Lazy delegate accessor
     // ------------------------------------------------------------------
 
-    private Token tokenizeFormBody(Segment text, int initialTokenType, int startOffset) {
-        // Simple hand-rolled tokenizer: scan for '=' and '&' delimiters.
-        // Keys: RESERVED_WORD, '=': SEPARATOR, values: DATA_TYPE, '&': VARIABLE.
-        char[] array = text.array;
-        int offset = text.offset;
-        int end = offset + text.count;
-
-        boolean inValue = (initialTokenType == INTERNAL_BODY_FORM_VALUE);
-        int tokenStart = offset;
-        int docOffset = startOffset;
-
-        for (int i = offset; i < end; i++) {
-            char c = array[i];
-            if (!inValue && c == '=') {
-                if (i > tokenStart) {
-                    addToken(array, tokenStart, i - 1, Token.RESERVED_WORD, docOffset);
-                    docOffset += i - tokenStart;
-                    tokenStart = i;
-                }
-                addToken(array, i, i, Token.SEPARATOR, docOffset);
-                docOffset++;
-                tokenStart = i + 1;
-                inValue = true;
-            } else if (inValue && c == '&') {
-                if (i > tokenStart) {
-                    addToken(array, tokenStart, i - 1, Token.DATA_TYPE, docOffset);
-                    docOffset += i - tokenStart;
-                    tokenStart = i;
-                }
-                addToken(array, i, i, Token.VARIABLE, docOffset);
-                docOffset++;
-                tokenStart = i + 1;
-                inValue = false;
-            }
+    private TokenMaker getJsonTokenMaker() {
+        if (jsonTokenMaker == null) {
+            jsonTokenMaker =
+                    TokenMakerFactory.getDefaultInstance()
+                            .getTokenMaker(SyntaxConstants.SYNTAX_STYLE_JSON);
         }
-
-        // Remaining content
-        if (tokenStart < end) {
-            addToken(
-                    array,
-                    tokenStart,
-                    end - 1,
-                    inValue ? Token.DATA_TYPE : Token.RESERVED_WORD,
-                    docOffset);
-        }
-
-        addEndToken(text, startOffset, inValue ? INTERNAL_BODY_FORM_VALUE : INTERNAL_BODY_FORM_KEY);
-        return firstToken;
+        return jsonTokenMaker;
     }
 }

@@ -20,10 +20,10 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 
 import javax.swing.text.Segment;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.modes.HTMLTokenMaker;
-import org.fife.ui.rsyntaxtextarea.modes.JavaScriptTokenMaker;
-import org.fife.ui.rsyntaxtextarea.modes.XMLTokenMaker;
+import org.fife.ui.rsyntaxtextarea.TokenMaker;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 /**
  * Token maker for a full HTTP response (status line + headers + body).
@@ -33,10 +33,10 @@ import org.fife.ui.rsyntaxtextarea.modes.XMLTokenMaker;
  *
  * <ul>
  *   <li>Status line and headers → {@link HttpResponseHeaderTokenMaker}
- *   <li>HTML body → {@link HTMLTokenMaker}
- *   <li>JavaScript body → {@link JavaScriptTokenMaker}
- *   <li>JSON body → {@link HttpBodyJsonTokenMaker}
- *   <li>XML body → {@link XMLTokenMaker}
+ *   <li>HTML body → {@code HTMLTokenMaker} (via installed {@link TokenMakerFactory})
+ *   <li>JavaScript body → {@code JavaScriptTokenMaker} (via installed {@link TokenMakerFactory})
+ *   <li>JSON body → {@code JsonTokenMaker} (via installed {@link TokenMakerFactory})
+ *   <li>XML body → {@code XMLTokenMaker} (via installed {@link TokenMakerFactory})
  *   <li>Plain/unrecognised body → emitted as unstyled {@code IDENTIFIER} tokens
  * </ul>
  *
@@ -96,17 +96,17 @@ public class HttpResponseTokenMaker extends AbstractHttpTokenMaker {
     /** Delegate for header-line tokenisation. Created lazily. */
     private HttpResponseHeaderTokenMaker headerTokenMaker;
 
-    /** Delegate for HTML body lines. Created lazily. */
-    private HTMLTokenMaker htmlTokenMaker;
+    /** Delegate for HTML body lines. Resolved via installed factory, lazily. */
+    private TokenMaker htmlTokenMaker;
 
-    /** Delegate for JavaScript body lines. Created lazily. */
-    private JavaScriptTokenMaker jsTokenMaker;
+    /** Delegate for JavaScript body lines. Resolved via installed factory, lazily. */
+    private TokenMaker jsTokenMaker;
 
-    /** Delegate for JSON body lines. Created lazily. */
-    private HttpBodyJsonTokenMaker jsonTokenMaker;
+    /** Delegate for JSON body lines. Resolved via installed factory, lazily. */
+    private TokenMaker jsonTokenMaker;
 
-    /** Delegate for XML body lines. Created lazily. */
-    private XMLTokenMaker xmlTokenMaker;
+    /** Delegate for XML body lines. Resolved via installed factory, lazily. */
+    private TokenMaker xmlTokenMaker;
 
     @Override
     protected int internalBodyPlain() {
@@ -139,38 +139,26 @@ public class HttpResponseTokenMaker extends AbstractHttpTokenMaker {
 
         /* ---- HTML body ---- */
         if (initialTokenType <= INTERNAL_BODY_HTML && initialTokenType > INTERNAL_BODY_JS) {
-            if (htmlTokenMaker == null) {
-                htmlTokenMaker = new HTMLTokenMaker();
-            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, htmlTokenMaker, INTERNAL_BODY_HTML);
+                    text, initialTokenType, startOffset, getHtmlTokenMaker(), INTERNAL_BODY_HTML);
         }
 
         /* ---- JavaScript body ---- */
         if (initialTokenType <= INTERNAL_BODY_JS && initialTokenType > INTERNAL_BODY_JSON) {
-            if (jsTokenMaker == null) {
-                jsTokenMaker = new JavaScriptTokenMaker();
-            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, jsTokenMaker, INTERNAL_BODY_JS);
+                    text, initialTokenType, startOffset, getJsTokenMaker(), INTERNAL_BODY_JS);
         }
 
         /* ---- JSON body ---- */
         if (initialTokenType <= INTERNAL_BODY_JSON && initialTokenType > INTERNAL_BODY_XML) {
-            if (jsonTokenMaker == null) {
-                jsonTokenMaker = new HttpBodyJsonTokenMaker();
-            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, jsonTokenMaker, INTERNAL_BODY_JSON);
+                    text, initialTokenType, startOffset, getJsonTokenMaker(), INTERNAL_BODY_JSON);
         }
 
         /* ---- XML body ---- */
         if (initialTokenType <= INTERNAL_BODY_XML) {
-            if (xmlTokenMaker == null) {
-                xmlTokenMaker = new XMLTokenMaker();
-            }
             return tokenizeDelegate(
-                    text, initialTokenType, startOffset, xmlTokenMaker, INTERNAL_BODY_XML);
+                    text, initialTokenType, startOffset, getXmlTokenMaker(), INTERNAL_BODY_XML);
         }
 
         /* ---- Plain body ---- */
@@ -222,5 +210,45 @@ public class HttpResponseTokenMaker extends AbstractHttpTokenMaker {
                 }
                 return type;
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Lazy delegate accessors — resolved via installed TokenMakerFactory
+    // ------------------------------------------------------------------
+
+    private TokenMaker getHtmlTokenMaker() {
+        if (htmlTokenMaker == null) {
+            htmlTokenMaker =
+                    TokenMakerFactory.getDefaultInstance()
+                            .getTokenMaker(SyntaxConstants.SYNTAX_STYLE_HTML);
+        }
+        return htmlTokenMaker;
+    }
+
+    private TokenMaker getJsTokenMaker() {
+        if (jsTokenMaker == null) {
+            jsTokenMaker =
+                    TokenMakerFactory.getDefaultInstance()
+                            .getTokenMaker(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+        }
+        return jsTokenMaker;
+    }
+
+    private TokenMaker getJsonTokenMaker() {
+        if (jsonTokenMaker == null) {
+            jsonTokenMaker =
+                    TokenMakerFactory.getDefaultInstance()
+                            .getTokenMaker(SyntaxConstants.SYNTAX_STYLE_JSON);
+        }
+        return jsonTokenMaker;
+    }
+
+    private TokenMaker getXmlTokenMaker() {
+        if (xmlTokenMaker == null) {
+            xmlTokenMaker =
+                    TokenMakerFactory.getDefaultInstance()
+                            .getTokenMaker(SyntaxConstants.SYNTAX_STYLE_XML);
+        }
+        return xmlTokenMaker;
     }
 }

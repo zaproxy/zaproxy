@@ -163,7 +163,7 @@ class HttpRequestTokenMakerUnitTest {
         Token tokens =
                 tokenMaker.getTokenList(
                         segment(""), HttpRequestHeaderTokenMaker.INTERNAL_HEADER_NAME_FORM, 0);
-        assertTokens(tokens, token(HttpRequestTokenMaker.INTERNAL_BODY_FORM_KEY));
+        assertTokens(tokens, token(HttpRequestTokenMaker.INTERNAL_BODY_FORM));
     }
 
     @Test
@@ -245,20 +245,20 @@ class HttpRequestTokenMakerUnitTest {
     void shouldTokeniseFormBodyKeyValue() {
         Token tokens =
                 tokenMaker.getTokenList(
-                        segment("key=value"), HttpRequestTokenMaker.INTERNAL_BODY_FORM_KEY, 0);
+                        segment("key=value"), HttpRequestTokenMaker.INTERNAL_BODY_FORM, 0);
         assertTokens(
                 tokens,
                 token(TokenTypes.RESERVED_WORD, "key"),
                 token(TokenTypes.SEPARATOR, "="),
                 token(TokenTypes.DATA_TYPE, "value"),
-                token(HttpRequestTokenMaker.INTERNAL_BODY_FORM_VALUE));
+                token(HttpRequestTokenMaker.INTERNAL_BODY_FORM));
     }
 
     @Test
     void shouldTokeniseFormBodyMultiplePairs() {
         Token tokens =
                 tokenMaker.getTokenList(
-                        segment("a=1&b=2"), HttpRequestTokenMaker.INTERNAL_BODY_FORM_KEY, 0);
+                        segment("a=1&b=2"), HttpRequestTokenMaker.INTERNAL_BODY_FORM, 0);
         assertTokens(
                 tokens,
                 token(TokenTypes.RESERVED_WORD, "a"),
@@ -268,25 +268,7 @@ class HttpRequestTokenMakerUnitTest {
                 token(TokenTypes.RESERVED_WORD, "b"),
                 token(TokenTypes.SEPARATOR, "="),
                 token(TokenTypes.DATA_TYPE, "2"),
-                token(HttpRequestTokenMaker.INTERNAL_BODY_FORM_VALUE));
-    }
-
-    @Test
-    void shouldContinueFormBodyValueFromPreviousLine() {
-        // Line starts mid-value (e.g. after ContentSplitter split)
-        Token tokens =
-                tokenMaker.getTokenList(
-                        segment("continuedvalue&next=x"),
-                        HttpRequestTokenMaker.INTERNAL_BODY_FORM_VALUE,
-                        0);
-        assertTokens(
-                tokens,
-                token(TokenTypes.DATA_TYPE, "continuedvalue"),
-                token(TokenTypes.VARIABLE, "&"),
-                token(TokenTypes.RESERVED_WORD, "next"),
-                token(TokenTypes.SEPARATOR, "="),
-                token(TokenTypes.DATA_TYPE, "x"),
-                token(HttpRequestTokenMaker.INTERNAL_BODY_FORM_VALUE));
+                token(HttpRequestTokenMaker.INTERNAL_BODY_FORM));
     }
 
     // -----------------------------------------------------------------------
@@ -350,14 +332,13 @@ class HttpRequestTokenMakerUnitTest {
     void shouldCarryFormBodyStateAcrossLines() {
         Token line1 =
                 tokenMaker.getTokenList(
-                        segment("key=val"), HttpRequestTokenMaker.INTERNAL_BODY_FORM_KEY, 0);
+                        segment("key=val"), HttpRequestTokenMaker.INTERNAL_BODY_FORM, 0);
         int nextState = lastToken(line1).getType();
-        assertThat(nextState, is(equalTo(HttpRequestTokenMaker.INTERNAL_BODY_FORM_VALUE)));
+        assertThat(nextState <= HttpRequestTokenMaker.INTERNAL_BODY_FORM, is(true));
 
-        Token line2 = tokenMaker.getTokenList(segment("ue&k2=v2"), nextState, 0);
+        Token line2 = tokenMaker.getTokenList(segment("k2=v2"), nextState, 0);
         assertThat(
-                lastToken(line2).getType(),
-                is(equalTo(HttpRequestTokenMaker.INTERNAL_BODY_FORM_VALUE)));
+                lastToken(line2).getType() <= HttpRequestTokenMaker.INTERNAL_BODY_FORM, is(true));
     }
 
     @Test

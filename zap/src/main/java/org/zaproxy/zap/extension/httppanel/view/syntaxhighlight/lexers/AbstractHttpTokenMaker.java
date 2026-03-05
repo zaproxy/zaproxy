@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 import javax.swing.text.Segment;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenImpl;
+import org.fife.ui.rsyntaxtextarea.TokenMaker;
 import org.fife.ui.rsyntaxtextarea.TokenMakerBase;
 
 /**
@@ -138,7 +139,7 @@ abstract class AbstractHttpTokenMaker extends TokenMakerBase {
             Segment text,
             int initialTokenType,
             int startOffset,
-            TokenMakerBase delegate,
+            TokenMaker delegate,
             int bodyBase) {
         int delegateInitialType = Math.min(initialTokenType - bodyBase, Token.NULL);
         Token src = delegate.getTokenList(text, delegateInitialType, startOffset);
