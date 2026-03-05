@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.spli
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
@@ -51,12 +52,18 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView
         // private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER =
         // "text/http-response-header";
 
+        private static final String HTTP_RESPONSE_HEADER =
+                Constant.messages.getString(
+                        "http.panel.view.syntaxtext.syntax.httpRequestHeader");
+
+        private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER =
+                "text/http-response-header";
+
         private static ResponseHeaderTokenMakerFactory tokenMakerFactory = null;
 
         public HttpResponseHeaderPanelSyntaxHighlightTextArea() {
-            // addSyntaxStyle(HTTP_RESPONSE_HEADER, SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
-
-            // setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
+            addSyntaxStyle(HTTP_RESPONSE_HEADER, SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
+            setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
         }
 
         @Override
@@ -105,9 +112,10 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView
         private static class ResponseHeaderTokenMakerFactory extends CustomTokenMakerFactory {
 
             public ResponseHeaderTokenMakerFactory() {
-                // String pkg = "";
-
-                // putMapping(SYNTAX_STYLE_HTTP_RESPONSE_HEADER, pkg + "HttpResponseTokenMaker");
+                String pkg =
+                        "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                putMapping(
+                        SYNTAX_STYLE_HTTP_RESPONSE_HEADER, pkg + "HttpRequestHeaderTokenMaker");
             }
         }
     }
