@@ -98,6 +98,7 @@ def usage():
     print('    -w report_md      file to write the full ZAP Wiki(Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
     print('    -J report_json    file to write the full ZAP JSON document')
+    print('    --export-json file   export alerts dictionary to JSON file')
     print('    -a                include the alpha passive scan rules as well')
     print('    -d                show debug messages')
     print('    -P                specify listen port')
@@ -145,6 +146,7 @@ def main(argv):
     report_md = ''
     report_xml = ''
     report_json = ''
+    export_json = ''
     target = ''
     target_url = ''
     host_override = ''
@@ -173,7 +175,7 @@ def main(argv):
     exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:U:", ["hook=", "schema="])
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:U:", ["hook=", "schema=", "export-json="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -242,6 +244,8 @@ def main(argv):
         elif opt == '--schema':
             schema = arg
             logging.debug('Schema: ' + schema)
+        elif opt == '--export-json':
+            export_json = arg
 
     check_zap_client_version()
 
@@ -520,6 +524,11 @@ def main(argv):
                 print('Total of ' + str(num_urls) + ' URLs')
 
             alert_dict = zap_get_alerts(zap, target, ignore_scan_rules, out_of_scope_dict)
+
+            if export_json:
+                with open(os.path.join(base_dir, export_json), "w") as f:
+                    json.dump(alert_dict, f, indent=4)
+                print('Alerts exported to ' + export_json)
 
             all_ascan_rules = zap.ascan.scanners('Default Policy')
             all_pscan_rules = zap.pscan.scanners
