@@ -29,11 +29,13 @@ function responseReceived(msg, initiator, helper) {
 			// Do nothing
 		} else {
 			var risk = 0	// Info
+			var alertRef = 1
 			var title = "A Client Error response code was returned by the server"
 			if (code >= 500) {
 				// Server error
 				risk = 1	// Low
 				title = "A Server Error response code was returned by the server"
+				alertRef = 2
 			}
 			// CONFIDENCE_HIGH = 3 (we can be pretty sure we're right)
 			var alert = new Alert(pluginid, risk, 3, title)
@@ -82,6 +84,7 @@ function responseReceived(msg, initiator, helper) {
 				"This may indicate that the application is failing to handle unexpected input correctly.\n" +
 				"Raised by the 'Alert on HTTP Response Code Error' script");
 			alert.setEvidence(code.toString())
+			alert.setAlertRef(pluginid + "-" + alertRef)
 			alert.setCweId(388)	// CWE CATEGORY: Error Handling
 			alert.setWascId(20)	// WASC  Improper Input Handling
 			extensionAlert.alertFound(alert , ref)
