@@ -98,7 +98,7 @@ public class ParosDatabase extends AbstractDatabase {
     private DatabaseParam databaseOptions;
 
     public ParosDatabase() {
-        tableHistory = new ParosTableHistory();
+        tableHistory = new InMemoryTableHistory();
         tableSession = new ParosTableSession();
         tableAlert = new ParosTableAlert();
         tableAlertTag = new ParosTableAlertTag();
