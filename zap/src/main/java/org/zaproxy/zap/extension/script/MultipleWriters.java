@@ -50,9 +50,16 @@ public class MultipleWriters extends Writer {
 
     @Override
     public void close() throws IOException {
+        IOException first = null;
         for (Writer writer : writers) {
-            writer.close();
+            try {
+                writer.close();
+            } catch (IOException e) {
+                if (first == null) first = e;
+                else first.addSuppressed(e);
+            }
         }
+        if (first != null) throw first;
     }
 
     public void addWriter(Writer writer) {
