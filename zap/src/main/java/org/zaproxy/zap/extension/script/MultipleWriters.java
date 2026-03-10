@@ -36,15 +36,39 @@ public class MultipleWriters extends Writer {
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         String str = new String(cbuf, off, len);
+        IOException first = null;
         for (Writer writer : writers) {
-            writer.append(str);
+            try {
+                writer.append(str);
+            } catch (IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
+            }
+        }
+        if (first != null) {
+            throw first;
         }
     }
 
     @Override
     public void flush() throws IOException {
+        IOException first = null;
         for (Writer writer : writers) {
-            writer.flush();
+            try {
+                writer.flush();
+            } catch (IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
+            }
+        }
+        if (first != null) {
+            throw first;
         }
     }
 
@@ -55,11 +79,16 @@ public class MultipleWriters extends Writer {
             try {
                 writer.close();
             } catch (IOException e) {
-                if (first == null) first = e;
-                else first.addSuppressed(e);
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
             }
         }
-        if (first != null) throw first;
+        if (first != null) {
+            throw first;
+        }
     }
 
     public void addWriter(Writer writer) {
