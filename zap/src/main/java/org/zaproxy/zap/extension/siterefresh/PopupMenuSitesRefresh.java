@@ -63,4 +63,9 @@ public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
     public int getWeight() {
         return MenuWeights.MENU_SITE_REFRESH_WEIGHT;
     }
+
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }
