@@ -71,7 +71,7 @@ public class InMemoryTableHistory extends ParosAbstractTable implements TableHis
 
     private final AtomicInteger nextId = new AtomicInteger();
 
-    private final InMemoryDb<HistoryItem> db = new InMemoryDb<>();
+    private final InMemoryDb<Integer,HistoryItem> db = new InMemoryDb<>();
 
     public InMemoryTableHistory() {
     }

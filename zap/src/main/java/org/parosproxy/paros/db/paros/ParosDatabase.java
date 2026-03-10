@@ -104,7 +104,7 @@ public class ParosDatabase extends AbstractDatabase {
         tableAlertTag = new ParosTableAlertTag();
         tableScan = new ParosTableScan();
         // ZAP: Added statement.
-        tableTag = new ParosTableTag();
+        tableTag = new InMemoryTableTag();
         // ZAP: Added statement.
         tableSessionUrl = new ParosTableSessionUrl();
         // ZAP: Added statement.
