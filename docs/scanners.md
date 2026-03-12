@@ -113,6 +113,7 @@ Scan rules:
 10202   Absence of Anti-CSRF Tokens
 10203   Freak (via HTTPS Info Extension) [Deprecated]
 10204   Robot (via HTTPS Info Extension) [Deprecated]
+10205   HTTPS Configuration Issues
 
 20000   Cold Fusion default file [Deprecated]
 20001   Lotus Domino default files [Deprecated]
