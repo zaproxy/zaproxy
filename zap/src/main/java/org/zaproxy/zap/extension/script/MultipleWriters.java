@@ -33,13 +33,16 @@ public class MultipleWriters extends Writer {
 
     private List<Writer> writers = new ArrayList<>();
 
-    @Override
-    public void write(char[] cbuf, int off, int len) throws IOException {
-        String str = new String(cbuf, off, len);
+    @FunctionalInterface
+    private interface WriterAction {
+        void accept(Writer writer) throws IOException;
+    }
+
+    private void forEachWriter(WriterAction action) throws IOException {
         IOException first = null;
         for (Writer writer : writers) {
             try {
-                writer.append(str);
+                action.accept(writer);
             } catch (IOException e) {
                 if (first == null) {
                     first = e;
@@ -51,44 +54,22 @@ public class MultipleWriters extends Writer {
         if (first != null) {
             throw first;
         }
+    }
+
+    @Override
+    public void write(char[] cbuf, int off, int len) throws IOException {
+        String str = new String(cbuf, off, len);
+        forEachWriter(writer -> writer.append(str));
     }
 
     @Override
     public void flush() throws IOException {
-        IOException first = null;
-        for (Writer writer : writers) {
-            try {
-                writer.flush();
-            } catch (IOException e) {
-                if (first == null) {
-                    first = e;
-                } else {
-                    first.addSuppressed(e);
-                }
-            }
-        }
-        if (first != null) {
-            throw first;
-        }
+        forEachWriter(Writer::flush);
     }
 
     @Override
     public void close() throws IOException {
-        IOException first = null;
-        for (Writer writer : writers) {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                if (first == null) {
-                    first = e;
-                } else {
-                    first.addSuppressed(e);
-                }
-            }
-        }
-        if (first != null) {
-            throw first;
-        }
+        forEachWriter(Writer::close);
     }
 
     public void addWriter(Writer writer) {
