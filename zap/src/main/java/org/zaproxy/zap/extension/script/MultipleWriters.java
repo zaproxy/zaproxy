@@ -33,26 +33,43 @@ public class MultipleWriters extends Writer {
 
     private List<Writer> writers = new ArrayList<>();
 
+    @FunctionalInterface
+    private interface WriterAction {
+        void accept(Writer writer) throws IOException;
+    }
+
+    private void forEachWriter(WriterAction action) throws IOException {
+        IOException first = null;
+        for (Writer writer : writers) {
+            try {
+                action.accept(writer);
+            } catch (IOException e) {
+                if (first == null) {
+                    first = e;
+                } else {
+                    first.addSuppressed(e);
+                }
+            }
+        }
+        if (first != null) {
+            throw first;
+        }
+    }
+
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         String str = new String(cbuf, off, len);
-        for (Writer writer : writers) {
-            writer.append(str);
-        }
+        forEachWriter(writer -> writer.append(str));
     }
 
     @Override
     public void flush() throws IOException {
-        for (Writer writer : writers) {
-            writer.flush();
-        }
+        forEachWriter(Writer::flush);
     }
 
     @Override
     public void close() throws IOException {
-        for (Writer writer : writers) {
-            writer.close();
-        }
+        forEachWriter(Writer::close);
     }
 
     public void addWriter(Writer writer) {
