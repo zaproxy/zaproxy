@@ -19,9 +19,9 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.codec.binary.Base64;
 
 public class EncodingUtils {
 
@@ -33,9 +33,11 @@ public class EncodingUtils {
                 stringBuilder.append("&");
             }
             String value = map.get(key);
-            stringBuilder.append(key != null ? Base64.encodeBase64String(key.getBytes()) : "");
+            stringBuilder.append(
+                    key != null ? Base64.getEncoder().encodeToString(key.getBytes()) : "");
             stringBuilder.append(":");
-            stringBuilder.append(value != null ? Base64.encodeBase64String(value.getBytes()) : "");
+            stringBuilder.append(
+                    value != null ? Base64.getEncoder().encodeToString(value.getBytes()) : "");
         }
 
         return stringBuilder.toString();
@@ -51,8 +53,10 @@ public class EncodingUtils {
         for (String nameValuePair : nameValuePairs) {
             String[] nameValue = nameValuePair.split(":", 2);
             map.put(
-                    new String(Base64.decodeBase64(nameValue[0])),
-                    nameValue.length > 1 ? new String(Base64.decodeBase64(nameValue[1])) : "");
+                    new String(Base64.getDecoder().decode(nameValue[0])),
+                    nameValue.length > 1
+                            ? new String(Base64.getDecoder().decode(nameValue[1]))
+                            : "");
         }
 
         return map;

@@ -39,8 +39,7 @@ import java.util.Locale;
 import java.util.BitSet;
 import java.util.Hashtable;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.net.URLCodec;
+import java.io.ByteArrayOutputStream;
 import org.apache.commons.httpclient.util.EncodingUtil;
 
 /*
@@ -1703,7 +1702,50 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
      * @return URI character sequence
      * @throws URIException null component or unsupported character encoding
      */
-        
+    private static byte[] encodeUrl(BitSet urlsafe, byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        for (byte c : bytes) {
+            int b = c & 0xff;
+            if (urlsafe.get(b)) {
+                buffer.write(b == ' ' ? '+' : b);
+            } else {
+                buffer.write('%');
+                buffer.write(Character.toUpperCase(Character.forDigit(b >> 4, 16)));
+                buffer.write(Character.toUpperCase(Character.forDigit(b & 0x0f, 16)));
+            }
+        }
+        return buffer.toByteArray();
+    }
+
+    private static byte[] decodeUrl(byte[] bytes) throws URIException {
+        if (bytes == null) {
+            return null;
+        }
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        for (int i = 0; i < bytes.length; i++) {
+            int b = bytes[i] & 0xff;
+            if (b == '+') {
+                buffer.write(' ');
+            } else if (b == '%') {
+                if (i + 2 >= bytes.length) {
+                    throw new URIException("Invalid URL encoding: incomplete trailing escape");
+                }
+                int u = Character.digit((char) bytes[++i], 16);
+                int l = Character.digit((char) bytes[++i], 16);
+                if (u < 0 || l < 0) {
+                    throw new URIException("Invalid URL encoding: invalid hex digit");
+                }
+                buffer.write((u << 4) + l);
+            } else {
+                buffer.write(b);
+            }
+        }
+        return buffer.toByteArray();
+    }
+
     protected static char[] encode(String original, BitSet allowed,
             String charset) throws URIException {
         if (original == null) {
@@ -1712,7 +1754,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
         if (allowed == null) {
             throw new IllegalArgumentException("Allowed bitset may not be null");
         }
-        byte[] rawdata = URLCodec.encodeUrl(allowed, EncodingUtil.getBytes(original, charset));
+        byte[] rawdata = encodeUrl(allowed, EncodingUtil.getBytes(original, charset));
         return EncodingUtil.getAsciiString(rawdata).toCharArray();
     }
 
@@ -1791,12 +1833,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
         if (component == null) {
             throw new IllegalArgumentException("Component array of chars may not be null");
         }
-        byte[] rawdata = null;
-        try { 
-            rawdata = URLCodec.decodeUrl(EncodingUtil.getAsciiBytes(component));
-        } catch (DecoderException e) {
-            throw new URIException(e.getMessage());
-        }
+        byte[] rawdata = decodeUrl(EncodingUtil.getAsciiBytes(component));
         return EncodingUtil.getString(rawdata, charset);
     }
     /**

@@ -22,6 +22,7 @@ package org.zaproxy.zap.authentication;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import net.sf.json.JSONObject;
-import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -139,8 +139,8 @@ public class UsernamePasswordAuthenticationCredentials extends TotpAuthenticatio
         }
 
         StringBuilder out = new StringBuilder();
-        out.append(Base64.encodeBase64String(username.getBytes())).append(FIELD_SEPARATOR);
-        out.append(Base64.encodeBase64String(password.getBytes())).append(FIELD_SEPARATOR);
+        out.append(Base64.getEncoder().encodeToString(username.getBytes())).append(FIELD_SEPARATOR);
+        out.append(Base64.getEncoder().encodeToString(password.getBytes())).append(FIELD_SEPARATOR);
         encodeTotpData(out, FIELD_SEPARATOR);
         return out.toString();
     }
@@ -160,8 +160,8 @@ public class UsernamePasswordAuthenticationCredentials extends TotpAuthenticatio
             return;
         }
 
-        this.username = new String(Base64.decodeBase64(pieces[0]));
-        if (pieces.length > 1) this.password = new String(Base64.decodeBase64(pieces[1]));
+        this.username = new String(Base64.getDecoder().decode(pieces[0]));
+        if (pieces.length > 1) this.password = new String(Base64.getDecoder().decode(pieces[1]));
         else this.password = "";
 
         if (pieces.length > 2) {

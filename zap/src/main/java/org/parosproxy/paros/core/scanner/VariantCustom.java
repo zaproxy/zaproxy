@@ -20,10 +20,10 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
-import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
@@ -235,7 +235,7 @@ public class VariantCustom implements Variant {
      * @return the encoded string
      */
     public String encodeBase64(String value) {
-        return Base64.encodeBase64String(value.getBytes());
+        return Base64.getEncoder().encodeToString(value.getBytes());
     }
 
     /**
@@ -245,7 +245,7 @@ public class VariantCustom implements Variant {
      * @return the decoded string
      */
     public String decodeBase64(String value) {
-        return new String(Base64.decodeBase64(value));
+        return new String(Base64.getDecoder().decode(value));
     }
 
     /**

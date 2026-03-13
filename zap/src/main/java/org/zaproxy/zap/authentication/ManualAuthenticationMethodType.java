@@ -21,6 +21,7 @@ package org.zaproxy.zap.authentication;
 
 import java.awt.Component;
 import java.awt.GridBagLayout;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.Cookie;
@@ -211,7 +211,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
             if (selectedSession == null) {
                 return "";
             }
-            return Base64.encodeBase64String(selectedSession.getName().getBytes());
+            return Base64.getEncoder().encodeToString(selectedSession.getName().getBytes());
         }
 
         @Override

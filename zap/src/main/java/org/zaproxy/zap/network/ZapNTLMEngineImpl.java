@@ -40,7 +40,7 @@ import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
+import java.util.Base64;
 import org.apache.commons.httpclient.auth.AuthenticationException;
 
 /*
@@ -1098,7 +1098,7 @@ final class ZapNTLMEngineImpl {
 
         /** Constructor taking a string */
         NTLMMessage(final String messageBody, final int expectedType) throws AuthenticationException {
-            this(Base64.decodeBase64(messageBody.getBytes(DEFAULT_CHARSET)), expectedType);
+            this(Base64.getDecoder().decode(messageBody.getBytes(DEFAULT_CHARSET)), expectedType);
         }
 
         /** Constructor to use when message bytes are known */
@@ -1234,7 +1234,7 @@ final class ZapNTLMEngineImpl {
          * @return The response as above.
          */
         public String getResponse() {
-            return new String(Base64.encodeBase64(getBytes()), StandardCharsets.US_ASCII);
+            return new String(Base64.getEncoder().encode(getBytes()), StandardCharsets.US_ASCII);
         }
 
         public byte[] getBytes() {
@@ -1382,7 +1382,7 @@ final class ZapNTLMEngineImpl {
         protected final int flags;
 
         Type2Message(final String messageBody) throws AuthenticationException {
-            this(Base64.decodeBase64(messageBody.getBytes(DEFAULT_CHARSET)));
+            this(Base64.getDecoder().decode(messageBody.getBytes(DEFAULT_CHARSET)));
         }
 
         Type2Message(final byte[] message) throws AuthenticationException {
