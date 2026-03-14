@@ -62,12 +62,15 @@
 // ZAP: 2025/11/03 Record stats for built-in policies.
 // ZAP: 2025/11/21 From now on we will not be recording changes here as the files have changed so
 // much.
+// ZAP: 2025/12/08 Pause timers when pausing the scan (Issue 3455).
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -77,7 +80,11 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -101,6 +108,7 @@ import org.zaproxy.zap.utils.Stats;
 
 public class Scanner implements Runnable {
 
+    private static final double DOUBLE_ONE_THOUSAND = 1000.0;
     public static final String ASCAN_SCAN_STARTED_STATS = "stats.ascan.started";
     public static final String ASCAN_SCAN_STARTED_USER_STATS = "stats.ascan.started.user";
     public static final String ASCAN_SCAN_STOPPED_STATS = "stats.ascan.stopped";
@@ -116,6 +124,14 @@ public class Scanner implements Runnable {
     private static final Logger LOGGER = LogManager.getLogger(Scanner.class);
     private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
+    private final ReentrantLock pauseLock = new ReentrantLock();
+    private final Condition pausedCondition = pauseLock.newCondition();
+
+    private final StopWatch watch = new StopWatch();
+
+    private volatile Instant startInstant = null;
+    private volatile Instant finishInstant = null;
+
     private Vector<ScannerListener> listenerList = new Vector<>();
 
     // ZAP: Added a list of scannerhooks
@@ -126,7 +142,6 @@ public class Scanner implements Runnable {
     private boolean isStop = false;
     private ThreadPool pool = null;
     private Target target = null;
-    private long startTimeMillis = 0;
     private List<Pattern> excludeUrls = null;
     private boolean justScanInScope = false;
     private boolean scanChildren = true;
@@ -137,7 +152,7 @@ public class Scanner implements Runnable {
     private int id;
 
     // ZAP: Added scanner pause option
-    private boolean pause = false;
+    private volatile boolean pause = false;
 
     private List<HostProcess> hostProcesses = new ArrayList<>();
 
@@ -205,7 +220,21 @@ public class Scanner implements Runnable {
     public void start(Target target) {
         isStop = false;
         LOGGER.info("scanner with ID {} started", id);
-        startTimeMillis = System.currentTimeMillis();
+        pauseLock.lock();
+        try {
+            if (startInstant == null) {
+                // Only set on the initial start
+                startInstant = Instant.now();
+            }
+            if (!watch.isStarted()) {
+                watch.start();
+            } else if (watch.isSuspended()) {
+                watch.resume();
+            }
+            finishInstant = null;
+        } finally {
+            pauseLock.unlock();
+        }
         this.target = target;
         Thread thread = new Thread(this);
         thread.setPriority(Thread.NORM_PRIORITY - 2);
@@ -224,15 +253,38 @@ public class Scanner implements Runnable {
     }
 
     public void stop() {
-        if (!isStop) {
-            LOGGER.info("scanner with ID {} stopped", id);
-
+        if (this.pause) {
+            this.resume();
+        }
+        if (isStop) {
+            return;
+        }
+        pauseLock.lock();
+        try {
+            stopTheWatch();
+            if (startInstant != null) {
+                finishInstant = startInstant.plusMillis(getElapsedMillis());
+            } else {
+                finishInstant = Instant.now();
+            }
             isStop = true;
-            hostProcesses.stream().forEach(HostProcess::stop);
+        } finally {
+            pauseLock.unlock();
+        }
+        hostProcesses.forEach(HostProcess::stop);
+        LOGGER.info("scanner with ID {} stopped", id);
 
-            ActiveScanEventPublisher.publishScanEvent(
-                    ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
-            Stats.incCounter(ASCAN_SCAN_STOPPED_STATS);
+        ActiveScanEventPublisher.publishScanEvent(
+                ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
+        Stats.incCounter(ASCAN_SCAN_STOPPED_STATS);
+    }
+
+    private void stopTheWatch() {
+        if (watch.isStarted()) {
+            if (watch.isSuspended()) {
+                watch.resume();
+            }
+            watch.stop();
         }
     }
 
@@ -415,8 +467,8 @@ public class Scanner implements Runnable {
     }
 
     void notifyScannerComplete() {
-        long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
+        long diffTimeMillis = getElapsedMillis();
+        String diffTimeString = decimalFormat.format(diffTimeMillis / DOUBLE_ONE_THOUSAND) + "s";
         LOGGER.info("scanner with ID {} completed in {}", id, diffTimeString);
         isStop = true;
 
@@ -444,6 +496,54 @@ public class Scanner implements Runnable {
         }
     }
 
+    /**
+     * Returns a virtual start Date such that: (now - getTimeStarted().getTime()) ==
+     * getElapsedMillis()
+     *
+     * <p>Declared here so subclasses (e.g. ActiveScan) may override, and so Scanner code can safely
+     * call getTimeStarted().
+     */
+    public Date getTimeStarted() {
+        long elapsedMillis = getElapsedMillis();
+        if (elapsedMillis <= 0L) {
+            return null;
+        }
+        return new Date(System.currentTimeMillis() - elapsedMillis);
+    }
+
+    /**
+     * Returns a virtual finish Date computed as (getTimeStarted() + getElapsedMillis()), or null if
+     * the scan has not finished yet (preserving prior behaviour).
+     *
+     * <p>Declared here so subclasses may override.
+     */
+    public Date getTimeFinished() {
+        if (!this.isStop()) {
+            return null;
+        }
+        Date started = getTimeStarted();
+        if (started == null) {
+            return null;
+        }
+        long elapsedMillis = getElapsedMillis();
+        return new Date(started.getTime() + elapsedMillis);
+    }
+
+    /**
+     * Returns the current effective instant: start time plus elapsed active (non-paused) time. Used
+     * so that timing across the scanner excludes paused periods. Returns {@code null} if the scan
+     * has not been started yet (e.g. {@code startInstant} is null).
+     *
+     * @return the effective instant, or {@code null} if not started
+     */
+    public Instant getEffectiveInstant() {
+        Instant s = startInstant;
+        if (s == null) {
+            return null;
+        }
+        return s.plusMillis(getElapsedMillis());
+    }
+
     void notifyFilteredMessage(HttpMessage msg, String reason) {
         for (int i = 0; i < listenerList.size(); i++) {
             ScannerListener listener = listenerList.get(i);
@@ -469,19 +569,101 @@ public class Scanner implements Runnable {
 
     // ZAP: support pause and notify parent
     public void pause() {
-        this.pause = true;
+        pauseLock.lock();
+        try {
+            if (pause) {
+                return;
+            }
+            pause = true;
+            if (watch.isStarted() && !watch.isSuspended()) {
+                watch.suspend();
+            }
+        } finally {
+            pauseLock.unlock();
+        }
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_PAUSED_EVENT, this.getId());
     }
 
     public void resume() {
-        this.pause = false;
+        if (!pause) {
+            return;
+        }
+
+        pauseLock.lock();
+        try {
+            pausedCondition.signalAll();
+            if (watch.isSuspended()) {
+                watch.resume();
+            }
+            pause = false;
+        } finally {
+            pauseLock.unlock();
+        }
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_RESUMED_EVENT, this.getId());
     }
 
     public boolean isPaused() {
         return pause;
+    }
+
+    /**
+     * Called by worker threads to block while the scanner is paused. Returns immediately if not
+     * paused. Uses a ReentrantLock + Condition to wait efficiently.
+     */
+    public void waitIfPaused() {
+        // fast-path avoid locking when not paused
+        if (!pause) {
+            return;
+        }
+        pauseLock.lock();
+        try {
+            while (pause) {
+                try {
+                    pausedCondition.await();
+                } catch (InterruptedException e) {
+                    // preserve interrupt status — callers (workers) should handle interrupts
+                    // appropriately
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                if (isStop) {
+                    break;
+                }
+            }
+        } finally {
+            pauseLock.unlock();
+        }
+    }
+
+    /**
+     * Returns elapsed milliseconds excluding times when the scan was paused. If the scan is running
+     * includes the current running period.
+     */
+    public long getElapsedMillis() {
+        pauseLock.lock();
+        try {
+            return watch.getDuration().toMillis();
+        } finally {
+            pauseLock.unlock();
+        }
+    }
+
+    /**
+     * Returns elapsed seconds (including fractional part) excluding times when the scan was paused.
+     * If the scan is running includes the current running period. Equivalent to {@code
+     * getElapsedMillis() / 1000.0} but computed from the same underlying duration.
+     */
+    public double getElapsedSeconds() {
+        pauseLock.lock();
+        try {
+            var duration = watch.getDuration();
+            return duration.getSeconds()
+                    + (double) duration.getNano() / TimeUnit.SECONDS.toNanos(1);
+        } finally {
+            pauseLock.unlock();
+        }
     }
 
     public void notifyNewMessage(HttpMessage msg) {
