@@ -19,8 +19,8 @@
  */
 package org.zaproxy.zap.users;
 
+import java.util.Base64;
 import java.util.List;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -310,7 +310,8 @@ public class User extends Enableable {
         StringBuilder out = new StringBuilder();
         out.append(user.id).append(FIELD_SEPARATOR);
         out.append(user.isEnabled()).append(FIELD_SEPARATOR);
-        out.append(Base64.encodeBase64String(user.name.getBytes())).append(FIELD_SEPARATOR);
+        out.append(Base64.getEncoder().encodeToString(user.name.getBytes()))
+                .append(FIELD_SEPARATOR);
         out.append(user.getContext().getAuthenticationMethod().getType().getUniqueIdentifier())
                 .append(FIELD_SEPARATOR);
         if (user.authenticationCredentials != null) {
@@ -351,7 +352,7 @@ public class User extends Enableable {
             int id = Integer.parseInt(pieces[0]);
             if (id >= ID_SOURCE) ID_SOURCE = id + 1;
             boolean enabled = pieces[1].equals("true");
-            String name = new String(Base64.decodeBase64(pieces[2]));
+            String name = new String(Base64.getDecoder().decode(pieces[2]));
             int authTypeId = Integer.parseInt(pieces[3]);
             user = new User(contextId, name, id);
             user.setEnabled(enabled);

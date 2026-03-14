@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HexFormat;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.InvalidUserDataException;
@@ -218,7 +220,6 @@ public abstract class CreateGitHubRelease extends DefaultTask {
 
         String baseDownloadLink =
                 "https://github.com/" + repo.get() + "/releases/download/" + tag.get() + "/";
-        DigestUtils digestUtils = new DigestUtils(algorithm);
 
         List<File> files =
                 assets.stream()
@@ -227,14 +228,21 @@ public abstract class CreateGitHubRelease extends DefaultTask {
                         .collect(Collectors.toList());
         for (File file : files) {
             String fileName = file.getName();
-            body.append("| [")
-                    .append(fileName)
-                    .append("](")
-                    .append(baseDownloadLink)
-                    .append(fileName)
-                    .append(") | `")
-                    .append(digestUtils.digestAsHex(file))
-                    .append("` |\n");
+            try {
+                byte[] digest =
+                        MessageDigest.getInstance(algorithm)
+                                .digest(Files.readAllBytes(file.toPath()));
+                body.append("| [")
+                        .append(fileName)
+                        .append("](")
+                        .append(baseDownloadLink)
+                        .append(fileName)
+                        .append(") | `")
+                        .append(HexFormat.of().formatHex(digest))
+                        .append("` |\n");
+            } catch (NoSuchAlgorithmException e) {
+                throw new IOException("Unsupported digest algorithm: " + algorithm, e);
+            }
         }
     }
 }
