@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import org.gradle.api.tasks.util.internal.PatternSetFactory;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileTree;
@@ -44,13 +45,21 @@ public class JFlexGenerator extends SourceTask {
 
     private final ConfigurableFileCollection classpath;
     private final DirectoryProperty outputDirectory;
+    private final PatternSetFactory patternSetFactory;
 
-    public JFlexGenerator() {
+    @Inject
+    public JFlexGenerator(PatternSetFactory patternSetFactory) {
+        this.patternSetFactory = patternSetFactory;
         this.outputDirectory = getProject().getObjects().directoryProperty();
         this.classpath = getProject().files();
 
         source("src/main/flex");
         include("**/*.flex");
+    }
+
+    @Override
+    protected PatternSetFactory getPatternSetFactory() {
+        return patternSetFactory;
     }
 
     @Inject
