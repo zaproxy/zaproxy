@@ -25,11 +25,9 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HexFormat;
+import org.zaproxy.zap.tasks.internal.Utils;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 
@@ -66,7 +64,7 @@ public abstract class HandleWeeklyRelease extends SendRepositoryDispatch {
     private void createPayloadData() {
         String checksum;
         try {
-            checksum = createChecksum(getChecksumAlgorithm().get(), downloadRelease());
+            checksum = Utils.digest(downloadRelease(), getChecksumAlgorithm().get());
         } catch (Exception e) {
             throw new BuildException(e);
         }
@@ -106,16 +104,5 @@ public abstract class HandleWeeklyRelease extends SendRepositoryDispatch {
                     "The provided URL does not have a file name: " + url);
         }
         return url.substring(idx + 1);
-    }
-
-    private static String createChecksum(String algorithm, Path file) throws IOException {
-        try {
-            byte[] digest =
-                    MessageDigest.getInstance(algorithm)
-                            .digest(Files.readAllBytes(file));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException("Unsupported digest algorithm: " + algorithm, e);
-        }
     }
 }

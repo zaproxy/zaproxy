@@ -73,8 +73,12 @@ public final class Utils {
     }
 
     public static String hash(Path file, MainAddOn addOn) throws IOException {
-        String hash = addOn.getHash();
-        String algorithm = hash.substring(0, hash.indexOf(':'));
+        String existingHash = addOn.getHash();
+        String algorithm = existingHash.substring(0, existingHash.indexOf(':'));
+        return algorithm + ":" + digest(file, algorithm);
+    }
+
+    public static String digest(Path file, String algorithm) throws IOException {
         try (InputStream is = new BufferedInputStream(Files.newInputStream(file))) {
             MessageDigest diggest = MessageDigest.getInstance(algorithm);
 
@@ -84,8 +88,7 @@ public final class Utils {
                 diggest.update(buffer, 0, read);
             }
 
-            StringBuilder sb = new StringBuilder(algorithm);
-            sb.append(':');
+            StringBuilder sb = new StringBuilder();
             for (byte b : diggest.digest()) {
                 sb.append(String.format("%02x", b));
             }

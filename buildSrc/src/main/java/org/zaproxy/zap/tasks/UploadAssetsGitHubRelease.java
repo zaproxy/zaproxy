@@ -21,13 +21,10 @@ package org.zaproxy.zap.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HexFormat;
 import java.util.stream.Collectors;
+import org.zaproxy.zap.tasks.internal.Utils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.InvalidUserDataException;
@@ -185,21 +182,15 @@ public abstract class UploadAssetsGitHubRelease extends DefaultTask {
                         .collect(Collectors.toList());
         for (File file : files) {
             String fileName = file.getName();
-            try {
-                byte[] digest =
-                        MessageDigest.getInstance(algorithm)
-                                .digest(Files.readAllBytes(file.toPath()));
-                body.append("| [")
-                        .append(fileName)
-                        .append("](")
-                        .append(baseDownloadLink)
-                        .append(fileName)
-                        .append(") | `")
-                        .append(HexFormat.of().formatHex(digest))
-                        .append("` |\n");
-            } catch (NoSuchAlgorithmException e) {
-                throw new IOException("Unsupported digest algorithm: " + algorithm, e);
-            }
+            String hexDigest = Utils.digest(file.toPath(), algorithm);
+            body.append("| [")
+                    .append(fileName)
+                    .append("](")
+                    .append(baseDownloadLink)
+                    .append(fileName)
+                    .append(") | `")
+                    .append(hexDigest)
+                    .append("` |\n");
         }
         body.append(previousBody.substring(idx));
         return body.toString();

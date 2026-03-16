@@ -72,12 +72,8 @@ spotless {
                 mapOf(
                     "import org.apache.commons.lang." to
                         "Import/use classes from Commons Lang 3, instead of Lang 2.",
-                    "import org.apache.commons.codec.binary.Base64" to
-                        "Use java.util.Base64 instead.",
-                    "import org.apache.commons.codec.binary.Hex" to
-                        "Use java.util.HexFormat instead.",
-                    "import org.apache.commons.codec.digest.DigestUtils" to
-                        "Use org.zaproxy.zap.utils.DigestUtils instead.",
+                    "import org.apache.commons.codec." to
+                        "Do not use import org.apache.commons.codec.",
                 ),
             ),
         )
@@ -96,6 +92,7 @@ dependencies {
     api("com.fifesoft:rsyntaxtextarea:3.6.0")
     api("com.github.zafarkhaja:java-semver:0.10.2")
     implementation("commons-beanutils:commons-beanutils:1.11.0")
+    implementation("commons-codec:commons-codec:1.20.0")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
