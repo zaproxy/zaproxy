@@ -308,25 +308,6 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
     }
 
     @Override
-    public synchronized void updateHistoryIds(int alertId, int historyId, int sourceHistoryId)
-            throws DatabaseException {
-
-        SqlPreparedStatementWrapper psUpdateHistoryIds = null;
-        try {
-            psUpdateHistoryIds =
-                    DbSQL.getSingleton().getPreparedStatement("alert.ps.updatehistoryid");
-            psUpdateHistoryIds.getPs().setInt(1, historyId);
-            psUpdateHistoryIds.getPs().setInt(2, sourceHistoryId);
-            psUpdateHistoryIds.getPs().setInt(3, alertId);
-            psUpdateHistoryIds.getPs().executeUpdate();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        } finally {
-            DbSQL.getSingleton().releasePreparedStatement(psUpdateHistoryIds);
-        }
-    }
-
-    @Override
     public List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws DatabaseException {
         SqlPreparedStatementWrapper psGetAlertsForHistoryId = null;
         try {
@@ -347,28 +328,6 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             throw new DatabaseException(e);
         } finally {
             DbSQL.getSingleton().releasePreparedStatement(psGetAlertsForHistoryId);
-        }
-    }
-
-    @Override
-    public Vector<Integer> getAlertListBySession(long sessionId) throws DatabaseException {
-        SqlPreparedStatementWrapper psGetAlertsForSession = null;
-        try {
-            psGetAlertsForSession =
-                    DbSQL.getSingleton().getPreparedStatement("alert.ps.getalertsforsession");
-            Vector<Integer> v = new Vector<>();
-            psGetAlertsForSession.getPs().setLong(1, sessionId);
-            try (ResultSet rs = psGetAlertsForSession.getPs().executeQuery()) {
-                while (rs.next()) {
-                    int alertId = rs.getInt(ALERTID);
-                    v.add(alertId);
-                }
-            }
-            return v;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        } finally {
-            DbSQL.getSingleton().releasePreparedStatement(psGetAlertsForSession);
         }
     }
 

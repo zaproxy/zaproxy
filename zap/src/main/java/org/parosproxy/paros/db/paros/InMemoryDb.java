@@ -9,6 +9,10 @@ class InMemoryDb<K,V> {
 
     private final ConcurrentHashMap<K, V> map = new ConcurrentHashMap<>();
 
+    public int size() {
+        return map.size();
+    }
+
     public void put(K id, V value) {
         map.put(id, value);
     }
