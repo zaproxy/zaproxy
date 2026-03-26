@@ -1019,6 +1019,205 @@ class AddOnUnitTest extends AddOnTestUtils {
         assertThat(sbom, is(bom));
     }
 
+    //update
+
+    @Test
+    void shouldFailWhenRunRequiremnetDependencyMissing() throws Exception{
+        
+        //Addon that dependes on another addon
+        AddOn addOn = new AddOn(
+            createAddOnFile(
+                "a.zap", "release", "1.0.0", manifest ->{
+                    appendBaseManifest(manifest, "a", "1.0.0");
+                    appendDependency(manifest, "missing", null, null);
+                }
+            )
+        );
+
+        //runtime requirements calculation without any dependencies
+        AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(List.of());
+
+        //addon is not runnable due too dependecy is missing
+        assertThat(reqs.isRunnable(), is(equlaTo(false)));
+        assertThat(reqs.getDependencyIssue(), is(equalTo(AddOn.BaseRunRequirements.DependencyIssue.MISSING)));
+        assertThat(reqs.getDependencyIssueDetails(), contains("missing"));
+        assertThat(reqs.isNewerJavaVersionRequired(), is(equalTo(false)));
+        assertThat(reqs.hasMissingLibs(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldFailWhenRunRequirementDependencyVersionMisMatch() throws Exception{
+
+        //addon requires verison 2.*, but only 1.0.0 is available 
+        AddOn addOn = new AddOn(
+            createAddOnFile(
+                "a.zap", "release", "1.0.0", manifest -> {
+                    appendBaseManifest(manifest, "a", "1.0.0");
+                    appendDependency(manifest, "dep", "2.*", null);
+                    manifest.append("</addon>");
+                }
+            )
+        );
+
+        AddOn dep = new AddOn(createAddOnFile("dep.zap", "release", "1.0.0"));
+
+        AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(List.of(dep));
+
+        //addon is not runable due too dependency version
+        assertThat(reqs.isRunnable(), is(equalTo(false)));
+        assertThat(reqs.getDependencyIssue(), is(equalTo(AddOn.BaseRunRequirements.DependencyIssue.VERSION)));
+        assertThat(reqs.getDependencyIssueDetails(), contains(dep, "2.*"));
+        assertThat(reqs.isNewerJavaVersionRequired(), is(equalTo(false)));
+        assertThat(reqs.hasMissingLibs(), is(equalTo(false)));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldFailWhenRunRequirementsContainCycle() throws Exception {
+        
+        //A depends on B, and B depends on A.
+        AddOn addOnA = new AddOn(
+            createAddOnFile(
+                "a.zap", "release", "1.0.0", manifest -> {
+                    appendBaseManifest(manifest, "a", "1.0.0");
+                    appendDependency(manifest, "b", null, null);
+                    manifest.append("</addon>");
+                }
+            )
+        );
+
+        AddOn addOnB = new AddOn(
+            createAddOnFile(
+                "b.zap", "release", "1.0.0", manifest -> {
+                    appendBaseManifest(manifest, "b", "1.0.0");
+                    appendDependency(manifest, "a", null, null);
+                    manifest.append("</addon>");
+                }
+            )
+        );
+
+        //both addons are available allowing the recursive dependency check to resolve both
+        AddOn.AddOnRunRequirements reqs =
+                addOnA.calculateRunRequirements(List.of(addOnA, addOnB));
+
+        //cycle is detected and the addon is not runnable.
+        assertThat(reqs.isRunnable(), is(equalTo(false)));
+        assertThat(
+                reqs.getDependencyIssue(),
+                is(equalTo(AddOn.BaseRunRequirements.DependencyIssue.CYCLIC)));
+
+        Object detail = reqs.getDependencyIssueDetails().get(0);
+        assertTrue(detail instanceof Set<?>);
+
+        Set<?> cycle = (Set<?>) detail;
+        assertThat(cycle.contains(addOnA), is(equalTo(true)));
+        assertThat(cycle.contains(addOnB), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldPropagateMinimumJavaVersionFromDependencyRunRequirements() throws Exception {
+        //main depends on dep, and dep requires a much newer version.
+        AddOn main = new AddOn(
+            createAddOnFile(
+                "main.zap", "release", "1.0.0", manifest -> {
+                    appendBaseManifest(manifest, "main", "1.0.0");
+                    appendDependency(manifest, "dep", null, null);
+                    manifest.append("</addon>");
+                }
+            )
+        );
+
+        AddOn dep = new AddOn(
+            createAddOnFile(
+                "dep.zap", "release", "1.0.0", manifest -> {
+                    appendBaseManifest(manifest, "dep", "1.0.0");
+                    manifest.append("<dependencies>")
+                    .append("<javaversion>99</javaversion>")
+                    .append("</dependencies>")
+                    .append("</addon>");
+                }
+            )
+        );
+
+        AddOn.AddOnRunRequirements reqs = main.calculateRunRequirements(List.of(dep));
+
+        //root add-on is not runnable and reports the dependency
+        assertThat(reqs.isRunnable(), is(equalTo(false)));
+        assertThat(reqs.isNewerJavaVersionRequired(), is(equalTo(true)));
+        assertThat(reqs.getMinimumJavaVersion(), is(equalTo("99")));
+        assertThat(reqs.getAddOnMinimumJavaVersion(), is(equalTo(dep)));
+        assertThat(reqs.hasDependencyIssue(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldIgnoreMissingLibsForInstallRequirements() throws Exception {
+        //main depends on dep, and dep declares a lib that has not been installed
+        AddOn main = new AddOn(
+            createAddOnFile(
+                "main.zap", "release", "1.0.0", manifest -> {
+                    appendBaseManifest(manifest, "main", "1.0.0");
+                    appendDependency(manifest, "dep", null, null);
+                    manifest.append("</addon>");
+                }
+            )
+        );
+
+        AddOn dep = new AddOn(createAddOnWithLibs("lib.jar"));
+        dep.setId("dep");
+
+        //run requirements and install requirements are calculated.
+        AddOn.AddOnRunRequirements runReqs = main.calculateRunRequirements(List.of(dep));
+        AddOn.AddOnRunRequirements installReqs = main.calculateInstallRequirements(List.of(dep));
+
+        //run requirements fail because libs must exist on disk
+        assertThat(runReqs.isRunnable(), is(equalTo(false)));
+        assertThat(runReqs.hasMissingLibs(), is(equalTo(true)));
+        assertThat(runReqs.getAddOnMissingLibs(), is(equalTo(dep)));
+
+        //install requirements ignore missing libs.
+        assertThat(installReqs.isRunnable(), is(equalTo(true)));
+        assertThat(installReqs.hasMissingLibs(), is(equalTo(false)));
+        assertThat(installReqs.getAddOnMissingLibs(), is(nullValue()));
+    }
+
+    //Appends the minimal valid manifest header/body needed by these focused run-requirements tests
+    private static void appendBaseManifest(StringBuilder manifest, String name, String version) {
+        manifest.setLength(0);
+        manifest.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+                .append("<addon>")
+                .append("<name>")
+                .append(name)
+                .append("</name>")
+                .append("<status>release</status>")
+                .append("<version>")
+                .append(version)
+                .append("</version>");
+    }
+
+    //Appends a dependency block with an optional addon version and optional version
+    private static void appendDependency(
+            StringBuilder manifest, String id, String version, String javaVersion) {
+        manifest.append("<dependencies>");
+
+        if (javaVersion != null && !javaVersion.isEmpty()) {
+            manifest.append("<javaversion>").append(javaVersion).append("</javaversion>");
+        }
+
+        manifest.append("<addons>")
+                .append("<addon>")
+                .append("<id>")
+                .append(id)
+                .append("</id>");
+
+        if (version != null && !version.isEmpty()) {
+            manifest.append("<version>").append(version).append("</version>");
+        }
+
+        manifest.append("</addon>")
+                .append("</addons>")
+                .append("</dependencies>");
+    }
+
     private static ZapXmlConfiguration createZapVersionsXml() throws Exception {
         ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
         return zapVersionsXml;
