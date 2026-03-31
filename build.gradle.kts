@@ -39,10 +39,11 @@ subprojects {
 
 sonarqube {
     properties {
-        property("sonar.projectKey", "zaproxy_zaproxy")
-        property("sonar.organization", "zaproxy")
+        property("sonar.projectKey", System.getProperty("sonar.projectKey") ?: "csci630_zaproxy")
+        property("sonar.organization", System.getProperty("sonar.organization") ?: "csci630")
         property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.gradle.scanAll", "true")
         // Workaround https://sonarsource.atlassian.net/browse/SONARGRADL-126
-        property("sonar.exclusions", "**/*.gradle.kts")
+        property("sonar.exclusions", "**/*.gradle.kts, examples/**")
     }
 }

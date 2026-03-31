@@ -50,7 +50,7 @@ import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ZapToggleButton;
 
 @SuppressWarnings("serial")
-public class SearchPanel extends AbstractPanel implements SearchListenner {
+public class SearchPanel extends AbstractPanel implements SearchListener {
 
     private static final long serialVersionUID = 1L;
 

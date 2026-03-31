@@ -182,28 +182,28 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
     public void search(
             String filter,
-            SearchListenner listenner,
+            SearchListener listener,
             Type reqType,
             boolean setToolbar,
             boolean inverse) {
-        this.search(filter, listenner, reqType, setToolbar, inverse, null, -1, -1);
+        this.search(filter, listener, reqType, setToolbar, inverse, null, -1, -1);
     }
 
     public void search(
             String filter,
-            SearchListenner listenner,
+            SearchListener listener,
             Type reqType,
             boolean setToolbar,
             boolean inverse,
             String baseUrl,
             int start,
             int count) {
-        search(filter, listenner, reqType, setToolbar, inverse, baseUrl, start, count, true);
+        search(filter, listener, reqType, setToolbar, inverse, baseUrl, start, count, true);
     }
 
     public void search(
             String filter,
-            SearchListenner listenner,
+            SearchListener listener,
             Type reqType,
             boolean setToolbar,
             boolean inverse,
@@ -213,7 +213,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
             boolean searchAllOccurrences) {
         search(
                 filter,
-                listenner,
+                listener,
                 reqType,
                 setToolbar,
                 inverse,
@@ -226,7 +226,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
     public void search(
             String filter,
-            SearchListenner listenner,
+            SearchListener listener,
             Type reqType,
             boolean setToolbar,
             boolean inverse,
@@ -237,7 +237,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
             int maxOccurrences) {
         search(
                 filter,
-                listenner,
+                listener,
                 reqType,
                 null,
                 setToolbar,
@@ -251,7 +251,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
     public void search(
             String filter,
-            SearchListenner listenner,
+            SearchListener listener,
             Type reqType,
             String customSearcherName,
             boolean setToolbar,
@@ -284,7 +284,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
                             filter,
                             reqType,
                             customSearcherName,
-                            listenner,
+                            listener,
                             inverse,
                             searchJustInScope,
                             baseUrl,

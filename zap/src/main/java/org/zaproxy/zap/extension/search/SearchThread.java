@@ -44,7 +44,7 @@ public class SearchThread extends Thread {
     private String filter;
     private Pattern pattern;
     private Type reqType;
-    private SearchListenner searchListenner;
+    private SearchListener searchListener;
     private boolean stopSearch = false;
     private boolean inverse = false;
     private boolean searchJustInScope = false;
@@ -61,7 +61,7 @@ public class SearchThread extends Thread {
     public SearchThread(
             String filter,
             Type reqType,
-            SearchListenner searchListenner,
+            SearchListener searchListener,
             boolean inverse,
             boolean searchJustInScope,
             String baseUrl,
@@ -70,7 +70,7 @@ public class SearchThread extends Thread {
         this(
                 filter,
                 reqType,
-                searchListenner,
+                searchListener,
                 inverse,
                 searchJustInScope,
                 baseUrl,
@@ -82,7 +82,7 @@ public class SearchThread extends Thread {
     public SearchThread(
             String filter,
             Type reqType,
-            SearchListenner searchListenner,
+            SearchListener searchListener,
             boolean inverse,
             boolean searchJustInScope,
             String baseUrl,
@@ -92,7 +92,7 @@ public class SearchThread extends Thread {
         this(
                 filter,
                 reqType,
-                searchListenner,
+                searchListener,
                 inverse,
                 searchJustInScope,
                 baseUrl,
@@ -105,7 +105,7 @@ public class SearchThread extends Thread {
     public SearchThread(
             String filter,
             Type reqType,
-            SearchListenner searchListenner,
+            SearchListener searchListener,
             boolean inverse,
             boolean searchJustInScope,
             String baseUrl,
@@ -117,7 +117,7 @@ public class SearchThread extends Thread {
                 filter,
                 reqType,
                 null,
-                searchListenner,
+                searchListener,
                 inverse,
                 searchJustInScope,
                 baseUrl,
@@ -131,7 +131,7 @@ public class SearchThread extends Thread {
             String filter,
             Type reqType,
             String customSearcherName,
-            SearchListenner searchListenner,
+            SearchListener searchListener,
             boolean inverse,
             boolean searchJustInScope,
             String baseUrl,
@@ -144,7 +144,7 @@ public class SearchThread extends Thread {
         this.pattern = Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
         this.reqType = reqType;
         this.customSearcherName = customSearcherName;
-        this.searchListenner = searchListenner;
+        this.searchListener = searchListener;
         this.inverse = inverse;
         this.searchJustInScope = searchJustInScope;
         this.baseUrl = baseUrl;
@@ -164,10 +164,10 @@ public class SearchThread extends Thread {
     @Override
     public void run() {
         try {
-            this.searchListenner.searchStarted();
+            this.searchListener.searchStarted();
             search();
         } finally {
-            this.searchListenner.searchComplete();
+            this.searchListener.searchComplete();
         }
     }
 
@@ -188,7 +188,7 @@ public class SearchThread extends Thread {
                             results = searcher.search(pattern, inverse);
                         }
                         for (SearchResult sr : results) {
-                            searchListenner.addSearchResult(sr);
+                            searchListener.addSearchResult(sr);
                         }
                     }
                 }
@@ -474,7 +474,7 @@ public class SearchThread extends Thread {
         }
 
         pcc.matchProcessed();
-        searchListenner.addSearchResult(
+        searchListener.addSearchResult(
                 new SearchResult(
                         reqType,
                         filter,
