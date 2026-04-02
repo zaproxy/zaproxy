@@ -86,6 +86,15 @@ tasks.withType<JavaCompile>().configureEach {
     if (javaVersion >= JavaVersion.VERSION_21) {
         options.compilerArgs = options.compilerArgs + "-Xlint:-this-escape"
     }
+    // Suppress warnings that fail with -Werror when building with newer JDKs (Java 23+)
+    if (javaVersion >= JavaVersion.VERSION_23) {
+        options.compilerArgs =
+            options.compilerArgs +
+            listOf(
+                "-Xlint:-dangling-doc-comments",
+                "-Xlint:-serial",
+            )
+    }
 }
 
 dependencies {
