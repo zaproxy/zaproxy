@@ -162,187 +162,166 @@ public class ContextAPI extends ApiImplementor {
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
         LOGGER.debug("handleApiAction {} {}", name, params);
 
-        Context context;
-        TechSet techSet;
-        String[] techNames;
-        String filename;
-        File f;
+        Context context = getContext(params);
 
         switch (name) {
             case ACTION_EXCLUDE_FROM_CONTEXT_REGEX:
-                try {
-                    addExcludeToContext(getContext(params), params.getString(REGEX_PARAM));
-                } catch (IllegalArgumentException e) {
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
-                }
-                break;
+                return handleExcludeFromContext(params, context);
             case ACTION_INCLUDE_IN_CONTEXT_REGEX:
-                try {
-                    addIncludeToContext(getContext(params), params.getString(REGEX_PARAM));
-                } catch (IllegalArgumentException e) {
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
-                }
-                break;
+                return handleIncludeInContext(params, context);
             case ACTION_SET_CONTEXT_REGEXS:
-                context = getContext(params);
-                JSONArray incRegexs;
-                JSONArray excRegexs;
-                try {
-                    incRegexs = JSONArray.fromObject(params.get(INC_REGEXS_PARAM));
-                    context.setIncludeInContextRegexs(JsonUtil.toStringList(incRegexs));
-                } catch (JSONException e1) {
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, INC_REGEXS_PARAM);
-                }
-                try {
-                    excRegexs = JSONArray.fromObject(params.get(EXC_REGEXS_PARAM));
-                    context.setExcludeFromContextRegexs(JsonUtil.toStringList(excRegexs));
-                } catch (Exception e1) {
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, EXC_REGEXS_PARAM);
-                }
-                Model.getSingleton().getSession().saveContext(context);
-                break;
+                return handleSetContext(params, context);
             case ACTION_SET_CONTEXT_CHECKING_STRATEGY:
-                context = getContext(params);
-                AuthCheckingStrategy checkingStrategy;
-                try {
-                    checkingStrategy =
-                            AuthCheckingStrategy.valueOf(
-                                    params.getString(PARAM_CHECKING_STRATEGRY));
-                } catch (Exception e1) {
-                    throw new ApiException(
-                            ApiException.Type.ILLEGAL_PARAMETER, PARAM_CHECKING_STRATEGRY);
-                }
-                if (AuthCheckingStrategy.POLL_URL.equals(checkingStrategy)) {
-                    AuthPollFrequencyUnits units;
-                    try {
-                        units =
-                                AuthPollFrequencyUnits.valueOf(
-                                        params.getString(PARAM_POLL_FREQ_UNITS));
-                    } catch (Exception e) {
-                        throw new ApiException(
-                                ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ_UNITS);
-                    }
-                    int freq;
-                    String pollUrl = params.getString(PARAM_POLL_URL);
-                    String pollData = params.getString(PARAM_POLL_DATA);
-                    String pollHeaders = params.getString(PARAM_POLL_HEADERS);
-                    if (pollUrl == null || pollUrl.isEmpty()) {
-                        throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
-                    }
-                    try {
-                        new URI(pollUrl, true);
-                    } catch (Exception e) {
-                        throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
-                    }
-                    try {
-                        freq = params.getInt(PARAM_POLL_FREQ);
-                    } catch (Exception e) {
-                        throw new ApiException(
-                                ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ);
-                    }
-                    if (freq <= 0) {
-                        throw new ApiException(
-                                ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ);
-                    }
-                    context.getAuthenticationMethod().setPollUrl(pollUrl);
-                    context.getAuthenticationMethod().setPollData(pollData);
-                    context.getAuthenticationMethod().setPollHeaders(pollHeaders);
-                    context.getAuthenticationMethod().setPollFrequency(freq);
-                    context.getAuthenticationMethod().setPollFrequencyUnits(units);
-                }
-                context.getAuthenticationMethod().setAuthCheckingStrategy(checkingStrategy);
-                Model.getSingleton().getSession().saveContext(context);
-                break;
+                return handleSetContextCheckingStrategy(params, context);
             case ACTION_NEW_CONTEXT:
-                String contextName = params.getString(CONTEXT_NAME);
-                try {
-                    context = Model.getSingleton().getSession().getNewContext(contextName);
-                } catch (IllegalContextNameException e) {
-                    throw new ApiException(ApiException.Type.ALREADY_EXISTS, contextName, e);
-                }
-                Model.getSingleton().getSession().saveContext(context);
-                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getId()));
+                return handleNewContext(params);
             case ACTION_REMOVE_CONTEXT:
-                context = getContext(params);
-                Model.getSingleton().getSession().deleteContext(context);
-                break;
+                return handleRemoveContext(context);
             case ACTION_SET_CONTEXT_IN_SCOPE:
-                context = getContext(params);
-                context.setInScope(params.getBoolean(IN_SCOPE));
-                Model.getSingleton().getSession().saveContext(context);
-                break;
+                return handleSetContextInScope(params, context);
             case ACTION_IMPORT_CONTEXT:
-                filename = params.getString(CONTEXT_FILE_PARAM);
-                f = new File(filename);
-                if (!f.exists()) {
-                    // Try relative to the contexts dir
-                    f = new File(Constant.getContextsDir(), filename);
-                }
-                if (!f.exists()) {
-                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, f.getAbsolutePath());
-                } else {
-                    try {
-                        context = Model.getSingleton().getSession().importContext(f);
-                    } catch (IllegalContextNameException e) {
-                        throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, e);
-                    } catch (Exception e) {
-                        LOGGER.error(e.getMessage(), e);
-                        throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                    }
-                }
-                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getId()));
+                return handleImportContext(params);
             case ACTION_EXPORT_CONTEXT:
-                filename = params.getString(CONTEXT_FILE_PARAM);
-                context = getContext(params);
-
-                f = new File(filename);
-                if (!f.getAbsolutePath().equals(filename)) {
-                    // Not an absolute filename, use one relative to the contexts dir
-                    f = new File(Constant.getContextsDir(), filename);
-                }
-                if (!f.getParentFile().canWrite()) {
-                    // Cant write to the parent dir so not looking good
-                    throw new ApiException(ApiException.Type.NO_ACCESS, f.getAbsolutePath());
-                } else {
-                    try {
-                        Model.getSingleton().getSession().exportContext(context, f);
-                    } catch (Exception e) {
-                        throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                    }
-                }
-                break;
+                return handleExportContext(params);
             case ACTION_INCLUDE_TECHS:
-                context = getContext(params);
-                techSet = context.getTechSet();
-                techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
-                handleTechs(techNames, techSet::includeAll);
-                context.save();
-                break;
+                return handleIncludeTechs(params, context);
             case ACTION_INCLUDE_ALL_TECHS:
-                context = getContext(params);
-                techSet = new TechSet(Tech.getAll());
-                context.setTechSet(techSet);
-                context.save();
-                break;
+                return handleIncludeAllTechs(context);
             case ACTION_EXCLUDE_TECHS:
-                context = getContext(params);
-                techSet = context.getTechSet();
-                techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
-                handleTechs(techNames, techSet::excludeAll);
-                context.save();
-                break;
+                return handleExcludeTechs(params, context);
             case ACTION_EXCLUDE_ALL_TECHS:
-                context = getContext(params);
-                techSet = context.getTechSet();
-                for (Tech tech : Tech.getAll()) {
-                    techSet.exclude(tech);
-                }
-                context.save();
-                break;
+                return handleExcludeAllTechs(context);
             default:
                 throw new ApiException(Type.BAD_ACTION);
         }
-
+    }
+    
+    private ApiResponse handleExcludeFromContext(JSONObject params, Context context) throws ApiException {
+    	try {
+            addExcludeToContext(context, params.getString(REGEX_PARAM));
+            return ApiResponseElement.OK;
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
+        }
+    }
+    
+    private ApiResponse handleIncludeInContext(JSONObject params, Context context) throws ApiException {
+    	try {
+            addIncludeToContext(context, params.getString(REGEX_PARAM));
+            return ApiResponseElement.OK;
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
+        }
+    }
+    
+    private ApiResponse handleSetContext(JSONObject params, Context context) throws ApiException {
+        JSONArray incRegexs;
+        JSONArray excRegexs;
+        try {
+            incRegexs = JSONArray.fromObject(params.get(INC_REGEXS_PARAM));
+            context.setIncludeInContextRegexs(JsonUtil.toStringList(incRegexs));
+        } catch (JSONException e1) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, INC_REGEXS_PARAM);
+        }
+        try {
+            excRegexs = JSONArray.fromObject(params.get(EXC_REGEXS_PARAM));
+            context.setExcludeFromContextRegexs(JsonUtil.toStringList(excRegexs));
+        } catch (Exception e1) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, EXC_REGEXS_PARAM);
+        }
+        Model.getSingleton().getSession().saveContext(context);
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleSetContextCheckingStrategy(JSONObject params, Context context) throws ApiException {
+        AuthCheckingStrategy checkingStrategy = parseAuthCheckingStrategy(params);
+        
+        if (AuthCheckingStrategy.POLL_URL.equals(checkingStrategy)) {
+            PollSettings pollSettings = parsePollSettings(params);
+            applyPollSettings(context, pollSettings);
+        }
+        context.getAuthenticationMethod().setAuthCheckingStrategy(checkingStrategy);
+        Model.getSingleton().getSession().saveContext(context);
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleNewContext(JSONObject params) throws ApiException {
+    	Context context;
+    	String contextName = params.getString(CONTEXT_NAME);
+        try {
+            context = Model.getSingleton().getSession().getNewContext(contextName);
+        } catch (IllegalContextNameException e) {
+            throw new ApiException(ApiException.Type.ALREADY_EXISTS, contextName, e);
+        }
+        Model.getSingleton().getSession().saveContext(context);
+        return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getId()));
+    }
+    
+    private ApiResponse handleRemoveContext(Context context) {
+        Model.getSingleton().getSession().deleteContext(context);
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleSetContextInScope(JSONObject params, Context context) {
+        context.setInScope(params.getBoolean(IN_SCOPE));
+        Model.getSingleton().getSession().saveContext(context);
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleImportContext(JSONObject params) throws ApiException {
+        Context context;
+        File f = resolveExistingContextFile(params);
+        
+        try {
+            context = Model.getSingleton().getSession().importContext(f);
+        } catch (IllegalContextNameException e) {
+            throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, e);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+        }
+        return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getId()));
+    }
+    
+    private ApiResponse handleExportContext(JSONObject params) throws ApiException {
+        File f = resolveWritableContextFile(params);
+        try {
+            Model.getSingleton().getSession().exportContext(getContext(params), f);
+        } catch (Exception e) {
+            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+        }
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleIncludeTechs(JSONObject params, Context context) throws ApiException {
+        TechSet techSet = context.getTechSet();
+        String[] techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
+        handleTechs(techNames, techSet::includeAll);
+        context.save();
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleIncludeAllTechs(Context context) {
+        TechSet techSet = new TechSet(Tech.getAll());
+        context.setTechSet(techSet);
+        context.save();
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleExcludeTechs(JSONObject params, Context context) throws ApiException {
+        TechSet techSet = context.getTechSet();
+        String[] techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
+        handleTechs(techNames, techSet::excludeAll);
+        context.save();
+        return ApiResponseElement.OK;
+    }
+    
+    private ApiResponse handleExcludeAllTechs(Context context) {
+        TechSet techSet = context.getTechSet();
+        for (Tech tech : Tech.getAll()) {
+            techSet.exclude(tech);
+        }
+        context.save();
         return ApiResponseElement.OK;
     }
 
@@ -368,6 +347,109 @@ public class ContextAPI extends ApiImplementor {
     private void addIncludeToContext(Context context, String regex) {
         context.addIncludeInContextRegex(regex);
         Model.getSingleton().getSession().saveContext(context);
+    }
+    
+    private AuthCheckingStrategy parseAuthCheckingStrategy(JSONObject params) throws ApiException {
+    	try {
+            return AuthCheckingStrategy.valueOf(params.getString(PARAM_CHECKING_STRATEGRY));
+        } catch (Exception e1) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_CHECKING_STRATEGRY);
+        }
+    }
+    
+    private AuthPollFrequencyUnits parsePollFrequencyUnits(JSONObject params) throws ApiException {
+        try {
+            return AuthPollFrequencyUnits.valueOf(params.getString(PARAM_POLL_FREQ_UNITS));
+        } catch (Exception e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ_UNITS);
+        }
+    }
+    
+    private String requireValidPollUrl(JSONObject params) throws ApiException {
+        String pollUrl = params.getString(PARAM_POLL_URL);
+        if (pollUrl == null || pollUrl.isEmpty()) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
+        }
+        try {
+            new URI(pollUrl, true);
+            return pollUrl;
+        } catch (Exception e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
+        }
+    }
+    
+    private int parsePositiveInt(JSONObject params, String paramName) throws ApiException {
+        final int value;
+        try {
+            value = params.getInt(paramName);
+        } catch (Exception e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName);
+        }
+        if (value <= 0) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName);
+        }
+        return value;
+    }
+    
+    private File resolveExistingContextFile(JSONObject params) throws ApiException {
+        String filename = params.getString(CONTEXT_FILE_PARAM);
+        File f = new File(filename);
+        if (!f.exists()) {
+        	// Try relative to the contexts dir
+            f = new File(Constant.getContextsDir(), filename);
+        }
+        if (!f.exists()) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, f.getAbsolutePath());
+        }
+        return f;
+    }
+    
+    private File resolveWritableContextFile(JSONObject params) throws ApiException {
+        String filename = params.getString(CONTEXT_FILE_PARAM);
+        File f = new File(filename);
+        if (!f.getAbsolutePath().equals(filename)) {
+            // Not an absolute filename, use one relative to the contexts dir
+            f = new File(Constant.getContextsDir(), filename);
+        }
+        if (!f.getParentFile().canWrite()) {
+            // Cant write to the parent dir so not looking good
+            throw new ApiException(ApiException.Type.NO_ACCESS, f.getAbsolutePath());
+        }
+        return f;
+    }
+    
+    private static final class PollSettings {
+        private final String url;
+        private final String data;
+        private final String headers;
+        private final int frequency;
+        private final AuthPollFrequencyUnits units;
+
+        private PollSettings(
+                String url, String data, String headers, int frequency, AuthPollFrequencyUnits units) {
+            this.url = url;
+            this.data = data;
+            this.headers = headers;
+            this.frequency = frequency;
+            this.units = units;
+        }
+    }
+
+    private PollSettings parsePollSettings(JSONObject params) throws ApiException {
+        return new PollSettings(
+                requireValidPollUrl(params),
+                params.getString(PARAM_POLL_DATA),
+                params.getString(PARAM_POLL_HEADERS),
+                parsePositiveInt(params, PARAM_POLL_FREQ),
+                parsePollFrequencyUnits(params));
+    }
+
+    private void applyPollSettings(Context context, PollSettings settings) {
+        context.getAuthenticationMethod().setPollUrl(settings.url);
+        context.getAuthenticationMethod().setPollData(settings.data);
+        context.getAuthenticationMethod().setPollHeaders(settings.headers);
+        context.getAuthenticationMethod().setPollFrequency(settings.frequency);
+        context.getAuthenticationMethod().setPollFrequencyUnits(settings.units);
     }
 
     @Override

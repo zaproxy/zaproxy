@@ -29,6 +29,20 @@ import org.parosproxy.paros.core.scanner.Plugin;
 
 @SuppressWarnings("serial")
 public class ScanProgressTableModel extends AbstractTableModel {
+	
+	private static final int COLUMN_NAME = 0;
+	private static final int COLUMN_STRENGTH = 1;
+	private static final int COLUMN_PROGRESS = 2;
+	private static final int COLUMN_TIME = 3;
+	private static final int COLUMN_REQUESTS = 4;
+	private static final int COLUMN_ALERTS = 5;
+	private static final int COLUMN_STATUS = 6;
+	
+	private static final int ANALYSER_ROW = 0;
+	private static final int TOP_SEPARATOR_ROW = 1;
+	private static final int PLUGIN_HEADER_ROW = 2;
+	private static final int FIRST_PLUGIN_ROW_OFFSET = 3;
+	private static final int TOTALS_ROW_OFFSET_FROM_PLUGIN_END = 1;
 
     private static final long serialVersionUID = 1L;
     private static final String[] columnNames = {
@@ -81,90 +95,88 @@ public class ScanProgressTableModel extends AbstractTableModel {
      */
     @Override
     public Object getValueAt(int row, int col) {
-        // 1st row is for the Analyser, 2nd row is empty (for separation with the plugins), 3rd for
-        // Plugin label.
-        if (row == 0) {
-            switch (col) {
-                case 0:
-                    return Constant.messages.getString("ascan.progress.table.analyser");
-                case 3:
-                    return hp != null ? getElapsedTimeLabel(hp.getAnalyser().getRunningTime()) : "";
-                case 4:
-                    return hp != null ? String.valueOf(hp.getAnalyser().getRequestCount()) : "";
-                default:
-                    return null;
-            }
-        } else if (row == 1) {
+        // 1st row is for the Analyser, 2nd row is empty (for separation with the plugins), 3rd for plugin label.
+        if (row == ANALYSER_ROW) {
+            return getAnalyserRowValue(col);
+        } else if (row == TOP_SEPARATOR_ROW) {
             return null;
-        } else if (row == 2) {
-            return col == 0 ? Constant.messages.getString("ascan.progress.table.name") : null;
+        } else if (row == PLUGIN_HEADER_ROW) {
+            return getPluginHeaderName(col);
         }
-
         // Adjust row for the plugin checks.
-        row -= 3;
-
+        row -= FIRST_PLUGIN_ROW_OFFSET;
         // First check if we're showing the plugin status list
         if (row < values.size()) {
-
             // It's an entry so show the correct values
-            final ScanProgressItem item = values.get(row);
-            switch (col) {
-                case 0:
-                    return item.getNameLabel();
-
-                case 1:
-                    return item.getAttackStrengthLabel();
-
-                case 2:
-                    if (item.isCompleted() || item.isRunning() || item.isSkipped()) {
-                        return item;
-
-                    } else {
-                        return null;
-                    }
-
-                case 3:
-                    return getElapsedTimeLabel(item.getElapsedTime());
-
-                case 4:
-                    return item.getReqCount();
-
-                case 5:
-                    return item.getAlertCount();
-                case 6:
-                    return item.getProgressAction();
-
-                default:
-                    return null;
-            }
-
-            // We're in the summary "region", first print an empty
-            // line and then two line of summary (tot time and to requests)
-            // Maybe could be done in a better way, for example using
-            // a dedicated panel positioned on top/bottom of the dialog
+            return getPluginStatusRowValue(row, col);
+        // We're in the summary "region", first print an empty line and then two line of summary (tot time and to requests)
+        // Maybe could be done in a better way, for example using a dedicated panel positioned on top/bottom of the dialog
         } else if (row == values.size()) {
             // The first line after values should be empty
             return null;
-
-        } else if (row == (values.size() + 1)) {
+        } else if (row == (values.size() + TOTALS_ROW_OFFSET_FROM_PLUGIN_END)) {
             // The second line after values should contains the totals
-            switch (col) {
-                case 0:
-                    return Constant.messages.getString("ascan.progress.label.totals");
-
-                case 3:
-                    return totTime;
-
-                case 4:
-                    return totRequests;
-                case 5:
-                    return hp != null ? hp.getAlertCount() : 0;
-
-                default:
-                    return null;
-            }
+            return getTotalsRowValue(col);
         }
         return null;
+    }
+    
+    private Object getAnalyserRowValue(int col) {
+    	switch (col) {
+	        case COLUMN_NAME:
+	            return Constant.messages.getString("ascan.progress.table.analyser");
+	        case COLUMN_TIME:
+	            return hp != null ? getElapsedTimeLabel(hp.getAnalyser().getRunningTime()) : "";
+	        case COLUMN_REQUESTS:
+	            return hp != null ? String.valueOf(hp.getAnalyser().getRequestCount()) : "";
+	        default:
+	            return null;
+    	}
+    }
+    
+    private Object getPluginHeaderName(int col) {
+    	return col == COLUMN_NAME ? Constant.messages.getString("ascan.progress.table.name") : null;
+    }
+    
+    private Object getPluginStatusRowValue(int row, int col) {
+    	final ScanProgressItem item = values.get(row);
+        switch (col) {
+            case COLUMN_NAME:
+                return item.getNameLabel();
+            case COLUMN_STRENGTH:
+                return item.getAttackStrengthLabel();
+            case COLUMN_PROGRESS:
+                if (item.isCompleted() || item.isRunning() || item.isSkipped()) {
+                    return item;
+                } else {
+                    return null;
+                }
+            case COLUMN_TIME:
+                return getElapsedTimeLabel(item.getElapsedTime());
+            case COLUMN_REQUESTS:
+                return item.getReqCount();
+            case COLUMN_ALERTS:
+                return item.getAlertCount();
+            case COLUMN_STATUS:
+                return item.getProgressAction();
+            default:
+                return null;
+        }
+    }
+    
+    private Object getTotalsRowValue(int col) {
+    	switch (col) {
+	        case COLUMN_NAME:
+	            return Constant.messages.getString("ascan.progress.label.totals");
+	        case COLUMN_TIME:
+	            return totTime;
+	        case COLUMN_REQUESTS:
+	            return totRequests;
+	        case COLUMN_ALERTS:
+	            return hp != null ? hp.getAlertCount() : 0;
+	        default:
+	            return null;
+	    }
     }
 
     /**
