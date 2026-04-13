@@ -3,6 +3,7 @@ import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.gradle.spotless.ValidateImports
 import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
+import org.zaproxy.zap.tasks.UpdateLegalNotice
 import org.zaproxy.zap.tasks.internal.JapicmpExcludedData
 import java.time.LocalDate
 import java.util.stream.Collectors
@@ -331,4 +332,13 @@ fun zapJar(version: String): File {
     } finally {
         group = oldGroup
     }
+}
+
+tasks.register<UpdateLegalNotice>("updateLegalNotice") {
+    group = "ZAP Misc"
+    description = "Updates the third-party library table in LEGALNOTICE.md."
+
+    configuration.set(configurations.runtimeClasspath)
+    licensesFile.set(file("gradle/thirdPartyLicenses.yaml"))
+    legalNoticeFile.set(rootProject.file("LEGALNOTICE.md"))
 }
