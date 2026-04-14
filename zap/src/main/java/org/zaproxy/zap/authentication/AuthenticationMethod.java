@@ -77,6 +77,8 @@ public abstract class AuthenticationMethod {
 
     public static final int DEFAULT_POLL_FREQUENCY = 60;
 
+    public static final int DEFAULT_MAX_AUTH_RETRIES = 0;
+
     public static enum AuthCheckingStrategy {
         EACH_RESP,
         EACH_REQ,
@@ -102,6 +104,8 @@ public abstract class AuthenticationMethod {
 
     private AuthPollFrequencyUnits pollFrequencyUnits = AuthPollFrequencyUnits.REQUESTS;
 
+    private int maxAuthRetries = DEFAULT_MAX_AUTH_RETRIES;
+
     /**
      * Checks if the authentication method is fully configured.
      *
@@ -123,6 +127,7 @@ public abstract class AuthenticationMethod {
         method.pollHeaders = this.pollHeaders;
         method.pollFrequency = this.pollFrequency;
         method.pollFrequencyUnits = this.pollFrequencyUnits;
+        method.maxAuthRetries = this.maxAuthRetries;
         method.loggedInIndicatorPattern = this.loggedInIndicatorPattern;
         method.loggedOutIndicatorPattern = this.loggedOutIndicatorPattern;
         return method;
@@ -547,6 +552,14 @@ public abstract class AuthenticationMethod {
         this.pollFrequencyUnits = pollFrequencyUnits;
     }
 
+    public int getMaxAuthRetries() {
+        return maxAuthRetries;
+    }
+
+    public void setMaxAuthRetries(int maxAuthRetries) {
+        this.maxAuthRetries = maxAuthRetries;
+    }
+
     /**
      * Checks if another method is of the same type.
      *
@@ -603,6 +616,9 @@ public abstract class AuthenticationMethod {
             return false;
         }
         if (!this.pollFrequencyUnits.equals(other.pollFrequencyUnits)) {
+            return false;
+        }
+        if (this.maxAuthRetries != other.maxAuthRetries) {
             return false;
         }
         return true;

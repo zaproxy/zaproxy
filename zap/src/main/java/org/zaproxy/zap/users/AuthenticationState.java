@@ -29,6 +29,8 @@ public class AuthenticationState {
 
     private int requestsSincePoll = 0;
 
+    private int failedAuthAttempts = 0;
+
     private int lastAuthRequestHistoryId;
 
     public String lastAuthFailure;
@@ -79,6 +81,18 @@ public class AuthenticationState {
 
     public void incRequestsSincePoll() {
         this.requestsSincePoll += 1;
+    }
+
+    public int getFailedAuthAttempts() {
+        return failedAuthAttempts;
+    }
+
+    public void setFailedAuthAttempts(int failedAuthAttempts) {
+        this.failedAuthAttempts = failedAuthAttempts;
+    }
+
+    public void incFailedAuthAttempts() {
+        this.failedAuthAttempts++;
     }
 
     public int getLastAuthRequestHistoryId() {

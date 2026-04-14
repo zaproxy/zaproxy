@@ -202,6 +202,7 @@ class UserUnitTest {
     void shouldAuthenticateWhenRequired() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
         // When
         doReturn(true).when(user).requiresAuthentication();
         doNothing().when(user).authenticate();
@@ -231,5 +232,69 @@ class UserUnitTest {
         user.authenticate();
         // Then
         assertFalse(user.requiresAuthentication());
+    }
+
+    @Test
+    void processMessageToMatchUser_MaxRetriesZero_RetriesIndefinitely() {
+        // Given - maxAuthRetries=0 means unlimited (backward compat)
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        // Auth always fails: requiresAuthentication always returns true, authenticate does nothing
+        doReturn(true).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        when(mockedAuthenticationMethod.getMaxAuthRetries()).thenReturn(0);
+        // When - call multiple times, should never stop trying
+        for (int i = 0; i < 10; i++) {
+            user.processMessageToMatchUser(Mockito.mock(HttpMessage.class));
+        }
+        // Then - authenticate was called every time (not blocked)
+        verify(user, Mockito.times(10)).authenticate();
+    }
+
+    @Test
+    void processMessageToMatchUser_MaxRetriesSet_StopsAfterLimit() {
+        // Given - maxAuthRetries=3
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        doReturn(true).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        when(mockedAuthenticationMethod.getMaxAuthRetries()).thenReturn(3);
+        // When - call 5 times
+        for (int i = 0; i < 5; i++) {
+            user.processMessageToMatchUser(Mockito.mock(HttpMessage.class));
+        }
+        // Then - authenticate was called only 3 times (stopped after limit)
+        verify(user, Mockito.times(3)).authenticate();
+    }
+
+    @Test
+    void processMessageToMatchUser_AuthSucceedsAfterFailures_ResetsCounter() {
+        // Given - maxAuthRetries=3
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        doNothing().when(user).authenticate();
+        when(mockedAuthenticationMethod.getMaxAuthRetries()).thenReturn(3);
+        // First 2 calls fail, 3rd succeeds, then next 2 fail
+        doReturn(true) // call 1: requires auth
+                .doReturn(true) // call 1: still requires after authenticate (fail)
+                .doReturn(true) // call 2: requires auth
+                .doReturn(true) // call 2: still requires after authenticate (fail)
+                .doReturn(true) // call 3: requires auth
+                .doReturn(false) // call 3: no longer requires after authenticate (success!)
+                .doReturn(true) // call 4: requires auth (re-auth needed)
+                .doReturn(true) // call 4: still requires after authenticate (fail)
+                .doReturn(true) // call 5: requires auth
+                .doReturn(true) // call 5: still requires after authenticate (fail)
+                .when(user)
+                .requiresAuthentication();
+        // When
+        for (int i = 0; i < 5; i++) {
+            user.processMessageToMatchUser(Mockito.mock(HttpMessage.class));
+        }
+        // Then - authenticate called 5 times total (2 fail + 1 success + 2 fail)
+        // Counter reset after success, so calls 4 and 5 still go through
+        verify(user, Mockito.times(5)).authenticate();
+        // Final failed count is 2 (reset after success, then 2 more failures)
+        assertEquals(2, user.getAuthenticationState().getFailedAuthAttempts());
     }
 }

@@ -167,11 +167,28 @@ public class User extends Enableable {
         // Make sure there are no simultaneous authentications for the same user
         synchronized (this) {
             if (this.requiresAuthentication()) {
-                this.authenticate();
-                if (this.requiresAuthentication()) {
-                    LOGGER.info("Authentication failed for user: {}", name);
+                int maxRetries = getContext().getAuthenticationMethod().getMaxAuthRetries();
+                // 0 means unlimited retries (default, backward compatible)
+                if (maxRetries > 0
+                        && this.authenticationState.getFailedAuthAttempts() >= maxRetries) {
+                    LOGGER.debug(
+                            "Skipping authentication for user: {} (max retries {} reached)",
+                            name,
+                            maxRetries);
                     return;
                 }
+                this.authenticate();
+                if (this.requiresAuthentication()) {
+                    this.authenticationState.incFailedAuthAttempts();
+                    LOGGER.info(
+                            "Authentication failed for user: {} (attempt {}/{})",
+                            name,
+                            this.authenticationState.getFailedAuthAttempts(),
+                            maxRetries > 0 ? String.valueOf(maxRetries) : "unlimited");
+                    return;
+                }
+                // Reset the counter on successful authentication
+                this.authenticationState.setFailedAuthAttempts(0);
             }
         }
         processMessageToMatchAuthenticatedSession(message);
