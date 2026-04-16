@@ -1,10 +1,10 @@
 import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
-    id("com.diffplug.spotless")
-    id("org.sonarqube") version "6.0.1.5171"
-    id("com.github.ben-manes.versions") version "0.52.0"
-    id("net.ltgt.errorprone") version "4.1.0"
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.dependencyUpdates)
+    alias(libs.plugins.errorprone)
 }
 
 apply(from = "$rootDir/gradle/ci.gradle.kts")
@@ -22,7 +22,7 @@ subprojects {
 
     project.plugins.withType(JavaPlugin::class) {
         dependencies {
-            "errorprone"("com.google.errorprone:error_prone_core:2.36.0")
+            "errorprone"(libs.errorprone.core)
         }
     }
 
