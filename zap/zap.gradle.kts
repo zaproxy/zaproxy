@@ -10,11 +10,11 @@ import java.util.stream.Collectors
 plugins {
     `java-library`
     jacoco
-    id("com.diffplug.spotless")
-    id("me.champeau.gradle.japicmp")
-    id("org.cyclonedx.bom")
-    id("org.zaproxy.common")
-    id("org.zaproxy.crowdin") version "0.6.0"
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.japicmp)
+    alias(libs.plugins.cyclonedx)
+    alias(libs.plugins.zaproxy.common)
+    alias(libs.plugins.crowdin)
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -89,57 +89,56 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.6.0")
-    api("com.github.zafarkhaja:java-semver:0.10.2")
-    implementation("commons-beanutils:commons-beanutils:1.11.0")
-    implementation("commons-codec:commons-codec:1.20.0")
-    api("commons-collections:commons-collections:3.2.2")
-    api("commons-configuration:commons-configuration:1.10")
-    api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.21.0")
-    api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.19.0")
-    api("org.apache.commons:commons-text:1.14.0")
-    implementation("edu.umass.cs.benchlab:harlib:1.1.3")
-    api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.25.3"
-    api("org.apache.logging.log4j:log4j-api:$log4jVersion")
-    api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
-    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
-    implementation("org.apache.logging.log4j:log4j-jul:$log4jVersion")
-    api("net.htmlparser.jericho:jericho-html:3.4")
-    api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.14.1")
-    api("org.hsqldb:hsqldb:2.7.4")
-    api("org.jfree:jfreechart:1.5.6")
-    api("org.jgrapht:jgrapht-core:0.9.2")
-    api("org.swinglabs.swingx:swingx-all:1.6.5-1")
+    api(libs.rsyntaxtextarea)
+    api(libs.javaSemver)
+    implementation(libs.commons.beanutils)
+    implementation(libs.commons.codec)
+    api(libs.commons.collections)
+    api(libs.commons.configuration)
+    api(libs.commons.httpclient)
+    api(libs.commons.io)
+    api(libs.commons.lang)
+    api(libs.commons.lang3)
+    api(libs.commons.text)
+    implementation(libs.harlib)
+    api(libs.javahelp)
+    api(libs.log4j.api)
+    api(libs.log4j.api12)
+    implementation(libs.log4j.core)
+    implementation(libs.log4j.jul)
+    api(libs.jerichoHtml)
+    api(variantOf(libs.jsonlib) { classifier("jdk15") })
+    api(libs.commons.csv)
+    api(libs.hsqldb)
+    api(libs.jfreechart)
+    api(libs.jgraphtcore)
+    api(libs.swingx)
 
-    implementation("com.formdev:flatlaf:3.7")
-    implementation("com.formdev:flatlaf-swingx:3.7")
+    implementation(libs.flatlaf)
+    implementation(libs.flatlaf.swingx)
 
-    runtimeOnly("commons-logging:commons-logging:1.3.5")
-    runtimeOnly("xom:xom:1.3.9") {
+    runtimeOnly(libs.commons.logging)
+    runtimeOnly(libs.xom) {
         setTransitive(false)
     }
 
     // Include annotations used by Log4j2 Core library to avoid compiler warnings.
-    compileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:7.1.0")
-    compileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
-    testCompileOnly("biz.aQute.bnd:biz.aQute.bnd.annotation:7.1.0")
-    testCompileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
+    compileOnly(libs.bndAnnotation)
+    compileOnly(libs.findbugsAnnotations)
+    testCompileOnly(libs.bndAnnotation)
+    testCompileOnly(libs.findbugsAnnotations)
 
-    testImplementation("net.bytebuddy:byte-buddy:1.18.0")
-    testImplementation("org.assertj:assertj-core:3.27.6")
-    testImplementation("org.hamcrest:hamcrest-core:3.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
-    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
+    testImplementation(libs.bytebuddy)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.hamcrest.core)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platformLauncher)
+    testImplementation(libs.mockito)
+    testImplementation(libs.log4j.slf4j)
 
     testRuntimeOnly(files(distDir))
 
-    testGuiImplementation("org.assertj:assertj-swing:3.17.1")
+    testGuiImplementation(libs.assertj.swing)
 }
 
 tasks.register<JavaExec>("run") {
