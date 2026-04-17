@@ -251,9 +251,9 @@ public class AlertViewPanel extends AbstractPanel {
                         }
                     });
 
-            alertEditRisk = new JComboBox<>(Alert.MSG_RISK);
-            alertEditConfidence = new JComboBox<>(Alert.MSG_CONFIDENCE);
-            alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[Alert.CONFIDENCE_MEDIUM]);
+            alertEditRisk = new JComboBox<>(Alert.getMsgRiskLabels());
+            alertEditConfidence = new JComboBox<>(Alert.getMsgConfidenceLabels());
+            alertEditConfidence.setSelectedItem(Alert.getConfidenceLabel(Alert.CONFIDENCE_MEDIUM));
             alertEditAttack = new ZapTextField();
 
             paramListModel = new DefaultComboBoxModel<>();
@@ -578,8 +578,8 @@ public class AlertViewPanel extends AbstractPanel {
         if (editable) {
             nameListModel.addElement(alert.getName());
             alertEditName.setSelectedItem(alert.getName());
-            alertEditRisk.setSelectedItem(Alert.MSG_RISK[alert.getRisk()]);
-            alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
+            alertEditRisk.setSelectedItem(Alert.getRiskLabel(alert.getRisk()));
+            alertEditConfidence.setSelectedItem(Alert.getConfidenceLabel(alert.getConfidence()));
             alertEditParam.setSelectedItem(alert.getParam());
             alertEditAttack.setText(alert.getAttack());
             alertEditAttack.discardAllEdits();
@@ -591,9 +591,9 @@ public class AlertViewPanel extends AbstractPanel {
         } else {
             alertName.setText(alert.getName());
 
-            alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
+            alertRisk.setText(Alert.getRiskLabel(alert.getRisk()));
             alertRisk.setIcon(alert.getIcon());
-            alertConfidence.setText(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
+            alertConfidence.setText(Alert.getConfidenceLabel(alert.getConfidence()));
             alertParam.setText(alert.getParam());
             alertAttack.setText(alert.getAttack());
             alertEvidence.setText(alert.getEvidence());

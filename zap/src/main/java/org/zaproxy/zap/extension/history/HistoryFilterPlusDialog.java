@@ -479,10 +479,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
     private JScrollPane getRiskScroller() {
         if (riskScroller == null) {
-            riskList = new JList<>(Alert.MSG_RISK);
+            riskList = new JList<>(Alert.getMsgRiskLabels());
             riskList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             riskList.setLayoutOrientation(JList.VERTICAL);
-            riskList.setVisibleRowCount(Alert.MSG_RISK.length);
+            riskList.setVisibleRowCount(Alert.getMsgRiskLabels().length);
             riskScroller = new JScrollPane(riskList);
         }
         return riskScroller;
@@ -490,10 +490,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
     private JScrollPane getConfidenceScroller() {
         if (confidenceScroller == null) {
-            confidenceList = new JList<>(Alert.MSG_CONFIDENCE);
+            confidenceList = new JList<>(Alert.getMsgConfidenceLabels());
             confidenceList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             confidenceList.setLayoutOrientation(JList.VERTICAL);
-            confidenceList.setVisibleRowCount(Alert.MSG_CONFIDENCE.length);
+            confidenceList.setVisibleRowCount(Alert.getMsgConfidenceLabels().length);
             confidenceScroller = new JScrollPane(confidenceList);
         }
         return confidenceScroller;
