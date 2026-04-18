@@ -30,6 +30,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryTableParam extends ParosAbstractTable implements TableParam {
 
+    private final AtomicLong nextId = new AtomicLong();
+    private final InMemoryDb<Long, ParamItem> db = new InMemoryDb<>();
+
     private record ParamItem(
             String site, String type, String name, int used, String flags, String values) {
 
@@ -37,11 +40,6 @@ public class InMemoryTableParam extends ParosAbstractTable implements TableParam
             return new RecordParam(paramId, site, type, name, used, flags, values);
         }
     }
-
-    private final AtomicLong nextId = new AtomicLong();
-    private final InMemoryDb<Long, ParamItem> db = new InMemoryDb<>();
-
-    public InMemoryTableParam() {}
 
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {}

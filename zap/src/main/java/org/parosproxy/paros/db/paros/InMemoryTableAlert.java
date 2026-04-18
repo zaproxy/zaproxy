@@ -31,6 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTableAlert extends ParosAbstractTable implements TableAlert {
 
+    private final AtomicInteger nextId = new AtomicInteger();
+    private final InMemoryDb<Integer, AlertItem> db = new InMemoryDb<>();
+
     private record AlertItem(
             int scanId,
             int pluginId,
@@ -80,11 +83,6 @@ public class InMemoryTableAlert extends ParosAbstractTable implements TableAlert
                     nodeName);
         }
     }
-
-    private final AtomicInteger nextId = new AtomicInteger();
-    private final InMemoryDb<Integer, AlertItem> db = new InMemoryDb<>();
-
-    public InMemoryTableAlert() {}
 
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {}

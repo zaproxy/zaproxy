@@ -18,43 +18,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks
-// ZAP: 2012/03/15 Changed to use byte[] in the request and response bodies
-// instead of String.
-// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
-// ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
-// ZAP: 2012/06/11 Added method delete(List<Integer>).
-// ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (Added updateTable() and refactored names)
-// ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
-// ZAP: 2014/03/23 Changed to use try-with-resource statements.
-// ZAP: 2014/03/23 Issue 999: History loaded in wrong order
-// ZAP: 2014/03/23 Issue 1075: Change TableHistory to delete records in batches
-// ZAP: 2014/03/23 Issue 1091: CoreAPI - Do not get the IDs of temporary history records
-// ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as
-// far as possible
-// ZAP: 2014/08/14 Issue 1310: Allow to set history types as temporary
-// ZAP: 2014/12/11 Replaced calls to Charset.forName(String) with StandardCharsets
-// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative
-// implementations
-// ZAP: 2016/05/26 Delete temporary history types sequentially
-// ZAP: 2016/05/27 Change to use HistoryReference to obtain the temporary types
-// ZAP: 2016/08/30 Issue 2836: Change to delete temporary history types in batches to prevent
-// out-of-memory-exception(s)
-// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
-// ZAP: 2019/06/01 Normalise line endings.
-// ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
-// ZAP: 2022/02/03 Removed getHistoryList(long, int) and getHistoryList(long)
-// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
-// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
-// ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2023/09/12 Implement setDatabaseOptions(DatabaseParam) and use those options.
 package org.parosproxy.paros.db.paros;
 
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
-import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -70,21 +38,35 @@ import java.util.function.Predicate;
 public class InMemoryTableHistory extends ParosAbstractTable implements TableHistory {
 
     private final AtomicInteger nextId = new AtomicInteger();
+    private final InMemoryDb<Integer, HistoryItem> db = new InMemoryDb<>();
 
-    private final InMemoryDb<Integer,HistoryItem> db = new InMemoryDb<>();
-
-    public InMemoryTableHistory() {
-    }
-
-    @Override
-    public void setDatabaseOptions(DatabaseParam options) {
-        // ignored
+    private record HistoryItem(
+            long sessionId,
+            int histType,
+            long timeSentMillis,
+            int timeElapsedMillis,
+            String method,
+            String uri,
+            int statusCode,
+            String reqHeader,
+            byte[] reqBody,
+            String resHeader,
+            byte[] resBody,
+            String tag,
+            String note,
+            boolean responseFromTargetHost
+    ) {
+        public RecordHistory toRecordHistory(int historyId) throws HttpMalformedHeaderException {
+            return new RecordHistory(
+                    historyId,
+                    histType, sessionId, timeSentMillis, timeElapsedMillis, reqHeader, reqBody, resHeader, resBody, tag, note, responseFromTargetHost
+            );
+        }
     }
 
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {
     }
-
 
     @Override
     public RecordHistory read(int historyId)
@@ -139,30 +121,6 @@ public class InMemoryTableHistory extends ParosAbstractTable implements TableHis
                     msg.isResponseFromTargetHost());
         } catch (SQLException e) {
             throw new DatabaseException(e);
-        }
-    }
-
-    private record HistoryItem(
-            long sessionId,
-            int histType,
-            long timeSentMillis,
-            int timeElapsedMillis,
-            String method,
-            String uri,
-            int statusCode,
-            String reqHeader,
-            byte[] reqBody,
-            String resHeader,
-            byte[] resBody,
-            String tag,
-            String note,
-            boolean responseFromTargetHost
-    ) {
-        public RecordHistory toRecordHistory(int historyId) throws HttpMalformedHeaderException {
-            return new RecordHistory(
-                    historyId,
-                    histType, sessionId, timeSentMillis, timeElapsedMillis, reqHeader, reqBody, resHeader, resBody, tag, note, responseFromTargetHost
-            );
         }
     }
 

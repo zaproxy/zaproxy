@@ -31,19 +31,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryTableTag extends ParosAbstractTable implements TableTag {
 
+    private final AtomicLong nextId = new AtomicLong();
+    private final InMemoryDb<Long, TagItem> db = new InMemoryDb<>();
 
-    private record ThingItem(long historyId, String tag) {
-
+    private record TagItem(long historyId, String tag) {
         public RecordTag toRecordTag(long tagId) {
             return new RecordTag(tagId, historyId, tag);
         }
-    }
-
-
-    private final AtomicLong nextId = new AtomicLong();
-    private final InMemoryDb<Long, ThingItem> db = new InMemoryDb<>();
-
-    public InMemoryTableTag() {
     }
 
     @Override
@@ -58,7 +52,7 @@ public class InMemoryTableTag extends ParosAbstractTable implements TableTag {
 
     @Override
     public synchronized RecordTag insert(long historyId, String tag) throws DatabaseException {
-        ThingItem item = new ThingItem(historyId, tag);
+        TagItem item = new TagItem(historyId, tag);
         long id = nextId.incrementAndGet();
         db.put(id, item);
         return item.toRecordTag(id);
