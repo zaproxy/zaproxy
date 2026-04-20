@@ -19,14 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -46,25 +39,25 @@ class TechUnitTest {
 
     @Test
     void allShouldHaveTech() {
-        assertThat(Tech.getAll(), notNullValue());
-        assertThat(Tech.getAll(), not(empty()));
+        assertThat(Tech.getAll()).isNotNull();
+        assertThat(Tech.getAll()).isNotEmpty();
     }
 
     @Test
     void topLevelShouldHaveTech() {
-        assertThat(Tech.getTopLevel(), notNullValue());
-        assertThat(Tech.getTopLevel(), not(empty()));
+        assertThat(Tech.getTopLevel()).isNotNull();
+        assertThat(Tech.getTopLevel()).isNotEmpty();
     }
 
     @Test
     void allShouldHaveMoreTech() {
-        assertThat(Tech.getAll().size(), greaterThan(Tech.getTopLevel().size()));
+        assertThat(Tech.getAll().size()).isGreaterThan(Tech.getTopLevel().size());
     }
 
     @Test
     void allShouldContainTopLevel() {
         for (Tech top : Tech.getTopLevel()) {
-            assertThat(Tech.getAll(), hasItem(top));
+            assertThat(Tech.getAll()).contains(top);
         }
     }
 
@@ -74,16 +67,16 @@ class TechUnitTest {
         int beforeTop = Tech.getTopLevel().size();
 
         Tech.add(newTopLevelTech);
-        assertThat(Tech.getAll().size(), greaterThan(before));
-        assertThat(Tech.getTopLevel().size(), greaterThan(beforeTop));
-        assertThat(Tech.getTopLevel(), hasItem(newTopLevelTech));
-        assertThat(Tech.getAll(), hasItem(newTopLevelTech));
+        assertThat(Tech.getAll().size()).isGreaterThan(before);
+        assertThat(Tech.getTopLevel().size()).isGreaterThan(beforeTop);
+        assertThat(Tech.getTopLevel()).contains(newTopLevelTech);
+        assertThat(Tech.getAll()).contains(newTopLevelTech);
 
         Tech.remove(newTopLevelTech);
-        assertThat(Tech.getTopLevel(), not(hasItem(newTopLevelTech)));
-        assertThat(Tech.getAll(), not(hasItem(newTopLevelTech)));
-        assertThat(Tech.getAll().size(), is(before));
-        assertThat(Tech.getTopLevel().size(), is(beforeTop));
+        assertThat(Tech.getTopLevel()).doesNotContain(newTopLevelTech);
+        assertThat(Tech.getAll()).doesNotContain(newTopLevelTech);
+        assertThat(Tech.getAll()).hasSize(before);
+        assertThat(Tech.getTopLevel()).hasSize(beforeTop);
     }
 
     @Test
@@ -91,14 +84,14 @@ class TechUnitTest {
         int before = Tech.getAll().size();
 
         Tech.add(newTech);
-        assertThat(Tech.getAll().size(), greaterThan(before));
-        assertThat(Tech.getAll(), hasItem(newTech));
-        assertThat(Tech.getTopLevel(), not(hasItem(newTech)));
+        assertThat(Tech.getAll().size()).isGreaterThan(before);
+        assertThat(Tech.getAll()).contains(newTech);
+        assertThat(Tech.getTopLevel()).doesNotContain(newTech);
 
         Tech.remove(newTech);
-        assertThat(Tech.getAll(), not(hasItem(newTech)));
-        assertThat(Tech.getTopLevel(), not(hasItem(newTech)));
-        assertThat(Tech.getAll().size(), is(before));
+        assertThat(Tech.getAll()).doesNotContain(newTech);
+        assertThat(Tech.getTopLevel()).doesNotContain(newTech);
+        assertThat(Tech.getAll()).hasSize(before);
     }
 
     @Test
@@ -106,17 +99,17 @@ class TechUnitTest {
         Tech.add(newTopLevelTech);
         Tech.add(newTech);
 
-        assertThat(Tech.get(TOP_LEVEL), is(newTopLevelTech));
-        assertThat(Tech.get(TOP_LEVEL.toLowerCase()), is(newTopLevelTech));
-        assertThat(Tech.get(TOP_LEVEL.toUpperCase()), is(newTopLevelTech));
-        assertThat(Tech.get(TOP_LEVEL + "  "), is(newTopLevelTech));
-        assertThat(Tech.get("  " + TOP_LEVEL + "  "), is(newTopLevelTech));
+        assertThat(Tech.get(TOP_LEVEL)).isEqualTo(newTopLevelTech);
+        assertThat(Tech.get(TOP_LEVEL.toLowerCase())).isEqualTo(newTopLevelTech);
+        assertThat(Tech.get(TOP_LEVEL.toUpperCase())).isEqualTo(newTopLevelTech);
+        assertThat(Tech.get(TOP_LEVEL + "  ")).isEqualTo(newTopLevelTech);
+        assertThat(Tech.get("  " + TOP_LEVEL + "  ")).isEqualTo(newTopLevelTech);
 
-        assertThat(Tech.get("Db." + SUB_LEVEL), is(newTech));
-        assertThat(Tech.get("Db." + SUB_LEVEL.toLowerCase()), is(newTech));
-        assertThat(Tech.get("Db." + SUB_LEVEL.toUpperCase()), is(newTech));
-        assertThat(Tech.get("Db." + SUB_LEVEL + "  "), is(newTech));
-        assertThat(Tech.get("  " + "Db." + SUB_LEVEL + "  "), is(newTech));
+        assertThat(Tech.get("Db." + SUB_LEVEL)).isEqualTo(newTech);
+        assertThat(Tech.get("Db." + SUB_LEVEL.toLowerCase())).isEqualTo(newTech);
+        assertThat(Tech.get("Db." + SUB_LEVEL.toUpperCase())).isEqualTo(newTech);
+        assertThat(Tech.get("Db." + SUB_LEVEL + "  ")).isEqualTo(newTech);
+        assertThat(Tech.get("  " + "Db." + SUB_LEVEL + "  ")).isEqualTo(newTech);
 
         // cleanup
         Tech.remove(newTopLevelTech);
@@ -141,15 +134,15 @@ class TechUnitTest {
         boolean topIsNotOtherTop = topLevel.is(Tech.Db);
         boolean thirdIsNotOtherTop = thirdLevel.is(Tech.Db);
         // Then
-        assertThat(topIsTop, is(equalTo(true)));
-        assertThat(secondIsTop, is(equalTo(true)));
-        assertThat(secondIsSecond, is(equalTo(true)));
-        assertThat(thirdIsTop, is(equalTo(true)));
-        assertThat(thirdIsSecond, is(equalTo(true)));
-        assertThat(thirdIsThird, is(equalTo(true)));
+        assertThat(topIsTop).isTrue();
+        assertThat(secondIsTop).isTrue();
+        assertThat(secondIsSecond).isTrue();
+        assertThat(thirdIsTop).isTrue();
+        assertThat(thirdIsSecond).isTrue();
+        assertThat(thirdIsThird).isTrue();
 
-        assertThat(topIsNotOtherTop, is(equalTo(false)));
-        assertThat(thirdIsNotOtherTop, is(equalTo(false)));
+        assertThat(topIsNotOtherTop).isFalse();
+        assertThat(thirdIsNotOtherTop).isFalse();
     }
 
     private void setupThreeLevels() {

@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.extension.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -102,27 +101,23 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         extensionAuthentication.exportContextData(context, config);
 
         // Then
-        assertThat(config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE), is(2));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY),
-                is(AuthCheckingStrategy.POLL_URL.name()));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL), is(pollUrl));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA), is(pollData));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS),
-                is(pollHeaders));
-        assertThat(config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ), is(pollFreq));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS),
-                is(AuthPollFrequencyUnits.REQUESTS.name()));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN),
-                is(loggedInIndicator));
-        assertThat(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT),
-                is(loggedOutIndicator));
+        assertThat(config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE)).isEqualTo(2);
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY))
+                .isEqualTo(AuthCheckingStrategy.POLL_URL.name());
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL))
+                .isEqualTo(pollUrl);
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA))
+                .isEqualTo(pollData);
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS))
+                .isEqualTo(pollHeaders);
+        assertThat(config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ))
+                .isEqualTo(pollFreq);
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS))
+                .isEqualTo(AuthPollFrequencyUnits.REQUESTS.name());
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN))
+                .isEqualTo(loggedInIndicator);
+        assertThat(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT))
+                .isEqualTo(loggedOutIndicator);
     }
 
     @Test
@@ -159,17 +154,16 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         AuthenticationMethod method = context.getAuthenticationMethod();
 
         // Then
-        assertThat(
-                method.getClass().getCanonicalName(),
-                is(FormBasedAuthenticationMethod.class.getCanonicalName()));
-        assertThat(method.getAuthCheckingStrategy(), is(AuthCheckingStrategy.POLL_URL));
-        assertThat(method.getPollUrl(), is(pollUrl));
-        assertThat(method.getPollData(), is(pollData));
-        assertThat(method.getPollHeaders(), is(pollHeaders));
-        assertThat(method.getPollFrequencyUnits(), is(AuthPollFrequencyUnits.REQUESTS));
-        assertThat(method.getPollFrequency(), is(pollFreq));
-        assertThat(method.getLoggedInIndicatorPattern().toString(), is(loggedInIndicator));
-        assertThat(method.getLoggedOutIndicatorPattern().toString(), is(loggedOutIndicator));
+        assertThat(method.getClass().getCanonicalName())
+                .isEqualTo(FormBasedAuthenticationMethod.class.getCanonicalName());
+        assertThat(method.getAuthCheckingStrategy()).isEqualTo(AuthCheckingStrategy.POLL_URL);
+        assertThat(method.getPollUrl()).isEqualTo(pollUrl);
+        assertThat(method.getPollData()).isEqualTo(pollData);
+        assertThat(method.getPollHeaders()).isEqualTo(pollHeaders);
+        assertThat(method.getPollFrequencyUnits()).isEqualTo(AuthPollFrequencyUnits.REQUESTS);
+        assertThat(method.getPollFrequency()).isEqualTo(pollFreq);
+        assertThat(method.getLoggedInIndicatorPattern()).hasToString(loggedInIndicator);
+        assertThat(method.getLoggedOutIndicatorPattern()).hasToString(loggedOutIndicator);
     }
 
     @Test
@@ -192,11 +186,10 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         AuthenticationMethod method = context.getAuthenticationMethod();
 
         // Then
-        assertThat(
-                method.getClass().getCanonicalName(),
-                is(FormBasedAuthenticationMethod.class.getCanonicalName()));
-        assertThat(method.getAuthCheckingStrategy(), is(AuthCheckingStrategy.EACH_RESP));
-        assertThat(method.getLoggedInIndicatorPattern().toString(), is(loggedInIndicator));
-        assertThat(method.getLoggedOutIndicatorPattern().toString(), is(loggedOutIndicator));
+        assertThat(method.getClass().getCanonicalName())
+                .isEqualTo(FormBasedAuthenticationMethod.class.getCanonicalName());
+        assertThat(method.getAuthCheckingStrategy()).isEqualTo(AuthCheckingStrategy.EACH_RESP);
+        assertThat(method.getLoggedInIndicatorPattern()).hasToString(loggedInIndicator);
+        assertThat(method.getLoggedOutIndicatorPattern()).hasToString(loggedOutIndicator);
     }
 }

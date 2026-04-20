@@ -19,16 +19,8 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
@@ -69,21 +61,21 @@ class AddOnUnitTest extends AddOnTestUtils {
     void testAlpha2UpdatesAlpha1() throws Exception {
         AddOn addOnA1 = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         AddOn addOnA2 = new AddOn(createAddOnFile("test-alpha-2.zap", "alpha", "2"));
-        assertTrue(addOnA2.isUpdateTo(addOnA1));
+        assertThat(addOnA2.isUpdateTo(addOnA1)).isTrue();
     }
 
     @Test
     void testAlpha1DoesNotUpdateAlpha2() throws Exception {
         AddOn addOnA1 = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         AddOn addOnA2 = new AddOn(createAddOnFile("test-alpha-2.zap", "alpha", "1"));
-        assertFalse(addOnA1.isUpdateTo(addOnA2));
+        assertThat(addOnA1.isUpdateTo(addOnA2)).isFalse();
     }
 
     @Test
     void testAlpha2UpdatesBeta1() throws Exception {
         AddOn addOnB1 = new AddOn(createAddOnFile("test-beta-1.zap", "beta", "1"));
         AddOn addOnA2 = new AddOn(createAddOnFile("test-alpha-2.zap", "alpha", "2"));
-        assertTrue(addOnA2.isUpdateTo(addOnB1));
+        assertThat(addOnA2.isUpdateTo(addOnB1)).isTrue();
     }
 
     @Test
@@ -95,7 +87,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> addOnA2.isUpdateTo(addOnA1));
         // Then
-        assertThat(e.getMessage(), containsString("Different addons"));
+        assertThat(e.getMessage()).contains("Different addons");
     }
 
     @Test
@@ -108,7 +100,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = addOnHigherStatus.isUpdateTo(addOn);
         // Then
-        assertThat(update, is(equalTo(true)));
+        assertThat(update).isTrue();
     }
 
     @Test
@@ -121,7 +113,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = addOn.isUpdateTo(addOnHigherStatus);
         // Then
-        assertThat(update, is(equalTo(false)));
+        assertThat(update).isFalse();
     }
 
     @Test
@@ -136,7 +128,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = newestAddOn.isUpdateTo(addOn);
         // Then
-        assertThat(update, is(equalTo(true)));
+        assertThat(update).isTrue();
     }
 
     @Test
@@ -151,7 +143,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = addOn.isUpdateTo(newestAddOn);
         // Then
-        assertThat(update, is(equalTo(false)));
+        assertThat(update).isFalse();
     }
 
     @Test
@@ -166,7 +158,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = addOn.isUpdateTo(addOnWithoutFile);
         // Then
-        assertThat(update, is(equalTo(true)));
+        assertThat(update).isTrue();
     }
 
     @Test
@@ -181,20 +173,20 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = addOnWithoutFile.isUpdateTo(addOn);
         // Then
-        assertThat(update, is(equalTo(false)));
+        assertThat(update).isFalse();
     }
 
     @Test
     void testCanLoadAddOnNotBefore() throws Exception {
         AddOn ao = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         ao.setNotBeforeVersion("2.4.0");
-        assertTrue(ao.canLoadInVersion("2.4.0"));
+        assertThat(ao.canLoadInVersion("2.4.0")).isTrue();
 
         ao.setNotBeforeVersion("2.4.0");
-        assertTrue(ao.canLoadInVersion("2.4.0"));
-        assertTrue(ao.canLoadInVersion("2.5.0"));
-        assertFalse(ao.canLoadInVersion("1.4.0"));
-        assertFalse(ao.canLoadInVersion("2.0.alpha"));
+        assertThat(ao.canLoadInVersion("2.4.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.5.0")).isTrue();
+        assertThat(ao.canLoadInVersion("1.4.0")).isFalse();
+        assertThat(ao.canLoadInVersion("2.0.alpha")).isFalse();
     }
 
     @Test
@@ -202,26 +194,26 @@ class AddOnUnitTest extends AddOnTestUtils {
         AddOn ao = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         ao.setNotBeforeVersion("2.4.0");
         ao.setNotFromVersion("2.8.0");
-        assertTrue(ao.canLoadInVersion("2.4.0"));
-        assertTrue(ao.canLoadInVersion("2.5.0"));
-        assertTrue(ao.canLoadInVersion("2.7.0"));
-        assertFalse(ao.canLoadInVersion("2.8.0"));
-        assertFalse(ao.canLoadInVersion("2.8.0.1"));
-        assertFalse(ao.canLoadInVersion("2.9.0"));
+        assertThat(ao.canLoadInVersion("2.4.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.5.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.7.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.8.0")).isFalse();
+        assertThat(ao.canLoadInVersion("2.8.0.1")).isFalse();
+        assertThat(ao.canLoadInVersion("2.9.0")).isFalse();
     }
 
     @Test
     void testCanLoadAddOnNotBeforeNotFrom() throws Exception {
         AddOn ao = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         ao.setNotBeforeVersion("2.4.0");
-        assertTrue(ao.canLoadInVersion("2.4.0"));
+        assertThat(ao.canLoadInVersion("2.4.0")).isTrue();
         ao.setNotFromVersion("2.7.0");
-        assertTrue(ao.canLoadInVersion("2.4.0"));
-        assertTrue(ao.canLoadInVersion("2.5.0"));
-        assertTrue(ao.canLoadInVersion("2.6.0"));
-        assertFalse(ao.canLoadInVersion("2.7.0"));
-        assertFalse(ao.canLoadInVersion("2.7.0.1"));
-        assertFalse(ao.canLoadInVersion("2.8.0"));
+        assertThat(ao.canLoadInVersion("2.4.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.5.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.6.0")).isTrue();
+        assertThat(ao.canLoadInVersion("2.7.0")).isFalse();
+        assertThat(ao.canLoadInVersion("2.7.0.1")).isFalse();
+        assertThat(ao.canLoadInVersion("2.8.0")).isFalse();
     }
 
     @Test
@@ -231,7 +223,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFileName = AddOn.isAddOnFileName(fileName);
         // Then
-        assertThat(addOnFileName, is(equalTo(false)));
+        assertThat(addOnFileName).isFalse();
     }
 
     @Test
@@ -241,7 +233,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFileName = AddOn.isAddOnFileName(fileName);
         // Then
-        assertThat(addOnFileName, is(equalTo(false)));
+        assertThat(addOnFileName).isFalse();
     }
 
     @Test
@@ -251,7 +243,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFileName = AddOn.isAddOnFileName(fileName);
         // Then
-        assertThat(addOnFileName, is(equalTo(true)));
+        assertThat(addOnFileName).isTrue();
     }
 
     @Test
@@ -261,7 +253,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFileName = AddOn.isAddOnFileName(fileName);
         // Then
-        assertThat(addOnFileName, is(equalTo(true)));
+        assertThat(addOnFileName).isTrue();
     }
 
     @Test
@@ -271,7 +263,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
-        assertThat(addOnFile, is(equalTo(false)));
+        assertThat(addOnFile).isFalse();
     }
 
     @Test
@@ -281,7 +273,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
-        assertThat(addOnFile, is(equalTo(false)));
+        assertThat(addOnFile).isFalse();
     }
 
     @Test
@@ -291,7 +283,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
-        assertThat(addOnFile, is(equalTo(false)));
+        assertThat(addOnFile).isFalse();
     }
 
     @Test
@@ -301,7 +293,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
-        assertThat(addOnFile, is(equalTo(false)));
+        assertThat(addOnFile).isFalse();
     }
 
     @Test
@@ -311,7 +303,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
-        assertThat(addOnFile, is(equalTo(true)));
+        assertThat(addOnFile).isTrue();
     }
 
     @Test
@@ -321,7 +313,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
-        assertThat(addOnFile, is(equalTo(true)));
+        assertThat(addOnFile).isTrue();
     }
 
     @Test
@@ -331,7 +323,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_PATH)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.INVALID_PATH);
     }
 
     @Test
@@ -341,7 +333,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_PATH)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.INVALID_PATH);
     }
 
     @Test
@@ -351,7 +343,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_FILE_NAME)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.INVALID_FILE_NAME);
     }
 
     @Test
@@ -361,7 +353,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.FILE_NOT_READABLE)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.FILE_NOT_READABLE);
     }
 
     @Test
@@ -378,7 +370,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.FILE_NOT_READABLE)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.FILE_NOT_READABLE);
     }
 
     @Test
@@ -388,9 +380,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(
-                result.getValidity(), is(equalTo(ValidationResult.Validity.UNREADABLE_ZIP_FILE)));
-        assertThat(result.getException(), is(notNullValue()));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.UNREADABLE_ZIP_FILE);
+        assertThat(result.getException()).isNotNull();
     }
 
     @Test
@@ -404,7 +395,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.MISSING_MANIFEST)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.MISSING_MANIFEST);
     }
 
     @Test
@@ -418,8 +409,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_MANIFEST)));
-        assertThat(result.getException(), is(notNullValue()));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.INVALID_MANIFEST);
+        assertThat(result.getException()).isNotNull();
     }
 
     @Test
@@ -437,7 +428,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_LIB)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.INVALID_LIB);
     }
 
     @Test
@@ -455,7 +446,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_LIB)));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.INVALID_LIB);
     }
 
     @Test
@@ -465,8 +456,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
-        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.VALID)));
-        assertThat(result.getManifest(), is(notNullValue()));
+        assertThat(result.getValidity()).isEqualTo(ValidationResult.Validity.VALID);
+        assertThat(result.getManifest()).isNotNull();
     }
 
     @Test
@@ -476,7 +467,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         IOException e = assertThrows(IOException.class, () -> new AddOn(file));
         // Then
-        assertThat(e.getMessage(), is(AddOn.ValidationResult.Validity.INVALID_PATH.name()));
+        assertThat(e.getMessage()).isEqualTo(AddOn.ValidationResult.Validity.INVALID_PATH.name());
     }
 
     @Test
@@ -487,7 +478,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         IOException e = assertThrows(IOException.class, () -> new AddOn(file));
         // Then
-        assertThat(e.getMessage(), is(AddOn.ValidationResult.Validity.INVALID_FILE_NAME.name()));
+        assertThat(e.getMessage())
+                .isEqualTo(AddOn.ValidationResult.Validity.INVALID_FILE_NAME.name());
     }
 
     @Test
@@ -498,10 +490,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn addOn = new AddOn(file);
         // Then
-        assertThat(addOn.getId(), is(equalTo("addon")));
-        assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.beta)));
-        assertThat(addOn.getVersion().toString(), is(equalTo("1.6.7")));
-        assertThat(addOn.getFileVersion(), is(equalTo(1)));
+        assertThat(addOn.getId()).isEqualTo("addon");
+        assertThat(addOn.getStatus()).isEqualTo(AddOn.Status.beta);
+        assertThat(addOn.getVersion()).hasToString("1.6.7");
+        assertThat(addOn.getFileVersion()).isEqualTo(1);
     }
 
     @Test
@@ -511,9 +503,9 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn addOn = new AddOn(file);
         // Then
-        assertThat(addOn.getId(), is(equalTo("addon.x")));
-        assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.release)));
-        assertThat(addOn.getVersion().toString(), is(equalTo("1.0.0")));
+        assertThat(addOn.getId()).isEqualTo("addon.x");
+        assertThat(addOn.getStatus()).isEqualTo(AddOn.Status.release);
+        assertThat(addOn.getVersion()).hasToString("1.0.0");
     }
 
     @Test
@@ -523,7 +515,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn addOn = new AddOn(file);
         // Then
-        assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.release)));
+        assertThat(addOn.getStatus()).isEqualTo(AddOn.Status.release);
     }
 
     @Test
@@ -534,8 +526,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn addOn = new AddOn(file);
         // Then
-        assertThat(addOn.getVersion().toString(), is(equalTo("3.2.10")));
-        assertThat(addOn.getFileVersion(), is(equalTo(3)));
+        assertThat(addOn.getVersion()).hasToString("3.2.10");
+        assertThat(addOn.getFileVersion()).isEqualTo(3);
     }
 
     @Test
@@ -546,7 +538,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         String normalisedFileName = addOn.getNormalisedFileName();
         // Then
-        assertThat(normalisedFileName, is(equalTo("addon-2.8.1.zap")));
+        assertThat(normalisedFileName).isEqualTo("addon-2.8.1.zap");
     }
 
     @Test
@@ -556,7 +548,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         String releaseDate = addOn.getReleaseDate();
         // Then
-        assertThat(releaseDate, is(nullValue()));
+        assertThat(releaseDate).isNull();
     }
 
     @Test
@@ -566,7 +558,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         long size = addOn.getSize();
         // Then
-        assertThat(size, is(equalTo(189L)));
+        assertThat(size).isEqualTo(189L);
     }
 
     @Test
@@ -577,10 +569,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         BundleData bundleData = addOn.getBundleData();
         // Then
-        assertThat(bundleData, is(notNullValue()));
-        assertThat(bundleData.isEmpty(), is(equalTo(true)));
-        assertThat(bundleData.getBaseName(), is(equalTo("")));
-        assertThat(bundleData.getPrefix(), is(equalTo("")));
+        assertThat(bundleData).isNotNull();
+        assertThat(bundleData.isEmpty()).isTrue();
+        assertThat(bundleData.getBaseName()).isEmpty();
+        assertThat(bundleData.getPrefix()).isEmpty();
     }
 
     @Test
@@ -600,10 +592,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         BundleData bundleData = addOn.getBundleData();
         // Then
-        assertThat(bundleData, is(notNullValue()));
-        assertThat(bundleData.isEmpty(), is(equalTo(false)));
-        assertThat(bundleData.getBaseName(), is(equalTo("org.zaproxy.Messages")));
-        assertThat(bundleData.getPrefix(), is(equalTo("")));
+        assertThat(bundleData).isNotNull();
+        assertThat(bundleData.isEmpty()).isFalse();
+        assertThat(bundleData.getBaseName()).isEqualTo("org.zaproxy.Messages");
+        assertThat(bundleData.getPrefix()).isEmpty();
     }
 
     @Test
@@ -623,10 +615,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         BundleData bundleData = addOn.getBundleData();
         // Then
-        assertThat(bundleData, is(notNullValue()));
-        assertThat(bundleData.isEmpty(), is(equalTo(false)));
-        assertThat(bundleData.getBaseName(), is(equalTo("org.zaproxy.Messages")));
-        assertThat(bundleData.getPrefix(), is(equalTo("msgs")));
+        assertThat(bundleData).isNotNull();
+        assertThat(bundleData.isEmpty()).isFalse();
+        assertThat(bundleData.getBaseName()).isEqualTo("org.zaproxy.Messages");
+        assertThat(bundleData.getPrefix()).isEqualTo("msgs");
     }
 
     @Test
@@ -637,10 +629,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         HelpSetData helpSetData = addOn.getHelpSetData();
         // Then
-        assertThat(helpSetData, is(notNullValue()));
-        assertThat(helpSetData.isEmpty(), is(equalTo(true)));
-        assertThat(helpSetData.getBaseName(), is(equalTo("")));
-        assertThat(helpSetData.getLocaleToken(), is(equalTo("")));
+        assertThat(helpSetData).isNotNull();
+        assertThat(helpSetData.isEmpty()).isTrue();
+        assertThat(helpSetData.getBaseName()).isEmpty();
+        assertThat(helpSetData.getLocaleToken()).isEmpty();
     }
 
     @Test
@@ -660,10 +652,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         HelpSetData helpSetData = addOn.getHelpSetData();
         // Then
-        assertThat(helpSetData, is(notNullValue()));
-        assertThat(helpSetData.isEmpty(), is(equalTo(false)));
-        assertThat(helpSetData.getBaseName(), is(equalTo("org.zaproxy.help.helpset")));
-        assertThat(helpSetData.getLocaleToken(), is(equalTo("")));
+        assertThat(helpSetData).isNotNull();
+        assertThat(helpSetData.isEmpty()).isFalse();
+        assertThat(helpSetData.getBaseName()).isEqualTo("org.zaproxy.help.helpset");
+        assertThat(helpSetData.getLocaleToken()).isEmpty();
     }
 
     @Test
@@ -683,10 +675,10 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         HelpSetData helpSetData = addOn.getHelpSetData();
         // Then
-        assertThat(helpSetData, is(notNullValue()));
-        assertThat(helpSetData.isEmpty(), is(equalTo(false)));
-        assertThat(helpSetData.getBaseName(), is(equalTo("org.zaproxy.help%LC%.helpset")));
-        assertThat(helpSetData.getLocaleToken(), is(equalTo("%LC%")));
+        assertThat(helpSetData).isNotNull();
+        assertThat(helpSetData.isEmpty()).isFalse();
+        assertThat(helpSetData.getBaseName()).isEqualTo("org.zaproxy.help%LC%.helpset");
+        assertThat(helpSetData.getLocaleToken()).isEqualTo("%LC%");
     }
 
     @Test
@@ -698,7 +690,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(dependency);
         // Then
-        assertThat(depends, is(equalTo(true)));
+        assertThat(depends).isTrue();
     }
 
     @Test
@@ -709,7 +701,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(nonDependency);
         // Then
-        assertThat(depends, is(equalTo(false)));
+        assertThat(depends).isFalse();
     }
 
     @Test
@@ -721,7 +713,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(nonDependency);
         // Then
-        assertThat(depends, is(equalTo(false)));
+        assertThat(depends).isFalse();
     }
 
     @Test
@@ -733,7 +725,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(nonDirectDependency);
         // Then
-        assertThat(depends, is(equalTo(false)));
+        assertThat(depends).isFalse();
     }
 
     @Test
@@ -745,7 +737,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(sameAddOn);
         // Then
-        assertThat(depends, is(equalTo(false)));
+        assertThat(depends).isFalse();
     }
 
     @Test
@@ -759,7 +751,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(addOns);
         // Then
-        assertThat(depends, is(equalTo(true)));
+        assertThat(depends).isTrue();
     }
 
     @Test
@@ -773,7 +765,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(addOns);
         // Then
-        assertThat(depends, is(equalTo(false)));
+        assertThat(depends).isFalse();
     }
 
     @Test
@@ -787,7 +779,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean depends = addOn.dependsOn(addOns);
         // Then
-        assertThat(depends, is(equalTo(false)));
+        assertThat(depends).isFalse();
     }
 
     @Test
@@ -798,7 +790,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = newerAddOn.isUpdateTo(olderAddOn);
         // Then
-        assertThat(update, is(equalTo(true)));
+        assertThat(update).isTrue();
     }
 
     @Test
@@ -809,7 +801,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean update = olderAddOn.isUpdateTo(newerAddOn);
         // Then
-        assertThat(update, is(equalTo(false)));
+        assertThat(update).isFalse();
     }
 
     @Test
@@ -823,7 +815,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
         // Then
-        assertThat(canRun, is(equalTo(true)));
+        assertThat(canRun).isTrue();
     }
 
     @Test
@@ -837,7 +829,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
         // Then
-        assertThat(canRun, is(equalTo(true)));
+        assertThat(canRun).isTrue();
     }
 
     @Test
@@ -851,7 +843,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
         // Then
-        assertThat(canRun, is(equalTo(true)));
+        assertThat(canRun).isTrue();
     }
 
     @Test
@@ -865,7 +857,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
         // Then
-        assertThat(canRun, is(equalTo(false)));
+        assertThat(canRun).isFalse();
     }
 
     @Test
@@ -879,7 +871,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
         // Then
-        assertThat(canRun, is(equalTo(false)));
+        assertThat(canRun).isFalse();
     }
 
     @Test
@@ -891,7 +883,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn addOn = new AddOn(file);
         // Then
-        assertThat(addOn.getLibs(), contains(new AddOn.Lib(lib1), new AddOn.Lib(lib2)));
+        assertThat(addOn.getLibs()).containsExactly(new AddOn.Lib(lib1), new AddOn.Lib(lib2));
     }
 
     @Test
@@ -901,9 +893,9 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(Collections.emptyList());
         // Then
-        assertThat(reqs.isRunnable(), is(equalTo(false)));
-        assertThat(reqs.hasMissingLibs(), is(equalTo(true)));
-        assertThat(reqs.getAddOnMissingLibs(), is(equalTo(addOn)));
+        assertThat(reqs.isRunnable()).isFalse();
+        assertThat(reqs.hasMissingLibs()).isTrue();
+        assertThat(reqs.getAddOnMissingLibs()).isEqualTo(addOn);
     }
 
     @Test
@@ -918,9 +910,9 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(Collections.emptyList());
         // Then
-        assertThat(reqs.isRunnable(), is(equalTo(true)));
-        assertThat(reqs.hasMissingLibs(), is(equalTo(false)));
-        assertThat(reqs.getAddOnMissingLibs(), is(nullValue()));
+        assertThat(reqs.isRunnable()).isTrue();
+        assertThat(reqs.hasMissingLibs()).isFalse();
+        assertThat(reqs.getAddOnMissingLibs()).isNull();
     }
 
     @Test
@@ -930,8 +922,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn.Lib lib = new AddOn.Lib(jarPath);
         // Then
-        assertThat(lib.getJarPath(), is(equalTo(jarPath)));
-        assertThat(lib.getName(), is(equalTo(jarPath)));
+        assertThat(lib.getJarPath()).isEqualTo(jarPath);
+        assertThat(lib.getName()).isEqualTo(jarPath);
     }
 
     @Test
@@ -942,8 +934,8 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         AddOn.Lib lib = new AddOn.Lib(jarPath);
         // Then
-        assertThat(lib.getJarPath(), is(equalTo(jarPath)));
-        assertThat(lib.getName(), is(equalTo(name)));
+        assertThat(lib.getJarPath()).isEqualTo(jarPath);
+        assertThat(lib.getName()).isEqualTo(name);
     }
 
     @Test
@@ -951,7 +943,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // Given / When
         AddOn.Lib lib = new AddOn.Lib("lib.jar");
         // Then
-        assertThat(lib.getFileSystemUrl(), is(nullValue()));
+        assertThat(lib.getFileSystemUrl()).isNull();
     }
 
     @Test
@@ -962,7 +954,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         lib.setFileSystemUrl(fsUrl);
         // Then
-        assertThat(lib.getFileSystemUrl(), is(equalTo(fsUrl)));
+        assertThat(lib.getFileSystemUrl()).isEqualTo(fsUrl);
     }
 
     @Test
@@ -973,7 +965,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         lib.setFileSystemUrl(null);
         // Then
-        assertThat(lib.getFileSystemUrl(), is(nullValue()));
+        assertThat(lib.getFileSystemUrl()).isNull();
     }
 
     @Test
@@ -983,7 +975,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         String sbom = addOn.getSbom();
         // Then
-        assertThat(sbom, is(nullValue()));
+        assertThat(sbom).isNull();
     }
 
     @Test
@@ -994,7 +986,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         String sbom = addOn.getSbom();
         // Then
-        assertThat(sbom, is(nullValue()));
+        assertThat(sbom).isNull();
     }
 
     @Test
@@ -1016,7 +1008,7 @@ class AddOnUnitTest extends AddOnTestUtils {
         // When
         String sbom = addOn.getSbom();
         // Then
-        assertThat(sbom, is(bom));
+        assertThat(sbom).isEqualTo(bom);
     }
 
     private static ZapXmlConfiguration createZapVersionsXml() throws Exception {

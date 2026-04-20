@@ -20,10 +20,7 @@
 package org.zaproxy.zap.extension.pscan;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -72,7 +69,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertThat(psd.getTechSet(), is(equalTo(TechSet.getAllTech())));
+        assertThat(psd.getTechSet()).isEqualTo(TechSet.getAllTech());
     }
 
     @Test
@@ -81,7 +78,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertThat(psd.getUsers(), is(equalTo(Collections.emptyList())));
+        assertThat(psd.getUsers()).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -90,8 +87,8 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertNull(psd.getContext());
-        assertThat(psd.hasContext(), is(equalTo(false)));
+        assertThat(psd.getContext()).isNull();
+        assertThat(psd.hasContext()).isFalse();
     }
 
     @Test
@@ -104,8 +101,8 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertThat(psd.getContext(), is(equalTo(context)));
-        assertThat(psd.hasContext(), is(equalTo(true)));
+        assertThat(psd.getContext()).isEqualTo(context);
+        assertThat(psd.hasContext()).isTrue();
     }
 
     @Test
@@ -119,8 +116,8 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertThat(psd.getContext(), is(equalTo(matchCtxOne)));
-        assertThat(psd.hasContext(), is(equalTo(true)));
+        assertThat(psd.getContext()).isEqualTo(matchCtxOne);
+        assertThat(psd.hasContext()).isTrue();
     }
 
     @Test
@@ -137,7 +134,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         PassiveScanData psd = new PassiveScanData(msg);
 
         // Then
-        assertThat(psd.getTechSet(), is(equalTo(expectedTechSet)));
+        assertThat(psd.getTechSet()).isEqualTo(expectedTechSet);
     }
 
     @Test
@@ -159,7 +156,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertThat(psd.getUsers(), is(equalTo(expectedUsers)));
+        assertThat(psd.getUsers()).isEqualTo(expectedUsers);
     }
 
     @Test
@@ -177,7 +174,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage200(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(msg, type);
@@ -195,7 +192,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, type);
     }
 
@@ -213,7 +210,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
     }
@@ -234,7 +231,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
@@ -256,7 +253,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
@@ -276,7 +273,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage404(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.OK_200);
         verify(context).isCustomPageWithFallback(msg, type);
     }
@@ -293,7 +290,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, type);
     }
 
@@ -310,7 +307,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
     }
@@ -331,7 +328,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
@@ -353,7 +350,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
@@ -374,7 +371,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage500(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.OK_200);
         verify(context).isCustomPageWithFallback(msg, type);
     }
@@ -391,7 +388,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, type);
     }
 
@@ -408,7 +405,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
     }
@@ -429,7 +426,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
@@ -451,7 +448,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.ERROR_500);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
@@ -469,7 +466,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPageOther(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -486,7 +483,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPageAuthIssue(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.OK_200);
         verify(context).isCustomPageWithFallback(msg, type);
     }
@@ -502,7 +499,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPageAuthIssue(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
     }
 
@@ -520,7 +517,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPageAuthIssue(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.AUTH_4XX);
     }
@@ -541,7 +538,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isPageAuthIssue(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.AUTH_4XX);
         verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
     }
@@ -555,7 +552,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isSuccess(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verifyNoInteractions(context);
     }
 
@@ -575,7 +572,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isSuccess(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -595,7 +592,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isSuccess(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -612,7 +609,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isSuccess(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -630,7 +627,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isSuccess(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500);
     }
 
@@ -643,7 +640,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isClientError(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verifyNoInteractions(context);
     }
 
@@ -662,7 +659,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isClientError(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -681,7 +678,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isClientError(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -699,7 +696,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isClientError(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -717,7 +714,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isClientError(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500);
     }
 
@@ -730,7 +727,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isServerError(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verifyNoInteractions(context);
     }
 
@@ -750,7 +747,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isServerError(msg);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -770,7 +767,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isServerError(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, type);
     }
 
@@ -787,7 +784,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isServerError(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.OK_200);
     }
 
@@ -805,7 +802,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // When
         boolean result = psd.isServerError(msg);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(context).isCustomPageWithFallback(msg, CustomPage.Type.NOTFOUND_404);
     }
 

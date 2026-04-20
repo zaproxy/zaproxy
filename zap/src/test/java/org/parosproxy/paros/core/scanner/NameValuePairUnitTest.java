@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -37,10 +34,10 @@ class NameValuePairUnitTest {
         // Given / When
         NameValuePair nameValuePair = new NameValuePair(1, NAME, VALUE, 2);
         // Then
-        assertThat(nameValuePair.getName(), is(equalTo(NAME)));
-        assertThat(nameValuePair.getValue(), is(equalTo(VALUE)));
-        assertThat(nameValuePair.getType(), is(equalTo(1)));
-        assertThat(nameValuePair.getPosition(), is(equalTo(2)));
+        assertThat(nameValuePair.getName()).isEqualTo(NAME);
+        assertThat(nameValuePair.getValue()).isEqualTo(VALUE);
+        assertThat(nameValuePair.getType()).isEqualTo(1);
+        assertThat(nameValuePair.getPosition()).isEqualTo(2);
     }
 
     @Test
@@ -48,8 +45,8 @@ class NameValuePairUnitTest {
         // Given / When
         NameValuePair nameValuePair = new NameValuePair(-1, NAME, VALUE, -2);
         // Then
-        assertThat(nameValuePair.getType(), is(equalTo(-1)));
-        assertThat(nameValuePair.getPosition(), is(equalTo(-2)));
+        assertThat(nameValuePair.getType()).isEqualTo(-1);
+        assertThat(nameValuePair.getPosition()).isEqualTo(-2);
     }
 
     @Test
@@ -57,8 +54,8 @@ class NameValuePairUnitTest {
         // Given / When
         NameValuePair nameValuePair = new NameValuePair(1, null, null, 2);
         // Then
-        assertThat(nameValuePair.getName(), is(nullValue()));
-        assertThat(nameValuePair.getValue(), is(nullValue()));
+        assertThat(nameValuePair.getName()).isNull();
+        assertThat(nameValuePair.getValue()).isNull();
     }
 
     @Test
@@ -69,7 +66,7 @@ class NameValuePairUnitTest {
         // When
         nameValuePair.setName(name);
         // Then
-        assertThat(nameValuePair.getName(), is(equalTo(name)));
+        assertThat(nameValuePair.getName()).isEqualTo(name);
     }
 
     @Test
@@ -80,7 +77,7 @@ class NameValuePairUnitTest {
         // When
         nameValuePair.setValue(value);
         // Then
-        assertThat(nameValuePair.getValue(), is(equalTo(value)));
+        assertThat(nameValuePair.getValue()).isEqualTo(value);
     }
 
     @Test
@@ -91,7 +88,7 @@ class NameValuePairUnitTest {
         // When
         nameValuePair.setPosition(position);
         // Then
-        assertThat(nameValuePair.getPosition(), is(equalTo(position)));
+        assertThat(nameValuePair.getPosition()).isEqualTo(position);
     }
 
     @Test
@@ -106,7 +103,7 @@ class NameValuePairUnitTest {
         int[] expectedHashCodes = {1834755624, 1722784887, 112902163, 0};
         for (int i = 0; i < nameValuePairs.length; i++) {
             // When / Then
-            assertThat(nameValuePairs[i].hashCode(), is(equalTo(expectedHashCodes[i])));
+            assertThat(nameValuePairs[i].hashCode()).isEqualTo(expectedHashCodes[i]);
         }
     }
 
@@ -117,7 +114,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(nameValuePair);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -128,7 +125,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherEqualNameValuePair);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -139,7 +136,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherEqualNameValuePair);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -150,7 +147,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherEqualNameValuePair);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -160,7 +157,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(null);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -171,7 +168,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -182,7 +179,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -193,7 +190,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -204,7 +201,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -215,7 +212,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -226,7 +223,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -239,7 +236,7 @@ class NameValuePairUnitTest {
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -259,7 +256,7 @@ class NameValuePairUnitTest {
         };
         for (int i = 0; i < nameValuePairs.length; i++) {
             // When / Then
-            assertThat(nameValuePairs[i].toString(), is(equalTo(expectedStringRepresentations[i])));
+            assertThat(nameValuePairs[i]).hasToString(expectedStringRepresentations[i]);
         }
     }
 
@@ -270,8 +267,8 @@ class NameValuePairUnitTest {
         NameValuePair p2 = new NameValuePair(2, NAME, VALUE, 1);
 
         // When / Then
-        assertThat(p1.compareTo(p2), is(equalTo(1)));
-        assertThat(p2.compareTo(p1), is(equalTo(-1)));
+        assertThat(p1.compareTo(p2)).isEqualTo(1);
+        assertThat(p2.compareTo(p1)).isEqualTo(-1);
     }
 
     @Test
@@ -280,8 +277,8 @@ class NameValuePairUnitTest {
         NameValuePair p1 = new NameValuePair(1, NAME, VALUE, 1);
         NameValuePair p2 = new NameValuePair(1, NAME, VALUE, 2);
         // When / Then
-        assertThat(p1.compareTo(p2), is(equalTo(1)));
-        assertThat(p2.compareTo(p1), is(equalTo(-1)));
+        assertThat(p1.compareTo(p2)).isEqualTo(1);
+        assertThat(p2.compareTo(p1)).isEqualTo(-1);
     }
 
     @Test
@@ -291,10 +288,10 @@ class NameValuePairUnitTest {
         NameValuePair pB = new NameValuePair(1, "B", VALUE, 1);
         NameValuePair pNull = new NameValuePair(1, null, VALUE, 1);
         // When / Then
-        assertThat(pA.compareTo(pB), is(equalTo(1)));
-        assertThat(pB.compareTo(pA), is(equalTo(-1)));
-        assertThat(pA.compareTo(pNull), is(equalTo(1)));
-        assertThat(pNull.compareTo(pA), is(equalTo(-1)));
+        assertThat(pA.compareTo(pB)).isEqualTo(1);
+        assertThat(pB.compareTo(pA)).isEqualTo(-1);
+        assertThat(pA.compareTo(pNull)).isEqualTo(1);
+        assertThat(pNull.compareTo(pA)).isEqualTo(-1);
     }
 
     @Test
@@ -304,9 +301,9 @@ class NameValuePairUnitTest {
         NameValuePair pB = new NameValuePair(1, NAME, "B", 1);
         NameValuePair pNull = new NameValuePair(1, NAME, null, 1);
         // When / Then
-        assertThat(pA.compareTo(pB), is(equalTo(1)));
-        assertThat(pB.compareTo(pA), is(equalTo(-1)));
-        assertThat(pA.compareTo(pNull), is(equalTo(1)));
-        assertThat(pNull.compareTo(pA), is(equalTo(-1)));
+        assertThat(pA.compareTo(pB)).isEqualTo(1);
+        assertThat(pB.compareTo(pA)).isEqualTo(-1);
+        assertThat(pA.compareTo(pNull)).isEqualTo(1);
+        assertThat(pNull.compareTo(pA)).isEqualTo(-1);
     }
 }

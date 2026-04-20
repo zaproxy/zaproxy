@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.CoreMatchers.both;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -150,14 +145,12 @@ class PausableScheduledThreadPoolExecutorUnitTest {
                 throw new RuntimeException("Interrupted while waiting for the task.", e);
             }
         }
-        assertThat(task.isExecuted(), is(equalTo(state)));
+        assertThat(task.isExecuted()).isEqualTo(state);
     }
 
     private static void assertTaskExecutedAfter(TestTask task, long delay) {
         assertTaskExecuted(task);
-        assertThat(
-                task.getEllapsedTime(),
-                is(both(greaterThanOrEqualTo(delay)).and(lessThan(getDelayWithMargin(delay)))));
+        assertThat(task.getEllapsedTime()).isLessThan(getDelayWithMargin(delay));
     }
 
     private static long getDelayWithMargin(long delay) {

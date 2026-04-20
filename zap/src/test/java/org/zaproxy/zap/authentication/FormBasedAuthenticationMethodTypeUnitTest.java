@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -98,13 +97,13 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqUrls.size(), is(1));
-        assertThat(orderedReqUrls.get(0), is(pollUrl + "?" + username));
-        assertThat(orderedReqData.size(), is(1));
-        assertThat(
-                orderedReqData.get(0),
-                is(pollData.replace(PostBasedAuthenticationMethod.MSG_USER_PATTERN, username)));
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqUrls).hasSize(1);
+        assertThat(orderedReqUrls.get(0)).isEqualTo(pollUrl + "?" + username);
+        assertThat(orderedReqData).hasSize(1);
+        assertThat(orderedReqData.get(0))
+                .isEqualTo(
+                        pollData.replace(PostBasedAuthenticationMethod.MSG_USER_PATTERN, username));
     }
 
     @Test
@@ -136,9 +135,9 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 .willReturn(new UsernamePasswordAuthenticationCredentials("", password));
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqData.size(), is(1));
-        assertThat(orderedReqData.get(0), is(pollData));
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqData).hasSize(1);
+        assertThat(orderedReqData.get(0)).isEqualTo(pollData);
     }
 
     @Test
@@ -170,13 +169,12 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqData.size(), is(1));
-        assertThat(
-                orderedReqData.get(0),
-                is(
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqData).hasSize(1);
+        assertThat(orderedReqData.get(0))
+                .isEqualTo(
                         pollData.replace(
                                 PostBasedAuthenticationMethod.MSG_USER_PATTERN,
-                                URLEncoder.encode(username, StandardCharsets.UTF_8.name()))));
+                                URLEncoder.encode(username, StandardCharsets.UTF_8.name())));
     }
 }

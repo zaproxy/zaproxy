@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.hex;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +38,6 @@ class HttpPanelHexModelUnitTest {
         // setting value 'a0' in Hex view resulted in 'c2 a0'
         model.setData(new byte[] {(byte) 0xa0});
 
-        assertThat(new byte[] {(byte) 0xa0}, is(equalTo(model.getData())));
+        assertThat(new byte[] {(byte) 0xa0}).isEqualTo(model.getData());
     }
 }

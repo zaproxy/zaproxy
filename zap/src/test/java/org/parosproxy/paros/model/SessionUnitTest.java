@@ -19,13 +19,7 @@
  */
 package org.parosproxy.paros.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -94,18 +88,18 @@ class SessionUnitTest {
             // When
             Context context = session.importContext(contextFile);
             // Then
-            assertThat(context.getId(), is(equalTo(1)));
-            assertThat(context.getName(), is(equalTo(name)));
-            assertThat(context.getDescription(), is(nullValue()));
-            assertThat(context.isInScope(), is(equalTo(false)));
-            assertThat(context.getIncludeInContextRegexs(), is(empty()));
-            assertThat(context.getExcludeFromContextRegexs(), is(empty()));
-            assertThat(context.getTechSet(), is(notNullValue()));
-            assertThat(context.getTechSet().getIncludeTech(), is(empty()));
-            assertThat(context.getTechSet().getExcludeTech(), is(empty()));
-            assertThat(context.getUrlParamParser(), is(instanceOf(StandardParameterParser.class)));
-            assertThat(context.getPostParamParser(), is(instanceOf(StandardParameterParser.class)));
-            assertThat(context.getDataDrivenNodes(), is(empty()));
+            assertThat(context.getId()).isEqualTo(1);
+            assertThat(context.getName()).isEqualTo(name);
+            assertThat(context.getDescription()).isNull();
+            assertThat(context.isInScope()).isFalse();
+            assertThat(context.getIncludeInContextRegexs()).isEmpty();
+            assertThat(context.getExcludeFromContextRegexs()).isEmpty();
+            assertThat(context.getTechSet()).isNotNull();
+            assertThat(context.getTechSet().getIncludeTech()).isEmpty();
+            assertThat(context.getTechSet().getExcludeTech()).isEmpty();
+            assertThat(context.getUrlParamParser()).isInstanceOf(StandardParameterParser.class);
+            assertThat(context.getPostParamParser()).isInstanceOf(StandardParameterParser.class);
+            assertThat(context.getDataDrivenNodes()).isEmpty();
         }
 
         private static File contextFile(String content) throws Exception {
@@ -172,8 +166,8 @@ class SessionUnitTest {
         ddn.add(endNode);
         context.setIncludeInContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
         // When / Then
-        assertThat(session.isIncludedInScope(endNode), is(true));
-        assertThat(session.isInScope(endNode), is(true));
+        assertThat(session.isIncludedInScope(endNode)).isTrue();
+        assertThat(session.isInScope(endNode)).isTrue();
     }
 
     @Test
@@ -197,8 +191,8 @@ class SessionUnitTest {
         context.setIncludeInContextRegexs(List.of("https://example.com.*"));
         context.setExcludeFromContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
         // When / Then
-        assertThat(session.isExcludedFromScope(endNode), is(true));
-        assertThat(session.isInScope(endNode), is(false));
+        assertThat(session.isExcludedFromScope(endNode)).isTrue();
+        assertThat(session.isInScope(endNode)).isFalse();
     }
 
     @Test
@@ -221,6 +215,6 @@ class SessionUnitTest {
         ddn.add(endNode);
         context.setIncludeInContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
         // When / Then
-        assertThat(session.getContextsForNode(endNode), is(List.of(context)));
+        assertThat(session.getContextsForNode(endNode)).isEqualTo(List.of(context));
     }
 }

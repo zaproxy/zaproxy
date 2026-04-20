@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,7 @@ class XMLStringUtilUnitTest {
         // when
         String result = XMLStringUtil.escapeControlChrs(xml);
         // then
-        assertThat(result, is(xml));
+        assertThat(result).isEqualTo(xml);
     }
 
     @Test
@@ -43,7 +42,7 @@ class XMLStringUtilUnitTest {
         // when
         String result = XMLStringUtil.removeControlChrs(xml);
         // then
-        assertThat(result, is(xml));
+        assertThat(result).isEqualTo(xml);
     }
 
     @Test
@@ -53,7 +52,7 @@ class XMLStringUtilUnitTest {
         // when
         String result = XMLStringUtil.escapeControlChrs(xml);
         // then
-        assertThat(result, is("A\\x0000B\\x0001C\\x0010D\\xfffeE\\xffffF"));
+        assertThat(result).isEqualTo("A\\x0000B\\x0001C\\x0010D\\xfffeE\\xffffF");
     }
 
     @Test
@@ -63,6 +62,6 @@ class XMLStringUtilUnitTest {
         // when
         String result = XMLStringUtil.removeControlChrs(xml);
         // then
-        assertThat(result, is("ABCDEF"));
+        assertThat(result).isEqualTo("ABCDEF");
     }
 }

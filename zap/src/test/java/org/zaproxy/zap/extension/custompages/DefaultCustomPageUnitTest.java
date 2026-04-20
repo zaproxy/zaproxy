@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.custompages;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.nio.charset.StandardCharsets;
@@ -56,7 +56,7 @@ class DefaultCustomPageUnitTest {
         // When
         String encodedCustomPage = DefaultCustomPage.encode(customPage);
         // Then
-        assertTrue(encodedCustomPage.equals(BASE64_TEST_PATTERN + ";1;true;1;true;"));
+        assertThat(encodedCustomPage.equals(BASE64_TEST_PATTERN + ";1;true;1;true;")).isTrue();
     }
 
     @Test
@@ -146,10 +146,11 @@ class DefaultCustomPageUnitTest {
     }
 
     private void assertCustomPagesMatch(CustomPage expected, CustomPage actual) {
-        assertTrue(actual.getPageMatcher().equals(expected.getPageMatcher()));
-        assertTrue(actual.getPageMatcherLocation().equals(expected.getPageMatcherLocation()));
-        assertTrue(actual.isRegex() == expected.isRegex());
-        assertTrue(actual.getType().equals(expected.getType()));
-        assertTrue(actual.isEnabled() == expected.isEnabled());
+        assertThat(actual.getPageMatcher().equals(expected.getPageMatcher())).isTrue();
+        assertThat(actual.getPageMatcherLocation().equals(expected.getPageMatcherLocation()))
+                .isTrue();
+        assertThat(actual.isRegex() == expected.isRegex()).isTrue();
+        assertThat(actual.getType().equals(expected.getType())).isTrue();
+        assertThat(actual.isEnabled() == expected.isEnabled()).isTrue();
     }
 }

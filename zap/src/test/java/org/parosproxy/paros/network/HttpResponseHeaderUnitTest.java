@@ -19,13 +19,8 @@
  */
 package org.parosproxy.paros.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +36,7 @@ class HttpResponseHeaderUnitTest {
         // When
         boolean empty = header.isEmpty();
         // Then
-        assertThat(empty, is(equalTo(true)));
+        assertThat(empty).isTrue();
     }
 
     @Test
@@ -51,7 +46,7 @@ class HttpResponseHeaderUnitTest {
         // When
         boolean empty = header.isEmpty();
         // Then
-        assertThat(empty, is(equalTo(false)));
+        assertThat(empty).isFalse();
     }
 
     @Test
@@ -62,7 +57,7 @@ class HttpResponseHeaderUnitTest {
         // When
         boolean empty = header.isEmpty();
         // Then
-        assertThat(empty, is(equalTo(false)));
+        assertThat(empty).isFalse();
     }
 
     @ParameterizedTest
@@ -82,7 +77,7 @@ class HttpResponseHeaderUnitTest {
         // When
         String parsedVersion = header.getVersion();
         // Then
-        assertThat(parsedVersion, is(equalTo(version)));
+        assertThat(parsedVersion).isEqualTo(version);
     }
 
     @Test
@@ -92,8 +87,8 @@ class HttpResponseHeaderUnitTest {
         // When
         header.setStatusCode(100);
         // Then
-        assertThat(header.getStatusCode(), is(equalTo(100)));
-        assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 100 OK")));
+        assertThat(header.getStatusCode()).isEqualTo(100);
+        assertThat(header.getPrimeHeader()).isEqualTo("HTTP/1.1 100 OK");
     }
 
     @Test
@@ -104,7 +99,7 @@ class HttpResponseHeaderUnitTest {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> header.setStatusCode(-200));
         // Then
-        assertThat(e.getMessage(), containsString("positive"));
+        assertThat(e.getMessage()).contains("positive");
     }
 
     @Test
@@ -115,7 +110,7 @@ class HttpResponseHeaderUnitTest {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> header.setStatusCode(99));
         // Then
-        assertThat(e.getMessage(), containsString("3 digit number"));
+        assertThat(e.getMessage()).contains("3 digit number");
     }
 
     @Test
@@ -126,7 +121,7 @@ class HttpResponseHeaderUnitTest {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> header.setStatusCode(1000));
         // Then
-        assertThat(e.getMessage(), containsString("3 digit number"));
+        assertThat(e.getMessage()).contains("3 digit number");
     }
 
     @Test
@@ -136,8 +131,8 @@ class HttpResponseHeaderUnitTest {
         // When
         header.setReasonPhrase("So So");
         // Then
-        assertThat(header.getReasonPhrase(), is(equalTo("So So")));
-        assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 200 So So")));
+        assertThat(header.getReasonPhrase()).isEqualTo("So So");
+        assertThat(header.getPrimeHeader()).isEqualTo("HTTP/1.1 200 So So");
     }
 
     @Test
@@ -147,8 +142,8 @@ class HttpResponseHeaderUnitTest {
         // When
         header.setReasonPhrase(null);
         // Then
-        assertThat(header.getReasonPhrase(), is(equalTo("")));
-        assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 200")));
+        assertThat(header.getReasonPhrase()).isEmpty();
+        assertThat(header.getPrimeHeader()).isEqualTo("HTTP/1.1 200");
     }
 
     @ParameterizedTest
@@ -165,7 +160,7 @@ class HttpResponseHeaderUnitTest {
         // Given
         HttpResponseHeader hrh = createResponseHeader(contentType);
         // When / Then
-        assertFalse(hrh.isCss());
+        assertThat(hrh.isCss()).isFalse();
     }
 
     @ParameterizedTest
@@ -181,7 +176,7 @@ class HttpResponseHeaderUnitTest {
         // Given
         HttpResponseHeader hrh = createResponseHeader(contentType);
         // When / Then
-        assertTrue(hrh.isCss());
+        assertThat(hrh.isCss()).isTrue();
     }
 
     private static HttpResponseHeader createResponseHeader(String contentType) {

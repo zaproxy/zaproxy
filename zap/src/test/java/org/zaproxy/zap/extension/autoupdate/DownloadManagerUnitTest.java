@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +60,7 @@ class DownloadManagerUnitTest extends WithConfigsTest {
         downloadManager.shutdown(false);
         // Then
         waitDownloadManagerShutdown();
-        assertThat(downloadManager.isAlive(), is(equalTo(false)));
+        assertThat(downloadManager.isAlive()).isFalse();
     }
 
     @Test
@@ -82,11 +77,11 @@ class DownloadManagerUnitTest extends WithConfigsTest {
         // Then
         waitDownloadManagerFinished();
         List<Downloader> progress = downloadManager.getProgress();
-        assertThat(progress, hasSize(numberOfDownloads));
+        assertThat(progress).hasSize(numberOfDownloads);
         progress.forEach(
                 download -> {
-                    assertThat(download.getException(), is(nullValue()));
-                    assertThat(download.getFinished(), is(not(nullValue())));
+                    assertThat(download.getException()).isNull();
+                    assertThat(download.getFinished()).isNotNull();
                 });
     }
 

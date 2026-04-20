@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.net.URL;
@@ -79,7 +78,7 @@ class MessagesLocaleUnitTest extends TestUtils {
                     brokenLocales.add("File with unhandled locale: " + fileName);
                 }
             }
-            assertThat(brokenLocales.toString(), brokenLocales, hasSize(0));
+            assertThat(brokenLocales).as(brokenLocales.toString()).hasSize(0);
         }
     }
 

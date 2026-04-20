@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -78,7 +75,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertEquals(LOGGED_IN_INDICATOR, method.getLoggedInIndicatorPattern().pattern());
+        assertThat(method.getLoggedInIndicatorPattern().pattern()).isEqualTo(LOGGED_IN_INDICATOR);
     }
 
     @Test
@@ -87,7 +84,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
 
         // When/Then
-        assertEquals(LOGGED_OUT_INDICATOR, method.getLoggedOutIndicatorPattern().pattern());
+        assertThat(method.getLoggedOutIndicatorPattern().pattern()).isEqualTo(LOGGED_OUT_INDICATOR);
     }
 
     @Test
@@ -96,13 +93,13 @@ class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedInIndicatorPattern(null);
 
         // When/Then
-        assertNull(method.getLoggedInIndicatorPattern());
+        assertThat(method.getLoggedInIndicatorPattern()).isNull();
 
         // Given
         method.setLoggedInIndicatorPattern("  ");
 
         // When/Then
-        assertNull(method.getLoggedInIndicatorPattern());
+        assertThat(method.getLoggedInIndicatorPattern()).isNull();
     }
 
     @Test
@@ -111,13 +108,13 @@ class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(null);
 
         // When/Then
-        assertNull(method.getLoggedOutIndicatorPattern());
+        assertThat(method.getLoggedOutIndicatorPattern()).isNull();
 
         // Given
         method.setLoggedOutIndicatorPattern("  ");
 
         // When/Then
-        assertNull(method.getLoggedOutIndicatorPattern());
+        assertThat(method.getLoggedOutIndicatorPattern()).isNull();
     }
 
     @Test
@@ -130,7 +127,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -143,7 +140,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -156,7 +153,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -169,7 +166,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -182,7 +179,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -195,7 +192,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -208,7 +205,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -221,7 +218,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -234,7 +231,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -247,7 +244,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -259,7 +256,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -273,7 +270,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -287,7 +284,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -301,7 +298,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -315,7 +312,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -329,7 +326,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -343,7 +340,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -357,7 +354,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -371,7 +368,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -385,7 +382,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user)).isFalse();
     }
 
     @Test
@@ -399,7 +396,7 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 
     @Test
@@ -412,6 +409,6 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user)).isTrue();
     }
 }

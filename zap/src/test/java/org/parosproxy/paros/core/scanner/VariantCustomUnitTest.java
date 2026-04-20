@@ -19,9 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -53,7 +51,7 @@ class VariantCustomUnitTest {
         String name = variantCustom.getLeafName(nodeName, msg);
 
         // Then
-        assertThat(name, is(equalTo(expectedName)));
+        assertThat(name).isEqualTo(expectedName);
     }
 
     @Test
@@ -75,8 +73,8 @@ class VariantCustomUnitTest {
         List<String> path = variantCustom.getTreePath(msg);
 
         // Then
-        assertThat(path.size(), is(equalTo(1)));
-        assertThat(path.get(0), is(equalTo(expectedPath)));
+        assertThat(path).hasSize(1);
+        assertThat(path.get(0)).isEqualTo(expectedPath);
     }
 
     @Test
@@ -97,7 +95,7 @@ class VariantCustomUnitTest {
         String name = variantCustom.getLeafName(nodeName, msg);
 
         // Then
-        assertThat(name, is(equalTo(null)));
+        assertThat(name).isEqualTo(null);
     }
 
     @Test
@@ -117,7 +115,7 @@ class VariantCustomUnitTest {
         List<String> path = variantCustom.getTreePath(msg);
 
         // Then
-        assertThat(path, is(equalTo(null)));
+        assertThat(path).isEqualTo(null);
     }
 
     @Test
@@ -137,7 +135,7 @@ class VariantCustomUnitTest {
         String name = variantCustom.getLeafName(nodeName, msg);
 
         // Then
-        assertThat(name, is(equalTo(null)));
+        assertThat(name).isEqualTo(null);
     }
 
     @Test
@@ -158,6 +156,6 @@ class VariantCustomUnitTest {
         List<String> path = variantCustom.getTreePath(msg);
 
         // Then
-        assertThat(path, is(equalTo(null)));
+        assertThat(path).isEqualTo(null);
     }
 }

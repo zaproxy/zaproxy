@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -70,7 +64,7 @@ class APIUnitTest {
         // When
         View.setDaemon(true);
         // Then
-        assertThat(api.isEnabled(), is(equalTo(true)));
+        assertThat(api.isEnabled()).isTrue();
     }
 
     @Test
@@ -86,8 +80,8 @@ class APIUnitTest {
                         createMockedHttpInputStream(),
                         createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -105,8 +99,8 @@ class APIUnitTest {
                         createMockedHttpInputStream(),
                         createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -124,8 +118,8 @@ class APIUnitTest {
                         createMockedHttpInputStream(),
                         createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -143,8 +137,8 @@ class APIUnitTest {
                         createMockedHttpInputStream(),
                         createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -159,7 +153,7 @@ class APIUnitTest {
         // When
         String baseUrl = api.getBaseURL(proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("http://zap/")));
+        assertThat(baseUrl).isEqualTo("http://zap/");
     }
 
     @Test
@@ -174,7 +168,7 @@ class APIUnitTest {
         // When
         String baseUrl = api.getBaseURL(proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("https://zap/")));
+        assertThat(baseUrl).isEqualTo("https://zap/");
     }
 
     @Test
@@ -190,7 +184,7 @@ class APIUnitTest {
         // When
         String baseUrl = api.getBaseURL(proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("http://127.0.0.1:8080/")));
+        assertThat(baseUrl).isEqualTo("http://127.0.0.1:8080/");
     }
 
     @Test
@@ -206,7 +200,7 @@ class APIUnitTest {
         // When
         String baseUrl = api.getBaseURL(proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("https://127.0.0.1:8080/")));
+        assertThat(baseUrl).isEqualTo("https://127.0.0.1:8080/");
     }
 
     @Test
@@ -223,8 +217,8 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
-        assertThat(baseUrl, startsWith("http://zap/JSON/test/action/test/?apinonce="));
-        assertThat(baseUrl, endsWith("&"));
+        assertThat(baseUrl).startsWith("http://zap/JSON/test/action/test/?apinonce=");
+        assertThat(baseUrl).endsWith("&");
         assertApiNonceMatch(api, baseUrl);
     }
 
@@ -242,8 +236,8 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
-        assertThat(baseUrl, startsWith("https://zap/JSON/test/action/test/?apinonce="));
-        assertThat(baseUrl, endsWith("&"));
+        assertThat(baseUrl).startsWith("https://zap/JSON/test/action/test/?apinonce=");
+        assertThat(baseUrl).endsWith("&");
         assertApiNonceMatch(api, baseUrl);
     }
 
@@ -262,8 +256,8 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
-        assertThat(baseUrl, startsWith("http://127.0.0.1:8080/JSON/test/action/test/?apinonce="));
-        assertThat(baseUrl, endsWith("&"));
+        assertThat(baseUrl).startsWith("http://127.0.0.1:8080/JSON/test/action/test/?apinonce=");
+        assertThat(baseUrl).endsWith("&");
         assertApiNonceMatch(api, baseUrl);
     }
 
@@ -282,8 +276,8 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
-        assertThat(baseUrl, startsWith("https://127.0.0.1:8080/JSON/test/action/test/?apinonce="));
-        assertThat(baseUrl, endsWith("&"));
+        assertThat(baseUrl).startsWith("https://127.0.0.1:8080/JSON/test/action/test/?apinonce=");
+        assertThat(baseUrl).endsWith("&");
         assertApiNonceMatch(api, baseUrl);
     }
 
@@ -301,7 +295,7 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("http://zap/JSON/test/view/test/")));
+        assertThat(baseUrl).isEqualTo("http://zap/JSON/test/view/test/");
     }
 
     @Test
@@ -318,7 +312,7 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("https://zap/JSON/test/view/test/")));
+        assertThat(baseUrl).isEqualTo("https://zap/JSON/test/view/test/");
     }
 
     @Test
@@ -336,7 +330,7 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("http://127.0.0.1:8080/JSON/test/view/test/")));
+        assertThat(baseUrl).isEqualTo("http://127.0.0.1:8080/JSON/test/view/test/");
     }
 
     @Test
@@ -354,7 +348,7 @@ class APIUnitTest {
         String baseUrl =
                 api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
-        assertThat(baseUrl, is(equalTo("https://127.0.0.1:8080/JSON/test/view/test/")));
+        assertThat(baseUrl).isEqualTo("https://127.0.0.1:8080/JSON/test/view/test/");
     }
 
     @Test
@@ -365,10 +359,10 @@ class APIUnitTest {
         // When
         String nonce = api.getOneTimeNonce(CUSTOM_API_PATH);
         // Then
-        assertThat(nonce, is(notNullValue()));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        assertThat(nonce).isNotNull();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isTrue();
         // Should not be valid more than once
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(false)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isFalse();
     }
 
     @Test
@@ -379,9 +373,9 @@ class APIUnitTest {
         // When
         String nonce = api.getOneTimeNonce(CUSTOM_API_PATH);
         // Then
-        assertThat(nonce, is(notNullValue()));
-        assertThat(isApiNonceValid(api, "/not/same/path/", nonce), is(equalTo(false)));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(false)));
+        assertThat(nonce).isNotNull();
+        assertThat(isApiNonceValid(api, "/not/same/path/", nonce)).isFalse();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isFalse();
     }
 
     @Test
@@ -396,8 +390,8 @@ class APIUnitTest {
         // When
         Thread.sleep(TimeUnit.SECONDS.toMillis(ttlInSecs + 1));
         // Then
-        assertThat(nonce, is(notNullValue()));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(false)));
+        assertThat(nonce).isNotNull();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isFalse();
     }
 
     @Test
@@ -414,9 +408,9 @@ class APIUnitTest {
         // When
         Thread.sleep(TimeUnit.SECONDS.toMillis(ttlInSecs + 1));
         // Then
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "1", nonce1), is(equalTo(false)));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "2", nonce2), is(equalTo(false)));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "3", nonce3), is(equalTo(false)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "1", nonce1)).isFalse();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "2", nonce2)).isFalse();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "3", nonce3)).isFalse();
     }
 
     @Test
@@ -427,10 +421,10 @@ class APIUnitTest {
         // When
         String nonce = api.getLongLivedNonce(CUSTOM_API_PATH);
         // Then
-        assertThat(nonce, is(notNullValue()));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        assertThat(nonce).isNotNull();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isTrue();
         // Should be valid more than once
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isTrue();
     }
 
     @Test
@@ -445,7 +439,7 @@ class APIUnitTest {
         // When
         Thread.sleep(TimeUnit.SECONDS.toMillis(ttlInSecs + 1));
         // Then
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isTrue();
     }
 
     @Test
@@ -456,9 +450,9 @@ class APIUnitTest {
         // When
         String nonce = api.getLongLivedNonce(CUSTOM_API_PATH);
         // Then
-        assertThat(nonce, is(notNullValue()));
-        assertThat(isApiNonceValid(api, "/not/same/path/", nonce), is(equalTo(false)));
-        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        assertThat(nonce).isNotNull();
+        assertThat(isApiNonceValid(api, "/not/same/path/", nonce)).isFalse();
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce)).isTrue();
     }
 
     @Test
@@ -479,8 +473,8 @@ class APIUnitTest {
                         createMockedHttpOutputStream(),
                         forced);
         // Then
-        assertThat(requestHandled, is(nullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(requestHandled).isNull();
+        assertThat(apiImplementor.wasUsed()).isFalse();
     }
 
     @Test
@@ -501,8 +495,8 @@ class APIUnitTest {
                         createMockedHttpOutputStream(),
                         forced);
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -521,8 +515,8 @@ class APIUnitTest {
                         createMockedHttpInputStream(),
                         createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -542,8 +536,8 @@ class APIUnitTest {
                 api.handleApiRequest(
                         apiRequest, createMockedHttpInputStream(), createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(notNullValue()));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        assertThat(requestHandled).isNotNull();
+        assertThat(apiImplementor.wasUsed()).isTrue();
     }
 
     @Test
@@ -555,7 +549,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.INTERNAL_ERROR);
     }
 
     @Test
@@ -567,7 +561,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.INTERNAL_ERROR);
     }
 
     @Test
@@ -579,7 +573,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.INTERNAL_ERROR);
     }
 
     @Test
@@ -591,7 +585,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.INTERNAL_ERROR);
     }
 
     @Test
@@ -602,11 +596,9 @@ class APIUnitTest {
         // When
         String xmlResponse = API.responseToXml(endpointName, response);
         // Then
-        assertThat(
-                xmlResponse,
-                is(
-                        equalTo(
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><Name>XML</Name>")));
+        assertThat(xmlResponse)
+                .isEqualTo(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><Name>XML</Name>");
     }
 
     @Test
@@ -616,7 +608,7 @@ class APIUnitTest {
         // When
         String htmlResponse = API.responseToHtml(response);
         // Then
-        assertThat(htmlResponse, is(equalTo("<head>\n</head>\n<body>\nHTML</body>\n")));
+        assertThat(htmlResponse).isEqualTo("<head>\n</head>\n<body>\nHTML</body>\n");
     }
 
     @Test
@@ -624,9 +616,9 @@ class APIUnitTest {
         // Given / When
         JSONObject params = API.getParams("aaa=bbb&ccc=ddd&ddd=eee");
         // Then
-        assertThat(params.get("aaa"), is(equalTo("bbb")));
-        assertThat(params.get("ccc"), is(equalTo("ddd")));
-        assertThat(params.get("ddd"), is(equalTo("eee")));
+        assertThat(params.get("aaa")).isEqualTo("bbb");
+        assertThat(params.get("ccc")).isEqualTo("ddd");
+        assertThat(params.get("ddd")).isEqualTo("eee");
     }
 
     @Test
@@ -646,10 +638,10 @@ class APIUnitTest {
                                 + API.TRANSFER_DIR_TOKEN
                                 + "myfile3");
         // Then
-        assertThat(params.get("aaa"), is(equalTo("bbb")));
-        assertThat(params.get("filename"), is(equalTo("/tmp/dir/myfile")));
-        assertThat(params.get("path"), is(equalTo("/tmp/dir/myfile2")));
-        assertThat(params.get("MyDir2"), is(equalTo("/tmp/dir/myfile3")));
+        assertThat(params.get("aaa")).isEqualTo("bbb");
+        assertThat(params.get("filename")).isEqualTo("/tmp/dir/myfile");
+        assertThat(params.get("path")).isEqualTo("/tmp/dir/myfile2");
+        assertThat(params.get("MyDir2")).isEqualTo("/tmp/dir/myfile3");
     }
 
     private static OptionsParamApi mockApiOptions() {
@@ -679,9 +671,9 @@ class APIUnitTest {
                                 + API.TRANSFER_DIR_TOKEN
                                 + "myfile2");
         // Then
-        assertThat(params.get("aaa"), is(equalTo("bbb")));
-        assertThat(params.get("ccc"), is(equalTo(API.TRANSFER_DIR_TOKEN + "/myfile")));
-        assertThat(params.get("path"), is(equalTo("xxx" + API.TRANSFER_DIR_TOKEN + "myfile2")));
+        assertThat(params.get("aaa")).isEqualTo("bbb");
+        assertThat(params.get("ccc")).isEqualTo(API.TRANSFER_DIR_TOKEN + "/myfile");
+        assertThat(params.get("path")).isEqualTo("xxx" + API.TRANSFER_DIR_TOKEN + "myfile2");
     }
 
     private static class ApiResponseTest extends ApiResponse {
@@ -728,8 +720,8 @@ class APIUnitTest {
                             createMockedHttpOutputStream(),
                             true);
             // Then
-            assertThat(requestHandled, is(notNullValue()));
-            assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+            assertThat(requestHandled).isNotNull();
+            assertThat(apiImplementor.wasUsed()).isTrue();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -50,7 +48,7 @@ class HrefTypeInfoUnitTest {
         // When
         HrefTypeInfo.addType(typeInfo);
         // Then
-        assertThat(HrefTypeInfo.getFromType(type), is(sameInstance(typeInfo)));
+        assertThat(HrefTypeInfo.getFromType(type)).isSameAs(typeInfo);
     }
 
     @Test
@@ -63,7 +61,7 @@ class HrefTypeInfoUnitTest {
         HrefTypeInfo.addType(typeInfo);
         HrefTypeInfo.addType(otherTypeInfo);
         // Then
-        assertThat(HrefTypeInfo.getFromType(type), is(sameInstance(typeInfo)));
+        assertThat(HrefTypeInfo.getFromType(type)).isSameAs(typeInfo);
     }
 
     @Test
@@ -83,7 +81,7 @@ class HrefTypeInfoUnitTest {
         // When
         HrefTypeInfo.removeType(typeInfo);
         // Then
-        assertThat(HrefTypeInfo.getFromType(type), is(HrefTypeInfo.UNDEFINED_TYPE));
+        assertThat(HrefTypeInfo.getFromType(type)).isEqualTo(HrefTypeInfo.UNDEFINED_TYPE);
     }
 
     @Test
@@ -102,7 +100,7 @@ class HrefTypeInfoUnitTest {
         // When
         HrefTypeInfo.addType(typeInfo);
         // Then
-        assertThat(HrefTypeInfo.getFromType(type), is(sameInstance(HrefTypeInfo.NO_TYPE)));
+        assertThat(HrefTypeInfo.getFromType(type)).isSameAs(HrefTypeInfo.NO_TYPE);
     }
 
     @Test
@@ -113,6 +111,6 @@ class HrefTypeInfoUnitTest {
         // When
         HrefTypeInfo.addType(typeInfo);
         // Then
-        assertThat(HrefTypeInfo.getFromType(type), is(sameInstance(HrefTypeInfo.UNDEFINED_TYPE)));
+        assertThat(HrefTypeInfo.getFromType(type)).isSameAs(HrefTypeInfo.UNDEFINED_TYPE);
     }
 }

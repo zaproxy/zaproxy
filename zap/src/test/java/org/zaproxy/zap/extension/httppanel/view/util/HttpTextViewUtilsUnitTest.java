@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.util;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.swing.JTextArea;
@@ -77,7 +75,7 @@ class HttpTextViewUtilsUnitTest {
                 HttpTextViewUtils.getHeaderToViewPosition(
                         VIEW, HEADER, HEADER_LENGTH + 1, HEADER_LENGTH + 2);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -95,7 +93,7 @@ class HttpTextViewUtilsUnitTest {
         // Given / When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 0, HEADER_LENGTH + 1);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -118,10 +116,10 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(10)));
-        assertThat(pos[1], is(equalTo(18)));
-        assertThat(VIEW.getText(pos[0], pos[1] - pos[0]), is(equalTo("HTTP/1.1")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(10);
+        assertThat(pos[1]).isEqualTo(18);
+        assertThat(VIEW.getText(pos[0], pos[1] - pos[0])).isEqualTo("HTTP/1.1");
     }
 
     @Test
@@ -132,12 +130,11 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(4)));
-        assertThat(pos[1], is(equalTo(63)));
-        assertThat(
-                VIEW.getText(pos[0], pos[1] - pos[0]),
-                is(equalTo("/path HTTP/1.1\nHost: example.com\nX-SomeHeader: x-some-value")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(4);
+        assertThat(pos[1]).isEqualTo(63);
+        assertThat(VIEW.getText(pos[0], pos[1] - pos[0]))
+                .isEqualTo("/path HTTP/1.1\nHost: example.com\nX-SomeHeader: x-some-value");
     }
 
     @Test
@@ -148,12 +145,11 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(19)));
-        assertThat(pos[1], is(equalTo(50)));
-        assertThat(
-                VIEW.getText(pos[0], pos[1] - pos[0]),
-                is(equalTo("Host: example.com\nX-SomeHeader:")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(19);
+        assertThat(pos[1]).isEqualTo(50);
+        assertThat(VIEW.getText(pos[0], pos[1] - pos[0]))
+                .isEqualTo("Host: example.com\nX-SomeHeader:");
     }
 
     @Test
@@ -164,14 +160,11 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(0)));
-        assertThat(pos[1], is(equalTo(VIEW_LENGTH)));
-        assertThat(
-                VIEW.getText(pos[0], pos[1]),
-                is(
-                        equalTo(
-                                "GET /path HTTP/1.1\nHost: example.com\nX-SomeHeader: x-some-value\n\n")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(0);
+        assertThat(pos[1]).isEqualTo(VIEW_LENGTH);
+        assertThat(VIEW.getText(pos[0], pos[1]))
+                .isEqualTo("GET /path HTTP/1.1\nHost: example.com\nX-SomeHeader: x-some-value\n\n");
     }
 
     @Test
@@ -182,9 +175,9 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(VIEW_LENGTH)));
-        assertThat(pos[1], is(equalTo(VIEW_LENGTH)));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(VIEW_LENGTH);
+        assertThat(pos[1]).isEqualTo(VIEW_LENGTH);
     }
 
     @Test
@@ -197,7 +190,7 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(view, HEADER, start, end);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -210,7 +203,7 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(view, HEADER, start, end);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -239,7 +232,7 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderPosition(VIEW, VIEW_LENGTH + 1, VIEW_LENGTH + 2);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -257,7 +250,7 @@ class HttpTextViewUtilsUnitTest {
         // Given / When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, 0, VIEW_LENGTH + 1);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -279,10 +272,10 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(10)));
-        assertThat(pos[1], is(equalTo(18)));
-        assertThat(HEADER.substring(pos[0], pos[1]), is(equalTo("HTTP/1.1")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(10);
+        assertThat(pos[1]).isEqualTo(18);
+        assertThat(HEADER.substring(pos[0], pos[1])).isEqualTo("HTTP/1.1");
     }
 
     @Test
@@ -293,12 +286,11 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(4)));
-        assertThat(pos[1], is(equalTo(65)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(equalTo("/path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(4);
+        assertThat(pos[1]).isEqualTo(65);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo("/path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value");
     }
 
     @Test
@@ -309,12 +301,11 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(20)));
-        assertThat(pos[1], is(equalTo(52)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(equalTo("Host: example.com\r\nX-SomeHeader:")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(20);
+        assertThat(pos[1]).isEqualTo(52);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo("Host: example.com\r\nX-SomeHeader:");
     }
 
     @Test
@@ -325,14 +316,12 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(0)));
-        assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(
-                        equalTo(
-                                "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(0);
+        assertThat(pos[1]).isEqualTo(HEADER_LENGTH);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo(
+                        "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n");
     }
 
     @Test
@@ -343,9 +332,9 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(HEADER_LENGTH)));
-        assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(HEADER_LENGTH);
+        assertThat(pos[1]).isEqualTo(HEADER_LENGTH);
     }
 
     @Test
@@ -390,7 +379,7 @@ class HttpTextViewUtilsUnitTest {
                         VIEW_WITH_BODY_LENGTH + 1,
                         VIEW_WITH_BODY_LENGTH + 2);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -410,7 +399,7 @@ class HttpTextViewUtilsUnitTest {
                 HttpTextViewUtils.getBodyToViewPosition(
                         VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -432,10 +421,10 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(65)));
-        assertThat(pos[1], is(equalTo(77)));
-        assertThat(VIEW_WITH_BODY.getText(pos[0], pos[1] - pos[0]), is(equalTo(BODY)));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(65);
+        assertThat(pos[1]).isEqualTo(77);
+        assertThat(VIEW_WITH_BODY.getText(pos[0], pos[1] - pos[0])).isEqualTo(BODY);
     }
 
     @Test
@@ -447,7 +436,7 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getBodyToViewPosition(view, HEADER, start, end);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -459,7 +448,7 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -471,7 +460,7 @@ class HttpTextViewUtilsUnitTest {
         // When
         int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW, HEADER, start, end);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -518,7 +507,7 @@ class HttpTextViewUtilsUnitTest {
                         VIEW_WITH_BODY_LENGTH + 1,
                         VIEW_WITH_BODY_LENGTH + 2);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -540,7 +529,7 @@ class HttpTextViewUtilsUnitTest {
                 HttpTextViewUtils.getViewToHeaderBodyPosition(
                         VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
         // Then
-        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
+        assertThat(pos).isEqualTo(HttpTextViewUtils.INVALID_POSITION);
     }
 
     @Test
@@ -565,10 +554,10 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(10)));
-        assertThat(pos[1], is(equalTo(18)));
-        assertThat(HEADER.substring(pos[0], pos[1]), is(equalTo("HTTP/1.1")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(10);
+        assertThat(pos[1]).isEqualTo(18);
+        assertThat(HEADER.substring(pos[0], pos[1])).isEqualTo("HTTP/1.1");
     }
 
     @Test
@@ -580,12 +569,11 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(4)));
-        assertThat(pos[1], is(equalTo(65)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(equalTo("/path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(4);
+        assertThat(pos[1]).isEqualTo(65);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo("/path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value");
     }
 
     @Test
@@ -597,12 +585,11 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(20)));
-        assertThat(pos[1], is(equalTo(52)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(equalTo("Host: example.com\r\nX-SomeHeader:")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(20);
+        assertThat(pos[1]).isEqualTo(52);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo("Host: example.com\r\nX-SomeHeader:");
     }
 
     @Test
@@ -614,14 +601,12 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(0)));
-        assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(
-                        equalTo(
-                                "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(0);
+        assertThat(pos[1]).isEqualTo(HEADER_LENGTH);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo(
+                        "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n");
     }
 
     @Test
@@ -633,14 +618,12 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(2)));
-        assertThat(pos[0], is(equalTo(0)));
-        assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
-        assertThat(
-                HEADER.substring(pos[0], pos[1]),
-                is(
-                        equalTo(
-                                "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
+        assertThat(pos.length).isEqualTo(2);
+        assertThat(pos[0]).isEqualTo(0);
+        assertThat(pos[1]).isEqualTo(HEADER_LENGTH);
+        assertThat(HEADER.substring(pos[0], pos[1]))
+                .isEqualTo(
+                        "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n");
     }
 
     @Test
@@ -652,8 +635,8 @@ class HttpTextViewUtilsUnitTest {
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
-        assertThat(pos.length, is(equalTo(3)));
-        assertThat(pos[0], is(equalTo(0)));
-        assertThat(pos[1], is(equalTo(BODY.length())));
+        assertThat(pos.length).isEqualTo(3);
+        assertThat(pos[0]).isEqualTo(0);
+        assertThat(pos[1]).isEqualTo(BODY.length());
     }
 }

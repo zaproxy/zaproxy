@@ -19,11 +19,7 @@
  */
 package org.parosproxy.paros.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -121,7 +117,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @Test
@@ -132,7 +128,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @Test
@@ -143,9 +139,9 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(notNullValue()));
-        assertThat(node.getNodeName(), is(equalTo(uri)));
-        assertThat(node.getParent(), is(equalTo(rootNode)));
+        assertThat(node).isNotNull();
+        assertThat(node.getNodeName()).isEqualTo(uri);
+        assertThat(node.getParent()).isEqualTo(rootNode);
     }
 
     @Test
@@ -155,7 +151,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @Test
@@ -166,7 +162,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @Test
@@ -177,7 +173,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri), "POST", "");
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @ParameterizedTest
@@ -189,10 +185,10 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(notNullValue()));
-        assertThat(node.getNodeName(), is(equalTo("GET:file.ext")));
+        assertThat(node).isNotNull();
+        assertThat(node.getNodeName()).isEqualTo("GET:file.ext");
         SiteNode parent = siteMap.findNode(createUri("http://example.com" + path));
-        assertThat(node.getParent(), is(equalTo(parent)));
+        assertThat(node.getParent()).isEqualTo(parent);
     }
 
     @Test
@@ -202,7 +198,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @Test
@@ -213,7 +209,7 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(nullValue()));
+        assertThat(node).isNull();
     }
 
     @Test
@@ -224,10 +220,10 @@ class SiteMapUnitTest {
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
-        assertThat(node, is(notNullValue()));
-        assertThat(node.getNodeName(), is(equalTo("a")));
+        assertThat(node).isNotNull();
+        assertThat(node.getNodeName()).isEqualTo("a");
         SiteNode parent = siteMap.findNode(createUri("http://example.com"));
-        assertThat(node.getParent(), is(equalTo(parent)));
+        assertThat(node.getParent()).isEqualTo(parent);
     }
 
     @Test
@@ -240,11 +236,11 @@ class SiteMapUnitTest {
         SiteNode branchNode = siteMap.findNode(createUri(branchUri));
         SiteNode leafNode = siteMap.findNode(createUri(leafUri));
         // Then
-        assertThat(branchNode, is(notNullValue()));
-        assertThat(leafNode, is(notNullValue()));
-        assertThat(branchNode.getHierarchicNodeName(), is(equalTo(branchUri)));
-        assertThat(leafNode.getHierarchicNodeName(), is(equalTo(leafUri)));
-        assertThat(leafNode.getParent(), is(equalTo(branchNode)));
+        assertThat(branchNode).isNotNull();
+        assertThat(leafNode).isNotNull();
+        assertThat(branchNode.getHierarchicNodeName()).isEqualTo(branchUri);
+        assertThat(leafNode.getHierarchicNodeName()).isEqualTo(leafUri);
+        assertThat(leafNode.getParent()).isEqualTo(branchNode);
     }
 
     @Test
@@ -287,8 +283,8 @@ class SiteMapUnitTest {
         // When
         SiteNode leaf = siteMap.addPath(href, href.getHttpMessage(), false);
         // Then
-        assertThat(leaf.getNodeName(), is(equalTo("GET:me(juice)")));
-        assertThat(leaf.getCleanNodeName(), is(equalTo("me")));
+        assertThat(leaf.getNodeName()).isEqualTo("GET:me(juice)");
+        assertThat(leaf.getCleanNodeName()).isEqualTo("me");
     }
 
     @Test
@@ -299,8 +295,8 @@ class SiteMapUnitTest {
         // When
         SiteNode leaf = siteMap.addPath(href, href.getHttpMessage(), false);
         // Then
-        assertThat(leaf.getNodeName(), is(equalTo("GET:me(juice)")));
-        assertThat(leaf.getCleanNodeName(), is(equalTo("me(juice)")));
+        assertThat(leaf.getNodeName()).isEqualTo("GET:me(juice)");
+        assertThat(leaf.getCleanNodeName()).isEqualTo("me(juice)");
     }
 
     @Test
@@ -314,8 +310,8 @@ class SiteMapUnitTest {
         // When
         SiteNode leaf = siteMap.addPath(href, href.getHttpMessage(), false);
         // Then
-        assertThat(leaf.getNodeName(), is(equalTo("POST:cat(videos)(online)")));
-        assertThat(leaf.getCleanNodeName(), is(equalTo("cat")));
+        assertThat(leaf.getNodeName()).isEqualTo("POST:cat(videos)(online)");
+        assertThat(leaf.getCleanNodeName()).isEqualTo("cat");
     }
 
     @Test
@@ -333,30 +329,24 @@ class SiteMapUnitTest {
         // When
         siteMap.addPath(href);
         // Then
-        assertThat(testConsumer.events.size(), is(equalTo(3)));
-        assertThat(testConsumer.events.get(0).getEventType(), is(equalTo("siteNode.added")));
-        assertThat(
-                testConsumer.events.get(0).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com")));
-        assertThat(testConsumer.events.get(0).getParameters().size(), is(equalTo(0)));
+        assertThat(testConsumer.events).hasSize(3);
+        assertThat(testConsumer.events.get(0).getEventType()).isEqualTo("siteNode.added");
+        assertThat(testConsumer.events.get(0).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com");
+        assertThat(testConsumer.events.get(0).getParameters()).hasSize(0);
 
-        assertThat(testConsumer.events.get(1).getEventType(), is(equalTo("site.added")));
-        assertThat(
-                testConsumer.events.get(1).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com")));
-        assertThat(testConsumer.events.get(1).getParameters().size(), is(equalTo(0)));
+        assertThat(testConsumer.events.get(1).getEventType()).isEqualTo("site.added");
+        assertThat(testConsumer.events.get(1).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com");
+        assertThat(testConsumer.events.get(1).getParameters()).hasSize(0);
 
-        assertThat(testConsumer.events.get(2).getEventType(), is(equalTo("siteNode.added")));
-        assertThat(
-                testConsumer.events.get(2).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com/")));
-        assertThat(testConsumer.events.get(2).getParameters().size(), is(equalTo(1)));
-        assertThat(
-                testConsumer.events.get(2).getParameters().containsKey("contentType"),
-                is(equalTo(true)));
-        assertThat(
-                testConsumer.events.get(2).getParameters().get("contentType"),
-                is(equalTo("text/html")));
+        assertThat(testConsumer.events.get(2).getEventType()).isEqualTo("siteNode.added");
+        assertThat(testConsumer.events.get(2).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com/");
+        assertThat(testConsumer.events.get(2).getParameters()).hasSize(1);
+        assertThat(testConsumer.events.get(2).getParameters().containsKey("contentType")).isTrue();
+        assertThat(testConsumer.events.get(2).getParameters().get("contentType"))
+                .isEqualTo("text/html");
     }
 
     @Test
@@ -374,42 +364,34 @@ class SiteMapUnitTest {
         // When
         siteMap.addPath(href);
         // Then
-        assertThat(testConsumer.events.size(), is(equalTo(5)));
-        assertThat(testConsumer.events.get(0).getEventType(), is(equalTo("siteNode.added")));
-        assertThat(
-                testConsumer.events.get(0).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com")));
-        assertThat(testConsumer.events.get(0).getParameters().size(), is(equalTo(0)));
+        assertThat(testConsumer.events).hasSize(5);
+        assertThat(testConsumer.events.get(0).getEventType()).isEqualTo("siteNode.added");
+        assertThat(testConsumer.events.get(0).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com");
+        assertThat(testConsumer.events.get(0).getParameters()).hasSize(0);
 
-        assertThat(testConsumer.events.get(1).getEventType(), is(equalTo("site.added")));
-        assertThat(
-                testConsumer.events.get(1).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com")));
-        assertThat(testConsumer.events.get(1).getParameters().size(), is(equalTo(0)));
+        assertThat(testConsumer.events.get(1).getEventType()).isEqualTo("site.added");
+        assertThat(testConsumer.events.get(1).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com");
+        assertThat(testConsumer.events.get(1).getParameters()).hasSize(0);
 
-        assertThat(testConsumer.events.get(2).getEventType(), is(equalTo("siteNode.added")));
-        assertThat(
-                testConsumer.events.get(2).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com/a")));
-        assertThat(testConsumer.events.get(2).getParameters().size(), is(equalTo(0)));
+        assertThat(testConsumer.events.get(2).getEventType()).isEqualTo("siteNode.added");
+        assertThat(testConsumer.events.get(2).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com/a");
+        assertThat(testConsumer.events.get(2).getParameters()).hasSize(0);
 
-        assertThat(testConsumer.events.get(3).getEventType(), is(equalTo("siteNode.added")));
-        assertThat(
-                testConsumer.events.get(3).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com/a/b")));
-        assertThat(testConsumer.events.get(3).getParameters().size(), is(equalTo(0)));
+        assertThat(testConsumer.events.get(3).getEventType()).isEqualTo("siteNode.added");
+        assertThat(testConsumer.events.get(3).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com/a/b");
+        assertThat(testConsumer.events.get(3).getParameters()).hasSize(0);
 
-        assertThat(testConsumer.events.get(4).getEventType(), is(equalTo("siteNode.added")));
-        assertThat(
-                testConsumer.events.get(4).getTarget().getStartNode().getHierarchicNodeName(),
-                is(equalTo("http://example.com/a/b/c")));
-        assertThat(testConsumer.events.get(4).getParameters().size(), is(equalTo(1)));
-        assertThat(
-                testConsumer.events.get(4).getParameters().containsKey("contentType"),
-                is(equalTo(true)));
-        assertThat(
-                testConsumer.events.get(4).getParameters().get("contentType"),
-                is(equalTo("text/html")));
+        assertThat(testConsumer.events.get(4).getEventType()).isEqualTo("siteNode.added");
+        assertThat(testConsumer.events.get(4).getTarget().getStartNode().getHierarchicNodeName())
+                .isEqualTo("http://example.com/a/b/c");
+        assertThat(testConsumer.events.get(4).getParameters()).hasSize(1);
+        assertThat(testConsumer.events.get(4).getParameters().containsKey("contentType")).isTrue();
+        assertThat(testConsumer.events.get(4).getParameters().get("contentType"))
+                .isEqualTo("text/html");
     }
 
     private void siteMapWithNodes(String... uris) {

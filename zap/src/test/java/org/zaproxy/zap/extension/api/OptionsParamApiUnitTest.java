@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
@@ -46,7 +41,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.getConfig(), is(equalTo(null)));
+        assertThat(param.getConfig()).isEqualTo(null);
     }
 
     @Test
@@ -54,7 +49,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isEnabled(), is(equalTo(true)));
+        assertThat(param.isEnabled()).isTrue();
     }
 
     @Test
@@ -72,8 +67,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setEnabled(false);
         // Then
-        assertThat(param.isEnabled(), is(equalTo(false)));
-        assertThat(param.getConfig().getBoolean(OptionsParamApi.ENABLED), is(equalTo(false)));
+        assertThat(param.isEnabled()).isFalse();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.ENABLED)).isFalse();
     }
 
     @Test
@@ -81,7 +76,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isSecureOnly(), is(equalTo(false)));
+        assertThat(param.isSecureOnly()).isFalse();
     }
 
     @Test
@@ -99,8 +94,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setSecureOnly(true);
         // Then
-        assertThat(param.isSecureOnly(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(OptionsParamApi.SECURE_ONLY), is(equalTo(true)));
+        assertThat(param.isSecureOnly()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.SECURE_ONLY)).isTrue();
     }
 
     @Test
@@ -108,7 +103,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isDisableKey(), is(equalTo(false)));
+        assertThat(param.isDisableKey()).isFalse();
     }
 
     @Test
@@ -126,8 +121,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setDisableKey(true);
         // Then
-        assertThat(param.isEnabled(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(OptionsParamApi.DISABLE_KEY), is(equalTo(true)));
+        assertThat(param.isEnabled()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.DISABLE_KEY)).isTrue();
     }
 
     @Test
@@ -135,7 +130,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isIncErrorDetails(), is(equalTo(false)));
+        assertThat(param.isIncErrorDetails()).isFalse();
     }
 
     @Test
@@ -153,9 +148,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setIncErrorDetails(true);
         // Then
-        assertThat(param.isIncErrorDetails(), is(equalTo(true)));
-        assertThat(
-                param.getConfig().getBoolean(OptionsParamApi.INC_ERROR_DETAILS), is(equalTo(true)));
+        assertThat(param.isIncErrorDetails()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.INC_ERROR_DETAILS)).isTrue();
     }
 
     @Test
@@ -163,7 +157,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isAutofillKey(), is(equalTo(false)));
+        assertThat(param.isAutofillKey()).isFalse();
     }
 
     @Test
@@ -181,8 +175,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setAutofillKey(true);
         // Then
-        assertThat(param.isAutofillKey(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(OptionsParamApi.AUTOFILL_KEY), is(equalTo(true)));
+        assertThat(param.isAutofillKey()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.AUTOFILL_KEY)).isTrue();
     }
 
     @Test
@@ -190,7 +184,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isEnableJSONP(), is(equalTo(false)));
+        assertThat(param.isEnableJSONP()).isFalse();
     }
 
     @Test
@@ -208,8 +202,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setEnableJSONP(true);
         // Then
-        assertThat(param.isEnableJSONP(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(OptionsParamApi.ENABLE_JSONP), is(equalTo(true)));
+        assertThat(param.isEnableJSONP()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.ENABLE_JSONP)).isTrue();
     }
 
     @Test
@@ -217,7 +211,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isReportPermErrors(), is(equalTo(false)));
+        assertThat(param.isReportPermErrors()).isFalse();
     }
 
     @Test
@@ -235,10 +229,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setReportPermErrors(true);
         // Then
-        assertThat(param.isReportPermErrors(), is(equalTo(true)));
-        assertThat(
-                param.getConfig().getBoolean(OptionsParamApi.REPORT_PERM_ERRORS),
-                is(equalTo(true)));
+        assertThat(param.isReportPermErrors()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.REPORT_PERM_ERRORS)).isTrue();
     }
 
     @Test
@@ -246,7 +238,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.getNonceTimeToLiveInSecs(), is(equalTo(5 * 60)));
+        assertThat(param.getNonceTimeToLiveInSecs()).isEqualTo(5 * 60);
     }
 
     @Test
@@ -254,7 +246,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.isNoKeyForSafeOps(), is(equalTo(false)));
+        assertThat(param.isNoKeyForSafeOps()).isFalse();
     }
 
     @Test
@@ -272,10 +264,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setNoKeyForSafeOps(true);
         // Then
-        assertThat(param.isNoKeyForSafeOps(), is(equalTo(true)));
-        assertThat(
-                param.getConfig().getBoolean(OptionsParamApi.NO_KEY_FOR_SAFE_OPS),
-                is(equalTo(true)));
+        assertThat(param.isNoKeyForSafeOps()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.NO_KEY_FOR_SAFE_OPS)).isTrue();
     }
 
     @Test
@@ -283,7 +273,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.getRealKey(), is(emptyString()));
+        assertThat(param.getRealKey()).isEmpty();
     }
 
     @Test
@@ -291,7 +281,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.getKey(), is(not(equalTo(""))));
+        assertThat(param.getKey()).isNotEqualTo("");
     }
 
     @Test
@@ -310,8 +300,8 @@ class OptionsParamApiUnitTest {
         // When
         param.setKey(apiKey);
         // Then
-        assertThat(param.getKey(), is(equalTo(apiKey)));
-        assertThat(param.getConfig().getString(OptionsParamApi.API_KEY), is(equalTo(apiKey)));
+        assertThat(param.getKey()).isEqualTo(apiKey);
+        assertThat(param.getConfig().getString(OptionsParamApi.API_KEY)).isEqualTo(apiKey);
     }
 
     @Test
@@ -324,9 +314,9 @@ class OptionsParamApiUnitTest {
         // When
         String key = param.getKey();
         // Then
-        assertThat(key, is(not(equalTo(""))));
-        assertThat(conf.getString(OptionsParamApi.API_KEY), is(equalTo(key)));
-        assertThat(conf.isSaved(), is(equalTo(true)));
+        assertThat(key).isNotEqualTo("");
+        assertThat(conf.getString(OptionsParamApi.API_KEY)).isEqualTo(key);
+        assertThat(conf.isSaved()).isTrue();
     }
 
     @Test
@@ -338,8 +328,8 @@ class OptionsParamApiUnitTest {
         // When
         String key = param.getKey();
         // Then
-        assertThat(key, is(equalTo("")));
-        assertThat(param.getRealKey(), is(equalTo("Key")));
+        assertThat(key).isEmpty();
+        assertThat(param.getRealKey()).isEqualTo("Key");
     }
 
     @Test
@@ -350,15 +340,15 @@ class OptionsParamApiUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.isEnabled(), is(equalTo(false)));
-        assertThat(param.isSecureOnly(), is(equalTo(true)));
-        assertThat(param.isDisableKey(), is(equalTo(true)));
-        assertThat(param.isIncErrorDetails(), is(equalTo(true)));
-        assertThat(param.isAutofillKey(), is(equalTo(true)));
-        assertThat(param.isEnableJSONP(), is(equalTo(true)));
-        assertThat(param.getRealKey(), is(equalTo("ApiKey")));
-        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
-        assertThat(param.getTransferDir(), is(equalTo("/tmp")));
+        assertThat(param.isEnabled()).isFalse();
+        assertThat(param.isSecureOnly()).isTrue();
+        assertThat(param.isDisableKey()).isTrue();
+        assertThat(param.isIncErrorDetails()).isTrue();
+        assertThat(param.isAutofillKey()).isTrue();
+        assertThat(param.isEnableJSONP()).isTrue();
+        assertThat(param.getRealKey()).isEqualTo("ApiKey");
+        assertThat(param.isFileTransferAllowed()).isFalse();
+        assertThat(param.getTransferDir()).isEqualTo("/tmp");
     }
 
     @Test
@@ -368,15 +358,15 @@ class OptionsParamApiUnitTest {
         // When
         OptionsParamApi clone = param.clone();
         // Then
-        assertThat(clone, is(notNullValue()));
-        assertThat(param.isEnabled(), is(equalTo(true)));
-        assertThat(param.isSecureOnly(), is(equalTo(false)));
-        assertThat(param.isDisableKey(), is(equalTo(false)));
-        assertThat(param.isIncErrorDetails(), is(equalTo(false)));
-        assertThat(param.isAutofillKey(), is(equalTo(false)));
-        assertThat(param.isEnableJSONP(), is(equalTo(false)));
-        assertThat(param.getRealKey(), is(equalTo("")));
-        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
+        assertThat(clone).isNotNull();
+        assertThat(param.isEnabled()).isTrue();
+        assertThat(param.isSecureOnly()).isFalse();
+        assertThat(param.isDisableKey()).isFalse();
+        assertThat(param.isIncErrorDetails()).isFalse();
+        assertThat(param.isAutofillKey()).isFalse();
+        assertThat(param.isEnableJSONP()).isFalse();
+        assertThat(param.getRealKey()).isEmpty();
+        assertThat(param.isFileTransferAllowed()).isFalse();
     }
 
     @Test
@@ -388,16 +378,16 @@ class OptionsParamApiUnitTest {
         // When
         OptionsParamApi clone = param.clone();
         // Then
-        assertThat(clone, is(notNullValue()));
-        assertThat(param.isEnabled(), is(equalTo(false)));
-        assertThat(param.isSecureOnly(), is(equalTo(true)));
-        assertThat(param.isDisableKey(), is(equalTo(true)));
-        assertThat(param.isIncErrorDetails(), is(equalTo(true)));
-        assertThat(param.isAutofillKey(), is(equalTo(true)));
-        assertThat(param.isEnableJSONP(), is(equalTo(true)));
-        assertThat(param.getRealKey(), is(equalTo("ApiKey")));
-        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
-        assertThat(param.getTransferDir(), is(equalTo("/tmp")));
+        assertThat(clone).isNotNull();
+        assertThat(param.isEnabled()).isFalse();
+        assertThat(param.isSecureOnly()).isTrue();
+        assertThat(param.isDisableKey()).isTrue();
+        assertThat(param.isIncErrorDetails()).isTrue();
+        assertThat(param.isAutofillKey()).isTrue();
+        assertThat(param.isEnableJSONP()).isTrue();
+        assertThat(param.getRealKey()).isEqualTo("ApiKey");
+        assertThat(param.isFileTransferAllowed()).isFalse();
+        assertThat(param.getTransferDir()).isEqualTo("/tmp");
     }
 
     @Test
@@ -408,17 +398,16 @@ class OptionsParamApiUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.isEnabled(), is(equalTo(true)));
-        assertThat(param.isSecureOnly(), is(equalTo(false)));
-        assertThat(param.isDisableKey(), is(equalTo(false)));
-        assertThat(param.isIncErrorDetails(), is(equalTo(false)));
-        assertThat(param.isAutofillKey(), is(equalTo(false)));
-        assertThat(param.isEnableJSONP(), is(equalTo(false)));
-        assertThat(param.getRealKey(), is(equalTo("")));
-        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
-        assertThat(
-                param.getTransferDir(),
-                is(equalTo(new File(Constant.getZapHome(), "transfer").getAbsolutePath())));
+        assertThat(param.isEnabled()).isTrue();
+        assertThat(param.isSecureOnly()).isFalse();
+        assertThat(param.isDisableKey()).isFalse();
+        assertThat(param.isIncErrorDetails()).isFalse();
+        assertThat(param.isAutofillKey()).isFalse();
+        assertThat(param.isEnableJSONP()).isFalse();
+        assertThat(param.getRealKey()).isEmpty();
+        assertThat(param.isFileTransferAllowed()).isFalse();
+        assertThat(param.getTransferDir())
+                .isEqualTo(new File(Constant.getZapHome(), "transfer").getAbsolutePath());
     }
 
     @Test
@@ -428,7 +417,7 @@ class OptionsParamApiUnitTest {
         // When
         param.load(new ZapXmlConfiguration());
         // Then
-        assertThat(param.getPersistentCallBacks().size(), is(equalTo(0)));
+        assertThat(param.getPersistentCallBacks()).hasSize(0);
     }
 
     @Test
@@ -445,10 +434,10 @@ class OptionsParamApiUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.getPersistentCallBacks().size(), is(equalTo(2)));
+        assertThat(param.getPersistentCallBacks()).hasSize(2);
         Map<String, String> map = param.getPersistentCallBacks();
-        assertThat(map.get(url1), is(equalTo("test1")));
-        assertThat(map.get(url2), is(equalTo("test2")));
+        assertThat(map.get(url1)).isEqualTo("test1");
+        assertThat(map.get(url2)).isEqualTo("test2");
     }
 
     @Test
@@ -471,17 +460,17 @@ class OptionsParamApiUnitTest {
 
         // Then
         Map<String, String> cbMap = param.getPersistentCallBacks();
-        assertThat(cbMap.size(), is(equalTo(2)));
-        assertThat(cbMap.get(url1), is(equalTo("test1")));
-        assertThat(cbMap.get(url2), is(equalTo("test2")));
-        assertThat(fields.size(), is(equalTo(2)));
-        assertThat(confMap.size(), is(equalTo(2)));
-        assertThat(confMap.get(url1), is(equalTo("test1")));
-        assertThat(confMap.get(url2), is(equalTo("test2")));
-        assertThat(config.getProperty("api.callbacks.callback(0).url"), is(equalTo(url2)));
-        assertThat(config.getProperty("api.callbacks.callback(0).prefix"), is(equalTo("test2")));
-        assertThat(config.getProperty("api.callbacks.callback(1).url"), is(equalTo(url1)));
-        assertThat(config.getProperty("api.callbacks.callback(1).prefix"), is(equalTo("test1")));
+        assertThat(cbMap).hasSize(2);
+        assertThat(cbMap.get(url1)).isEqualTo("test1");
+        assertThat(cbMap.get(url2)).isEqualTo("test2");
+        assertThat(fields).hasSize(2);
+        assertThat(confMap).hasSize(2);
+        assertThat(confMap.get(url1)).isEqualTo("test1");
+        assertThat(confMap.get(url2)).isEqualTo("test2");
+        assertThat(config.getProperty("api.callbacks.callback(0).url")).isEqualTo(url2);
+        assertThat(config.getProperty("api.callbacks.callback(0).prefix")).isEqualTo("test2");
+        assertThat(config.getProperty("api.callbacks.callback(1).url")).isEqualTo(url1);
+        assertThat(config.getProperty("api.callbacks.callback(1).prefix")).isEqualTo("test1");
     }
 
     @Test
@@ -498,9 +487,9 @@ class OptionsParamApiUnitTest {
         // Do it twice just to check it handles unused keys
         String val2 = param.removePersistantCallBack(url);
         // Then
-        assertThat(param.getPersistentCallBacks().size(), is(equalTo(0)));
-        assertThat(val1, is(equalTo("test")));
-        assertThat(val2, is(equalTo(null)));
+        assertThat(param.getPersistentCallBacks()).hasSize(0);
+        assertThat(val1).isEqualTo("test");
+        assertThat(val2).isEqualTo(null);
     }
 
     @Test
@@ -511,10 +500,9 @@ class OptionsParamApiUnitTest {
         param.setDisableKey(true);
         param.setFileTransferAllowed(true);
         // Then
-        assertThat(param.isDisableKey(), is(equalTo(true)));
-        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
-        assertThat(
-                param.getConfig().containsKey(OptionsParamApi.FILE_TRANSFER), is(equalTo(false)));
+        assertThat(param.isDisableKey()).isTrue();
+        assertThat(param.isFileTransferAllowed()).isFalse();
+        assertThat(param.getConfig().containsKey(OptionsParamApi.FILE_TRANSFER)).isFalse();
     }
 
     @Test
@@ -525,9 +513,9 @@ class OptionsParamApiUnitTest {
         param.setDisableKey(false);
         param.setFileTransferAllowed(true);
         // Then
-        assertThat(param.isDisableKey(), is(equalTo(false)));
-        assertThat(param.isFileTransferAllowed(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(OptionsParamApi.FILE_TRANSFER), is(equalTo(true)));
+        assertThat(param.isDisableKey()).isFalse();
+        assertThat(param.isFileTransferAllowed()).isTrue();
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.FILE_TRANSFER)).isTrue();
     }
 
     @Test
@@ -538,8 +526,8 @@ class OptionsParamApiUnitTest {
         String dir = "/test/dir";
         param.setTransferDir(dir);
         // Then
-        assertThat(param.getTransferDir(), is(equalTo(dir)));
-        assertThat(param.getConfig().getString(OptionsParamApi.TRANSFER_DIR), is(equalTo(dir)));
+        assertThat(param.getTransferDir()).isEqualTo(dir);
+        assertThat(param.getConfig().getString(OptionsParamApi.TRANSFER_DIR)).isEqualTo(dir);
     }
 
     private static OptionsParamApi createOptionsParamApiWithConfig() {

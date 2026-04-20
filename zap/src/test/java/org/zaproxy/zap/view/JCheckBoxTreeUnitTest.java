@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -79,7 +74,7 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.setModel(treeModel);
         // Then
-        assertThat(checkBoxTree.getModel(), is(equalTo(treeModel)));
+        assertThat(checkBoxTree.getModel()).isEqualTo(treeModel);
     }
 
     @Test
@@ -91,8 +86,8 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.setModel(treeModel);
         // Then
-        assertThat(checkBoxTree.getModel(), is(equalTo((TreeModel) treeModel)));
-        assertThat(checkBoxTree.getModel().getRoot(), is(equalTo((Object) rootNode)));
+        assertThat(checkBoxTree.getModel()).isEqualTo((TreeModel) treeModel);
+        assertThat(checkBoxTree.getModel().getRoot()).isEqualTo((Object) rootNode);
     }
 
     @Test
@@ -105,11 +100,10 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.setModel(treeModel);
         // Then
-        assertThat(checkBoxTree.getModel(), is(equalTo((TreeModel) treeModel)));
-        assertThat(checkBoxTree.getModel().getRoot(), is(equalTo((Object) rootNode)));
-        assertThat(
-                ((DefaultMutableTreeNode) checkBoxTree.getModel().getRoot()).getChildAt(0),
-                is(equalTo((Object) childNode)));
+        assertThat(checkBoxTree.getModel()).isEqualTo((TreeModel) treeModel);
+        assertThat(checkBoxTree.getModel().getRoot()).isEqualTo((Object) rootNode);
+        assertThat(((DefaultMutableTreeNode) checkBoxTree.getModel().getRoot()).getChildAt(0))
+                .isEqualTo((Object) childNode);
     }
 
     @Test
@@ -125,22 +119,22 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.setModel(treeModel);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childCChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childCChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childCChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childDChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childDChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childDChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeEPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeEPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeEPath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(emptyArray()));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childCChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childCChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childCChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childDChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childDChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childDChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeEPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeEPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeEPath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).isEmpty();
     }
 
     @Test
@@ -153,10 +147,10 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(rootNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(rootNodePath)));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(rootNodePath);
     }
 
     @Test
@@ -170,13 +164,13 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(rootNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(rootNodePath)));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(rootNodePath);
     }
 
     @Test
@@ -190,13 +184,13 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(childNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(childNodePath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(childNodePath);
     }
 
     @Test
@@ -212,19 +206,19 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(childNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(childNodePath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(childNodePath);
     }
 
     @Test
@@ -237,10 +231,10 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(rootNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(rootNodePath)));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(rootNodePath);
     }
 
     @Test
@@ -256,23 +250,21 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(rootNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(childNodeCPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeCPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(childNodeDPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(true)));
-        assertThat(
-                checkBoxTree.getCheckedPaths(),
-                is(
-                        arrayContainingInAnyOrder(
-                                rootNodePath, childNodePath, childNodeCPath, childNodeDPath)));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isChecked(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isChecked(childNodeCPath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeCPath)).isTrue();
+        assertThat(checkBoxTree.isChecked(childNodeDPath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeDPath)).isTrue();
+        assertThat(checkBoxTree.getCheckedPaths())
+                .containsExactlyInAnyOrder(
+                        rootNodePath, childNodePath, childNodeCPath, childNodeDPath);
     }
 
     @Test
@@ -286,13 +278,13 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(childNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(childNodePath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(childNodePath);
     }
 
     @Test
@@ -308,21 +300,20 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(childNodePath, true);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(childNodeCPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeCPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(childNodeDPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(
-                checkBoxTree.getCheckedPaths(),
-                is(arrayContainingInAnyOrder(childNodePath, childNodeCPath, childNodeDPath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isChecked(childNodeCPath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeCPath)).isTrue();
+        assertThat(checkBoxTree.isChecked(childNodeDPath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeDPath)).isTrue();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths())
+                .containsExactlyInAnyOrder(childNodePath, childNodeCPath, childNodeDPath);
     }
 
     @Test
@@ -336,10 +327,10 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(rootNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(emptyArray()));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).isEmpty();
     }
 
     @Test
@@ -354,13 +345,13 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(rootNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(childNodePath)));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isTrue();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(childNodePath);
     }
 
     @Test
@@ -375,13 +366,13 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(childNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(rootNodePath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(rootNodePath);
     }
 
     @Test
@@ -398,21 +389,20 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.check(childNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeCPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeCPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(childNodeDPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(
-                checkBoxTree.getCheckedPaths(),
-                is(arrayContainingInAnyOrder(rootNodePath, childNodeCPath, childNodeDPath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeCPath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeCPath)).isTrue();
+        assertThat(checkBoxTree.isChecked(childNodeDPath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeDPath)).isTrue();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths())
+                .containsExactlyInAnyOrder(rootNodePath, childNodeCPath, childNodeDPath);
     }
 
     @Test
@@ -426,10 +416,10 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(rootNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(emptyArray()));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).isEmpty();
     }
 
     @Test
@@ -446,19 +436,19 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(rootNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(emptyArray()));
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).isEmpty();
     }
 
     @Test
@@ -473,13 +463,13 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(childNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(rootNodePath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(rootNodePath);
     }
 
     @Test
@@ -496,19 +486,19 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.checkSubTree(childNodePath, false);
         // Then
-        assertThat(checkBoxTree.isChecked(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeCPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContaining(rootNodePath)));
+        assertThat(checkBoxTree.isChecked(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodePath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeCPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedPartially(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isSelectedFully(childNodeDPath)).isFalse();
+        assertThat(checkBoxTree.isChecked(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedPartially(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isSelectedFully(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.getCheckedPaths()).containsExactly(rootNodePath);
     }
 
     @Test
@@ -524,16 +514,16 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.setModel(treeModel);
         // Then
-        assertThat(checkBoxTree.isExpanded(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isCollapsed(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isExpanded(childNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childCChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childCChildNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childDChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childDChildNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childNodeEPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childNodeEPath), is(equalTo(true)));
+        assertThat(checkBoxTree.isExpanded(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isCollapsed(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isExpanded(childNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childCChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childCChildNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childDChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childDChildNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childNodeEPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childNodeEPath)).isTrue();
     }
 
     @Test
@@ -550,16 +540,16 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.expandAll();
         // Then
-        assertThat(checkBoxTree.isExpanded(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isCollapsed(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isExpanded(childNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isCollapsed(childNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isExpanded(childCChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childCChildNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childDChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childDChildNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childNodeEPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childNodeEPath), is(equalTo(true)));
+        assertThat(checkBoxTree.isExpanded(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isCollapsed(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isExpanded(childNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isCollapsed(childNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isExpanded(childCChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childCChildNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childDChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childDChildNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childNodeEPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childNodeEPath)).isTrue();
     }
 
     @Test
@@ -577,16 +567,16 @@ class JCheckBoxTreeUnitTest {
         // When
         checkBoxTree.collapseAll();
         // Then
-        assertThat(checkBoxTree.isExpanded(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(rootNodePath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childCChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childCChildNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childDChildNodeBPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childDChildNodeBPath), is(equalTo(true)));
-        assertThat(checkBoxTree.isExpanded(childNodeEPath), is(equalTo(false)));
-        assertThat(checkBoxTree.isCollapsed(childNodeEPath), is(equalTo(true)));
+        assertThat(checkBoxTree.isExpanded(rootNodePath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(rootNodePath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childCChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childCChildNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childDChildNodeBPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childDChildNodeBPath)).isTrue();
+        assertThat(checkBoxTree.isExpanded(childNodeEPath)).isFalse();
+        assertThat(checkBoxTree.isCollapsed(childNodeEPath)).isTrue();
     }
 
     private static class TreeNodeImpl implements TreeNode {

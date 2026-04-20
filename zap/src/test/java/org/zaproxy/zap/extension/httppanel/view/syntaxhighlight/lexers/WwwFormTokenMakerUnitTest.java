@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.swing.text.Segment;
 import org.fife.ui.rsyntaxtextarea.Token;
@@ -113,15 +109,15 @@ class WwwFormTokenMakerUnitTest {
         int i = 1;
         for (TokenData token : tokens) {
             String tokenId = "Token " + (i++) + " " + currentToken;
-            assertThat(tokenId, currentToken, is(notNullValue()));
+            assertThat(currentToken).as(tokenId).isNotNull();
             if (token.getText() != null) {
-                assertThat(tokenId, currentToken.getLexeme(), is(equalTo(token.getText())));
+                assertThat(currentToken.getLexeme()).as(tokenId).isEqualTo(token.getText());
             }
-            assertThat(tokenId, currentToken.getType(), is(equalTo(token.getType())));
+            assertThat(currentToken.getType()).as(tokenId).isEqualTo(token.getType());
 
             currentToken = currentToken.getNextToken();
         }
-        assertThat("Not all tokens were asserted.", currentToken, is(nullValue()));
+        assertThat(currentToken).as("Not all tokens were asserted.").isNull();
     }
 
     private static Segment segment(String text) {

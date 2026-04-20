@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,18 +73,18 @@ class ApiGeneratorUtilsTest extends WithConfigsTest {
         // Then
         for (Entry<String, ApiImplementor> entry : coreApis.entrySet()) {
             ApiImplementor api = generatorApis.remove(entry.getKey());
-            assertThat(
-                    String.format("The API %s was not added to ApiGeneratorUtils.", entry.getKey()),
-                    api,
-                    is(notNullValue()));
-            assertThat(
-                    String.format("The API %s has no options in generator.", entry.getKey()),
-                    api.hasApiOptions(),
-                    is(entry.getValue().hasApiOptions()));
+            assertThat(api)
+                    .as(
+                            String.format(
+                                    "The API %s was not added to ApiGeneratorUtils.",
+                                    entry.getKey()))
+                    .isNotNull();
+            assertThat(api.hasApiOptions())
+                    .as(String.format("The API %s has no options in generator.", entry.getKey()))
+                    .isEqualTo(entry.getValue().hasApiOptions());
         }
-        assertThat(
-                "API(s) found in generator not present in ZAP.",
-                generatorApis.keySet(),
-                is(empty()));
+        assertThat(generatorApis.keySet())
+                .as("API(s) found in generator not present in ZAP.")
+                .isEmpty();
     }
 }

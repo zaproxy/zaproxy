@@ -130,7 +130,6 @@ dependencies {
 
     testImplementation(libs.bytebuddy)
     testImplementation(libs.assertj.core)
-    testImplementation(libs.hamcrest.core)
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platformLauncher)
     testImplementation(libs.mockito)

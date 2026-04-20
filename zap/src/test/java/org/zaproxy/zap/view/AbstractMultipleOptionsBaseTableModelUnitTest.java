@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
@@ -52,11 +49,11 @@ class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils 
         // When
         tableModel.addElement(element);
         // Then
-        assertThat(tableModel.getElements().size(), is(equalTo(1)));
-        assertThat(tableModel.getElements().get(0), is(equalTo(element)));
-        assertThat(tableModel.getElement(0), is(equalTo(element)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowInserted(0), is(equalTo(true)));
+        assertThat(tableModel.getElements()).hasSize(1);
+        assertThat(tableModel.getElements().get(0)).isEqualTo(element);
+        assertThat(tableModel.getElement(0)).isEqualTo(element);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowInserted(0)).isTrue();
     }
 
     @Test
@@ -82,11 +79,11 @@ class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils 
         // When
         tableModel.modifyElement(0, element);
         // Then
-        assertThat(tableModel.getElements().size(), is(equalTo(1)));
-        assertThat(tableModel.getElements().get(0), is(equalTo(element)));
-        assertThat(tableModel.getElement(0), is(equalTo(element)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowUpdated(0), is(equalTo(true)));
+        assertThat(tableModel.getElements()).hasSize(1);
+        assertThat(tableModel.getElements().get(0)).isEqualTo(element);
+        assertThat(tableModel.getElement(0)).isEqualTo(element);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowUpdated(0)).isTrue();
     }
 
     @Test
@@ -112,11 +109,11 @@ class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils 
         // When
         tableModel.removeElement(1);
         // Then
-        assertThat(tableModel.getElements().size(), is(equalTo(1)));
-        assertThat(tableModel.getElements().get(0), is(equalTo(element)));
-        assertThat(tableModel.getElement(0), is(equalTo(element)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowRemoved(1), is(equalTo(true)));
+        assertThat(tableModel.getElements()).hasSize(1);
+        assertThat(tableModel.getElements().get(0)).isEqualTo(element);
+        assertThat(tableModel.getElement(0)).isEqualTo(element);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowRemoved(1)).isTrue();
     }
 
     @Test
@@ -131,9 +128,9 @@ class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils 
         // When
         tableModel.clear();
         // Then
-        assertThat(tableModel.getElements(), is(empty()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isDataChanged(), is(equalTo(true)));
+        assertThat(tableModel.getElements()).isEmpty();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isDataChanged()).isTrue();
     }
 
     @SuppressWarnings("serial")

@@ -20,12 +20,7 @@
 package org.parosproxy.paros.network;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.parosproxy.paros.network.HttpInputStream.BUFFER_SIZE;
@@ -61,8 +56,8 @@ class HttpInputStreamUnitTest {
         // When
         HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
         // Then
-        assertThat(httpBody, is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(data)));
+        assertThat(httpBody).isNotNull();
+        assertThat(httpBody.getBytes()).isEqualTo(data);
     }
 
     @ParameterizedTest
@@ -77,8 +72,8 @@ class HttpInputStreamUnitTest {
         // When
         HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
         // Then
-        assertThat(httpBody, is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(data)));
+        assertThat(httpBody).isNotNull();
+        assertThat(httpBody.getBytes()).isEqualTo(data);
     }
 
     @Test
@@ -91,9 +86,8 @@ class HttpInputStreamUnitTest {
         // When
         HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
         // Then
-        assertThat(
-                httpBody.getContentEncodings(),
-                is(equalTo(asList(HttpEncodingGzip.getSingleton()))));
+        assertThat(httpBody.getContentEncodings())
+                .isEqualTo(asList(HttpEncodingGzip.getSingleton()));
     }
 
     @Test
@@ -106,9 +100,8 @@ class HttpInputStreamUnitTest {
         // When
         HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
         // Then
-        assertThat(
-                httpBody.getContentEncodings(),
-                is(equalTo(asList(HttpEncodingDeflate.getSingleton()))));
+        assertThat(httpBody.getContentEncodings())
+                .isEqualTo(asList(HttpEncodingDeflate.getSingleton()));
     }
 
     @ParameterizedTest
@@ -123,7 +116,7 @@ class HttpInputStreamUnitTest {
         // When
         HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
         // Then
-        assertThat(httpBody.getContentEncodings(), is(empty()));
+        assertThat(httpBody.getContentEncodings()).isEmpty();
     }
 
     @Test
@@ -137,7 +130,7 @@ class HttpInputStreamUnitTest {
         // When
         HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
         // Then
-        assertThat(httpBody.getContentEncodings(), is(empty()));
+        assertThat(httpBody.getContentEncodings()).isEmpty();
     }
 
     private static Socket createSocket(byte[] data) throws IOException {

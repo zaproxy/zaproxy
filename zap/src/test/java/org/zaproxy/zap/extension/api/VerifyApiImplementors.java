@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,17 +58,16 @@ class VerifyApiImplementors {
             checkApiElements(api, api.getApiOthers(), API.RequestType.other);
             checkApiElements(api, api.getApiViews(), API.RequestType.view);
         }
-        assertThat(missingKeys, is(empty()));
+        assertThat(missingKeys).isEmpty();
     }
 
     private static void checkApiElements(
             ApiImplementor api, List<? extends ApiElement> elements, RequestType type) {
         elements.sort((a, b) -> a.getName().compareTo(b.getName()));
         for (ApiElement element : elements) {
-            assertThat(
-                    "API element: " + api.getPrefix() + "/" + element.getName(),
-                    element.getDescriptionTag(),
-                    is(not(emptyString())));
+            assertThat(element.getDescriptionTag())
+                    .as("API element: " + api.getPrefix() + "/" + element.getName())
+                    .isNotEmpty();
             checkKey(element.getDescriptionTag());
             element.getParameters().stream()
                     .map(ApiParameter::getDescriptionKey)

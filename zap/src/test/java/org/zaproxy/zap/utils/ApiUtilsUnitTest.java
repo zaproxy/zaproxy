@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import net.sf.json.JSONObject;
@@ -48,7 +46,7 @@ class ApiUtilsUnitTest {
         JSONObject params = new JSONObject();
         // When / Then
         ApiException e = assertThrows(ApiException.class, () -> ApiUtils.getIntParam(params, name));
-        assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.MISSING_PARAMETER);
     }
 
     @Test
@@ -59,7 +57,7 @@ class ApiUtilsUnitTest {
         params.put(name, "String");
         // When / Then
         ApiException e = assertThrows(ApiException.class, () -> ApiUtils.getIntParam(params, name));
-        assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.ILLEGAL_PARAMETER);
     }
 
     @Test
@@ -72,7 +70,7 @@ class ApiUtilsUnitTest {
         // When
         int obtainedValue = ApiUtils.getIntParam(params, name);
         // Then
-        assertThat(obtainedValue, is(equalTo(value)));
+        assertThat(obtainedValue).isEqualTo(value);
     }
 
     @Test
@@ -91,7 +89,7 @@ class ApiUtilsUnitTest {
         // When / Then
         ApiException e =
                 assertThrows(ApiException.class, () -> ApiUtils.getBooleanParam(params, name));
-        assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.MISSING_PARAMETER);
     }
 
     @Test
@@ -103,7 +101,7 @@ class ApiUtilsUnitTest {
         // When / Then
         ApiException e =
                 assertThrows(ApiException.class, () -> ApiUtils.getBooleanParam(params, name));
-        assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
+        assertThat(e.getType()).isEqualTo(ApiException.Type.ILLEGAL_PARAMETER);
     }
 
     @Test
@@ -116,7 +114,7 @@ class ApiUtilsUnitTest {
         // When
         boolean obtainedValue = ApiUtils.getBooleanParam(params, name);
         // Then
-        assertThat(obtainedValue, is(equalTo(value)));
+        assertThat(obtainedValue).isEqualTo(value);
     }
 
     @Test
@@ -134,7 +132,7 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(emptySite);
         // Then
-        assertThat(authority, is(equalTo(emptySite)));
+        assertThat(authority).isEqualTo(emptySite);
     }
 
     @Test
@@ -144,7 +142,7 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(siteWithPort);
         // Then
-        assertThat(authority, is(equalTo(siteWithPort)));
+        assertThat(authority).isEqualTo(siteWithPort);
     }
 
     @Test
@@ -154,7 +152,7 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST + ":80")));
+        assertThat(authority).isEqualTo(HOST + ":80");
     }
 
     @Test
@@ -164,7 +162,7 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST + ":8443")));
+        assertThat(authority).isEqualTo(HOST + ":8443");
     }
 
     @Test
@@ -174,7 +172,7 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST + ":443")));
+        assertThat(authority).isEqualTo(HOST + ":443");
     }
 
     @Test
@@ -184,7 +182,7 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST + ":80")));
+        assertThat(authority).isEqualTo(HOST + ":80");
     }
 
     @Test
@@ -194,6 +192,6 @@ class ApiUtilsUnitTest {
         // When
         String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST + ":80")));
+        assertThat(authority).isEqualTo(HOST + ":80");
     }
 }

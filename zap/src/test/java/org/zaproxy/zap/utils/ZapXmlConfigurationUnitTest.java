@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -54,8 +52,8 @@ class ZapXmlConfigurationUnitTest {
         boolean isParsingDisabled = config.isDelimiterParsingDisabled();
         char delimChar = config.getListDelimiter();
         // Then
-        assertThat(isParsingDisabled, is(equalTo(true)));
-        assertThat(delimChar, is(equalTo('\0')));
+        assertThat(isParsingDisabled).isTrue();
+        assertThat(delimChar).isEqualTo('\0');
     }
 
     @Test
@@ -76,29 +74,29 @@ class ZapXmlConfigurationUnitTest {
         config.setProperty("aBoolean", aBoolean);
         // Then
         List<Object> aStringList = config.getList("aString");
-        assertThat(aStringList.size(), is(equalTo(1)));
-        assertThat(aStringList.get(0), is(equalTo(aString)));
+        assertThat(aStringList).hasSize(1);
+        assertThat(aStringList.get(0)).isEqualTo(aString);
 
         List<Object> bStringList = config.getList("bString");
-        assertThat(bStringList.size(), is(equalTo(1)));
-        assertThat(bStringList.get(0), is(equalTo(bString)));
+        assertThat(bStringList).hasSize(1);
+        assertThat(bStringList.get(0)).isEqualTo(bString);
 
         List<Object> cStringList = config.getList("cString");
-        assertThat(cStringList.size(), is(equalTo(0)));
+        assertThat(cStringList).hasSize(0);
 
         List<Object> aIntList = config.getList("aInt");
         int aActualInt = config.getInt("aInt");
-        assertThat(aIntList.size(), is(equalTo(1)));
+        assertThat(aIntList).hasSize(1);
         // Int is string when handled via list
-        assertThat(aIntList.get(0), is(equalTo("120")));
-        assertThat(aActualInt, is(equalTo(120)));
+        assertThat(aIntList.get(0)).isEqualTo("120");
+        assertThat(aActualInt).isEqualTo(120);
 
         List<Object> aBooleanList = config.getList("aBoolean");
         boolean aActualBoolean = config.getBoolean("aBoolean");
-        assertThat(aBooleanList.size(), is(equalTo(1)));
+        assertThat(aBooleanList).hasSize(1);
         // Boolean is string when handled via list
-        assertThat(aBooleanList.get(0), is(equalTo("true")));
-        assertThat(aActualBoolean, is(equalTo(true)));
+        assertThat(aBooleanList.get(0)).isEqualTo("true");
+        assertThat(aActualBoolean).isTrue();
     }
 
     @Test
@@ -112,8 +110,8 @@ class ZapXmlConfigurationUnitTest {
         config.setProperty("aList", aList);
         // Then
         List<Object> readList = config.getList("aList");
-        assertThat(readList.size(), is(equalTo(2)));
-        assertThat(readList.get(0), is(equalTo(aString)));
+        assertThat(readList).hasSize(2);
+        assertThat(readList.get(0)).isEqualTo(aString);
     }
 
     @Test
@@ -128,8 +126,8 @@ class ZapXmlConfigurationUnitTest {
         config.setProperty("customObjects", customObjects);
         // Then
         List<Object> readList = config.getList("customObjects");
-        assertThat(readList.size(), is(equalTo(2)));
-        assertThat(((CustomObject) readList.get(1)).getValue(), is(equalTo(stringTwo)));
+        assertThat(readList).hasSize(2);
+        assertThat(((CustomObject) readList.get(1)).getValue()).isEqualTo(stringTwo);
     }
 
     @Test
@@ -145,7 +143,7 @@ class ZapXmlConfigurationUnitTest {
         // When
         conf.save(outputStream);
         // Then
-        assertThat(contents(outputStream), is(equalTo(INDENTED_XML)));
+        assertThat(contents(outputStream)).isEqualTo(INDENTED_XML);
     }
 
     @Test
@@ -158,7 +156,7 @@ class ZapXmlConfigurationUnitTest {
         // When
         conf.save(outputStream);
         // Then
-        assertThat(contents(outputStream), is(equalTo(INDENTED_XML)));
+        assertThat(contents(outputStream)).isEqualTo(INDENTED_XML);
     }
 
     private static String contents(ByteArrayOutputStream outputStream)

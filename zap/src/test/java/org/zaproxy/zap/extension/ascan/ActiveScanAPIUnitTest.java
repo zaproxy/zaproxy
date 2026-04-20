@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.anyBoolean;
@@ -105,8 +102,8 @@ class ActiveScanAPIUnitTest {
         // When / Then
         ApiException exception =
                 assertThrows(ApiException.class, () -> api.handleApiAction(name, params));
-        assertThat(exception.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
-        assertThat(exception.toString(true), containsString("a"));
+        assertThat(exception.getType()).isEqualTo(ApiException.Type.ILLEGAL_PARAMETER);
+        assertThat(exception.toString(true)).contains("a");
         verify(scanRule1).setEnabled(anyBoolean());
         verifyNoInteractions(scanRule3);
     }
@@ -140,7 +137,7 @@ class ActiveScanAPIUnitTest {
         // When / Then
         ApiException exception =
                 assertThrows(ApiException.class, () -> api.handleApiAction(name, params));
-        assertThat(exception.getType(), is(equalTo(ApiException.Type.DOES_NOT_EXIST)));
-        assertThat(exception.toString(true), containsString("IDs: [1, 3]"));
+        assertThat(exception.getType()).isEqualTo(ApiException.Type.DOES_NOT_EXIST);
+        assertThat(exception.toString(true)).contains("IDs: [1, 3]");
     }
 }

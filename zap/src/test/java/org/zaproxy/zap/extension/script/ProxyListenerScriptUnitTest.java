@@ -20,12 +20,7 @@
 package org.zaproxy.zap.extension.script;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -76,7 +71,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         int listenerOrder = proxyListenerScript.getArrangeableListenerOrder();
         // Then
-        assertThat(listenerOrder, is(lessThan(ProxyListenerLog.PROXY_LISTENER_ORDER)));
+        assertThat(listenerOrder).isLessThan(ProxyListenerLog.PROXY_LISTENER_ORDER);
     }
 
     @Test
@@ -89,12 +84,12 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
                 ArgumentCaptor.forClass(Configuration.class);
         verify(extensionScript).createScriptsCache(argumentCaptor.capture());
         Configuration<ProxyScript> configuration = argumentCaptor.getValue();
-        assertThat(configuration.getScriptType(), is(equalTo(SCRIPT_TYPE)));
-        assertThat(configuration.getTargetInterface(), is(equalTo(TARGET_INTERFACE)));
+        assertThat(configuration.getScriptType()).isEqualTo(SCRIPT_TYPE);
+        assertThat(configuration.getTargetInterface()).isEqualTo(TARGET_INTERFACE);
         InterfaceErrorMessageProvider errorMessageProvider =
                 configuration.getInterfaceErrorMessageProvider();
-        assertThat(errorMessageProvider, is(not(nullValue())));
-        assertThat(errorMessageProvider.getErrorMessage(null), is(not(nullValue())));
+        assertThat(errorMessageProvider).isNotNull();
+        assertThat(errorMessageProvider.getErrorMessage(null)).isNotNull();
     }
 
     @Test
@@ -109,7 +104,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         boolean forwardMessage = proxyListenerScript.onHttpRequestSend(message);
         // Then
-        assertThat(forwardMessage, is(equalTo(true)));
+        assertThat(forwardMessage).isTrue();
         verify(scriptsCache, times(1)).refresh();
         verify(scriptsCache, times(1)).getCachedScripts();
         verify(script, times(1)).proxyRequest(message);
@@ -130,7 +125,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         boolean forwardMessage = proxyListenerScript.onHttpRequestSend(message);
         // Then
-        assertThat(forwardMessage, is(equalTo(true)));
+        assertThat(forwardMessage).isTrue();
         verify(extensionScript, times(1)).handleScriptException(scriptWrapper, exception);
     }
 
@@ -149,7 +144,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         boolean forwardMessage = proxyListenerScript.onHttpRequestSend(message);
         // Then
-        assertThat(forwardMessage, is(equalTo(false)));
+        assertThat(forwardMessage).isFalse();
         verify(script1, times(1)).proxyRequest(message);
         verify(script2, times(0)).proxyRequest(message);
     }
@@ -166,7 +161,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         boolean forwardMessage = proxyListenerScript.onHttpResponseReceive(message);
         // Then
-        assertThat(forwardMessage, is(equalTo(true)));
+        assertThat(forwardMessage).isTrue();
         verify(scriptsCache, times(0)).refresh();
         verify(scriptsCache, times(1)).getCachedScripts();
         verify(script, times(1)).proxyResponse(message);
@@ -187,7 +182,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         boolean forwardMessage = proxyListenerScript.onHttpResponseReceive(message);
         // Then
-        assertThat(forwardMessage, is(equalTo(true)));
+        assertThat(forwardMessage).isTrue();
         verify(extensionScript, times(1)).handleScriptException(scriptWrapper, exception);
     }
 
@@ -206,7 +201,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         // When
         boolean forwardMessage = proxyListenerScript.onHttpResponseReceive(message);
         // Then
-        assertThat(forwardMessage, is(equalTo(false)));
+        assertThat(forwardMessage).isFalse();
         verify(script1, times(1)).proxyResponse(message);
         verify(script2, times(0)).proxyResponse(message);
     }

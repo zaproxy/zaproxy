@@ -21,9 +21,7 @@ package org.zaproxy.zap.network;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.assertj.core.api.Condition;
 
 /**
  * Class with helper/utility methods to help testing classes involving {@code HttpBody} class and
@@ -81,29 +79,16 @@ public class HttpBodyTestUtils {
         return newArray;
     }
 
-    protected static Matcher<byte[]> allZeroBytes() {
-        return new BaseMatcher<>() {
-
-            @Override
-            public boolean matches(Object actualValue) {
-                byte[] bytes = (byte[]) actualValue;
-                for (byte data : bytes) {
-                    if (data != 0) {
-                        return false;
+    protected static Condition<byte[]> allZeroBytes() {
+        return new Condition<>(
+                bytes -> {
+                    for (byte data : bytes) {
+                        if (data != 0) {
+                            return false;
+                        }
                     }
-                }
-                return true;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("all zero bytes");
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                description.appendText("has at least one non-zero byte ").appendValue(item);
-            }
-        };
+                    return true;
+                },
+                "all zero bytes");
     }
 }

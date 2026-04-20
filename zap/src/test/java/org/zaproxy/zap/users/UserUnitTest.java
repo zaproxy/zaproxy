@@ -19,14 +19,7 @@
  */
 package org.zaproxy.zap.users;
 
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -110,10 +103,10 @@ class UserUnitTest {
         String encoded = User.encode(user);
         User result = User.decode(CONTEXT_ID, encoded, mockedExtension);
         // Then
-        assertEquals(user.getName(), result.getName());
-        assertEquals(user.isEnabled(), result.isEnabled());
-        assertEquals(user.getId(), result.getId());
-        assertEquals(user.getContextId(), result.getContextId());
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.isEnabled()).isEqualTo(user.isEnabled());
+        assertThat(result.getId()).isEqualTo(user.getId());
+        assertThat(result.getContextId()).isEqualTo(user.getContextId());
     }
 
     @Test
@@ -125,10 +118,10 @@ class UserUnitTest {
         String encoded = User.encode(user);
         User result = User.decode(CONTEXT_ID, encoded, mockedExtension);
         // Then
-        assertEquals(user.getName(), result.getName());
-        assertEquals(user.isEnabled(), result.isEnabled());
-        assertEquals(user.getId(), result.getId());
-        assertEquals(user.getContextId(), result.getContextId());
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.isEnabled()).isEqualTo(user.isEnabled());
+        assertThat(result.getId()).isEqualTo(user.getId());
+        assertThat(result.getContextId()).isEqualTo(user.getContextId());
     }
 
     @Test
@@ -139,12 +132,12 @@ class UserUnitTest {
         User u3 = new User(CONTEXT_ID, USER_NAME);
         User u4 = new User(CONTEXT_ID, USER_NAME);
         // When/Then
-        assertThat(u1.getId(), not(anyOf(is(u2.getId()), is(u3.getId()), is(u4.getId()))));
-        assertThat(u2.getId(), not(anyOf(is(u3.getId()), is(u4.getId()))));
-        assertThat(u3.getId(), not(is(u4.getId())));
+        assertThat(u1.getId()).isNotIn(u2.getId(), u3.getId(), u4.getId());
+        assertThat(u2.getId()).isNotIn(u3.getId(), u4.getId());
+        assertThat(u3.getId()).isNotEqualTo(u4.getId());
         User u5 = new User(CONTEXT_ID, USER_NAME, u4.getId() + 5);
         User u6 = new User(CONTEXT_ID, USER_NAME);
-        assertThat(u6.getId(), greaterThan(u5.getId()));
+        assertThat(u6.getId()).isGreaterThan(u5.getId());
     }
 
     @Test
@@ -152,7 +145,7 @@ class UserUnitTest {
         // Given
         User u = new User(CONTEXT_ID, USER_NAME);
         // When/Then
-        assertTrue(u.requiresAuthentication());
+        assertThat(u.requiresAuthentication()).isTrue();
     }
 
     @Test
@@ -162,7 +155,7 @@ class UserUnitTest {
         // When
         u.setAuthenticatedSession(Mockito.mock(WebSession.class));
         // Then
-        assertFalse(u.requiresAuthentication());
+        assertThat(u.requiresAuthentication()).isFalse();
     }
 
     @Test
@@ -178,7 +171,7 @@ class UserUnitTest {
         when(msg.getTimeSentMillis()).thenReturn(5000l);
         u.queueAuthentication(msg);
         // Then
-        assertTrue(u.requiresAuthentication());
+        assertThat(u.requiresAuthentication()).isTrue();
     }
 
     @Test
@@ -195,7 +188,7 @@ class UserUnitTest {
         u.queueAuthentication(msg);
         // Then
         verify(msg).getTimeSentMillis();
-        assertFalse(u.requiresAuthentication());
+        assertThat(u.requiresAuthentication()).isFalse();
     }
 
     @Test
@@ -230,6 +223,6 @@ class UserUnitTest {
         // When
         user.authenticate();
         // Then
-        assertFalse(user.requiresAuthentication());
+        assertThat(user.requiresAuthentication()).isFalse();
     }
 }

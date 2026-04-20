@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -56,7 +54,7 @@ class ContextUnitTest {
 
     @Test
     void shouldNullUrlNeverBeIncluded() {
-        assertThat(context.isIncluded((String) null), is(false));
+        assertThat(context.isIncluded((String) null)).isFalse();
     }
 
     @Test
@@ -66,7 +64,7 @@ class ContextUnitTest {
         // When
         Context context = new Context(session, index);
         // Then
-        assertThat(context.getName(), is(equalTo(String.valueOf(index))));
+        assertThat(context.getName()).isEqualTo(String.valueOf(index));
     }
 
     @Test
@@ -92,7 +90,7 @@ class ContextUnitTest {
         // When
         context.setName(name);
         // Then
-        assertThat(context.getName(), is(equalTo(name)));
+        assertThat(context.getName()).isEqualTo(name);
     }
 
     @Test
@@ -113,8 +111,8 @@ class ContextUnitTest {
         ddn.add(endNode);
         context.setIncludeInContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
         // When / Then
-        assertThat(context.isIncluded(endNode), is(true));
-        assertThat(context.isInContext(endNode), is(true));
+        assertThat(context.isIncluded(endNode)).isTrue();
+        assertThat(context.isInContext(endNode)).isTrue();
     }
 
     @Test
@@ -136,8 +134,8 @@ class ContextUnitTest {
         context.setIncludeInContextRegexs(List.of("https://example.com.*"));
         context.setExcludeFromContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
         // When / Then
-        assertThat(context.isExcluded(endNode), is(true));
-        assertThat(context.isInContext(endNode), is(false));
+        assertThat(context.isExcluded(endNode)).isTrue();
+        assertThat(context.isInContext(endNode)).isFalse();
     }
 
     @Test
@@ -155,8 +153,8 @@ class ContextUnitTest {
         hostNode.add(endNode);
         context.setIncludeInContextRegexs(List.of("https://example.com/endpoint"));
         // When / Then
-        assertThat(context.isIncluded(endNode), is(true));
-        assertThat(context.isInContext(endNode), is(true));
+        assertThat(context.isIncluded(endNode)).isTrue();
+        assertThat(context.isInContext(endNode)).isTrue();
     }
 
     @Test
@@ -175,7 +173,7 @@ class ContextUnitTest {
         context.setIncludeInContextRegexs(List.of("https://example.com.*"));
         context.setExcludeFromContextRegexs(List.of("https://example.com/endpoint"));
         // When / Then
-        assertThat(context.isExcluded(endNode), is(true));
-        assertThat(context.isInContext(endNode), is(false));
+        assertThat(context.isExcluded(endNode)).isTrue();
+        assertThat(context.isInContext(endNode)).isFalse();
     }
 }

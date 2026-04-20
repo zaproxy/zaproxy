@@ -19,8 +19,8 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -34,42 +34,56 @@ class ZapReleaseComparitorUnitTest {
         ZapReleaseComparitor zrc = new ZapReleaseComparitor();
 
         // Test equals
-        assertTrue(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease(DEV_BUILD)) == 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.0"), new ZapRelease("2.0.0")) == 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.alpha"), new ZapRelease("2.0.alpha")) == 0);
-        assertTrue(
-                zrc.compare(new ZapRelease("D-2013-01-01"), new ZapRelease("D-2013-01-01")) == 0);
+        assertThat(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease(DEV_BUILD)) == 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.0"), new ZapRelease("2.0.0")) == 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.alpha"), new ZapRelease("2.0.alpha")) == 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2013-01-01"), new ZapRelease("D-2013-01-01")) == 0)
+                .isTrue();
 
         // Test first more recent that second
-        assertTrue(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease("D-2012-08-01")) > 0);
-        assertTrue(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease("1.4.1")) > 0);
-        assertTrue(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease("2.4.beta")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.0.1"), new ZapRelease("2.0.0")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.0.1"), new ZapRelease("2.0.alpha")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("1.4"), new ZapRelease("1.3.4")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0"), new ZapRelease("1.3.4")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.11"), new ZapRelease("2.0.5")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("1.4.alpha"), new ZapRelease("1.3.4")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2012-08-02"), new ZapRelease("D-2012-08-01")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2013-10-10"), new ZapRelease("D-2012-01-01")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2013-01-01"), new ZapRelease("D-2012-12-31")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2013-01-07"), new ZapRelease("D-2012-12-31")) > 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2013-01-07"), new ZapRelease("2.0.1")) > 0);
+        assertThat(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease("D-2012-08-01")) > 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease("1.4.1")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease("2.4.beta")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.0.1"), new ZapRelease("2.0.0")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.0.1"), new ZapRelease("2.0.alpha")) > 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("1.4"), new ZapRelease("1.3.4")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0"), new ZapRelease("1.3.4")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.11"), new ZapRelease("2.0.5")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("1.4.alpha"), new ZapRelease("1.3.4")) > 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2012-08-02"), new ZapRelease("D-2012-08-01")) > 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2013-10-10"), new ZapRelease("D-2012-01-01")) > 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2013-01-01"), new ZapRelease("D-2012-12-31")) > 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2013-01-07"), new ZapRelease("D-2012-12-31")) > 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2013-01-07"), new ZapRelease("2.0.1")) > 0)
+                .isTrue();
 
         // Test first older that second
-        assertTrue(zrc.compare(new ZapRelease("1.4.1"), new ZapRelease(DEV_BUILD)) < 0);
-        assertTrue(zrc.compare(new ZapRelease("2.4.beta"), new ZapRelease(DEV_BUILD)) < 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.0"), new ZapRelease("2.0.0.1")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.alpha"), new ZapRelease("2.0.0.1")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("1.3.4"), new ZapRelease("1.4")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("1.3.4"), new ZapRelease("2.0")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.6"), new ZapRelease("2.0.12")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("1.3.4"), new ZapRelease("1.4.alpha")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2012-08-01"), new ZapRelease("D-2012-08-02")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2012-01-01"), new ZapRelease("D-2013-10-10")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2012-12-31"), new ZapRelease("D-2013-01-01")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("D-2012-12-31"), new ZapRelease("D-2013-01-07")) < 0);
-        assertTrue(zrc.compare(new ZapRelease("2.0.1"), new ZapRelease("D-2013-01-07")) < 0);
+        assertThat(zrc.compare(new ZapRelease("1.4.1"), new ZapRelease(DEV_BUILD)) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.4.beta"), new ZapRelease(DEV_BUILD)) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.0"), new ZapRelease("2.0.0.1")) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.alpha"), new ZapRelease("2.0.0.1")) < 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("1.3.4"), new ZapRelease("1.4")) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("1.3.4"), new ZapRelease("2.0")) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.6"), new ZapRelease("2.0.12")) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("1.3.4"), new ZapRelease("1.4.alpha")) < 0).isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2012-08-01"), new ZapRelease("D-2012-08-02")) < 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2012-01-01"), new ZapRelease("D-2013-10-10")) < 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2012-12-31"), new ZapRelease("D-2013-01-01")) < 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("D-2012-12-31"), new ZapRelease("D-2013-01-07")) < 0)
+                .isTrue();
+        assertThat(zrc.compare(new ZapRelease("2.0.1"), new ZapRelease("D-2013-01-07")) < 0)
+                .isTrue();
 
         // Bad versions
         assertThrows(

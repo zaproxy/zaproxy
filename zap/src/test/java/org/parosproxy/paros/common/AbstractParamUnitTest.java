@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.common;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +54,7 @@ class AbstractParamUnitTest {
         // Given / When
         AbstractParam param = createTestAbstractParam();
         // Then
-        assertThat(param.getConfig(), is(equalTo(null)));
+        assertThat(param.getConfig()).isEqualTo(null);
     }
 
     @Test
@@ -68,8 +65,8 @@ class AbstractParamUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.getValue(), is(equalTo(VALUE)));
-        assertThat(param.getValues(), is(equalTo(VALUES)));
+        assertThat(param.getValue()).isEqualTo(VALUE);
+        assertThat(param.getValues()).isEqualTo(VALUES);
     }
 
     @Test
@@ -79,9 +76,9 @@ class AbstractParamUnitTest {
         // When
         TestAbstractParam clone = param.clone();
         // Then
-        assertThat(clone, is(not(equalTo(null))));
-        assertThat(clone.getValue(), is(equalTo(null)));
-        assertThat(clone.getValues(), is(equalTo(null)));
+        assertThat(clone).isNotEqualTo(null);
+        assertThat(clone.getValue()).isEqualTo(null);
+        assertThat(clone.getValues()).isEqualTo(null);
     }
 
     @Test
@@ -93,9 +90,9 @@ class AbstractParamUnitTest {
         // When
         TestAbstractParam clone = param.clone();
         // Then
-        assertThat(clone, is(not(equalTo(null))));
-        assertThat(clone.getValue(), is(equalTo(VALUE)));
-        assertThat(clone.getValues(), is(equalTo(VALUES)));
+        assertThat(clone).isNotEqualTo(null);
+        assertThat(clone.getValue()).isEqualTo(VALUE);
+        assertThat(clone.getValues()).isEqualTo(VALUES);
     }
 
     @Test
@@ -107,7 +104,7 @@ class AbstractParamUnitTest {
         // When
         TestEnum value = param.getEnum(key, defaultValue);
         // Then
-        assertThat(value, is(equalTo(defaultValue)));
+        assertThat(value).isEqualTo(defaultValue);
     }
 
     @Test
@@ -120,7 +117,7 @@ class AbstractParamUnitTest {
         // When
         TestEnum value = param.getEnum(key, defaultValue);
         // Then
-        assertThat(value, is(equalTo(defaultValue)));
+        assertThat(value).isEqualTo(defaultValue);
     }
 
     @ParameterizedTest
@@ -134,7 +131,7 @@ class AbstractParamUnitTest {
         // When
         TestEnum value = param.getEnum(key, defaultValue);
         // Then
-        assertThat(value, is(equalTo(enumValue)));
+        assertThat(value).isEqualTo(enumValue);
     }
 
     private static TestAbstractParam createTestAbstractParam() {

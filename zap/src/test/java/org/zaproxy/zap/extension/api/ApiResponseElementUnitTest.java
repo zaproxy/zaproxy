@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +40,7 @@ class ApiResponseElementUnitTest {
         // When
         String jsonResponse = apiResponse.toJSON().toString();
         // Then
-        assertThat(jsonResponse, is(equalTo("{\"" + name + "\":" + value + "}")));
+        assertThat(jsonResponse).isEqualTo("{\"" + name + "\":" + value + "}");
     }
 
     @Test
@@ -55,7 +52,7 @@ class ApiResponseElementUnitTest {
         // When
         String jsonResponse = apiResponse.toJSON().toString();
         // Then
-        assertThat(jsonResponse, is(equalTo("{\"" + name + "\":\"" + value + "\"}")));
+        assertThat(jsonResponse).isEqualTo("{\"" + name + "\":\"" + value + "\"}");
     }
 
     @Test
@@ -69,8 +66,8 @@ class ApiResponseElementUnitTest {
         // When
         apiResponse.toXML(document, element);
         // Then
-        assertThat(element.getChildNodes().getLength(), is(equalTo(1)));
-        assertThat(element.getFirstChild().getNodeValue(), is(equalTo("")));
+        assertThat(element.getChildNodes().getLength()).isEqualTo(1);
+        assertThat(element.getFirstChild().getNodeValue()).isEmpty();
     }
 
     @Test
@@ -84,8 +81,8 @@ class ApiResponseElementUnitTest {
         // When
         apiResponse.toXML(document, element);
         // Then
-        assertThat(element.getChildNodes().getLength(), is(equalTo(1)));
-        assertThat(element.getFirstChild().getNodeValue(), is(equalTo(value)));
+        assertThat(element.getChildNodes().getLength()).isEqualTo(1);
+        assertThat(element.getFirstChild().getNodeValue()).isEqualTo(value);
     }
 
     @Test
@@ -97,7 +94,7 @@ class ApiResponseElementUnitTest {
         // When
         String jsonResponse = apiResponse.toJSON().toString();
         // Then
-        assertEquals(jsonResponse, "{\"name\":\"{\\\"key\\\":\\\"value\\\"}\"}");
+        assertThat("{\"name\":\"{\\\"key\\\":\\\"value\\\"}\"}").isEqualTo(jsonResponse);
     }
 
     @Test
@@ -112,7 +109,7 @@ class ApiResponseElementUnitTest {
         // When
         String jsonResponse = apiResponse.toJSON().toString();
         // Then
-        assertEquals(jsonResponse, "{\"test\":{\"name\":\"{\\\"key\\\":\\\"value\\\"}\"}}");
+        assertThat("{\"test\":{\"name\":\"{\\\"key\\\":\\\"value\\\"}\"}}").isEqualTo(jsonResponse);
     }
 
     private static Document createDocument() {

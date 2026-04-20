@@ -19,15 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
@@ -65,28 +57,28 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getName(), is(equalTo("")));
-        assertThat(manifest.getVersion(), is(equalTo(version("1.0.0"))));
-        assertThat(manifest.getStatus(), is(equalTo("alpha")));
-        assertThat(manifest.getDescription(), is(emptyString()));
-        assertThat(manifest.getAuthor(), is(emptyString()));
-        assertThat(manifest.getUrl(), is(emptyString()));
-        assertThat(manifest.getChanges(), is(emptyString()));
-        assertThat(manifest.getRepo(), is(emptyString()));
-        assertThat(manifest.getNotBeforeVersion(), is(emptyString()));
-        assertThat(manifest.getNotFromVersion(), is(emptyString()));
-        assertThat(manifest.getBundleBaseName(), is(emptyString()));
-        assertThat(manifest.getBundlePrefix(), is(emptyString()));
-        assertThat(manifest.getHelpSetBaseName(), is(emptyString()));
-        assertThat(manifest.getHelpSetLocaleToken(), is(emptyString()));
-        assertThat(manifest.getDependencies(), is(nullValue()));
-        assertThat(manifest.getAddOnClassnames(), is(equalTo(AddOnClassnames.ALL_ALLOWED)));
-        assertThat(manifest.getExtensions(), is(empty()));
-        assertThat(manifest.getExtensionsWithDeps(), is(empty()));
-        assertThat(manifest.getAscanrules(), is(empty()));
-        assertThat(manifest.getPscanrules(), is(empty()));
-        assertThat(manifest.getFiles(), is(empty()));
-        assertThat(manifest.getLibs(), is(empty()));
+        assertThat(manifest.getName()).isEmpty();
+        assertThat(manifest.getVersion()).isEqualTo(version("1.0.0"));
+        assertThat(manifest.getStatus()).isEqualTo("alpha");
+        assertThat(manifest.getDescription()).isEmpty();
+        assertThat(manifest.getAuthor()).isEmpty();
+        assertThat(manifest.getUrl()).isEmpty();
+        assertThat(manifest.getChanges()).isEmpty();
+        assertThat(manifest.getRepo()).isEmpty();
+        assertThat(manifest.getNotBeforeVersion()).isEmpty();
+        assertThat(manifest.getNotFromVersion()).isEmpty();
+        assertThat(manifest.getBundleBaseName()).isEmpty();
+        assertThat(manifest.getBundlePrefix()).isEmpty();
+        assertThat(manifest.getHelpSetBaseName()).isEmpty();
+        assertThat(manifest.getHelpSetLocaleToken()).isEmpty();
+        assertThat(manifest.getDependencies()).isNull();
+        assertThat(manifest.getAddOnClassnames()).isEqualTo(AddOnClassnames.ALL_ALLOWED);
+        assertThat(manifest.getExtensions()).isEmpty();
+        assertThat(manifest.getExtensionsWithDeps()).isEmpty();
+        assertThat(manifest.getAscanrules()).isEmpty();
+        assertThat(manifest.getPscanrules()).isEmpty();
+        assertThat(manifest.getFiles()).isEmpty();
+        assertThat(manifest.getLibs()).isEmpty();
     }
 
     @Test
@@ -121,17 +113,17 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getName(), is(equalTo(name)));
-        assertThat(manifest.getVersion(), is(equalTo(version("7.0.0"))));
-        assertThat(manifest.getSemVer(), is(equalTo(version("1.1.0"))));
-        assertThat(manifest.getStatus(), is(equalTo(status)));
-        assertThat(manifest.getDescription(), is(equalTo(description)));
-        assertThat(manifest.getAuthor(), is(equalTo(author)));
-        assertThat(manifest.getUrl(), is(equalTo(url)));
-        assertThat(manifest.getChanges(), is(equalTo(changes)));
-        assertThat(manifest.getRepo(), is(equalTo(repo)));
-        assertThat(manifest.getNotBeforeVersion(), is(equalTo(notBeforeVersion)));
-        assertThat(manifest.getNotFromVersion(), is(equalTo(notFromVersion)));
+        assertThat(manifest.getName()).isEqualTo(name);
+        assertThat(manifest.getVersion()).isEqualTo(version("7.0.0"));
+        assertThat(manifest.getSemVer()).isEqualTo(version("1.1.0"));
+        assertThat(manifest.getStatus()).isEqualTo(status);
+        assertThat(manifest.getDescription()).isEqualTo(description);
+        assertThat(manifest.getAuthor()).isEqualTo(author);
+        assertThat(manifest.getUrl()).isEqualTo(url);
+        assertThat(manifest.getChanges()).isEqualTo(changes);
+        assertThat(manifest.getRepo()).isEqualTo(repo);
+        assertThat(manifest.getNotBeforeVersion()).isEqualTo(notBeforeVersion);
+        assertThat(manifest.getNotFromVersion()).isEqualTo(notFromVersion);
     }
 
     @Test
@@ -144,7 +136,7 @@ class ZapAddOnXmlFileUnitTest {
             // When
             ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
             // Then
-            assertThat(manifest.getStatus(), is(equalTo(status)));
+            assertThat(manifest.getStatus()).isEqualTo(status);
         }
     }
 
@@ -159,7 +151,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("status"));
+        assertThat(e.getMessage()).contains("status");
     }
 
     @Test
@@ -182,10 +174,10 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getBundleBaseName(), is(equalTo(bundleBaseName)));
-        assertThat(manifest.getBundlePrefix(), is(equalTo(bundlePrefix)));
-        assertThat(manifest.getHelpSetBaseName(), is(equalTo(helpSetBaseName)));
-        assertThat(manifest.getHelpSetLocaleToken(), is(equalTo(helpSetLocaleToken)));
+        assertThat(manifest.getBundleBaseName()).isEqualTo(bundleBaseName);
+        assertThat(manifest.getBundlePrefix()).isEqualTo(bundlePrefix);
+        assertThat(manifest.getHelpSetBaseName()).isEqualTo(helpSetBaseName);
+        assertThat(manifest.getHelpSetLocaleToken()).isEqualTo(helpSetLocaleToken);
     }
 
     @Test
@@ -204,7 +196,7 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getLibs(), contains(lib1, lib2));
+        assertThat(manifest.getLibs()).containsExactly(lib1, lib2);
     }
 
     @Test
@@ -251,24 +243,20 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getDependencies(), is(notNullValue()));
-        assertThat(manifest.getDependencies().getJavaVersion(), is(equalTo(javaVersion)));
-        assertThat(manifest.getDependencies().getAddOns().get(0).getId(), is(equalTo(addOn1Id)));
-        assertThat(
-                manifest.getDependencies().getAddOns().get(0).getVersion(),
-                is(equalTo(" >= 4.0.0 & < 6.0.0")));
-        assertThat(manifest.getDependencies().getAddOns().get(1).getId(), is(equalTo(addOn2Id)));
-        assertThat(
-                manifest.getDependencies().getAddOns().get(1).getVersion(),
-                is(equalTo(addOn2SemVer)));
-        assertThat(manifest.getDependencies().getAddOns().get(2).getId(), is(equalTo(addOn3Id)));
-        assertThat(
-                manifest.getDependencies().getAddOns().get(2).getVersion(),
-                is(equalTo(addOn3Version)));
-        assertThat(manifest.getDependencies().getAddOns().get(3).getId(), is(equalTo(addOn4Id)));
-        assertThat(
-                manifest.getDependencies().getAddOns().get(3).getVersion(),
-                is(equalTo(addOn4Version)));
+        assertThat(manifest.getDependencies()).isNotNull();
+        assertThat(manifest.getDependencies().getJavaVersion()).isEqualTo(javaVersion);
+        assertThat(manifest.getDependencies().getAddOns().get(0).getId()).isEqualTo(addOn1Id);
+        assertThat(manifest.getDependencies().getAddOns().get(0).getVersion())
+                .isEqualTo(" >= 4.0.0 & < 6.0.0");
+        assertThat(manifest.getDependencies().getAddOns().get(1).getId()).isEqualTo(addOn2Id);
+        assertThat(manifest.getDependencies().getAddOns().get(1).getVersion())
+                .isEqualTo(addOn2SemVer);
+        assertThat(manifest.getDependencies().getAddOns().get(2).getId()).isEqualTo(addOn3Id);
+        assertThat(manifest.getDependencies().getAddOns().get(2).getVersion())
+                .isEqualTo(addOn3Version);
+        assertThat(manifest.getDependencies().getAddOns().get(3).getId()).isEqualTo(addOn4Id);
+        assertThat(manifest.getDependencies().getAddOns().get(3).getVersion())
+                .isEqualTo(addOn4Version);
     }
 
     @Test
@@ -289,10 +277,9 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getDependencies(), is(notNullValue()));
-        assertThat(
-                manifest.getDependencies().getAddOns().get(0).getVersion(),
-                is(equalTo(" >= 6.0.0")));
+        assertThat(manifest.getDependencies()).isNotNull();
+        assertThat(manifest.getDependencies().getAddOns().get(0).getVersion())
+                .isEqualTo(" >= 6.0.0");
     }
 
     @Test
@@ -313,10 +300,9 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getDependencies(), is(notNullValue()));
-        assertThat(
-                manifest.getDependencies().getAddOns().get(0).getVersion(),
-                is(equalTo(" < 6.0.0")));
+        assertThat(manifest.getDependencies()).isNotNull();
+        assertThat(manifest.getDependencies().getAddOns().get(0).getVersion())
+                .isEqualTo(" < 6.0.0");
     }
 
     @Test
@@ -338,7 +324,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("id"));
+        assertThat(e.getMessage()).contains("id");
     }
 
     @Test
@@ -360,7 +346,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("id"));
+        assertThat(e.getMessage()).contains("id");
     }
 
     @Test
@@ -383,7 +369,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("version"));
+        assertThat(e.getMessage()).contains("version");
     }
 
     @Test
@@ -406,7 +392,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("version range"));
+        assertThat(e.getMessage()).contains("version range");
     }
 
     @Test
@@ -429,7 +415,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("not-before-version"));
+        assertThat(e.getMessage()).contains("not-before-version");
     }
 
     @Test
@@ -452,7 +438,7 @@ class ZapAddOnXmlFileUnitTest {
                 assertThrows(
                         IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
         // Then
-        assertThat(e.getMessage(), containsString("not-from-version"));
+        assertThat(e.getMessage()).contains("not-from-version");
     }
 
     @Test
@@ -479,13 +465,11 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getAddOnClassnames(), is(notNullValue()));
-        assertThat(
-                manifest.getAddOnClassnames().getAllowedClassnames(),
-                contains(allowedClass1, allowedClass2, allowedPackage));
-        assertThat(
-                manifest.getAddOnClassnames().getRestrictedClassnames(),
-                contains(restrictedClass1, restrictedClass2, restrictedPackage));
+        assertThat(manifest.getAddOnClassnames()).isNotNull();
+        assertThat(manifest.getAddOnClassnames().getAllowedClassnames())
+                .containsExactly(allowedClass1, allowedClass2, allowedPackage);
+        assertThat(manifest.getAddOnClassnames().getRestrictedClassnames())
+                .containsExactly(restrictedClass1, restrictedClass2, restrictedPackage);
     }
 
     @Test
@@ -502,7 +486,7 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getAddOnClassnames(), is(equalTo(AddOnClassnames.ALL_ALLOWED)));
+        assertThat(manifest.getAddOnClassnames()).isEqualTo(AddOnClassnames.ALL_ALLOWED);
     }
 
     @Test
@@ -519,9 +503,10 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getAddOnClassnames(), is(notNullValue()));
-        assertThat(manifest.getAddOnClassnames().getAllowedClassnames(), contains(allowedPackage));
-        assertThat(manifest.getAddOnClassnames().getRestrictedClassnames(), is(empty()));
+        assertThat(manifest.getAddOnClassnames()).isNotNull();
+        assertThat(manifest.getAddOnClassnames().getAllowedClassnames())
+                .containsExactly(allowedPackage);
+        assertThat(manifest.getAddOnClassnames().getRestrictedClassnames()).isEmpty();
     }
 
     @Test
@@ -538,11 +523,10 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getAddOnClassnames(), is(notNullValue()));
-        assertThat(
-                manifest.getAddOnClassnames().getRestrictedClassnames(),
-                contains(restrictedPackage));
-        assertThat(manifest.getAddOnClassnames().getAllowedClassnames(), is(empty()));
+        assertThat(manifest.getAddOnClassnames()).isNotNull();
+        assertThat(manifest.getAddOnClassnames().getRestrictedClassnames())
+                .containsExactly(restrictedPackage);
+        assertThat(manifest.getAddOnClassnames().getAllowedClassnames()).isEmpty();
     }
 
     @Test
@@ -573,9 +557,9 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getAscanrules(), contains(ascanrule1, ascanrule2));
-        assertThat(manifest.getPscanrules(), contains(pscanrule1, pscanrule2));
-        assertThat(manifest.getFiles(), contains(file1, file2));
+        assertThat(manifest.getAscanrules()).containsExactly(ascanrule1, ascanrule2);
+        assertThat(manifest.getPscanrules()).containsExactly(pscanrule1, pscanrule2);
+        assertThat(manifest.getFiles()).containsExactly(file1, file2);
     }
 
     @Test
@@ -594,7 +578,7 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getExtensions(), contains(extension1, extension2));
+        assertThat(manifest.getExtensions()).containsExactly(extension1, extension2);
     }
 
     @Test
@@ -633,23 +617,24 @@ class ZapAddOnXmlFileUnitTest {
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
-        assertThat(manifest.getExtensions(), contains(extension1));
-        assertThat(manifest.getExtensionsWithDeps().get(0).getClassname(), is(equalTo(extension2)));
+        assertThat(manifest.getExtensions()).containsExactly(extension1);
+        assertThat(manifest.getExtensionsWithDeps().get(0).getClassname()).isEqualTo(extension2);
         assertThat(
-                manifest.getExtensionsWithDeps().get(0).getAddOnClassnames().getAllowedClassnames(),
-                contains(allowedClass));
+                        manifest.getExtensionsWithDeps()
+                                .get(0)
+                                .getAddOnClassnames()
+                                .getAllowedClassnames())
+                .containsExactly(allowedClass);
         assertThat(
-                manifest.getExtensionsWithDeps()
-                        .get(0)
-                        .getAddOnClassnames()
-                        .getRestrictedClassnames(),
-                contains(restrictedClass));
-        assertThat(
-                manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getId(),
-                is(equalTo(addOnId)));
-        assertThat(
-                manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getVersion(),
-                is(equalTo(version)));
+                        manifest.getExtensionsWithDeps()
+                                .get(0)
+                                .getAddOnClassnames()
+                                .getRestrictedClassnames())
+                .containsExactly(restrictedClass);
+        assertThat(manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getId())
+                .isEqualTo(addOnId);
+        assertThat(manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getVersion())
+                .isEqualTo(version);
     }
 
     private static Version version(String version) {

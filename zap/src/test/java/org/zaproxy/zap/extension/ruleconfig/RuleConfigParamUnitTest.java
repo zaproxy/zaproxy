@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.ruleconfig;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -44,26 +42,26 @@ class RuleConfigParamUnitTest {
 
     @Test
     void shouldReturnNullIfNoKey() {
-        assertThat(rcp.getRuleConfig("key"), is(equalTo(null)));
+        assertThat(rcp.getRuleConfig("key")).isEqualTo(null);
     }
 
     @Test
     void shouldRecordAddedRuleCorrectly() {
         rcp.addRuleConfig("key", "defaultValue", "value");
-        assertThat(rcp.getRuleConfig("key").getKey(), is(equalTo("key")));
-        assertThat(rcp.getRuleConfig("key").getDefaultValue(), is(equalTo("defaultValue")));
-        assertThat(rcp.getRuleConfig("key").getValue(), is(equalTo("value")));
-        assertThat(configuration.getString("key"), is(equalTo("value")));
+        assertThat(rcp.getRuleConfig("key").getKey()).isEqualTo("key");
+        assertThat(rcp.getRuleConfig("key").getDefaultValue()).isEqualTo("defaultValue");
+        assertThat(rcp.getRuleConfig("key").getValue()).isEqualTo("value");
+        assertThat(configuration.getString("key")).isEqualTo("value");
     }
 
     @Test
     void shouldUpdateRuleCorrectly() {
         rcp.addRuleConfig("key", "defaultValue", "value");
         rcp.setRuleConfigValue("key", "new value");
-        assertThat(rcp.getRuleConfig("key").getKey(), is(equalTo("key")));
-        assertThat(rcp.getRuleConfig("key").getDefaultValue(), is(equalTo("defaultValue")));
-        assertThat(rcp.getRuleConfig("key").getValue(), is(equalTo("new value")));
-        assertThat(configuration.getString("key"), is(equalTo("new value")));
+        assertThat(rcp.getRuleConfig("key").getKey()).isEqualTo("key");
+        assertThat(rcp.getRuleConfig("key").getDefaultValue()).isEqualTo("defaultValue");
+        assertThat(rcp.getRuleConfig("key").getValue()).isEqualTo("new value");
+        assertThat(configuration.getString("key")).isEqualTo("new value");
     }
 
     @Test
@@ -87,10 +85,10 @@ class RuleConfigParamUnitTest {
     void shouldResetRuleCorrectly() {
         rcp.addRuleConfig("key", "defaultValue", "value");
         rcp.resetRuleConfigValue("key");
-        assertThat(rcp.getRuleConfig("key").getKey(), is(equalTo("key")));
-        assertThat(rcp.getRuleConfig("key").getDefaultValue(), is(equalTo("defaultValue")));
-        assertThat(rcp.getRuleConfig("key").getValue(), is(equalTo("defaultValue")));
-        assertThat(configuration.getString("key"), is(equalTo("defaultValue")));
+        assertThat(rcp.getRuleConfig("key").getKey()).isEqualTo("key");
+        assertThat(rcp.getRuleConfig("key").getDefaultValue()).isEqualTo("defaultValue");
+        assertThat(rcp.getRuleConfig("key").getValue()).isEqualTo("defaultValue");
+        assertThat(configuration.getString("key")).isEqualTo("defaultValue");
     }
 
     @Test
@@ -99,13 +97,13 @@ class RuleConfigParamUnitTest {
         rcp.addRuleConfig("key2", "defaultValue2", "value2");
         rcp.resetAllRuleConfigValues();
 
-        assertThat(rcp.getRuleConfig("key1").getKey(), is(equalTo("key1")));
-        assertThat(rcp.getRuleConfig("key1").getDefaultValue(), is(equalTo("defaultValue1")));
-        assertThat(rcp.getRuleConfig("key1").getValue(), is(equalTo("defaultValue1")));
-        assertThat(rcp.getRuleConfig("key2").getKey(), is(equalTo("key2")));
-        assertThat(rcp.getRuleConfig("key2").getDefaultValue(), is(equalTo("defaultValue2")));
-        assertThat(rcp.getRuleConfig("key2").getValue(), is(equalTo("defaultValue2")));
-        assertThat(configuration.getString("key1"), is(equalTo("defaultValue1")));
-        assertThat(configuration.getString("key2"), is(equalTo("defaultValue2")));
+        assertThat(rcp.getRuleConfig("key1").getKey()).isEqualTo("key1");
+        assertThat(rcp.getRuleConfig("key1").getDefaultValue()).isEqualTo("defaultValue1");
+        assertThat(rcp.getRuleConfig("key1").getValue()).isEqualTo("defaultValue1");
+        assertThat(rcp.getRuleConfig("key2").getKey()).isEqualTo("key2");
+        assertThat(rcp.getRuleConfig("key2").getDefaultValue()).isEqualTo("defaultValue2");
+        assertThat(rcp.getRuleConfig("key2").getValue()).isEqualTo("defaultValue2");
+        assertThat(configuration.getString("key1")).isEqualTo("defaultValue1");
+        assertThat(configuration.getString("key2")).isEqualTo("defaultValue2");
     }
 }

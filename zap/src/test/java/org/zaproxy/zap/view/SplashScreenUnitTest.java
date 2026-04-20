@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +78,8 @@ class SplashScreenUnitTest {
             // When
             logger.log(level, message);
             // Then
-            assertThat(logEvents, hasSize(1));
-            assertThat(logEvents.get(0), containsString(levelName + ": " + message));
+            assertThat(logEvents).hasSize(1);
+            assertThat(logEvents.get(0)).contains(levelName + ": " + message);
         }
 
         @ParameterizedTest
@@ -93,7 +91,7 @@ class SplashScreenUnitTest {
             // When
             logger.log(level, message);
             // Then
-            assertThat(logEvents, hasSize(0));
+            assertThat(logEvents).hasSize(0);
         }
     }
 }

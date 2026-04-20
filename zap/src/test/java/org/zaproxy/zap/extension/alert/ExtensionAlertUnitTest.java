@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -101,23 +97,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(NEW_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(NEW_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -127,23 +123,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME + NEW_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME + NEW_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -153,23 +149,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(NEW_NAME + ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(NEW_NAME + ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -179,23 +175,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(NEW_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(NEW_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -205,23 +201,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC + NEW_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC + NEW_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -231,23 +227,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(NEW_DESC + ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(NEW_DESC + ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -257,23 +253,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(NEW_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(NEW_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -283,23 +279,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN + NEW_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN + NEW_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -309,23 +305,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(NEW_SOLN + ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(NEW_SOLN + ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -335,23 +331,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(NEW_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(NEW_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -361,23 +357,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER + NEW_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER + NEW_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -387,23 +383,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(NEW_OTHER + ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(NEW_OTHER + ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -413,23 +409,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(NEW_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(NEW_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -439,23 +435,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF + NEW_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF + NEW_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -465,23 +461,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(NEW_REF + ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(NEW_REF + ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(ORIGINAL_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @ParameterizedTest
@@ -492,23 +488,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(NEW_TAG, alert1.getTags());
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).isEqualTo(NEW_TAG);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -528,25 +524,25 @@ class ExtensionAlertUnitTest {
 
         // When/Then
         extAlert.applyOverrides(alert1);
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(2, alert1.getTags().size());
-        assertEquals(NEW_TAG_VALUE, alert1.getTags().get(key1));
-        assertEquals(value2, alert1.getTags().get(key2));
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags()).hasSize(2);
+        assertThat(alert1.getTags().get(key1)).isEqualTo(NEW_TAG_VALUE);
+        assertThat(alert1.getTags().get(key2)).isEqualTo(value2);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -593,13 +589,13 @@ class ExtensionAlertUnitTest {
             Map<String, String> alertTags = alert.getTags();
 
             // Then
-            assertEquals(6, alertTags.size());
-            assertThat(alertTags, hasEntry("AAA", "BBB"));
-            assertThat(alertTags, hasEntry("CCC", ""));
-            assertThat(alertTags, hasEntry("DDD", "EEE"));
-            assertThat(alertTags, hasEntry("FFF", "GGG=HHH"));
-            assertThat(alertTags, hasEntry("III", ""));
-            assertThat(alertTags, hasEntry("Original Key", "Original Value"));
+            assertThat(alertTags).hasSize(6);
+            assertThat(alertTags).containsEntry("AAA", "BBB");
+            assertThat(alertTags).containsEntry("CCC", "");
+            assertThat(alertTags).containsEntry("DDD", "EEE");
+            assertThat(alertTags).containsEntry("FFF", "GGG=HHH");
+            assertThat(alertTags).containsEntry("III", "");
+            assertThat(alertTags).containsEntry("Original Key", "Original Value");
         }
     }
 
@@ -620,23 +616,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(value, alert1.getTags().get(key));
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags().get(key)).isEqualTo(value);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @ParameterizedTest
@@ -647,23 +643,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(ORIGINAL_TAG_VALUE + value, alert1.getTags().get(ORIGINAL_TAG_KEY));
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags().get(ORIGINAL_TAG_KEY)).isEqualTo(ORIGINAL_TAG_VALUE + value);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @ParameterizedTest
@@ -674,23 +670,23 @@ class ExtensionAlertUnitTest {
         Alert alert1 = newAlert(1);
         extAlert.applyOverrides(alert1);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert1.getName());
-        assertEquals(ORIGINAL_DESC, alert1.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert1.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert1.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert1.getReference());
-        assertEquals(value + ORIGINAL_TAG_VALUE, alert1.getTags().get(ORIGINAL_TAG_KEY));
+        assertThat(alert1.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert1.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert1.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert1.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert1.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert1.getTags().get(ORIGINAL_TAG_KEY)).isEqualTo(value + ORIGINAL_TAG_VALUE);
 
         // Check other alerts are not affected
         Alert alert2 = newAlert(2);
         extAlert.applyOverrides(alert2);
         // When/Then
-        assertEquals(ORIGINAL_NAME, alert2.getName());
-        assertEquals(ORIGINAL_DESC, alert2.getDescription());
-        assertEquals(ORIGINAL_SOLN, alert2.getSolution());
-        assertEquals(ORIGINAL_OTHER, alert2.getOtherInfo());
-        assertEquals(ORIGINAL_REF, alert2.getReference());
-        assertEquals(ORIGINAL_TAG, alert2.getTags());
+        assertThat(alert2.getName()).isEqualTo(ORIGINAL_NAME);
+        assertThat(alert2.getDescription()).isEqualTo(ORIGINAL_DESC);
+        assertThat(alert2.getSolution()).isEqualTo(ORIGINAL_SOLN);
+        assertThat(alert2.getOtherInfo()).isEqualTo(ORIGINAL_OTHER);
+        assertThat(alert2.getReference()).isEqualTo(ORIGINAL_REF);
+        assertThat(alert2.getTags()).isEqualTo(ORIGINAL_TAG);
     }
 
     @Test
@@ -740,14 +736,14 @@ class ExtensionAlertUnitTest {
         boolean b4 = extAlert.isOverSystemicLimit(a4);
 
         // Then
-        assertTrue(a1.isSystemic());
-        assertTrue(a2.isSystemic());
-        assertTrue(a3.isSystemic());
-        assertTrue(a4.isSystemic());
-        assertFalse(b1);
-        assertFalse(b2);
-        assertFalse(b3);
-        assertTrue(b4);
+        assertThat(a1.isSystemic()).isTrue();
+        assertThat(a2.isSystemic()).isTrue();
+        assertThat(a3.isSystemic()).isTrue();
+        assertThat(a4.isSystemic()).isTrue();
+        assertThat(b1).isFalse();
+        assertThat(b2).isFalse();
+        assertThat(b3).isFalse();
+        assertThat(b4).isTrue();
     }
 
     private static Alert newAlert(int pluginId, int id, String name, String nodeName, String uri) {

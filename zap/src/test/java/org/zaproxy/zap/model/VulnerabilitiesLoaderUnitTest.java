@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
@@ -102,7 +98,7 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(Locale.ROOT);
         // Then
-        assertThat(vulnerabilities, is(empty()));
+        assertThat(vulnerabilities).isEmpty();
     }
 
     @Test
@@ -112,24 +108,24 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(Locale.ROOT);
         // Then
-        assertThat(vulnerabilities.size(), is(equalTo(2)));
+        assertThat(vulnerabilities).hasSize(2);
 
         Vulnerability wasc1 = vulnerabilities.get(0);
-        assertThat(wasc1.getId(), is(equalTo("wasc_1")));
-        assertThat(wasc1.getAlert(), is(equalTo("Locale default")));
-        assertThat(wasc1.getDescription(), is(equalTo("Description default")));
-        assertThat(wasc1.getSolution(), is(equalTo("Solution default")));
-        assertThat(wasc1.getReferences().size(), is(equalTo(2)));
-        assertThat(wasc1.getReferences().get(0), is(equalTo("Reference default 1")));
-        assertThat(wasc1.getReferences().get(1), is(equalTo("Reference default 2")));
+        assertThat(wasc1.getId()).isEqualTo("wasc_1");
+        assertThat(wasc1.getAlert()).isEqualTo("Locale default");
+        assertThat(wasc1.getDescription()).isEqualTo("Description default");
+        assertThat(wasc1.getSolution()).isEqualTo("Solution default");
+        assertThat(wasc1.getReferences()).hasSize(2);
+        assertThat(wasc1.getReferences().get(0)).isEqualTo("Reference default 1");
+        assertThat(wasc1.getReferences().get(1)).isEqualTo("Reference default 2");
 
         Vulnerability wasc2 = vulnerabilities.get(1);
-        assertThat(wasc2.getId(), is(equalTo("wasc_2")));
-        assertThat(wasc2.getAlert(), is(equalTo("Alert 2")));
-        assertThat(wasc2.getDescription(), is(equalTo("Description 2")));
-        assertThat(wasc2.getSolution(), is(equalTo("Solution 2")));
-        assertThat(wasc2.getReferences().size(), is(equalTo(1)));
-        assertThat(wasc2.getReferences().get(0), is(equalTo("Reference 2")));
+        assertThat(wasc2.getId()).isEqualTo("wasc_2");
+        assertThat(wasc2.getAlert()).isEqualTo("Alert 2");
+        assertThat(wasc2.getDescription()).isEqualTo("Description 2");
+        assertThat(wasc2.getSolution()).isEqualTo("Solution 2");
+        assertThat(wasc2.getReferences()).hasSize(1);
+        assertThat(wasc2.getReferences().get(0)).isEqualTo("Reference 2");
     }
 
     @Test
@@ -140,8 +136,8 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(locale);
         // Then
-        assertThat(vulnerabilities, is(not(empty())));
-        assertThat(vulnerabilities.get(0).getAlert(), is(equalTo("Locale nl_NL")));
+        assertThat(vulnerabilities).isNotEmpty();
+        assertThat(vulnerabilities.get(0).getAlert()).isEqualTo("Locale nl_NL");
     }
 
     @Test
@@ -153,8 +149,8 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(locale);
         // Then
-        assertThat(vulnerabilities, is(not(empty())));
-        assertThat(vulnerabilities.get(0).getAlert(), is(equalTo("Locale default")));
+        assertThat(vulnerabilities).isNotEmpty();
+        assertThat(vulnerabilities.get(0).getAlert()).isEqualTo("Locale default");
     }
 
     @Test
@@ -165,8 +161,8 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(locale);
         // Then
-        assertThat(vulnerabilities, is(not(empty())));
-        assertThat(vulnerabilities.get(0).getAlert(), is(equalTo("Locale es")));
+        assertThat(vulnerabilities).isNotEmpty();
+        assertThat(vulnerabilities.get(0).getAlert()).isEqualTo("Locale es");
     }
 
     @Test
@@ -176,7 +172,7 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(Locale.ROOT);
         // Then
-        assertThat(vulnerabilities, is(empty()));
+        assertThat(vulnerabilities).isEmpty();
     }
 
     @Test
@@ -188,6 +184,6 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
         // When
         List<Vulnerability> vulnerabilities = loader.load(Locale.ROOT);
         // Then
-        assertThat(vulnerabilities, is(empty()));
+        assertThat(vulnerabilities).isEmpty();
     }
 }

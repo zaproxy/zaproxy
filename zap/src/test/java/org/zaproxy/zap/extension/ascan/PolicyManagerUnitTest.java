@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import org.junit.jupiter.api.Test;
@@ -47,7 +46,7 @@ class PolicyManagerUnitTest extends WithConfigsTest {
         // When
         policyManager.savePolicy(policy);
         // Then
-        assertTrue(file.exists());
+        assertThat(file.exists()).isTrue();
     }
 
     @Test
@@ -70,8 +69,8 @@ class PolicyManagerUnitTest extends WithConfigsTest {
         // When
         policyManager.savePolicy(newPolicy, "test");
         // Then
-        assertFalse(file.exists());
-        assertTrue(newFile.exists());
+        assertThat(file.exists()).isFalse();
+        assertThat(newFile.exists()).isTrue();
     }
 
     @Test
@@ -94,8 +93,8 @@ class PolicyManagerUnitTest extends WithConfigsTest {
         // When
         policyManager.savePolicy(newPolicy, "test");
         // Then
-        assertFalse(existsFileCaseSensitive(file.getName()));
-        assertTrue(newFile.exists());
+        assertThat(existsFileCaseSensitive(file.getName())).isFalse();
+        assertThat(newFile.exists()).isTrue();
     }
 
     // Helper Function for checking existing file(case-sensitive). For files.exists() test and Test

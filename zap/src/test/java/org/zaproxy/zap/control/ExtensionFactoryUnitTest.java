@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +41,7 @@ class ExtensionFactoryUnitTest {
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, extension);
         // Then
-        assertThat(canLoad, is(equalTo(true)));
+        assertThat(canLoad).isTrue();
     }
 
     @Test
@@ -56,7 +54,7 @@ class ExtensionFactoryUnitTest {
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, ext3);
         // Then
-        assertThat(canLoad, is(equalTo(true)));
+        assertThat(canLoad).isTrue();
     }
 
     @Test
@@ -69,7 +67,7 @@ class ExtensionFactoryUnitTest {
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, ext3);
         // Then
-        assertThat(canLoad, is(equalTo(true)));
+        assertThat(canLoad).isTrue();
     }
 
     @Test
@@ -82,7 +80,7 @@ class ExtensionFactoryUnitTest {
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, ext2);
         // Then
-        assertThat(canLoad, is(equalTo(false)));
+        assertThat(canLoad).isFalse();
     }
 
     @Test
@@ -97,7 +95,7 @@ class ExtensionFactoryUnitTest {
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, ext1);
         // Then
-        assertThat(canLoad, is(equalTo(false)));
+        assertThat(canLoad).isFalse();
     }
 
     @Test
@@ -109,7 +107,7 @@ class ExtensionFactoryUnitTest {
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, ext2);
         // Then
-        assertThat(canLoad, is(equalTo(false)));
+        assertThat(canLoad).isFalse();
     }
 
     private static Map<Class<? extends Extension>, Extension> createMap(Extension... extensions) {

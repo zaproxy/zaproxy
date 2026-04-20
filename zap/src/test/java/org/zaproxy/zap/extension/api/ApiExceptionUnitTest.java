@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
 import org.junit.jupiter.api.AfterAll;
@@ -52,6 +50,6 @@ class ApiExceptionUnitTest {
         // When
         String toString = ex.toString();
         // Then
-        assertThat(toString, not(startsWith("!api.error.")));
+        assertThat(toString).doesNotStartWith("!api.error.");
     }
 }

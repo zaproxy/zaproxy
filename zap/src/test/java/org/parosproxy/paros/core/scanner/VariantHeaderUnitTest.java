@@ -19,18 +19,12 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import java.util.Map;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -47,7 +41,7 @@ class VariantHeaderUnitTest {
         // When
         List<NameValuePair> parameters = variantHeader.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -79,7 +73,7 @@ class VariantHeaderUnitTest {
         // When
         variantHeader.setMessage(messageWithHeaders);
         // Then
-        assertThat(variantHeader.getParamList(), is(empty()));
+        assertThat(variantHeader.getParamList()).isEmpty();
     }
 
     @Test
@@ -107,7 +101,7 @@ class VariantHeaderUnitTest {
         // When
         variantHeader.setMessage(messageWithHeaders);
         // Then
-        assertThat(variantHeader.getParamList(), is(empty()));
+        assertThat(variantHeader.getParamList()).isEmpty();
     }
 
     @Test
@@ -122,13 +116,12 @@ class VariantHeaderUnitTest {
         // When
         variantHeader.setMessage(messageWithHeaders);
         // Then
-        assertThat(variantHeader.getParamList().size(), is(equalTo(3)));
-        assertThat(
-                variantHeader.getParamList(),
-                contains(
+        assertThat(variantHeader.getParamList()).hasSize(3);
+        assertThat(variantHeader.getParamList())
+                .containsExactly(
                         header("X-Header-A", "X", 0),
                         header("X-Header-B", "Y", 1),
-                        header("X-Header-C", "Z", 2)));
+                        header("X-Header-C", "Z", 2));
     }
 
     @Test
@@ -146,13 +139,12 @@ class VariantHeaderUnitTest {
         // When
         variantHeader.setMessage(messageWithHeaders);
         // Then
-        assertThat(variantHeader.getParamList().size(), is(equalTo(3)));
-        assertThat(
-                variantHeader.getParamList(),
-                contains(
+        assertThat(variantHeader.getParamList()).hasSize(3);
+        assertThat(variantHeader.getParamList())
+                .containsExactly(
                         header("X-Header-A", "X", 0),
                         header("X-Header-B", "Y", 1),
-                        header("X-Header-C", "Z", 2)));
+                        header("X-Header-C", "Z", 2));
     }
 
     @Test
@@ -173,13 +165,12 @@ class VariantHeaderUnitTest {
         variantHeader.setMessage(messageWithHeaders);
         variantHeader.setMessage(otherMessageWithHeaders);
         // Then
-        assertThat(variantHeader.getParamList().size(), is(equalTo(3)));
-        assertThat(
-                variantHeader.getParamList(),
-                contains(
+        assertThat(variantHeader.getParamList()).hasSize(3);
+        assertThat(variantHeader.getParamList())
+                .containsExactly(
                         header("X-Header-D", "1", 0),
                         header("X-Header-E", "2", 1),
-                        header("X-Header-F", "3", 2)));
+                        header("X-Header-F", "3", 2));
     }
 
     @Test
@@ -197,8 +188,8 @@ class VariantHeaderUnitTest {
                 variantHeader.setParameter(
                         message, header("X-Header-A", "X", 0), "X-Header-A", "Value");
         // Then
-        assertThat(injectedHeader, is(equalTo("X-Header-A: Value")));
-        assertThat(message, containsHeader("X-Header-A", "Value"));
+        assertThat(injectedHeader).isEqualTo("X-Header-A: Value");
+        assertThat(message).is(containsHeader("X-Header-A", "Value"));
     }
 
     @Test
@@ -211,9 +202,9 @@ class VariantHeaderUnitTest {
         String injectedHeader =
                 variantHeader.setParameter(message, header("host", "X", 0), "host", "Value");
         // Then
-        assertThat(injectedHeader, is(equalTo("host: Value")));
-        assertThat(message, containsHeader("host", "Value"));
-        assertThat(message.getUserObject(), is(Map.of("host", "Value")));
+        assertThat(injectedHeader).isEqualTo("host: Value");
+        assertThat(message).is(containsHeader("host", "Value"));
+        assertThat(message.getUserObject()).isEqualTo(Map.of("host", "Value"));
     }
 
     @Test
@@ -231,8 +222,8 @@ class VariantHeaderUnitTest {
                 variantHeader.setParameter(
                         message, header("X-Header-A", "X", 0), "X-Header-A", null);
         // Then
-        assertThat(injectedHeader, is(equalTo("")));
-        assertThat(message.getRequestHeader().getHeader("X-Header-A"), is((String) null));
+        assertThat(injectedHeader).isEmpty();
+        assertThat(message.getRequestHeader().getHeader("X-Header-A")).isEqualTo((String) null);
     }
 
     @Test
@@ -250,8 +241,8 @@ class VariantHeaderUnitTest {
                 variantHeader.setParameter(
                         message, header("X-Header-A", "X", 0), "X-Header-Z", "X");
         // Then
-        assertThat(injectedHeader, is(equalTo("X-Header-A: X")));
-        assertThat(message, containsHeader("X-Header-A", "X"));
+        assertThat(injectedHeader).isEqualTo("X-Header-A: X");
+        assertThat(message).is(containsHeader("X-Header-A", "X"));
     }
 
     @Test
@@ -269,8 +260,8 @@ class VariantHeaderUnitTest {
                 variantHeader.setEscapedParameter(
                         message, header("X-Header-A", "X", 0), "X-Header-A", "Value");
         // Then
-        assertThat(injectedHeader, is(equalTo("X-Header-A: Value")));
-        assertThat(message, containsHeader("X-Header-A", "Value"));
+        assertThat(injectedHeader).isEqualTo("X-Header-A: Value");
+        assertThat(message).is(containsHeader("X-Header-A", "Value"));
     }
 
     private static HttpMessage createMessageWithoutInjectableHeaders() {
@@ -308,40 +299,22 @@ class VariantHeaderUnitTest {
         return new NameValuePair(NameValuePair.TYPE_HEADER, name, value, position);
     }
 
-    private static Matcher<HttpMessage> containsHeader(final String name, final String value) {
-        return new BaseMatcher<>() {
-
-            @Override
-            public boolean matches(Object actualValue) {
-                HttpMessage message = (HttpMessage) actualValue;
-                List<HttpHeaderField> headers = message.getRequestHeader().getHeaders();
-                if (headers.isEmpty()) {
-                    return false;
-                }
-
-                for (HttpHeaderField header : headers) {
-                    if (name.equals(header.getName()) && value.equals(header.getValue())) {
-                        return true;
+    private static Condition<HttpMessage> containsHeader(final String name, final String value) {
+        return new Condition<>(
+                message -> {
+                    List<HttpHeaderField> headers = message.getRequestHeader().getHeaders();
+                    if (headers.isEmpty()) {
+                        return false;
                     }
-                }
-                return false;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("header ").appendValue(name + ": " + value);
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                HttpMessage message = (HttpMessage) item;
-                List<HttpHeaderField> headers = message.getRequestHeader().getHeaders();
-                if (headers.isEmpty()) {
-                    description.appendText("has no headers");
-                } else {
-                    description.appendText("was ").appendValue(headers);
-                }
-            }
-        };
+                    for (HttpHeaderField header : headers) {
+                        if (name.equals(header.getName()) && value.equals(header.getValue())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                "header %s: %s",
+                name,
+                value);
     }
 }

@@ -19,11 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
@@ -69,7 +65,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -81,7 +77,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
         assertLogEvent(Level.WARN, "EOF reached while reading JSON field name");
     }
 
@@ -94,7 +90,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
         for (AppendedLogEvent logEvent : testAppender.getLogEvents()) {
             String logMessage = logEvent.getMessage();
             if (logMessage != null
@@ -114,7 +110,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @ParameterizedTest
@@ -128,7 +124,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @ParameterizedTest
@@ -143,12 +139,12 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("a"));
-        assertThat(parameters.get(0).getValue(), is(nullValue()));
-        assertThat(parameters.get(1).getName(), is("b[0]"));
-        assertThat(parameters.get(1).getValue(), is(nullValue()));
-        assertThat(parameters.get(2).getName(), is("b[1]"));
-        assertThat(parameters.get(2).getValue(), is(nullValue()));
+        assertThat(parameters.get(0).getName()).isEqualTo("a");
+        assertThat(parameters.get(0).getValue()).isNull();
+        assertThat(parameters.get(1).getName()).isEqualTo("b[0]");
+        assertThat(parameters.get(1).getValue()).isNull();
+        assertThat(parameters.get(2).getName()).isEqualTo("b[1]");
+        assertThat(parameters.get(2).getValue()).isNull();
     }
 
     @Test
@@ -162,7 +158,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setParameter(message, parameters.get(0), "", "injection");
         // Then
-        assertThat(message.getRequestBody().toString(), is("{\"a\": \"injection\"}"));
+        assertThat(message.getRequestBody()).hasToString("{\"a\": \"injection\"}");
     }
 
     @Test
@@ -176,7 +172,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setParameter(message, parameters.get(1), "", "injection");
         // Then
-        assertThat(message.getRequestBody().toString(), is("[null, \"injection\"]"));
+        assertThat(message.getRequestBody()).hasToString("[null, \"injection\"]");
     }
 
     @ParameterizedTest
@@ -188,7 +184,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @ParameterizedTest
@@ -201,7 +197,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -213,7 +209,7 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
         assertLogEvent(Level.WARN, "Unknown value type '115' for field 'foo' at position 8");
     }
 
@@ -225,8 +221,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("foo"));
-        assertThat(parameters.get(0).getValue(), is("bar"));
+        assertThat(parameters.get(0).getName()).isEqualTo("foo");
+        assertThat(parameters.get(0).getValue()).isEqualTo("bar");
     }
 
     @Test
@@ -237,8 +233,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("foo"));
-        assertThat(parameters.get(0).getValue(), is("bar\n"));
+        assertThat(parameters.get(0).getName()).isEqualTo("foo");
+        assertThat(parameters.get(0).getValue()).isEqualTo("bar\n");
     }
 
     @Test
@@ -250,8 +246,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("foo"));
-        assertThat(parameters.get(0).getValue(), is("bar\""));
+        assertThat(parameters.get(0).getName()).isEqualTo("foo");
+        assertThat(parameters.get(0).getValue()).isEqualTo("bar\"");
     }
 
     @Test
@@ -262,8 +258,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("foo\n"));
-        assertThat(parameters.get(0).getValue(), is("bar"));
+        assertThat(parameters.get(0).getName()).isEqualTo("foo\n");
+        assertThat(parameters.get(0).getValue()).isEqualTo("bar");
     }
 
     @Test
@@ -275,8 +271,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("foo\\\""));
-        assertThat(parameters.get(0).getValue(), is("bar"));
+        assertThat(parameters.get(0).getName()).isEqualTo("foo\\\"");
+        assertThat(parameters.get(0).getValue()).isEqualTo("bar");
     }
 
     @Test
@@ -287,8 +283,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("@items[0]"));
-        assertThat(parameters.get(0).getValue(), is("bar\""));
+        assertThat(parameters.get(0).getName()).isEqualTo("@items[0]");
+        assertThat(parameters.get(0).getValue()).isEqualTo("bar\"");
     }
 
     @Test
@@ -301,16 +297,16 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("a"));
-        assertThat(parameters.get(0).getValue(), is("1"));
-        assertThat(parameters.get(1).getName(), is("b"));
-        assertThat(parameters.get(1).getValue(), is("-2"));
-        assertThat(parameters.get(2).getName(), is("c"));
-        assertThat(parameters.get(2).getValue(), is("3.4e5"));
-        assertThat(parameters.get(3).getName(), is("d"));
-        assertThat(parameters.get(3).getValue(), is("-6E+7"));
-        assertThat(parameters.get(4).getName(), is("e"));
-        assertThat(parameters.get(4).getValue(), is("8e-9"));
+        assertThat(parameters.get(0).getName()).isEqualTo("a");
+        assertThat(parameters.get(0).getValue()).isEqualTo("1");
+        assertThat(parameters.get(1).getName()).isEqualTo("b");
+        assertThat(parameters.get(1).getValue()).isEqualTo("-2");
+        assertThat(parameters.get(2).getName()).isEqualTo("c");
+        assertThat(parameters.get(2).getValue()).isEqualTo("3.4e5");
+        assertThat(parameters.get(3).getName()).isEqualTo("d");
+        assertThat(parameters.get(3).getValue()).isEqualTo("-6E+7");
+        assertThat(parameters.get(4).getName()).isEqualTo("e");
+        assertThat(parameters.get(4).getValue()).isEqualTo("8e-9");
     }
 
     @Test
@@ -321,16 +317,16 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.get(0).getName(), is("@items[0]"));
-        assertThat(parameters.get(0).getValue(), is("1"));
-        assertThat(parameters.get(1).getName(), is("@items[1]"));
-        assertThat(parameters.get(1).getValue(), is("-2"));
-        assertThat(parameters.get(2).getName(), is("@items[2]"));
-        assertThat(parameters.get(2).getValue(), is("3.4e5"));
-        assertThat(parameters.get(3).getName(), is("@items[3]"));
-        assertThat(parameters.get(3).getValue(), is("-6E+7"));
-        assertThat(parameters.get(4).getName(), is("@items[4]"));
-        assertThat(parameters.get(4).getValue(), is("8e-9"));
+        assertThat(parameters.get(0).getName()).isEqualTo("@items[0]");
+        assertThat(parameters.get(0).getValue()).isEqualTo("1");
+        assertThat(parameters.get(1).getName()).isEqualTo("@items[1]");
+        assertThat(parameters.get(1).getValue()).isEqualTo("-2");
+        assertThat(parameters.get(2).getName()).isEqualTo("@items[2]");
+        assertThat(parameters.get(2).getValue()).isEqualTo("3.4e5");
+        assertThat(parameters.get(3).getName()).isEqualTo("@items[3]");
+        assertThat(parameters.get(3).getValue()).isEqualTo("-6E+7");
+        assertThat(parameters.get(4).getName()).isEqualTo("@items[4]");
+        assertThat(parameters.get(4).getValue()).isEqualTo("8e-9");
     }
 
     @Test
@@ -345,9 +341,9 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setParameter(message, parameters.get(2), "c", "injection");
         // Then
-        assertThat(
-                message.getRequestBody().toString(),
-                is("{ \"a\": 1, \"b\": -2, \"c\": \"injection\", \"d\": -6E+7, \"e\": 8e-9 }"));
+        assertThat(message.getRequestBody())
+                .hasToString(
+                        "{ \"a\": 1, \"b\": -2, \"c\": \"injection\", \"d\": -6E+7, \"e\": 8e-9 }");
     }
 
     @Test
@@ -362,9 +358,9 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setEscapedParameter(message, parameters.get(2), "c", "injection");
         // Then
-        assertThat(
-                message.getRequestBody().toString(),
-                is("{ \"a\": 1, \"b\": -2, \"c\": injection, \"d\": -6E+7, \"e\": 8e-9 }"));
+        assertThat(message.getRequestBody())
+                .hasToString(
+                        "{ \"a\": 1, \"b\": -2, \"c\": injection, \"d\": -6E+7, \"e\": 8e-9 }");
     }
 
     @Test
@@ -377,8 +373,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setParameter(message, parameters.get(2), "", "injection");
         // Then
-        assertThat(
-                message.getRequestBody().toString(), is("[ 1, -2, \"injection\", -6E+7, 8e-9 ]"));
+        assertThat(message.getRequestBody()).hasToString("[ 1, -2, \"injection\", -6E+7, 8e-9 ]");
     }
 
     @Test
@@ -391,7 +386,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setEscapedParameter(message, parameters.get(2), "", "injection");
         // Then
-        assertThat(message.getRequestBody().toString(), is("[ 1, -2, injection, -6E+7, 8e-9 ]"));
+        assertThat(message.getRequestBody()).hasToString("[ 1, -2, injection, -6E+7, 8e-9 ]");
     }
 
     @Test
@@ -402,8 +397,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.size(), is(equalTo(1)));
-        assertThat(parameters.get(0).getValue(), is("a"));
+        assertThat(parameters).hasSize(1);
+        assertThat(parameters.get(0).getValue()).isEqualTo("a");
     }
 
     @Test
@@ -416,7 +411,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setEscapedParameter(message, parameters.get(0), "", "injection");
         // Then
-        assertThat(message.getRequestBody().toString(), is("\"injection\""));
+        assertThat(message.getRequestBody()).hasToString("\"injection\"");
     }
 
     @Test
@@ -427,8 +422,8 @@ class VariantJSONQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
-        assertThat(parameters.size(), is(equalTo(1)));
-        assertThat(parameters.get(0).getValue(), is("12345"));
+        assertThat(parameters).hasSize(1);
+        assertThat(parameters.get(0).getValue()).isEqualTo("12345");
     }
 
     @Test
@@ -441,7 +436,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         variantJSONQuery.setParameter(message, parameters.get(0), "", "injection");
         // Then
-        assertThat(message.getRequestBody().toString(), is("\"injection\""));
+        assertThat(message.getRequestBody()).hasToString("\"injection\"");
     }
 
     private static HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
@@ -455,10 +450,9 @@ class VariantJSONQueryUnitTest {
         for (AppendedLogEvent logEvent : testAppender.getLogEvents()) {
             String logMessage = logEvent.getMessage();
             if (logMessage != null && logMessage.contains(message)) {
-                assertThat(
-                        "Log message with unexpected level.",
-                        logEvent.getLevel(),
-                        is(equalTo(level)));
+                assertThat(logEvent.getLevel())
+                        .as("Log message with unexpected level.")
+                        .isEqualTo(level);
                 return;
             }
         }

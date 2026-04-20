@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -87,7 +85,7 @@ class SessionStructureUnitTest {
         // When
         String hostName = SessionStructure.getHostName(uri);
         // Then
-        assertThat(hostName, is(equalTo(expectedHostName)));
+        assertThat(hostName).isEqualTo(expectedHostName);
     }
 
     static Stream<String> methodProvider() {
@@ -104,7 +102,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri)));
+        assertThat(nodeName).isEqualTo(uri);
     }
 
     @ParameterizedTest
@@ -117,7 +115,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri)));
+        assertThat(nodeName).isEqualTo(uri);
     }
 
     @ParameterizedTest
@@ -130,7 +128,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)");
     }
 
     @ParameterizedTest
@@ -143,7 +141,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)");
     }
 
     @ParameterizedTest
@@ -156,7 +154,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri)));
+        assertThat(nodeName).isEqualTo(uri);
     }
 
     @ParameterizedTest
@@ -169,7 +167,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri)));
+        assertThat(nodeName).isEqualTo(uri);
     }
 
     @ParameterizedTest
@@ -182,7 +180,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)");
     }
 
     @ParameterizedTest
@@ -195,7 +193,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)");
     }
 
     @Test
@@ -207,7 +205,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri)));
+        assertThat(nodeName).isEqualTo(uri);
     }
 
     @Test
@@ -218,7 +216,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " ()(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " ()(e,g)");
     }
 
     @Test
@@ -229,7 +227,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " ()(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " ()(e,g)");
     }
 
     @Test
@@ -240,7 +238,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)(e,g)");
     }
 
     @Test
@@ -251,7 +249,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)(e,g)");
     }
 
     @Test
@@ -262,7 +260,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " ()(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " ()(e,g)");
     }
 
     @Test
@@ -273,7 +271,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " ()(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " ()(e,g)");
     }
 
     @Test
@@ -284,7 +282,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)(e,g)");
     }
 
     @Test
@@ -295,7 +293,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)(e,g)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)(e,g)");
     }
 
     @Test
@@ -307,7 +305,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (a,c)(a,c)")));
+        assertThat(nodeName).isEqualTo(uri + " (a,c)(a,c)");
     }
 
     @Test
@@ -321,7 +319,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (aa,cc,ee)({aaa,ccc,eee})")));
+        assertThat(nodeName).isEqualTo(uri + " (aa,cc,ee)({aaa,ccc,eee})");
     }
 
     @Test
@@ -335,7 +333,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(nodeName, is(equalTo(uri + " (aa,cc,ee)(<aaa:<bbb>,<ccc>,<ddd>>)")));
+        assertThat(nodeName).isEqualTo(uri + " (aa,cc,ee)(<aaa:<bbb>,<ccc>,<ddd>>)");
     }
 
     @Test
@@ -351,8 +349,7 @@ class SessionStructureUnitTest {
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
-        assertThat(
-                nodeName, is(equalTo(uri + " (aa,cc,ee)(multipart:username,file1,file2,file3)")));
+        assertThat(nodeName).isEqualTo(uri + " (aa,cc,ee)(multipart:username,file1,file2,file3)");
     }
 
     @Nested
@@ -378,7 +375,7 @@ class SessionStructureUnitTest {
             // Given / When
             String nodeRegex = SessionStructure.getRegexPattern(hostNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com.*");
         }
 
         @Test
@@ -388,7 +385,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(leafNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com/.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com/.*");
         }
 
         @Test
@@ -400,7 +397,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(hostNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com\\?a\\=b&c\\=d.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com\\?a\\=b&c\\=d.*");
         }
 
         @Test
@@ -410,7 +407,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(leafNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com/\\?a\\=b&c\\=d.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com/\\?a\\=b&c\\=d.*");
         }
 
         @Test
@@ -420,7 +417,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(leafNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com/path.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com/path.*");
         }
 
         @Test
@@ -432,7 +429,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(leafLeafNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com/path/.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com/path/.*");
         }
 
         @Test
@@ -444,7 +441,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(leafLeafNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com/path/\\?a\\=b&c\\=d.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com/path/\\?a\\=b&c\\=d.*");
         }
 
         @Test
@@ -454,7 +451,7 @@ class SessionStructureUnitTest {
             // When
             String nodeRegex = SessionStructure.getRegexPattern(leafNode);
             // Then
-            assertThat(nodeRegex, is(equalTo("https://www.example.com/path\\?a\\=b&c\\=d.*")));
+            assertThat(nodeRegex).isEqualTo("https://www.example.com/path\\?a\\=b&c\\=d.*");
         }
 
         private StructuralSiteNode getLeafNode(String url) throws Exception {
@@ -476,8 +473,8 @@ class SessionStructureUnitTest {
         // When
         List<String> pathTree = SessionStructure.getTreePath(model, msg);
         // Then
-        assertThat(pathTree.size(), is(equalTo(1)));
-        assertThat(pathTree.get(0), is(equalTo("path")));
+        assertThat(pathTree).hasSize(1);
+        assertThat(pathTree.get(0)).isEqualTo("path");
     }
 
     @Test
@@ -488,14 +485,14 @@ class SessionStructureUnitTest {
         // When
         List<String> pathTree = SessionStructure.getTreePath(model, msg);
         // Then
-        assertThat(pathTree.size(), is(equalTo(7)));
-        assertThat(pathTree.get(0), is(equalTo("path")));
-        assertThat(pathTree.get(1), is(equalTo("a")));
-        assertThat(pathTree.get(2), is(equalTo("b")));
-        assertThat(pathTree.get(3), is(equalTo("c")));
-        assertThat(pathTree.get(4), is(equalTo("d")));
-        assertThat(pathTree.get(5), is(equalTo("e")));
-        assertThat(pathTree.get(6), is(equalTo("f")));
+        assertThat(pathTree).hasSize(7);
+        assertThat(pathTree.get(0)).isEqualTo("path");
+        assertThat(pathTree.get(1)).isEqualTo("a");
+        assertThat(pathTree.get(2)).isEqualTo("b");
+        assertThat(pathTree.get(3)).isEqualTo("c");
+        assertThat(pathTree.get(4)).isEqualTo("d");
+        assertThat(pathTree.get(5)).isEqualTo("e");
+        assertThat(pathTree.get(6)).isEqualTo("f");
     }
 
     @Test
@@ -511,9 +508,9 @@ class SessionStructureUnitTest {
         List<String> actualTreePath = SessionStructure.getTreePath(model, msg);
 
         // Then
-        assertThat(actualTreePath.size(), is(equalTo(expectedTreePath.size())));
+        assertThat(actualTreePath).hasSize(expectedTreePath.size());
         for (int i = 0; i < actualTreePath.size(); i++) {
-            assertThat(actualTreePath.get(i), is(equalTo(expectedTreePath.get(i))));
+            assertThat(actualTreePath.get(i)).isEqualTo(expectedTreePath.get(i));
         }
     }
 
@@ -580,74 +577,55 @@ class SessionStructureUnitTest {
 
         @Test
         void shouldGetNodeName() throws URIException {
-            assertThat(
-                    SessionStructure.getNodeName(model, getParams),
-                    is(equalTo("https://www.example.com/aaa/bbb (aa,cc)")));
-            assertThat(
-                    SessionStructure.getNodeName(model, getNoParams),
-                    is(equalTo("https://www.example.com/aaa/bbb")));
-            assertThat(
-                    SessionStructure.getNodeName(model, postParamsFormData),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)(ee,gg)")));
-            assertThat(
-                    SessionStructure.getNodeName(model, postNoParamsFormData),
-                    is(equalTo("https://www.example.com/ccc ()(ee,gg)")));
-            assertThat(
-                    SessionStructure.getNodeName(model, postParamsJsonData),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)({aaa,ccc,eee})")));
-            assertThat(
-                    SessionStructure.getNodeName(model, postParamsXmlData),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)")));
-            assertThat(
-                    SessionStructure.getNodeName(model, postMultipartData),
-                    is(
-                            equalTo(
-                                    "https://www.example.com/ddd/ (aa,cc)(multipart:username,file1,file2,file3)")));
+            assertThat(SessionStructure.getNodeName(model, getParams))
+                    .isEqualTo("https://www.example.com/aaa/bbb (aa,cc)");
+            assertThat(SessionStructure.getNodeName(model, getNoParams))
+                    .isEqualTo("https://www.example.com/aaa/bbb");
+            assertThat(SessionStructure.getNodeName(model, postParamsFormData))
+                    .isEqualTo("https://www.example.com/ccc (aa,cc)(ee,gg)");
+            assertThat(SessionStructure.getNodeName(model, postNoParamsFormData))
+                    .isEqualTo("https://www.example.com/ccc ()(ee,gg)");
+            assertThat(SessionStructure.getNodeName(model, postParamsJsonData))
+                    .isEqualTo("https://www.example.com/ccc (aa,cc)({aaa,ccc,eee})");
+            assertThat(SessionStructure.getNodeName(model, postParamsXmlData))
+                    .isEqualTo("https://www.example.com/ccc (aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)");
+            assertThat(SessionStructure.getNodeName(model, postMultipartData))
+                    .isEqualTo(
+                            "https://www.example.com/ddd/ (aa,cc)(multipart:username,file1,file2,file3)");
         }
 
         @Test
         void shouldGetLeafName1() throws URIException {
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", getParams),
-                    is(equalTo("GET:test(aa,cc)")));
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", getNoParams),
-                    is(equalTo("GET:test")));
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", postParamsFormData),
-                    is(equalTo("POST:test(aa,cc)(ee,gg)")));
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", postNoParamsFormData),
-                    is(equalTo("POST:test()(ee,gg)")));
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", postParamsJsonData),
-                    is(equalTo("POST:test(aa,cc)({aaa,ccc,eee})")));
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", postParamsXmlData),
-                    is(equalTo("POST:test(aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)")));
-            assertThat(
-                    SessionStructure.getLeafName(model, "test", postMultipartData),
-                    is(equalTo("POST:test(aa,cc)(multipart:username,file1,file2,file3)")));
+            assertThat(SessionStructure.getLeafName(model, "test", getParams))
+                    .isEqualTo("GET:test(aa,cc)");
+            assertThat(SessionStructure.getLeafName(model, "test", getNoParams))
+                    .isEqualTo("GET:test");
+            assertThat(SessionStructure.getLeafName(model, "test", postParamsFormData))
+                    .isEqualTo("POST:test(aa,cc)(ee,gg)");
+            assertThat(SessionStructure.getLeafName(model, "test", postNoParamsFormData))
+                    .isEqualTo("POST:test()(ee,gg)");
+            assertThat(SessionStructure.getLeafName(model, "test", postParamsJsonData))
+                    .isEqualTo("POST:test(aa,cc)({aaa,ccc,eee})");
+            assertThat(SessionStructure.getLeafName(model, "test", postParamsXmlData))
+                    .isEqualTo("POST:test(aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)");
+            assertThat(SessionStructure.getLeafName(model, "test", postMultipartData))
+                    .isEqualTo("POST:test(aa,cc)(multipart:username,file1,file2,file3)");
         }
 
         @Test
         void shouldGetLeafName2() throws Exception {
-            assertThat(getLeafName2(getParams), is(equalTo("GET:test(aa,cc)")));
-            assertThat(getLeafName2(getNoParams), is(equalTo("GET:test")));
-            assertThat(getLeafName2(postParamsFormData), is(equalTo("POST:test(aa,cc)(ee,gg)")));
-            assertThat(getLeafName2(postNoParamsFormData), is(equalTo("POST:test()(ee,gg)")));
-            assertThat(
-                    getLeafName2(postParamsJsonData),
-                    is(equalTo("POST:test(aa,cc)({aaa,ccc,eee})")));
-            assertThat(
-                    getLeafName2(postParamsXmlData),
-                    is(equalTo("POST:test(aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)")));
+            assertThat(getLeafName2(getParams)).isEqualTo("GET:test(aa,cc)");
+            assertThat(getLeafName2(getNoParams)).isEqualTo("GET:test");
+            assertThat(getLeafName2(postParamsFormData)).isEqualTo("POST:test(aa,cc)(ee,gg)");
+            assertThat(getLeafName2(postNoParamsFormData)).isEqualTo("POST:test()(ee,gg)");
+            assertThat(getLeafName2(postParamsJsonData))
+                    .isEqualTo("POST:test(aa,cc)({aaa,ccc,eee})");
+            assertThat(getLeafName2(postParamsXmlData))
+                    .isEqualTo("POST:test(aa,cc)(<aaa:<bbb>,<ccc>,<ddd>>)");
             // FIXME: Should not get the duplicated fileX fields
-            assertThat(
-                    getLeafName2(postMultipartData),
-                    is(
-                            equalTo(
-                                    "POST:test(aa,cc)(multipart:username,file1,file1,file1,file2,file2,file2,file3,file3,file3)")));
+            assertThat(getLeafName2(postMultipartData))
+                    .isEqualTo(
+                            "POST:test(aa,cc)(multipart:username,file1,file1,file1,file2,file2,file2,file3,file3,file3)");
         }
 
         @Test
@@ -656,9 +634,8 @@ class SessionStructureUnitTest {
             HttpMessage msg =
                     getPostMsg("https://www.example.com/ccc", "aa=bb&cc=dd", "<a", "text/xml");
             // Then
-            assertThat(
-                    SessionStructure.getNodeName(model, msg),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)(<a)")));
+            assertThat(SessionStructure.getNodeName(model, msg))
+                    .isEqualTo("https://www.example.com/ccc (aa,cc)(<a)");
         }
 
         @Test
@@ -668,9 +645,8 @@ class SessionStructureUnitTest {
                     getPostMsg(
                             "https://www.example.com/ccc", "aa=bb&cc=dd", "{a", "application/json");
             // Then
-            assertThat(
-                    SessionStructure.getNodeName(model, msg),
-                    is(equalTo("https://www.example.com/ccc (aa,cc)({a)")));
+            assertThat(SessionStructure.getNodeName(model, msg))
+                    .isEqualTo("https://www.example.com/ccc (aa,cc)({a)");
         }
 
         String getLeafName2(HttpMessage msg) throws Exception {

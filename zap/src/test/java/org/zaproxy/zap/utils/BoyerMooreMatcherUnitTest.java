@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -55,7 +53,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         String retrievedPattern = matcher.getPattern();
         // Then
-        assertThat(retrievedPattern, is(equalTo(pattern)));
+        assertThat(retrievedPattern).isEqualTo(pattern);
     }
 
     @Test
@@ -66,7 +64,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent(CONTENT);
         // Then
-        assertThat(idxOccurrence, is(equalTo(0)));
+        assertThat(idxOccurrence).isEqualTo(0);
     }
 
     @Test
@@ -77,7 +75,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent(CONTENT);
         // Then
-        assertThat(idxOccurrence, is(equalTo(20)));
+        assertThat(idxOccurrence).isEqualTo(20);
     }
 
     @Test
@@ -88,7 +86,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent(CONTENT);
         // Then
-        assertThat(idxOccurrence, is(equalTo(35)));
+        assertThat(idxOccurrence).isEqualTo(35);
     }
 
     @Test
@@ -99,7 +97,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent(CONTENT);
         // Then
-        assertThat(idxOccurrence, is(equalTo(0)));
+        assertThat(idxOccurrence).isEqualTo(0);
     }
 
     @Test
@@ -110,7 +108,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent("A e B e C e D");
         // Then
-        assertThat(idxOccurrence, is(equalTo(2)));
+        assertThat(idxOccurrence).isEqualTo(2);
     }
 
     @Test
@@ -121,7 +119,7 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent(CONTENT);
         // Then
-        assertThat(idxOccurrence, is(equalTo(0)));
+        assertThat(idxOccurrence).isEqualTo(0);
     }
 
     @Test
@@ -132,6 +130,6 @@ class BoyerMooreMatcherUnitTest {
         // When
         int idxOccurrence = matcher.findInContent(CONTENT);
         // Then
-        assertThat(idxOccurrence, is(equalTo(-1)));
+        assertThat(idxOccurrence).isEqualTo(-1);
     }
 }

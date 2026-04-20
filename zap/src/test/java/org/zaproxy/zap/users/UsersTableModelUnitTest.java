@@ -19,15 +19,8 @@
  */
 package org.zaproxy.zap.users;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -75,7 +68,7 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.addTableModelListener(listener);
         // Then
-        assertThat(usersTableModel.getTableModelListeners(), is(arrayContaining(listener)));
+        assertThat(usersTableModel.getTableModelListeners()).containsExactly(listener);
     }
 
     @Test
@@ -87,7 +80,7 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.removeTableModelListener(listener);
         // Then
-        assertThat(usersTableModel.getTableModelListeners(), is(emptyArray()));
+        assertThat(usersTableModel.getTableModelListeners()).isEmpty();
     }
 
     @Test
@@ -95,10 +88,10 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
-        assertThat(usersTableModel.getColumnCount(), is(equalTo(3)));
-        assertThat(usersTableModel.getColumnName(0), is(notNullValue()));
-        assertThat(usersTableModel.getColumnName(1), is(notNullValue()));
-        assertThat(usersTableModel.getColumnName(2), is(notNullValue()));
+        assertThat(usersTableModel.getColumnCount()).isEqualTo(3);
+        assertThat(usersTableModel.getColumnName(0)).isNotNull();
+        assertThat(usersTableModel.getColumnName(1)).isNotNull();
+        assertThat(usersTableModel.getColumnName(2)).isNotNull();
     }
 
     @Test
@@ -106,8 +99,8 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
-        assertThat(usersTableModel.isCellEditable(0, 0), is(equalTo(true)));
-        assertThat(usersTableModel.isCellEditable(0, 1), is(equalTo(false)));
+        assertThat(usersTableModel.isCellEditable(0, 0)).isTrue();
+        assertThat(usersTableModel.isCellEditable(0, 1)).isFalse();
     }
 
     @Test
@@ -115,9 +108,9 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(0)));
-        assertThat(usersTableModel.getUsers(), is(empty()));
-        assertThat(usersTableModel.getElements(), is(empty()));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(0);
+        assertThat(usersTableModel.getUsers()).isEmpty();
+        assertThat(usersTableModel.getElements()).isEmpty();
     }
 
     @Test
@@ -138,9 +131,9 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(usersList.size())));
-        assertThat(usersTableModel.getUsers(), is(equalTo(usersList)));
-        assertThat(usersTableModel.getElements(), is(equalTo(usersList)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(usersList.size());
+        assertThat(usersTableModel.getUsers()).isEqualTo(usersList);
+        assertThat(usersTableModel.getElements()).isEqualTo(usersList);
     }
 
     @Test
@@ -152,9 +145,9 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         // Then
-        assertTrue(usersTableModel.getColumnClass(0) == Boolean.class);
-        assertThat(usersTableModel.getValueAt(0, 0), is(equalTo((Object) false)));
-        assertThat(usersTableModel.getValueAt(1, 0), is(equalTo((Object) true)));
+        assertThat(usersTableModel.getColumnClass(0) == Boolean.class).isTrue();
+        assertThat(usersTableModel.getValueAt(0, 0)).isEqualTo((Object) false);
+        assertThat(usersTableModel.getValueAt(1, 0)).isEqualTo((Object) true);
     }
 
     @Test
@@ -170,9 +163,9 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         // Then
-        assertTrue(usersTableModel.getColumnClass(1) == Integer.class);
-        assertThat(usersTableModel.getValueAt(0, 1), is(equalTo((Object) user1Id)));
-        assertThat(usersTableModel.getValueAt(1, 1), is(equalTo((Object) user2Id)));
+        assertThat(usersTableModel.getColumnClass(1) == Integer.class).isTrue();
+        assertThat(usersTableModel.getValueAt(0, 1)).isEqualTo((Object) user1Id);
+        assertThat(usersTableModel.getValueAt(1, 1)).isEqualTo((Object) user2Id);
     }
 
     @Test
@@ -184,9 +177,9 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         // Then
-        assertTrue(usersTableModel.getColumnClass(2) == String.class);
-        assertThat(usersTableModel.getValueAt(0, 2), is(equalTo((Object) "User 1")));
-        assertThat(usersTableModel.getValueAt(1, 2), is(equalTo((Object) "User 2")));
+        assertThat(usersTableModel.getColumnClass(2) == String.class).isTrue();
+        assertThat(usersTableModel.getValueAt(0, 2)).isEqualTo((Object) "User 1");
+        assertThat(usersTableModel.getValueAt(1, 2)).isEqualTo((Object) "User 2");
     }
 
     @Test
@@ -197,8 +190,8 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         // Then
-        assertThat(usersTableModel.getColumnClass(3), is(equalTo(null)));
-        assertThat(usersTableModel.getValueAt(0, 3), is(equalTo(null)));
+        assertThat(usersTableModel.getColumnClass(3)).isEqualTo(null);
+        assertThat(usersTableModel.getValueAt(0, 3)).isEqualTo(null);
     }
 
     @Test
@@ -214,11 +207,11 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         usersTableModel.setValueAt(true, 0, 0);
         usersTableModel.setValueAt(false, 1, 0);
         // Then
-        assertThat(usersTableModel.getValueAt(0, 0), is(equalTo((Object) true)));
-        assertThat(usersTableModel.getValueAt(1, 0), is(equalTo((Object) false)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isCellChanged(0, 0), is(equalTo(true)));
-        assertThat(listener.isCellChanged(1, 0), is(equalTo(true)));
+        assertThat(usersTableModel.getValueAt(0, 0)).isEqualTo((Object) true);
+        assertThat(usersTableModel.getValueAt(1, 0)).isEqualTo((Object) false);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isCellChanged(0, 0)).isTrue();
+        assertThat(listener.isCellChanged(1, 0)).isTrue();
     }
 
     @Test
@@ -235,9 +228,9 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         usersTableModel.setValueAt("Some Value", 1, 0);
         usersTableModel.setValueAt(true, 1, 1);
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
-        assertThat(usersTableModel.getValueAt(0, 0), is(equalTo((Object) false)));
-        assertThat(usersTableModel.getValueAt(1, 0), is(equalTo((Object) true)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
+        assertThat(usersTableModel.getValueAt(0, 0)).isEqualTo((Object) false);
+        assertThat(usersTableModel.getValueAt(1, 0)).isEqualTo((Object) true);
     }
 
     @Test
@@ -252,11 +245,11 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.setAllEnabled(true);
         // Then
-        assertThat(usersTableModel.getValueAt(0, 0), is(equalTo((Object) true)));
-        assertThat(usersTableModel.getValueAt(1, 0), is(equalTo((Object) true)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isCellChanged(0, 0), is(equalTo(true)));
-        assertThat(listener.isCellChanged(1, 0), is(equalTo(true)));
+        assertThat(usersTableModel.getValueAt(0, 0)).isEqualTo((Object) true);
+        assertThat(usersTableModel.getValueAt(1, 0)).isEqualTo((Object) true);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isCellChanged(0, 0)).isTrue();
+        assertThat(listener.isCellChanged(1, 0)).isTrue();
     }
 
     @Test
@@ -271,11 +264,11 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.setAllEnabled(false);
         // Then
-        assertThat(usersTableModel.getValueAt(0, 0), is(equalTo((Object) false)));
-        assertThat(usersTableModel.getValueAt(1, 0), is(equalTo((Object) false)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isCellChanged(0, 0), is(equalTo(true)));
-        assertThat(listener.isCellChanged(1, 0), is(equalTo(true)));
+        assertThat(usersTableModel.getValueAt(0, 0)).isEqualTo((Object) false);
+        assertThat(usersTableModel.getValueAt(1, 0)).isEqualTo((Object) false);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isCellChanged(0, 0)).isTrue();
+        assertThat(listener.isCellChanged(1, 0)).isTrue();
     }
 
     @Test
@@ -287,7 +280,7 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.setAllEnabled(true);
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
     }
 
     @Test
@@ -308,12 +301,12 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.addElement(user);
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().get(0), is(equalTo(user)));
-        assertThat(usersTableModel.getElement(0), is(equalTo(user)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowInserted(0), is(equalTo(true)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(1);
+        assertThat(usersTableModel.getElements()).hasSize(1);
+        assertThat(usersTableModel.getElements().get(0)).isEqualTo(user);
+        assertThat(usersTableModel.getElement(0)).isEqualTo(user);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowInserted(0)).isTrue();
     }
 
     @Test
@@ -326,11 +319,11 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.addUser(user);
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(1)));
-        assertThat(usersTableModel.getUsers().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getUsers().get(0), is(equalTo(user)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowInserted(0), is(equalTo(true)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(1);
+        assertThat(usersTableModel.getUsers()).hasSize(1);
+        assertThat(usersTableModel.getUsers().get(0)).isEqualTo(user);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowInserted(0)).isTrue();
     }
 
     @Test
@@ -357,13 +350,13 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.modifyElement(0, user2);
         // Then
-        assertThat(usersTableModel.getElements().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().get(0), is(equalTo(user2)));
-        assertThat(usersTableModel.getElement(0), is(equalTo(user2)));
-        assertThat(usersTableModel.getUsers().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getUsers().get(0), is(equalTo(user2)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowUpdated(0), is(equalTo(true)));
+        assertThat(usersTableModel.getElements()).hasSize(1);
+        assertThat(usersTableModel.getElements().get(0)).isEqualTo(user2);
+        assertThat(usersTableModel.getElement(0)).isEqualTo(user2);
+        assertThat(usersTableModel.getUsers()).hasSize(1);
+        assertThat(usersTableModel.getUsers().get(0)).isEqualTo(user2);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowUpdated(0)).isTrue();
     }
 
     @Test
@@ -387,14 +380,14 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.removeElement(1);
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().get(0), is(equalTo(user)));
-        assertThat(usersTableModel.getElement(0), is(equalTo(user)));
-        assertThat(usersTableModel.getUsers().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getUsers().get(0), is(equalTo(user)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isRowRemoved(1), is(equalTo(true)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(1);
+        assertThat(usersTableModel.getElements()).hasSize(1);
+        assertThat(usersTableModel.getElements().get(0)).isEqualTo(user);
+        assertThat(usersTableModel.getElement(0)).isEqualTo(user);
+        assertThat(usersTableModel.getUsers()).hasSize(1);
+        assertThat(usersTableModel.getUsers().get(0)).isEqualTo(user);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isRowRemoved(1)).isTrue();
     }
 
     @Test
@@ -409,11 +402,11 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.clear();
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(0)));
-        assertThat(usersTableModel.getElements(), is(empty()));
-        assertThat(usersTableModel.getUsers(), is(empty()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isDataChanged(), is(equalTo(true)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(0);
+        assertThat(usersTableModel.getElements()).isEmpty();
+        assertThat(usersTableModel.getUsers()).isEmpty();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isDataChanged()).isTrue();
     }
 
     @Test
@@ -428,11 +421,11 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.removeAllUsers();
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(0)));
-        assertThat(usersTableModel.getElements(), is(empty()));
-        assertThat(usersTableModel.getUsers(), is(empty()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isDataChanged(), is(equalTo(true)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(0);
+        assertThat(usersTableModel.getElements()).isEmpty();
+        assertThat(usersTableModel.getUsers()).isEmpty();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isDataChanged()).isTrue();
     }
 
     @Test
@@ -447,14 +440,14 @@ class UsersTableModelUnitTest extends TableModelTestUtils {
         // When
         usersTableModel.setUsers(usersList);
         // Then
-        assertThat(usersTableModel.getRowCount(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getElements().get(0), is(equalTo(user)));
-        assertThat(usersTableModel.getElement(0), is(equalTo(user)));
-        assertThat(usersTableModel.getUsers().size(), is(equalTo(1)));
-        assertThat(usersTableModel.getUsers().get(0), is(equalTo(user)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isDataChanged(), is(equalTo(true)));
+        assertThat(usersTableModel.getRowCount()).isEqualTo(1);
+        assertThat(usersTableModel.getElements()).hasSize(1);
+        assertThat(usersTableModel.getElements().get(0)).isEqualTo(user);
+        assertThat(usersTableModel.getElement(0)).isEqualTo(user);
+        assertThat(usersTableModel.getUsers()).hasSize(1);
+        assertThat(usersTableModel.getUsers().get(0)).isEqualTo(user);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isDataChanged()).isTrue();
     }
 
     private static User createUser() {

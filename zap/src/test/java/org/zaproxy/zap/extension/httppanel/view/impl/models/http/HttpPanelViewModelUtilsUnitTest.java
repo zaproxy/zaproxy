@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -80,7 +78,7 @@ class HttpPanelViewModelUtilsUnitTest {
         // When
         int pos = HttpPanelViewModelUtils.findHeaderLimit(content);
         // Then
-        assertThat(pos, is(equalTo(10)));
+        assertThat(pos).isEqualTo(10);
     }
 
     @ParameterizedTest
@@ -91,6 +89,6 @@ class HttpPanelViewModelUtilsUnitTest {
         // When
         int pos = HttpPanelViewModelUtils.findHeaderLimit(content);
         // Then
-        assertThat(pos, is(equalTo(-1)));
+        assertThat(pos).isEqualTo(-1);
     }
 }

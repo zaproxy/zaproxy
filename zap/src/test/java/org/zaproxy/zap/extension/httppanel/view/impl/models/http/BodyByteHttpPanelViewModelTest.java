@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.anyInt;
@@ -77,7 +75,7 @@ public abstract class BodyByteHttpPanelViewModelTest<T1 extends HttpHeader, T2 e
         // When
         byte[] data = model.getData();
         // Then
-        assertThat(data, is(EMPTY_ARRAY));
+        assertThat(data).containsExactly(EMPTY_ARRAY);
     }
 
     @Test
@@ -88,7 +86,7 @@ public abstract class BodyByteHttpPanelViewModelTest<T1 extends HttpHeader, T2 e
         // When
         byte[] data = model.getData();
         // Then
-        assertThat(data, is(equalTo(BODY)));
+        assertThat(data).isEqualTo(BODY);
     }
 
     @Test

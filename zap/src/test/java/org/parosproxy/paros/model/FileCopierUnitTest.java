@@ -19,7 +19,7 @@
  */
 package org.parosproxy.paros.model;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
@@ -54,7 +54,7 @@ class FileCopierUnitTest {
         // When
         fileCopier.copyLegacy(source, target);
         // Then
-        assertTrue(FileUtils.contentEquals(source, target));
+        assertThat(FileUtils.contentEquals(source, target)).isTrue();
     }
 
     @Test
@@ -66,7 +66,7 @@ class FileCopierUnitTest {
         // When
         fileCopier.copyNIO(source, target);
         // Then
-        assertTrue(FileUtils.contentEquals(source, target));
+        assertThat(FileUtils.contentEquals(source, target)).isTrue();
     }
 
     @Test
@@ -80,7 +80,7 @@ class FileCopierUnitTest {
         // When
         fileCopierStub.copy(source, target);
         // Then
-        assertTrue(FileUtils.contentEquals(source, target));
+        assertThat(FileUtils.contentEquals(source, target)).isTrue();
     }
 
     private File newFile() throws IOException {

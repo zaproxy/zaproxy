@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
@@ -44,7 +42,7 @@ class SessionUtilsUnitTest {
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(sessionPath, is(equalTo(path)));
+        assertThat(sessionPath).isEqualTo(path);
     }
 
     @Test
@@ -55,7 +53,7 @@ class SessionUtilsUnitTest {
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(sessionPath, is(equalTo(path)));
+        assertThat(sessionPath).isEqualTo(path);
     }
 
     @Test
@@ -66,9 +64,8 @@ class SessionUtilsUnitTest {
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(
-                sessionPath,
-                is(equalTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"))));
+        assertThat(sessionPath)
+                .isEqualTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"));
     }
 
     @Test
@@ -79,9 +76,8 @@ class SessionUtilsUnitTest {
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(
-                sessionPath,
-                is(equalTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"))));
+        assertThat(sessionPath)
+                .isEqualTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"));
     }
 
     @Test

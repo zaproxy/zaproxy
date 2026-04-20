@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -77,10 +74,10 @@ class ScriptParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.isConfirmRemoveDir(), is(equalTo(true)));
-        assertThat(param.getScriptDirs(), is(equalTo(dirs)));
-        assertNull(configuration.getProperty("dirs"));
-        assertNull(configuration.getProperty("confRemdir"));
+        assertThat(param.isConfirmRemoveDir()).isTrue();
+        assertThat(param.getScriptDirs()).isEqualTo(dirs);
+        assertThat(configuration.getProperty("dirs")).isNull();
+        assertThat(configuration.getProperty("confRemdir")).isNull();
     }
 
     @Test
@@ -122,7 +119,7 @@ class ScriptParamUnitTest {
         script.setEnabled(true);
         param.saveScriptProperties(script);
         // Then
-        assertThat(config.configurationsAt("script.scripts").size(), is(1));
-        assertThat(config.getBoolean("script.scripts(0).enabled"), is(false));
+        assertThat(config.configurationsAt("script.scripts")).hasSize(1);
+        assertThat(config.getBoolean("script.scripts(0).enabled")).isFalse();
     }
 }

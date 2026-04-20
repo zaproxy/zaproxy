@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
@@ -40,11 +35,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody((byte[]) null);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(0)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(allZeroBytes()));
-        assertThat(httpBody.getBytes().length, is(equalTo(0)));
-        assertThat(httpBody.toString(), is(equalTo("")));
+        assertThat(httpBody.length()).isEqualTo(0);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).is(allZeroBytes());
+        assertThat(httpBody.getBytes().length).isEqualTo(0);
+        assertThat(httpBody.toString()).isEmpty();
     }
 
     @Test
@@ -52,11 +47,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_DEFAULT_CHARSET);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET)));
-        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
-        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_DEFAULT_CHARSET)));
+        assertThat(httpBody.length()).isEqualTo(BODY_1_BYTES_DEFAULT_CHARSET.length);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).isEqualTo(BODY_1_BYTES_DEFAULT_CHARSET);
+        assertThat(httpBody.getBytes().length).isEqualTo(BODY_1_BYTES_DEFAULT_CHARSET.length);
+        assertThat(httpBody).hasToString(BODY_1_STRING_DEFAULT_CHARSET);
     }
 
     @Test
@@ -64,11 +59,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody((String) null);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(0)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(allZeroBytes()));
-        assertThat(httpBody.getBytes().length, is(equalTo(0)));
-        assertThat(httpBody.toString(), is(equalTo("")));
+        assertThat(httpBody.length()).isEqualTo(0);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).is(allZeroBytes());
+        assertThat(httpBody.getBytes().length).isEqualTo(0);
+        assertThat(httpBody.toString()).isEmpty();
     }
 
     @Test
@@ -76,11 +71,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_DEFAULT_CHARSET);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET)));
-        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
-        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_DEFAULT_CHARSET)));
+        assertThat(httpBody.length()).isEqualTo(BODY_1_BYTES_DEFAULT_CHARSET.length);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).isEqualTo(BODY_1_BYTES_DEFAULT_CHARSET);
+        assertThat(httpBody.getBytes().length).isEqualTo(BODY_1_BYTES_DEFAULT_CHARSET.length);
+        assertThat(httpBody).hasToString(BODY_1_STRING_DEFAULT_CHARSET);
     }
 
     @Test
@@ -88,11 +83,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_STRING);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_UTF_8.length)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_UTF_8)));
-        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_UTF_8.length)));
-        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_UTF_8)));
+        assertThat(httpBody.length()).isEqualTo(BODY_1_BYTES_UTF_8.length);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).isEqualTo(BODY_1_BYTES_UTF_8);
+        assertThat(httpBody.getBytes().length).isEqualTo(BODY_1_BYTES_UTF_8.length);
+        assertThat(httpBody).hasToString(BODY_1_STRING_UTF_8);
     }
 
     @Test
@@ -101,11 +96,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         int initialCapacity = 1024;
         HttpResponseBody httpBody = new HttpResponseBody(initialCapacity);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(initialCapacity)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(allZeroBytes()));
-        assertThat(httpBody.getBytes().length, is(equalTo(initialCapacity)));
-        assertThat(httpBody.toString(), is(equalTo("")));
+        assertThat(httpBody.length()).isEqualTo(initialCapacity);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).is(allZeroBytes());
+        assertThat(httpBody.getBytes().length).isEqualTo(initialCapacity);
+        assertThat(httpBody.toString()).isEmpty();
     }
 
     @Test
@@ -113,11 +108,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(-1);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(0)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(allZeroBytes()));
-        assertThat(httpBody.getBytes().length, is(equalTo(0)));
-        assertThat(httpBody.toString(), is(equalTo("")));
+        assertThat(httpBody.length()).isEqualTo(0);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).is(allZeroBytes());
+        assertThat(httpBody.getBytes().length).isEqualTo(0);
+        assertThat(httpBody.toString()).isEmpty();
     }
 
     @Test
@@ -125,11 +120,11 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(500000);
         // When / Then
-        assertThat(httpBody.length(), is(equalTo(LIMIT_INITIAL_CAPACITY)));
-        assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(allZeroBytes()));
-        assertThat(httpBody.getBytes().length, is(equalTo(LIMIT_INITIAL_CAPACITY)));
-        assertThat(httpBody.toString(), is(equalTo("")));
+        assertThat(httpBody.length()).isEqualTo(LIMIT_INITIAL_CAPACITY);
+        assertThat(httpBody.getBytes()).isNotNull();
+        assertThat(httpBody.getBytes()).is(allZeroBytes());
+        assertThat(httpBody.getBytes().length).isEqualTo(LIMIT_INITIAL_CAPACITY);
+        assertThat(httpBody.toString()).isEmpty();
     }
 
     @Test
@@ -139,7 +134,7 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String stringRepresentation = httpBody.toString();
         // Then
-        assertThat(stringRepresentation, is(equalTo("")));
+        assertThat(stringRepresentation).isEmpty();
     }
 
     @Test
@@ -150,7 +145,7 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String stringRepresentation = httpBody.toString();
         // Then
-        assertThat(stringRepresentation, is(equalTo(BODY_1_STRING_UTF_8)));
+        assertThat(stringRepresentation).isEqualTo(BODY_1_STRING_UTF_8);
     }
 
     @Test
@@ -160,7 +155,7 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String charset = httpBody.getCharset();
         // Then
-        assertThat(charset, is(equalTo(DEFAULT_CHARSET_NAME)));
+        assertThat(charset).isEqualTo(DEFAULT_CHARSET_NAME);
     }
 
     @Test
@@ -170,8 +165,8 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String stringRepresentation = httpBody.toString();
         // Then
-        assertThat(httpBody.getCharset(), is(equalTo(DEFAULT_CHARSET_NAME)));
-        assertThat(stringRepresentation, is(startsWith("þÿ"))); // Wrong contents...
+        assertThat(httpBody.getCharset()).isEqualTo(DEFAULT_CHARSET_NAME);
+        assertThat(stringRepresentation).startsWith("þÿ"); // Wrong contents...
     }
 
     @Test
@@ -181,8 +176,8 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String stringRepresentation = httpBody.toString();
         // Then
-        assertThat(httpBody.getCharset(), is(equalTo(UTF_8_NAME)));
-        assertThat(stringRepresentation, is(equalTo(BODY_1_STRING_UTF_8)));
+        assertThat(httpBody.getCharset()).isEqualTo(UTF_8_NAME);
+        assertThat(stringRepresentation).isEqualTo(BODY_1_STRING_UTF_8);
     }
 
     @Test
@@ -193,8 +188,8 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String stringRepresentation = httpBody.toString();
         // Then
-        assertThat(httpBody.getCharset(), is(equalTo(DEFAULT_CHARSET_NAME)));
-        assertThat(stringRepresentation, is(equalTo(contents)));
+        assertThat(httpBody.getCharset()).isEqualTo(DEFAULT_CHARSET_NAME);
+        assertThat(stringRepresentation).isEqualTo(contents);
     }
 
     @Test
@@ -205,7 +200,7 @@ class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         // When
         String stringRepresentation = httpBody.toString();
         // Then
-        assertThat(httpBody.getCharset(), is(equalTo(UTF_8_NAME)));
-        assertThat(stringRepresentation, is(equalTo(contents)));
+        assertThat(httpBody.getCharset()).isEqualTo(UTF_8_NAME);
+        assertThat(stringRepresentation).isEqualTo(contents);
     }
 }

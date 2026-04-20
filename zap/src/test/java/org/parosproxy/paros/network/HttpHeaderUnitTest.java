@@ -19,9 +19,7 @@
  */
 package org.parosproxy.paros.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -49,6 +47,6 @@ class HttpHeaderUnitTest {
         // When
         boolean hasType = header.hasContentType(acceptedTypes);
         // Then
-        assertThat(hasType, is(equalTo(true)));
+        assertThat(hasType).isTrue();
     }
 }

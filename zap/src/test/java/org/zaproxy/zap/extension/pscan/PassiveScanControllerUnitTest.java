@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -128,9 +123,9 @@ class PassiveScanControllerUnitTest extends TestUtils {
         sleep(500);
 
         // Then
-        assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(scanState.isScannedRequest(), is(equalTo(true)));
-        assertThat(scanState.isScannedResponse(), is(equalTo(true)));
+        assertThat(psc.getRecordsToScan()).isEqualTo(0);
+        assertThat(scanState.isScannedRequest()).isTrue();
+        assertThat(scanState.isScannedResponse()).isTrue();
     }
 
     @Test
@@ -156,9 +151,9 @@ class PassiveScanControllerUnitTest extends TestUtils {
             // Then
             scanState.waitScanFinished();
             sleep(500);
-            assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-            assertThat(scanState.isScannedRequest(), is(equalTo(true)));
-            assertThat(scanState.isScannedResponse(), is(equalTo(true)));
+            assertThat(psc.getRecordsToScan()).isEqualTo(0);
+            assertThat(scanState.isScannedRequest()).isTrue();
+            assertThat(scanState.isScannedResponse()).isTrue();
         } finally {
             executor.shutdownNow();
         }
@@ -189,9 +184,9 @@ class PassiveScanControllerUnitTest extends TestUtils {
         sleep(500);
 
         // Then
-        assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(scanState.isScannedRequest(), is(equalTo(true)));
-        assertThat(scanState.isScannedResponse(), is(equalTo(true)));
+        assertThat(psc.getRecordsToScan()).isEqualTo(0);
+        assertThat(scanState.isScannedRequest()).isTrue();
+        assertThat(scanState.isScannedResponse()).isTrue();
     }
 
     @Test
@@ -219,9 +214,9 @@ class PassiveScanControllerUnitTest extends TestUtils {
         sleep(500);
 
         // Then
-        assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(scanState.isScannedRequest(), is(equalTo(false)));
-        assertThat(scanState.isScannedResponse(), is(equalTo(false)));
+        assertThat(psc.getRecordsToScan()).isEqualTo(0);
+        assertThat(scanState.isScannedRequest()).isFalse();
+        assertThat(scanState.isScannedResponse()).isFalse();
     }
 
     @Test
@@ -264,20 +259,20 @@ class PassiveScanControllerUnitTest extends TestUtils {
         sleep(500);
 
         // Then
-        assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(psc.getOldestRunningTask(), is(nullValue()));
-        assertThat(psc.getRunningTasks().size(), is(equalTo(0)));
-        assertThat(oldestTask.getCurrentScanner().getName(), is(equalTo("TPS")));
-        assertThat(oldestTask.getURI().toString(), is(equalTo(exampleUrl1)));
-        assertThat(oldestTask.getStartTime(), is(greaterThan(testStartTime)));
-        assertThat(testEndTime, is(greaterThanOrEqualTo(oldestTask.getStartTime())));
-        assertThat(tasks.size(), is(equalTo(2)));
-        assertThat(recordsToScan, is(equalTo(2)));
-        assertThat(tasks.get(0).getCurrentScanner().getName(), is(equalTo("TPS")));
-        assertThat(tasks.get(0).getHistoryReference().getHistoryId(), is(equalTo(1)));
-        assertThat(tasks.get(1).getHistoryReference().getHistoryId(), is(equalTo(2)));
-        assertThat(tasks.get(0).getURI().toString(), is(equalTo(exampleUrl1)));
-        assertThat(tasks.get(1).getURI().toString(), is(equalTo(exampleUrl2)));
+        assertThat(psc.getRecordsToScan()).isEqualTo(0);
+        assertThat(psc.getOldestRunningTask()).isNull();
+        assertThat(psc.getRunningTasks()).hasSize(0);
+        assertThat(oldestTask.getCurrentScanner().getName()).isEqualTo("TPS");
+        assertThat(oldestTask.getURI()).hasToString(exampleUrl1);
+        assertThat(oldestTask.getStartTime()).isGreaterThan(testStartTime);
+        assertThat(testEndTime).isGreaterThanOrEqualTo(oldestTask.getStartTime());
+        assertThat(tasks).hasSize(2);
+        assertThat(recordsToScan).isEqualTo(2);
+        assertThat(tasks.get(0).getCurrentScanner().getName()).isEqualTo("TPS");
+        assertThat(tasks.get(0).getHistoryReference().getHistoryId()).isEqualTo(1);
+        assertThat(tasks.get(1).getHistoryReference().getHistoryId()).isEqualTo(2);
+        assertThat(tasks.get(0).getURI()).hasToString(exampleUrl1);
+        assertThat(tasks.get(1).getURI()).hasToString(exampleUrl2);
     }
 
     static class TestPassiveScanner implements PassiveScanner {

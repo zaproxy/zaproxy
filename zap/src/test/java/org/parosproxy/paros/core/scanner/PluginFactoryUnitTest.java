@@ -19,13 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -67,7 +61,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         boolean loaded = PluginFactory.isPluginLoaded(undefinedPlugin);
         // Then
-        assertThat(loaded, is(equalTo(false)));
+        assertThat(loaded).isFalse();
     }
 
     @Test
@@ -77,7 +71,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         PluginFactory.loadedPlugin(plugin);
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isTrue();
     }
 
     @Test
@@ -88,7 +82,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         PluginFactory.unloadedPlugin(plugin);
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(false)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isFalse();
     }
 
     @Test
@@ -98,7 +92,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         PluginFactory.unloadedPlugin(plugin);
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(false)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isFalse();
     }
 
     @Test
@@ -108,7 +102,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(0)));
+        assertThat(pluginFactory.getAllPlugin()).hasSize(0);
     }
 
     @Test
@@ -120,8 +114,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(0)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isTrue();
+        assertThat(pluginFactory.getAllPlugin()).hasSize(0);
     }
 
     @Test
@@ -133,8 +127,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(0)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isTrue();
+        assertThat(pluginFactory.getAllPlugin()).hasSize(0);
     }
 
     @Test
@@ -146,9 +140,9 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isTrue();
+        assertThat(pluginFactory.getAllPlugin()).hasSize(1);
+        assertThat(pluginFactory.getAllPlugin().get(0)).isEqualTo((Plugin) plugin);
     }
 
     @Test
@@ -161,9 +155,9 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         PluginFactory.loadedPlugin(plugin);
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isTrue();
+        assertThat(pluginFactory.getAllPlugin()).hasSize(1);
+        assertThat(pluginFactory.getAllPlugin().get(0)).isEqualTo((Plugin) plugin);
     }
 
     @Test
@@ -177,14 +171,13 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(emptyConfig());
         otherPluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
-        assertThat(otherPluginFactory.getAllPlugin(), hasSize(equalTo(1)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
-        assertThat(otherPluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
-        assertThat(
-                pluginFactory.getAllPlugin().get(0),
-                is(not(sameInstance(otherPluginFactory.getAllPlugin().get(0)))));
+        assertThat(PluginFactory.isPluginLoaded(plugin)).isTrue();
+        assertThat(pluginFactory.getAllPlugin()).hasSize(1);
+        assertThat(otherPluginFactory.getAllPlugin()).hasSize(1);
+        assertThat(pluginFactory.getAllPlugin().get(0)).isEqualTo((Plugin) plugin);
+        assertThat(otherPluginFactory.getAllPlugin().get(0)).isEqualTo((Plugin) plugin);
+        assertThat(pluginFactory.getAllPlugin().get(0))
+                .isNotSameAs(otherPluginFactory.getAllPlugin().get(0));
     }
 
     @Test
@@ -192,7 +185,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // Given
         PluginFactory pluginFactory = new PluginFactory();
         // When / Then
-        assertThat(pluginFactory.isLocked(), is(equalTo(false)));
+        assertThat(pluginFactory.isLocked()).isFalse();
     }
 
     @ParameterizedTest
@@ -203,7 +196,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.setLocked(locked);
         // Then
-        assertThat(pluginFactory.isLocked(), is(equalTo(locked)));
+        assertThat(pluginFactory.isLocked()).isEqualTo(locked);
     }
 
     @Test
@@ -216,10 +209,10 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(conf);
         // Then
         List<Plugin> plugins = pluginFactory.getAllPlugin();
-        assertThat(plugins.get(0).getId(), is(equalTo(1)));
-        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
-        assertThat(plugins.get(1).getId(), is(equalTo(2)));
-        assertThat(plugins.get(1).isEnabled(), is(equalTo(false)));
+        assertThat(plugins.get(0).getId()).isEqualTo(1);
+        assertThat(plugins.get(0).isEnabled()).isTrue();
+        assertThat(plugins.get(1).getId()).isEqualTo(2);
+        assertThat(plugins.get(1).isEnabled()).isFalse();
     }
 
     @Test
@@ -231,10 +224,10 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
         List<Plugin> plugins = scanPolicy.getPluginFactory().getAllPlugin();
-        assertThat(plugins.get(0).getId(), is(equalTo(1)));
-        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
-        assertThat(plugins.get(1).getId(), is(equalTo(2)));
-        assertThat(plugins.get(1).isEnabled(), is(equalTo(false)));
+        assertThat(plugins.get(0).getId()).isEqualTo(1);
+        assertThat(plugins.get(0).isEnabled()).isTrue();
+        assertThat(plugins.get(1).getId()).isEqualTo(2);
+        assertThat(plugins.get(1).isEnabled()).isFalse();
     }
 
     static ZapXmlConfiguration configWithPlugin() {
@@ -257,10 +250,10 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(conf);
         // Then
         List<Plugin> plugins = pluginFactory.getAllPlugin();
-        assertThat(plugins.get(0).getId(), is(equalTo(1)));
-        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
-        assertThat(plugins.get(1).getId(), is(equalTo(2)));
-        assertThat(plugins.get(1).isEnabled(), is(equalTo(true)));
+        assertThat(plugins.get(0).getId()).isEqualTo(1);
+        assertThat(plugins.get(0).isEnabled()).isTrue();
+        assertThat(plugins.get(1).getId()).isEqualTo(2);
+        assertThat(plugins.get(1).isEnabled()).isTrue();
     }
 
     @Test
@@ -272,10 +265,10 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
         List<Plugin> plugins = scanPolicy.getPluginFactory().getAllPlugin();
-        assertThat(plugins.get(0).getId(), is(equalTo(1)));
-        assertThat(plugins.get(0).isEnabled(), is(equalTo(true)));
-        assertThat(plugins.get(1).getId(), is(equalTo(2)));
-        assertThat(plugins.get(1).isEnabled(), is(equalTo(true)));
+        assertThat(plugins.get(0).getId()).isEqualTo(1);
+        assertThat(plugins.get(0).isEnabled()).isTrue();
+        assertThat(plugins.get(1).getId()).isEqualTo(2);
+        assertThat(plugins.get(1).isEnabled()).isTrue();
     }
 
     @Test
@@ -290,9 +283,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginHighAlert, pluginFactory),
-                is(lessThan(indexOf(pluginMediumAlert, pluginFactory))));
+        assertThat(indexOf(pluginHighAlert, pluginFactory))
+                .isLessThan(indexOf(pluginMediumAlert, pluginFactory));
     }
 
     @Test
@@ -307,9 +299,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginMediumAlert, pluginFactory),
-                is(lessThan(indexOf(pluginLowAlert, pluginFactory))));
+        assertThat(indexOf(pluginMediumAlert, pluginFactory))
+                .isLessThan(indexOf(pluginLowAlert, pluginFactory));
     }
 
     @Test
@@ -324,9 +315,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginLowAlert, pluginFactory),
-                is(lessThan(indexOf(pluginInfoAlert, pluginFactory))));
+        assertThat(indexOf(pluginLowAlert, pluginFactory))
+                .isLessThan(indexOf(pluginInfoAlert, pluginFactory));
     }
 
     @Test
@@ -343,9 +333,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginReleaseStatus, pluginFactory),
-                is(lessThan(indexOf(pluginBetaStatus, pluginFactory))));
+        assertThat(indexOf(pluginReleaseStatus, pluginFactory))
+                .isLessThan(indexOf(pluginBetaStatus, pluginFactory));
     }
 
     @Test
@@ -362,9 +351,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginBetaStatus, pluginFactory),
-                is(lessThan(indexOf(pluginAlphaStatus, pluginFactory))));
+        assertThat(indexOf(pluginBetaStatus, pluginFactory))
+                .isLessThan(indexOf(pluginAlphaStatus, pluginFactory));
     }
 
     @Test
@@ -381,9 +369,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginAlphaStatus, pluginFactory),
-                is(lessThan(indexOf(pluginUnknownStatus, pluginFactory))));
+        assertThat(indexOf(pluginAlphaStatus, pluginFactory))
+                .isLessThan(indexOf(pluginUnknownStatus, pluginFactory));
     }
 
     @Test
@@ -399,9 +386,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(pluginLowerId, pluginFactory),
-                is(lessThan(indexOf(pluginHigherId, pluginFactory))));
+        assertThat(indexOf(pluginLowerId, pluginFactory))
+                .isLessThan(indexOf(pluginHigherId, pluginFactory));
     }
 
     @Test
@@ -421,15 +407,12 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(
-                indexOf(dependencyPlugin1, pluginFactory),
-                is(lessThan(indexOf(dependentPlugin, pluginFactory))));
-        assertThat(
-                indexOf(dependencyPlugin2, pluginFactory),
-                is(lessThan(indexOf(dependentPlugin, pluginFactory))));
-        assertThat(
-                indexOf(dependencyPlugin2, pluginFactory),
-                is(lessThan(indexOf(dependencyPlugin1, pluginFactory))));
+        assertThat(indexOf(dependencyPlugin1, pluginFactory))
+                .isLessThan(indexOf(dependentPlugin, pluginFactory));
+        assertThat(indexOf(dependencyPlugin2, pluginFactory))
+                .isLessThan(indexOf(dependentPlugin, pluginFactory));
+        assertThat(indexOf(dependencyPlugin2, pluginFactory))
+                .isLessThan(indexOf(dependencyPlugin1, pluginFactory));
     }
 
     private static int indexOf(AbstractPlugin plugin, PluginFactory pluginFactory) {

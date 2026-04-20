@@ -19,9 +19,8 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +36,6 @@ class UtilUnitTest {
         long endTime = System.currentTimeMillis();
         double pause = endTime - startTime;
         // Then
-        assertThat(pause, is(closeTo(intendedPause, 100d))); // allow 20% variance
+        assertThat(pause).isCloseTo(intendedPause, within(100d)); // allow 20% variance
     }
 }

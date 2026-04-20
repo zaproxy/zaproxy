@@ -20,13 +20,8 @@
 package org.parosproxy.paros.core.scanner;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -109,7 +104,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
     }
 
     @Test
@@ -120,7 +115,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
     }
 
     @Test
@@ -133,7 +128,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
     }
 
     @Test
@@ -147,7 +142,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
     }
 
     @Test
@@ -159,7 +154,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
         verify(scanner).isInScope("GET:file");
     }
 
@@ -178,7 +173,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
         verify(scanFilter).isFiltered(node);
         verify(scanner).notifyFilteredMessage(httpMessage, filteredReason);
     }
@@ -194,7 +189,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
         verify(scanFilter).isFiltered(node);
         verify(scanner, times(0)).notifyFilteredMessage(any(), any());
     }
@@ -210,7 +205,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
         verify(scanFilter).isFiltered(node);
         verify(scanner, times(0)).notifyFilteredMessage(any(), any());
     }
@@ -223,7 +218,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
     }
 
     @Test
@@ -236,7 +231,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(2)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(2);
     }
 
     @Test
@@ -255,7 +250,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(3)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(3);
     }
 
     @Test
@@ -274,7 +269,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
     }
 
     @Test
@@ -300,7 +295,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(3)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(3);
     }
 
     @Test
@@ -326,7 +321,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
     }
 
     @Test
@@ -347,7 +342,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(3)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(3);
     }
 
     @Test
@@ -368,7 +363,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
     }
 
     @Test
@@ -394,7 +389,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(3)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(3);
     }
 
     @Test
@@ -417,7 +412,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(5)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(5);
     }
 
     @Test
@@ -445,7 +440,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(5)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(5);
     }
 
     @Test
@@ -463,7 +458,7 @@ class HostProcessUnitTest {
         // When
         HostProcess.addGetNodesInPreferredOrder(idsToScan, nodes);
         // Then
-        assertThat(idsToScan, contains(5, 3, 1, 2, 4));
+        assertThat(idsToScan).containsExactly(5, 3, 1, 2, 4);
     }
 
     private static void addNode(Map<String, NodeToScan> nodes, int id, String path) {
@@ -511,7 +506,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(9)));
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(9);
     }
 
     @Test
@@ -539,7 +534,7 @@ class HostProcessUnitTest {
 
     @Test
     void shouldUseTechSetAllByDefault() {
-        assertThat(hostProcess.getTechSet(), is(equalTo(TechSet.getAllTech())));
+        assertThat(hostProcess.getTechSet()).isEqualTo(TechSet.getAllTech());
     }
 
     @Test
@@ -549,7 +544,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.setTechSet(techSet);
         // Then
-        assertThat(hostProcess.getTechSet(), is(equalTo(techSet)));
+        assertThat(hostProcess.getTechSet()).isEqualTo(techSet);
     }
 
     @Test
@@ -581,12 +576,11 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getPluginStats(pluginId).isSkipped(), is(equalTo(true)));
-        assertThat(
-                hostProcess.getPluginStats(pluginId).getSkippedReason(),
-                is(equalTo("no nodes to scan")));
-        assertThat(hostProcess.getPluginStats(pluginId).getMessageCount(), is(equalTo(0)));
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(0)));
+        assertThat(hostProcess.getPluginStats(pluginId).isSkipped()).isTrue();
+        assertThat(hostProcess.getPluginStats(pluginId).getSkippedReason())
+                .isEqualTo("no nodes to scan");
+        assertThat(hostProcess.getPluginStats(pluginId).getMessageCount()).isEqualTo(0);
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(0);
     }
 
     @Test
@@ -604,12 +598,11 @@ class HostProcessUnitTest {
         hostProcess.run();
         // Then
         verify(plugin).targets(techSet);
-        assertThat(hostProcess.getPluginStats(pluginId).isSkipped(), is(equalTo(true)));
-        assertThat(
-                hostProcess.getPluginStats(pluginId).getSkippedReason(),
-                is(equalTo("scan rule does not target selected technologies")));
-        assertThat(hostProcess.getPluginStats(pluginId).getMessageCount(), is(equalTo(0)));
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getPluginStats(pluginId).isSkipped()).isTrue();
+        assertThat(hostProcess.getPluginStats(pluginId).getSkippedReason())
+                .isEqualTo("scan rule does not target selected technologies");
+        assertThat(hostProcess.getPluginStats(pluginId).getMessageCount()).isEqualTo(0);
+        assertThat(hostProcess.getTestTotalCount()).isEqualTo(1);
     }
 
     @Test
@@ -621,7 +614,7 @@ class HostProcessUnitTest {
         CustomPage.Type cpType = CustomPage.Type.OTHER;
         given(context.isCustomPage(msg, cpType)).willReturn(true);
         // When / Then
-        assertTrue(hostProcess.isCustomPage(msg, cpType));
+        assertThat(hostProcess.isCustomPage(msg, cpType)).isTrue();
         verify(context).isCustomPage(msg, cpType);
     }
 
@@ -634,7 +627,7 @@ class HostProcessUnitTest {
         CustomPage.Type cpType = CustomPage.Type.OTHER;
         given(context.isCustomPage(msg, cpType)).willReturn(false);
         // When / Then
-        assertFalse(hostProcess.isCustomPage(msg, cpType));
+        assertThat(hostProcess.isCustomPage(msg, cpType)).isFalse();
         verify(context).isCustomPage(msg, cpType);
     }
 
@@ -646,7 +639,7 @@ class HostProcessUnitTest {
         HttpMessage msg = new HttpMessage();
         CustomPage.Type cpType = CustomPage.Type.OTHER;
         // When / Then
-        assertFalse(hostProcess.isCustomPage(msg, cpType));
+        assertThat(hostProcess.isCustomPage(msg, cpType)).isFalse();
         verifyNoInteractions(context);
     }
 

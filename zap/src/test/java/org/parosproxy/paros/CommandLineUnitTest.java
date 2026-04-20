@@ -19,17 +19,9 @@
  */
 package org.parosproxy.paros;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -117,18 +109,18 @@ class CommandLineUnitTest {
     void emptyCommandLine() throws Exception {
         cmdLine = new CommandLine(new String[] {});
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
-        assertTrue(cmdLine.isGUI());
-        assertFalse(cmdLine.isDaemon());
-        assertFalse(cmdLine.isReportVersion());
+        assertThat(cmdLine.isGUI()).isTrue();
+        assertThat(cmdLine.isDaemon()).isFalse();
+        assertThat(cmdLine.isReportVersion()).isFalse();
     }
 
     @Test
     void daemonFlag() throws Exception {
         cmdLine = new CommandLine(new String[] {CommandLine.DAEMON});
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
-        assertFalse(cmdLine.isGUI());
-        assertTrue(cmdLine.isDaemon());
-        assertFalse(cmdLine.isReportVersion());
+        assertThat(cmdLine.isGUI()).isFalse();
+        assertThat(cmdLine.isDaemon()).isTrue();
+        assertThat(cmdLine.isReportVersion()).isFalse();
     }
 
     @Test
@@ -136,8 +128,8 @@ class CommandLineUnitTest {
         // Given / When
         cmdLine = new CommandLine(new String[] {CommandLine.CMD});
         // Then
-        assertThat(cmdLine.isDaemon(), is(equalTo(false)));
-        assertThat(cmdLine.isGUI(), is(equalTo(false)));
+        assertThat(cmdLine.isDaemon()).isFalse();
+        assertThat(cmdLine.isGUI()).isFalse();
     }
 
     @Test
@@ -148,7 +140,7 @@ class CommandLineUnitTest {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> new CommandLine(args));
         // Then
-        assertThat(e.getMessage(), containsString("used at the same time"));
+        assertThat(e.getMessage()).contains("used at the same time");
     }
 
     @Test
@@ -166,7 +158,7 @@ class CommandLineUnitTest {
         // When
         cmdLine = new CommandLine(new String[] {CommandLine.SESSION, argumentValue});
         // Then
-        assertThat(cmdLine.getArgument(CommandLine.SESSION), is(equalTo(argumentValue)));
+        assertThat(cmdLine.getArgument(CommandLine.SESSION)).isEqualTo(argumentValue);
     }
 
     @Test
@@ -184,7 +176,7 @@ class CommandLineUnitTest {
         // When
         cmdLine = new CommandLine(new String[] {CommandLine.NEW_SESSION, argumentValue});
         // Then
-        assertThat(cmdLine.getArgument(CommandLine.NEW_SESSION), is(equalTo(argumentValue)));
+        assertThat(cmdLine.getArgument(CommandLine.NEW_SESSION)).isEqualTo(argumentValue);
     }
 
     @Test
@@ -195,7 +187,7 @@ class CommandLineUnitTest {
         // When
         cmdLine = new CommandLine(new String[] {CommandLine.PORT, Integer.toString(port)});
         // Then
-        assertThat(cmdLine.getPort(), is(equalTo(-1)));
+        assertThat(cmdLine.getPort()).isEqualTo(-1);
     }
 
     @Test
@@ -206,7 +198,7 @@ class CommandLineUnitTest {
         // When
         cmdLine = new CommandLine(new String[] {CommandLine.HOST, hostname});
         // Then
-        assertThat(cmdLine.getHost(), is(nullValue()));
+        assertThat(cmdLine.getHost()).isNull();
     }
 
     @Test
@@ -214,7 +206,7 @@ class CommandLineUnitTest {
         // Given / When
         cmdLine = new CommandLine(new String[] {});
         // Then
-        assertThat(cmdLine.isNoStdOutLog(), is(equalTo(false)));
+        assertThat(cmdLine.isNoStdOutLog()).isFalse();
     }
 
     @Test
@@ -222,7 +214,7 @@ class CommandLineUnitTest {
         // Given / When
         cmdLine = new CommandLine(new String[] {CommandLine.NOSTDOUT});
         // Then
-        assertThat(cmdLine.isNoStdOutLog(), is(equalTo(true)));
+        assertThat(cmdLine.isNoStdOutLog()).isTrue();
     }
 
     @Test
@@ -230,8 +222,8 @@ class CommandLineUnitTest {
         // Given / When
         cmdLine = new CommandLine(new String[] {});
         // Then
-        assertThat(cmdLine.isSilent(), is(equalTo(false)));
-        assertThat(Constant.isSilent(), is(equalTo(false)));
+        assertThat(cmdLine.isSilent()).isFalse();
+        assertThat(Constant.isSilent()).isFalse();
     }
 
     @Test
@@ -239,8 +231,8 @@ class CommandLineUnitTest {
         // Given / When
         cmdLine = new CommandLine(new String[] {CommandLine.SILENT});
         // Then
-        assertThat(cmdLine.isSilent(), is(equalTo(true)));
-        assertThat(Constant.isSilent(), is(equalTo(true)));
+        assertThat(cmdLine.isSilent()).isTrue();
+        assertThat(Constant.isSilent()).isTrue();
     }
 
     @ParameterizedTest
@@ -258,8 +250,8 @@ class CommandLineUnitTest {
         // When
         cmdLine = new CommandLine(new String[] {}, env);
         // Then
-        assertThat(cmdLine.isSilent(), is(equalTo(true)));
-        assertThat(Constant.isSilent(), is(equalTo(true)));
+        assertThat(cmdLine.isSilent()).isTrue();
+        assertThat(Constant.isSilent()).isTrue();
     }
 
     @Test
@@ -269,7 +261,7 @@ class CommandLineUnitTest {
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         // Then
-        assertThat(cmdLine.getArgument("-NonGivenArgument"), is(equalTo(null)));
+        assertThat(cmdLine.getArgument("-NonGivenArgument")).isEqualTo(null);
     }
 
     @Test
@@ -282,7 +274,7 @@ class CommandLineUnitTest {
         // When
         cmdLine.parse(supportedArguments, NO_SUPPORTED_FILE_EXTENSIONS);
         // Then
-        assertThat(cmdLine.getArgument(argName), is(equalTo(null)));
+        assertThat(cmdLine.getArgument(argName)).isEqualTo(null);
     }
 
     @Test
@@ -320,9 +312,9 @@ class CommandLineUnitTest {
                 new CommandLineArgument[] {new CommandLineArgument("-c", 0, null, null, null)});
         cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
 
-        assertTrue(customArguments.get(0)[0].isEnabled());
-        assertTrue(customArguments.get(1)[0].isEnabled());
-        assertFalse(customArguments.get(2)[0].isEnabled());
+        assertThat(customArguments.get(0)[0].isEnabled()).isTrue();
+        assertThat(customArguments.get(1)[0].isEnabled()).isTrue();
+        assertThat(customArguments.get(2)[0].isEnabled()).isFalse();
     }
 
     @Test
@@ -337,18 +329,18 @@ class CommandLineUnitTest {
                 new CommandLineArgument[] {new CommandLineArgument("-c", 3, null, null, null)});
         cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
 
-        assertTrue(customArguments.get(0)[0].isEnabled());
-        assertThat(customArguments.get(0)[0].getArguments(), hasSize(1));
-        assertThat(customArguments.get(0)[0].getArguments(), hasItem("aaa"));
-        assertFalse(customArguments.get(0)[0].getArguments().contains("bbb"));
+        assertThat(customArguments.get(0)[0].isEnabled()).isTrue();
+        assertThat(customArguments.get(0)[0].getArguments()).hasSize(1);
+        assertThat(customArguments.get(0)[0].getArguments()).contains("aaa");
+        assertThat(customArguments.get(0)[0].getArguments().contains("bbb")).isFalse();
 
-        assertTrue(customArguments.get(1)[0].isEnabled());
-        assertThat(customArguments.get(1)[0].getArguments(), hasSize(2));
-        assertFalse(customArguments.get(1)[0].getArguments().contains("aaa"));
-        assertThat(customArguments.get(1)[0].getArguments(), hasItem("bbb"));
-        assertThat(customArguments.get(1)[0].getArguments(), hasItem("BBB"));
+        assertThat(customArguments.get(1)[0].isEnabled()).isTrue();
+        assertThat(customArguments.get(1)[0].getArguments()).hasSize(2);
+        assertThat(customArguments.get(1)[0].getArguments().contains("aaa")).isFalse();
+        assertThat(customArguments.get(1)[0].getArguments()).contains("bbb");
+        assertThat(customArguments.get(1)[0].getArguments()).contains("BBB");
 
-        assertFalse(customArguments.get(2)[0].isEnabled());
+        assertThat(customArguments.get(2)[0].isEnabled()).isFalse();
     }
 
     @Test
@@ -375,8 +367,8 @@ class CommandLineUnitTest {
                     new CommandLineArgument("-script", -1, ".*", null, null)
                 });
         cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
-        assertTrue(customArguments.get(0)[0].isEnabled());
-        assertThat(customArguments.get(0)[0].getArguments().size(), is(equalTo(3)));
+        assertThat(customArguments.get(0)[0].isEnabled()).isTrue();
+        assertThat(customArguments.get(0)[0].getArguments()).hasSize(3);
     }
 
     @Test
@@ -473,13 +465,13 @@ class CommandLineUnitTest {
         cl = list.toArray(cl);
         cmdLine = new CommandLine(cl);
         Map<String, String> map = cmdLine.getOrderedConfigs();
-        assertThat(map.size(), is(equalTo(8)));
+        assertThat(map).hasSize(8);
         Iterator<Entry<String, String>> iter = map.entrySet().iterator();
         Entry<String, String> entry;
         for (String[] kv : TEST_CONF_VALUES) {
             entry = iter.next();
-            assertThat(entry.getKey(), is(equalTo(kv[0])));
-            assertThat(entry.getValue(), is(equalTo(kv[1])));
+            assertThat(entry.getKey()).isEqualTo(kv[0]);
+            assertThat(entry.getValue()).isEqualTo(kv[1]);
         }
     }
 
@@ -493,13 +485,13 @@ class CommandLineUnitTest {
         pw.close();
         cmdLine = new CommandLine(new String[] {"-configfile", testFile.toString()});
         Map<String, String> map = cmdLine.getOrderedConfigs();
-        assertThat(map.size(), is(equalTo(8)));
+        assertThat(map).hasSize(8);
         Iterator<Entry<String, String>> iter = map.entrySet().iterator();
         Entry<String, String> entry;
         for (String[] kv : TEST_CONF_VALUES) {
             entry = iter.next();
-            assertThat(entry.getKey(), is(equalTo(kv[0])));
-            assertThat(entry.getValue(), is(equalTo(kv[1])));
+            assertThat(entry.getKey()).isEqualTo(kv[0]);
+            assertThat(entry.getValue()).isEqualTo(kv[1]);
         }
     }
 }

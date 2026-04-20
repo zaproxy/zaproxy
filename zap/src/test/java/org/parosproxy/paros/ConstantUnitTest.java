@@ -19,12 +19,7 @@
  */
 package org.parosproxy.paros;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,7 +33,6 @@ import java.util.stream.Stream;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,7 +81,7 @@ class ConstantUnitTest {
         assertHomeFile("log4j2.properties", log4jContents);
         assertHomeFile(".homelock", "");
         assertHomeDirs();
-        assertThat(Files.walk(zapHomeDir).count(), is(equalTo(8L)));
+        assertThat(Files.walk(zapHomeDir).count()).isEqualTo(8L);
     }
 
     @Test
@@ -100,10 +94,10 @@ class ConstantUnitTest {
         // Then
         assertHomeFile("config.xml", defaultConfigContents());
         assertHomeFile("log4j2.properties", defaultContents("log4j2-home.properties"));
-        assertHomeFile("zap.log", is(not(emptyString())));
+        assertHomeFileNotEmpty("zap.log");
         assertHomeFile(".homelock", "");
         assertHomeDirs();
-        assertThat(Files.walk(zapHomeDir).count(), is(equalTo(9L)));
+        assertThat(Files.walk(zapHomeDir).count()).isEqualTo(9L);
     }
 
     @Test
@@ -115,7 +109,7 @@ class ConstantUnitTest {
         // When
         boolean acquired = constant.acquireHomeLock();
         // Then
-        assertThat(acquired, is(equalTo(false)));
+        assertThat(acquired).isFalse();
     }
 
     @Test
@@ -176,25 +170,27 @@ class ConstantUnitTest {
         assertHomeFile("log4j.properties.bak", log4jContentsBackup);
     }
 
-    private void assertHomeFile(String name, String contents) throws IOException {
-        assertHomeFile(name, is(equalTo(contents)));
+    private void assertHomeFile(String name, String expectedContents) throws IOException {
+        Path file = zapHomeDir.resolve(name);
+        assertThat(Files.exists(file)).isTrue();
+        assertThat(contents(file)).isEqualTo(expectedContents);
     }
 
-    private void assertHomeFile(String name, Matcher<String> contentsMatcher) throws IOException {
+    private void assertHomeFileNotEmpty(String name) throws IOException {
         Path file = zapHomeDir.resolve(name);
-        assertThat(Files.exists(file), is(true));
-        assertThat(contents(file), contentsMatcher);
+        assertThat(Files.exists(file)).isTrue();
+        assertThat(contents(file)).isNotEmpty();
     }
 
     private void assertHomeFileNotExists(String name) throws IOException {
-        assertThat(Files.exists(zapHomeDir.resolve(name)), is(false));
+        assertThat(Files.exists(zapHomeDir.resolve(name))).isFalse();
     }
 
     private void assertHomeDirs() {
-        assertThat(Files.isDirectory(zapHomeDir.resolve("dirbuster")), is(true));
-        assertThat(Files.isDirectory(zapHomeDir.resolve("fuzzers")), is(true));
-        assertThat(Files.isDirectory(zapHomeDir.resolve("plugin")), is(true));
-        assertThat(Files.isDirectory(zapHomeDir.resolve("session")), is(true));
+        assertThat(Files.isDirectory(zapHomeDir.resolve("dirbuster"))).isTrue();
+        assertThat(Files.isDirectory(zapHomeDir.resolve("fuzzers"))).isTrue();
+        assertThat(Files.isDirectory(zapHomeDir.resolve("plugin"))).isTrue();
+        assertThat(Files.isDirectory(zapHomeDir.resolve("session"))).isTrue();
     }
 
     private static String defaultConfigContents() throws IOException {
@@ -265,16 +261,14 @@ class ConstantUnitTest {
         Constant.upgradeFrom2_9_0(configuration);
         // Then
         for (String keyPrefix : keyPrefixes) {
-            assertThat(
-                    keyPrefix,
-                    configuration.containsKey(keyPrefix + "markocurrences"),
-                    is(equalTo(false)));
-            assertThat(
-                    keyPrefix,
-                    configuration.getProperty(keyPrefix + "markoccurrences"),
-                    is(equalTo("true")));
+            assertThat(configuration.containsKey(keyPrefix + "markocurrences"))
+                    .as(keyPrefix)
+                    .isFalse();
+            assertThat(configuration.getProperty(keyPrefix + "markoccurrences"))
+                    .as(keyPrefix)
+                    .isEqualTo("true");
         }
-        assertThat(configuration.getProperty(unrelatedKey), is(equalTo("abc")));
+        assertThat(configuration.getProperty(unrelatedKey)).isEqualTo("abc");
     }
 
     @Test
@@ -286,12 +280,10 @@ class ConstantUnitTest {
         // When
         Constant.upgradeFrom2_12(configuration);
         // Then
-        assertThat(
-                configuration.getProperty("scanner.threadPerHost"),
-                is(equalTo(Constant.getDefaultThreadCount())));
-        assertThat(
-                configuration.getProperty("pscans.threads"),
-                is(equalTo(Constant.getDefaultThreadCount() / 2)));
+        assertThat(configuration.getProperty("scanner.threadPerHost"))
+                .isEqualTo(Constant.getDefaultThreadCount());
+        assertThat(configuration.getProperty("pscans.threads"))
+                .isEqualTo(Constant.getDefaultThreadCount() / 2);
     }
 
     @Test
@@ -303,8 +295,8 @@ class ConstantUnitTest {
         // When
         Constant.upgradeFrom2_12(configuration);
         // Then
-        assertThat(configuration.getProperty("scanner.threadPerHost"), is(equalTo(3)));
-        assertThat(configuration.getProperty("pscans.threads"), is(equalTo(5)));
+        assertThat(configuration.getProperty("scanner.threadPerHost")).isEqualTo(3);
+        assertThat(configuration.getProperty("pscans.threads")).isEqualTo(5);
     }
 
     @Test
@@ -316,7 +308,7 @@ class ConstantUnitTest {
         // When
         Constant.upgradeFrom2_14_0(configuration);
         // Then
-        assertThat(configuration.configurationsAt(autoTagScannersKey).size(), is(equalTo(3)));
+        assertThat(configuration.configurationsAt(autoTagScannersKey)).hasSize(3);
     }
 
     @Test
@@ -336,19 +328,18 @@ class ConstantUnitTest {
         // When
         Constant.upgradeFrom2_14_0(configuration);
         // Then
-        assertThat(configuration.configurationsAt(autoTagScannersKey).size(), is(equalTo(3)));
+        assertThat(configuration.configurationsAt(autoTagScannersKey)).hasSize(3);
 
         List<Object> namesList = configuration.getList(autoTagScannersKey + ".name");
-        assertTrue(
-                namesList.containsAll(List.of("json_extended", "response_yaml", "response_xml")));
+        assertThat(namesList.containsAll(List.of("json_extended", "response_yaml", "response_xml")))
+                .isTrue();
 
         List<Object> configsList = configuration.getList(autoTagScannersKey + ".config");
-        assertTrue(configsList.containsAll(List.of("XML", "JSON", "YAML")));
+        assertThat(configsList.containsAll(List.of("XML", "JSON", "YAML"))).isTrue();
 
         // response_xml should be 0th and enabled if not overwritten
-        assertThat(
-                configuration.getString(autoTagScannersKey + "(0).name"),
-                is(equalTo("response_xml")));
-        assertThat(configuration.getBoolean(autoTagScannersKey + "(0).enabled"), is(equalTo(true)));
+        assertThat(configuration.getString(autoTagScannersKey + "(0).name"))
+                .isEqualTo("response_xml");
+        assertThat(configuration.getBoolean(autoTagScannersKey + "(0).enabled")).isTrue();
     }
 }

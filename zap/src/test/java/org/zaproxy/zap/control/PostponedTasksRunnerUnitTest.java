@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -71,7 +66,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks = new PostponedTasksRunner(config, aoc);
         // Then
-        assertThat(postponedTasks.getTasks(), hasSize(0));
+        assertThat(postponedTasks.getTasks()).hasSize(0);
     }
 
     @Test
@@ -108,10 +103,10 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks.run();
         // Then
-        assertThat(Files.notExists(file), is(equalTo(true)));
-        assertThat(Files.notExists(homeFile1), is(equalTo(true)));
-        assertThat(Files.notExists(homeFile2), is(equalTo(true)));
-        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn)), is(equalTo(true)));
+        assertThat(Files.notExists(file)).isTrue();
+        assertThat(Files.notExists(homeFile1)).isTrue();
+        assertThat(Files.notExists(homeFile2)).isTrue();
+        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn))).isTrue();
         verify(aoc).getAddOn("addon");
         verifyNoMoreInteractions(aoc);
         assertNoPersistedTasks();
@@ -129,7 +124,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks.run();
         // Then
-        assertThat(Files.notExists(file), is(equalTo(true)));
+        assertThat(Files.notExists(file)).isTrue();
         verify(aoc).getAddOn(addOnId);
         verify(aoc).removeAddOn(existingAddOn);
         verifyNoMoreInteractions(aoc);
@@ -150,10 +145,10 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks.run();
         // Then
-        assertThat(Files.notExists(file), is(equalTo(true)));
+        assertThat(Files.notExists(file)).isTrue();
         verify(aoc).getAddOn(addOnId);
         verify(aoc, times(0)).removeAddOn(existingAddOn);
-        assertThat(Files.exists(existingFile), is(equalTo(true)));
+        assertThat(Files.exists(existingFile)).isTrue();
         verifyNoMoreInteractions(aoc);
         assertNoPersistedTasks();
     }
@@ -179,7 +174,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks = new PostponedTasksRunner(config, aoc);
         // Then
-        assertThat(postponedTasks.getTasks(), hasSize(0));
+        assertThat(postponedTasks.getTasks()).hasSize(0);
     }
 
     @Test
@@ -191,7 +186,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks = new PostponedTasksRunner(config, aoc);
         // Then
-        assertThat(postponedTasks.getTasks(), hasSize(0));
+        assertThat(postponedTasks.getTasks()).hasSize(0);
     }
 
     @Test
@@ -212,7 +207,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks.run();
         // Then
-        assertThat(Files.notExists(file), is(equalTo(true)));
+        assertThat(Files.notExists(file)).isTrue();
         verifyNoInteractions(aoc);
         assertNoPersistedTasks();
     }
@@ -238,7 +233,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks = new PostponedTasksRunner(config, aoc);
         // Then
-        assertThat(postponedTasks.getTasks(), hasSize(0));
+        assertThat(postponedTasks.getTasks()).hasSize(0);
     }
 
     @Test
@@ -250,7 +245,7 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
         // When
         postponedTasks = new PostponedTasksRunner(config, aoc);
         // Then
-        assertThat(postponedTasks.getTasks(), hasSize(0));
+        assertThat(postponedTasks.getTasks()).hasSize(0);
     }
 
     private static Path createFile() throws IOException {
@@ -259,19 +254,19 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
 
     private void assertUninstallAddOnTask(int idx, Path file) {
         Task task = postponedTasks.getTasks().get(idx);
-        assertThat(task, is(instanceOf(UninstallAddOnTask.class)));
+        assertThat(task).isInstanceOf(UninstallAddOnTask.class);
         UninstallAddOnTask uninstallAddOnTask = (UninstallAddOnTask) task;
-        assertThat(uninstallAddOnTask.getType(), is(equalTo(Task.Type.UNINSTALL_ADD_ON)));
-        assertThat(uninstallAddOnTask.getAddOn(), is(notNullValue()));
-        assertThat(uninstallAddOnTask.getAddOn().getFile(), is(equalTo(file.toFile())));
+        assertThat(uninstallAddOnTask.getType()).isEqualTo(Task.Type.UNINSTALL_ADD_ON);
+        assertThat(uninstallAddOnTask.getAddOn()).isNotNull();
+        assertThat(uninstallAddOnTask.getAddOn().getFile()).isEqualTo(file.toFile());
     }
 
     private void assertDeleteFileTask(int idx, Path file) {
         Task task = postponedTasks.getTasks().get(idx);
-        assertThat(task, is(instanceOf(DeleteFileTask.class)));
+        assertThat(task).isInstanceOf(DeleteFileTask.class);
         DeleteFileTask deleteFileTask = (DeleteFileTask) task;
-        assertThat(deleteFileTask.getType(), is(equalTo(Task.Type.DELETE_FILE)));
-        assertThat(deleteFileTask.getFile(), is(equalTo(file)));
+        assertThat(deleteFileTask.getType()).isEqualTo(Task.Type.DELETE_FILE);
+        assertThat(deleteFileTask.getFile()).isEqualTo(file);
     }
 
     private void assertPersistedUninstallAddOnTask(int idx, Path file) {
@@ -284,11 +279,11 @@ class PostponedTasksRunnerUnitTest extends AddOnTestUtils {
 
     private void assertPersistedTask(int idx, String type, String propertyName, Path file) {
         String baseKey = "postponedTasks.task(" + idx + ").";
-        assertThat(config.getProperty(baseKey + "type"), is(equalTo(type)));
-        assertThat(config.getProperty(baseKey + propertyName), is(equalTo(file.toString())));
+        assertThat(config.getProperty(baseKey + "type")).isEqualTo(type);
+        assertThat(config.getProperty(baseKey + propertyName)).isEqualTo(file.toString());
     }
 
     private void assertNoPersistedTasks() {
-        assertThat(config.getProperties("postponedTasks.task").size(), is(equalTo(0)));
+        assertThat(config.getProperties("postponedTasks.task")).hasSize(0);
     }
 }

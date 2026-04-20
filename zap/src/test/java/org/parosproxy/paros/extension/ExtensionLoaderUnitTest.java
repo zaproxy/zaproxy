@@ -19,8 +19,7 @@
  */
 package org.parosproxy.paros.extension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.inOrder;
@@ -159,7 +158,7 @@ class ExtensionLoaderUnitTest {
         // When
         List<String> resources = extensionLoader.getUnsavedResources();
         // Then
-        assertThat(resources, contains("Resource A", "Resource C"));
+        assertThat(resources).containsExactly("Resource A", "Resource C");
     }
 
     @Test
@@ -177,7 +176,7 @@ class ExtensionLoaderUnitTest {
         // When
         List<String> resources = extensionLoader.getUnsavedResources();
         // Then
-        assertThat(resources, contains("Resource C"));
+        assertThat(resources).containsExactly("Resource C");
     }
 
     @Test
@@ -195,7 +194,7 @@ class ExtensionLoaderUnitTest {
         // When
         List<String> resources = extensionLoader.getActiveActions();
         // Then
-        assertThat(resources, contains("Action A", "Action C"));
+        assertThat(resources).containsExactly("Action A", "Action C");
     }
 
     @Test
@@ -213,7 +212,7 @@ class ExtensionLoaderUnitTest {
         // When
         List<String> actions = extensionLoader.getActiveActions();
         // Then
-        assertThat(actions, contains("Action C"));
+        assertThat(actions).containsExactly("Action C");
     }
 
     private <T> T throwThrowable(T arg) throws Throwable {

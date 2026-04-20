@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,14 +58,14 @@ class ApiResponseConversionUtilsUnitTest {
     void nameOfApiResponseShouldBeConstant() {
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 
-        assertThat(response.getName(), is("message"));
+        assertThat(response.getName()).isEqualTo("message");
     }
 
     @Test
     void historyIdShouldBecomeIdOfApiResponse() {
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(42, message);
 
-        assertThat(response.getValues(), hasEntry("id", "42"));
+        assertThat(response.getValues()).containsEntry("id", "42");
     }
 
     @Test
@@ -75,7 +73,7 @@ class ApiResponseConversionUtilsUnitTest {
         // Given / When
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
         // Then
-        assertThat(response.getValues(), hasEntry("type", "-1"));
+        assertThat(response.getValues()).containsEntry("type", "-1");
     }
 
     @Test
@@ -86,7 +84,7 @@ class ApiResponseConversionUtilsUnitTest {
         ApiResponseSet<String> response =
                 ApiResponseConversionUtils.httpMessageToSet(0, historyType, message);
         // Then
-        assertThat(response.getValues(), hasEntry("type", (Object) "2"));
+        assertThat(response.getValues()).containsEntry("type", "2");
     }
 
     @Test
@@ -101,12 +99,12 @@ class ApiResponseConversionUtilsUnitTest {
 
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 
-        assertThat(response.getValues(), hasEntry("cookieParams", "testCookieParams"));
-        assertThat(response.getValues(), hasEntry("note", "testNote"));
-        assertThat(response.getValues(), hasEntry("requestHeader", requestHeader.toString()));
-        assertThat(response.getValues(), hasEntry("requestBody", requestBody.toString()));
-        assertThat(response.getValues(), hasEntry("responseHeader", responseHeader.toString()));
-        assertThat(response.getValues(), hasEntry("timestamp", "1010101010101"));
-        assertThat(response.getValues(), hasEntry("rtt", "200"));
+        assertThat(response.getValues()).containsEntry("cookieParams", "testCookieParams");
+        assertThat(response.getValues()).containsEntry("note", "testNote");
+        assertThat(response.getValues()).containsEntry("requestHeader", requestHeader.toString());
+        assertThat(response.getValues()).containsEntry("requestBody", requestBody.toString());
+        assertThat(response.getValues()).containsEntry("responseHeader", responseHeader.toString());
+        assertThat(response.getValues()).containsEntry("timestamp", "1010101010101");
+        assertThat(response.getValues()).containsEntry("rtt", "200");
     }
 }

@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayOutputStream;
@@ -47,7 +45,7 @@ class HttpEncodingGzipUnitTest {
         // Given / When
         byte[] encodedContent = encoding.encode(CONTENT);
         // Then
-        assertThat(encodedContent, is(equalTo(CONTENT_ENCODED)));
+        assertThat(encodedContent).isEqualTo(CONTENT_ENCODED);
     }
 
     @Test
@@ -55,7 +53,7 @@ class HttpEncodingGzipUnitTest {
         // Given / When
         byte[] decodedContent = encoding.decode(CONTENT_ENCODED);
         // Then
-        assertThat(decodedContent, is(equalTo(CONTENT)));
+        assertThat(decodedContent).isEqualTo(CONTENT);
     }
 
     @Test
@@ -63,7 +61,7 @@ class HttpEncodingGzipUnitTest {
         // Given / When
         byte[] encodedContent = encoding.encode(EMPTY_CONTENT);
         // Then
-        assertThat(encodedContent, is(equalTo(EMPTY_CONTENT_ENCODED)));
+        assertThat(encodedContent).isEqualTo(EMPTY_CONTENT_ENCODED);
     }
 
     @Test
@@ -71,7 +69,7 @@ class HttpEncodingGzipUnitTest {
         // Given / When
         byte[] decodedContent = encoding.decode(EMPTY_CONTENT_ENCODED);
         // Then
-        assertThat(decodedContent, is(equalTo(EMPTY_CONTENT)));
+        assertThat(decodedContent).isEqualTo(EMPTY_CONTENT);
     }
 
     @Test
@@ -79,7 +77,7 @@ class HttpEncodingGzipUnitTest {
         // Given / When
         byte[] decodedContent = encoding.decode(EMPTY_CONTENT);
         // Then
-        assertThat(decodedContent, is(equalTo(EMPTY_CONTENT)));
+        assertThat(decodedContent).isEqualTo(EMPTY_CONTENT);
     }
 
     @Test

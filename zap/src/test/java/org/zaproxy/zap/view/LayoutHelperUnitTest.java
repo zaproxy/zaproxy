@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -44,7 +43,7 @@ class LayoutHelperUnitTest {
         // when
         GridBagConstraints constraints = LayoutHelper.getGBC(X, Y, WIDTH, WEIGHT_X);
         // then
-        assertThat(constraints.fill, is(GridBagConstraints.BOTH));
+        assertThat(constraints.fill).isEqualTo(GridBagConstraints.BOTH);
     }
 
     @Test
@@ -53,7 +52,7 @@ class LayoutHelperUnitTest {
         // when
         GridBagConstraints constraints = LayoutHelper.getGBC(X, Y, WIDTH, WEIGHT_X);
         // then
-        assertThat(constraints.anchor, is(GridBagConstraints.NORTHWEST));
+        assertThat(constraints.anchor).isEqualTo(GridBagConstraints.NORTHWEST);
     }
 
     @Test
@@ -62,7 +61,7 @@ class LayoutHelperUnitTest {
         // when
         GridBagConstraints constraints = LayoutHelper.getGBC(X, Y, WIDTH, WEIGHT_X, null);
         // then
-        assertThat(constraints.insets, is(new Insets(0, 0, 0, 0)));
+        assertThat(constraints.insets).isEqualTo(new Insets(0, 0, 0, 0));
     }
 
     @Test
@@ -72,14 +71,14 @@ class LayoutHelperUnitTest {
         GridBagConstraints constraints =
                 LayoutHelper.getGBC(X, Y, WIDTH, HEIGHT, WEIGHT_X, WEIGHT_Y, FILL, ANCHOR, INSETS);
         // then
-        assertThat(constraints.gridx, is(X));
-        assertThat(constraints.gridy, is(Y));
-        assertThat(constraints.gridwidth, is(WIDTH));
-        assertThat(constraints.gridheight, is(HEIGHT));
-        assertThat(constraints.weightx, is(WEIGHT_X));
-        assertThat(constraints.weighty, is(WEIGHT_Y));
-        assertThat(constraints.fill, is(FILL));
-        assertThat(constraints.anchor, is(ANCHOR));
-        assertThat(constraints.insets, is(INSETS));
+        assertThat(constraints.gridx).isEqualTo(X);
+        assertThat(constraints.gridy).isEqualTo(Y);
+        assertThat(constraints.gridwidth).isEqualTo(WIDTH);
+        assertThat(constraints.gridheight).isEqualTo(HEIGHT);
+        assertThat(constraints.weightx).isEqualTo(WEIGHT_X);
+        assertThat(constraints.weighty).isEqualTo(WEIGHT_Y);
+        assertThat(constraints.fill).isEqualTo(FILL);
+        assertThat(constraints.anchor).isEqualTo(ANCHOR);
+        assertThat(constraints.insets).isEqualTo(INSETS);
     }
 }

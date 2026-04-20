@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.view.widgets;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -75,7 +69,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.addListDataListener(listener);
         // Then
-        assertThat(usersListModel.getListDataListeners(), is(arrayContaining(listener)));
+        assertThat(usersListModel.getListDataListeners()).containsExactly(listener);
     }
 
     @Test
@@ -87,7 +81,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.removeListDataListener(listener);
         // Then
-        assertThat(usersListModel.getListDataListeners(), is(emptyArray()));
+        assertThat(usersListModel.getListDataListeners()).isEmpty();
     }
 
     @Test
@@ -97,7 +91,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         User user = usersListModel.getElementAt(0);
         // Then
-        assertThat(user, is(nullValue()));
+        assertThat(user).isNull();
     }
 
     @Test
@@ -117,7 +111,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         User user = usersListModel.getElementAt(0);
         // Then
-        assertThat(user, is(equalTo(tableModel.getUsers().get(0))));
+        assertThat(user).isEqualTo(tableModel.getUsers().get(0));
     }
 
     @Test
@@ -132,12 +126,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
-        assertThat(usersListModel.getElementAt(0), is(equalTo(customUser1)));
-        assertThat(usersListModel.getElementAt(1), is(equalTo(customUser2)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemAdded(0), is(equalTo(true)));
-        assertThat(listener.isListItemAdded(1), is(equalTo(true)));
-        assertThat(listener.isListItemAdded(2), is(equalTo(false)));
+        assertThat(usersListModel.getElementAt(0)).isEqualTo(customUser1);
+        assertThat(usersListModel.getElementAt(1)).isEqualTo(customUser2);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemAdded(0)).isTrue();
+        assertThat(listener.isListItemAdded(1)).isTrue();
+        assertThat(listener.isListItemAdded(2)).isFalse();
     }
 
     @Test
@@ -152,13 +146,13 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
-        assertThat(usersListModel.getElementAt(2), is(equalTo(customUser1)));
-        assertThat(usersListModel.getElementAt(3), is(equalTo(customUser2)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemAdded(1), is(equalTo(false)));
-        assertThat(listener.isListItemAdded(2), is(equalTo(true)));
-        assertThat(listener.isListItemAdded(3), is(equalTo(true)));
-        assertThat(listener.isListItemAdded(4), is(equalTo(false)));
+        assertThat(usersListModel.getElementAt(2)).isEqualTo(customUser1);
+        assertThat(usersListModel.getElementAt(3)).isEqualTo(customUser2);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemAdded(1)).isFalse();
+        assertThat(listener.isListItemAdded(2)).isTrue();
+        assertThat(listener.isListItemAdded(3)).isTrue();
+        assertThat(listener.isListItemAdded(4)).isFalse();
     }
 
     @Test
@@ -174,12 +168,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
-        assertThat(usersListModel.getElementAt(0), is(equalTo(customUser1)));
-        assertThat(usersListModel.getElementAt(1), is(equalTo(customUser2)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(2), is(equalTo(true)));
+        assertThat(usersListModel.getElementAt(0)).isEqualTo(customUser1);
+        assertThat(usersListModel.getElementAt(1)).isEqualTo(customUser2);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(0)).isTrue();
+        assertThat(listener.isListItemChanged(1)).isTrue();
+        assertThat(listener.isListItemChanged(2)).isTrue();
     }
 
     @Test
@@ -195,13 +189,13 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
-        assertThat(usersListModel.getElementAt(2), is(equalTo(customUser1)));
-        assertThat(usersListModel.getElementAt(3), is(equalTo(customUser2)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(false)));
-        assertThat(listener.isListItemChanged(2), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(3), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(4), is(equalTo(true)));
+        assertThat(usersListModel.getElementAt(2)).isEqualTo(customUser1);
+        assertThat(usersListModel.getElementAt(3)).isEqualTo(customUser2);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(1)).isFalse();
+        assertThat(listener.isListItemChanged(2)).isTrue();
+        assertThat(listener.isListItemChanged(3)).isTrue();
+        assertThat(listener.isListItemChanged(4)).isTrue();
     }
 
     @Test
@@ -213,7 +207,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(null);
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
     }
 
     @Test
@@ -226,7 +220,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(null);
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
     }
 
     @Test
@@ -239,10 +233,10 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(null);
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemRemoved(0), is(equalTo(true)));
-        assertThat(listener.isListItemRemoved(1), is(equalTo(true)));
-        assertThat(listener.isListItemRemoved(2), is(equalTo(false)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemRemoved(0)).isTrue();
+        assertThat(listener.isListItemRemoved(1)).isTrue();
+        assertThat(listener.isListItemRemoved(2)).isFalse();
     }
 
     @Test
@@ -255,11 +249,11 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(null);
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemRemoved(1), is(equalTo(false)));
-        assertThat(listener.isListItemRemoved(2), is(equalTo(true)));
-        assertThat(listener.isListItemRemoved(3), is(equalTo(true)));
-        assertThat(listener.isListItemRemoved(4), is(equalTo(false)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemRemoved(1)).isFalse();
+        assertThat(listener.isListItemRemoved(2)).isTrue();
+        assertThat(listener.isListItemRemoved(3)).isTrue();
+        assertThat(listener.isListItemRemoved(4)).isFalse();
     }
 
     @Test
@@ -272,11 +266,11 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setCustomUsers(new User[] {});
         // Then
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemRemoved(1), is(equalTo(false)));
-        assertThat(listener.isListItemRemoved(2), is(equalTo(true)));
-        assertThat(listener.isListItemRemoved(3), is(equalTo(true)));
-        assertThat(listener.isListItemRemoved(4), is(equalTo(false)));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemRemoved(1)).isFalse();
+        assertThat(listener.isListItemRemoved(2)).isTrue();
+        assertThat(listener.isListItemRemoved(3)).isTrue();
+        assertThat(listener.isListItemRemoved(4)).isFalse();
     }
 
     @Test
@@ -286,7 +280,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int size = usersListModel.getSize();
         // Then
-        assertThat(size, is(equalTo(3)));
+        assertThat(size).isEqualTo(3);
     }
 
     @Test
@@ -297,7 +291,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int size = usersListModel.getSize();
         // Then
-        assertThat(size, is(equalTo(5)));
+        assertThat(size).isEqualTo(5);
     }
 
     @Test
@@ -308,7 +302,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int size = usersListModel.getSize();
         // Then
-        assertThat(size, is(equalTo(2)));
+        assertThat(size).isEqualTo(2);
     }
 
     @Test
@@ -318,7 +312,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int index = usersListModel.getIndexOf(createUser());
         // Then
-        assertThat(index, is(equalTo(-1)));
+        assertThat(index).isEqualTo(-1);
     }
 
     @Test
@@ -329,7 +323,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int index = usersListModel.getIndexOf(tableModel.getUsers().get(1));
         // Then
-        assertThat(index, is(equalTo(1)));
+        assertThat(index).isEqualTo(1);
     }
 
     @Test
@@ -341,7 +335,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int index = usersListModel.getIndexOf(customUser);
         // Then
-        assertThat(index, is(equalTo(0)));
+        assertThat(index).isEqualTo(0);
     }
 
     @Test
@@ -353,7 +347,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         int index = usersListModel.getIndexOf(customUser);
         // Then
-        assertThat(index, is(equalTo(2)));
+        assertThat(index).isEqualTo(2);
     }
 
     @Test
@@ -363,7 +357,7 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         Object user = usersListModel.getSelectedItem();
         // Then
-        assertThat(user, is(nullValue()));
+        assertThat(user).isNull();
     }
 
     @Test
@@ -375,9 +369,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(createUser());
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     @Test
@@ -389,9 +383,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(new Object());
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     @Test
@@ -404,11 +398,10 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         // Then
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(1))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(1));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -422,11 +415,10 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         // Then
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(1))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(1));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     @Test
@@ -440,11 +432,10 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(tableModel.getUsers().get(0));
         // Then
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -458,9 +449,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(null);
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -473,9 +464,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(null);
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(0);
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     @Test
@@ -487,9 +478,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(createUser());
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -502,11 +493,10 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(createUser());
         // Then
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -519,11 +509,10 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(copyUser(tableModel.getUsers().get(1)));
         // Then
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(1))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(1));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -537,9 +526,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(copyUser(customUser));
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) customUser)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem()).isEqualTo((Object) customUser);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -553,9 +542,9 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(copyUser(customUser));
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) customUser)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSelectedItem()).isEqualTo((Object) customUser);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     // TODO test tableChanged
@@ -571,14 +560,13 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.addElement(user);
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(3)));
-        assertThat(usersListModel.getElementAt(2), is(equalTo((Object) user)));
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemAdded(2), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSize()).isEqualTo(3);
+        assertThat(usersListModel.getElementAt(2)).isEqualTo((Object) user);
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemAdded(2)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -593,13 +581,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.addElement(user);
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(3)));
-        assertThat(usersListModel.getElementAt(2), is(equalTo((Object) user)));
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemAdded(2), is(equalTo(true)));
+        assertThat(usersListModel.getSize()).isEqualTo(3);
+        assertThat(usersListModel.getElementAt(2)).isEqualTo((Object) user);
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemAdded(2)).isTrue();
     }
 
     @Test
@@ -613,13 +600,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.modifyElement(1, user);
         // Then
-        assertThat(usersListModel.getElementAt(1), is(equalTo((Object) user)));
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getElementAt(1)).isEqualTo((Object) user);
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemChanged(1)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -634,12 +620,11 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.modifyElement(1, user);
         // Then
-        assertThat(usersListModel.getElementAt(1), is(equalTo((Object) user)));
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(2))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
+        assertThat(usersListModel.getElementAt(1)).isEqualTo((Object) user);
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(2));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(1)).isTrue();
     }
 
     @Test
@@ -654,11 +639,11 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.modifyElement(1, user);
         // Then
-        assertThat(usersListModel.getElementAt(1), is(equalTo((Object) user)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) user)));
-        assertThat(usersListModel.getSelectedItem(), is(sameInstance((Object) user)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
+        assertThat(usersListModel.getElementAt(1)).isEqualTo((Object) user);
+        assertThat(usersListModel.getSelectedItem()).isEqualTo((Object) user);
+        assertThat(usersListModel.getSelectedItem()).isSameAs((Object) user);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemChanged(1)).isTrue();
     }
 
     @Test
@@ -672,12 +657,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.clear();
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(0)));
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemChanged(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSize()).isEqualTo(0);
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemChanged(0)).isTrue();
+        assertThat(listener.isListItemChanged(1)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -693,12 +678,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.clear();
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(2)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) customUser)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemChanged(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSize()).isEqualTo(2);
+        assertThat(usersListModel.getSelectedItem()).isEqualTo((Object) customUser);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemChanged(0)).isTrue();
+        assertThat(listener.isListItemChanged(1)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -711,12 +696,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.clear();
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(0)));
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemChanged(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(1), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSize()).isEqualTo(0);
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemChanged(0)).isTrue();
+        assertThat(listener.isListItemChanged(1)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     @Test
@@ -730,13 +715,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.removeElement(1);
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(1)));
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemRemoved(1), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSize()).isEqualTo(1);
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemRemoved(1)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -752,11 +736,11 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.removeElement(0);
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(2)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) customUser)));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
-        assertThat(listener.isListItemRemoved(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
+        assertThat(usersListModel.getSize()).isEqualTo(2);
+        assertThat(usersListModel.getSelectedItem()).isEqualTo((Object) customUser);
+        assertThat(listener.getNumberOfEvents()).isEqualTo(2);
+        assertThat(listener.isListItemRemoved(0)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isTrue();
     }
 
     @Test
@@ -770,13 +754,12 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.removeElement(0);
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(1)));
-        assertThat(
-                usersListModel.getSelectedItem(),
-                is(equalTo((Object) tableModel.getUsers().get(0))));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemRemoved(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSize()).isEqualTo(1);
+        assertThat(usersListModel.getSelectedItem())
+                .isEqualTo((Object) tableModel.getUsers().get(0));
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemRemoved(0)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     @Test
@@ -789,11 +772,11 @@ class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         tableModel.removeElement(0);
         // Then
-        assertThat(usersListModel.getSize(), is(equalTo(0)));
-        assertThat(usersListModel.getSelectedItem(), is(nullValue()));
-        assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
-        assertThat(listener.isListItemRemoved(0), is(equalTo(true)));
-        assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
+        assertThat(usersListModel.getSize()).isEqualTo(0);
+        assertThat(usersListModel.getSelectedItem()).isNull();
+        assertThat(listener.getNumberOfEvents()).isEqualTo(1);
+        assertThat(listener.isListItemRemoved(0)).isTrue();
+        assertThat(listener.isListItemChanged(-1)).isFalse();
     }
 
     private static UsersTableModel createUsersTableModel(int numberOfUsers) {

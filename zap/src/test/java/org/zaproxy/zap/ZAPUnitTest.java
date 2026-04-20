@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -125,7 +121,7 @@ class ZAPUnitTest {
             // Then
             verifyNoInteractions(errStream);
             verify(exception, times(0)).printStackTrace();
-            assertThat(testAppender.getLogEvents(), hasSize(1));
+            assertThat(testAppender.getLogEvents()).hasSize(1);
             assertLogEvent(testAppender.getLogEvents().get(0), THREAD_NAME, exception);
         }
 
@@ -144,7 +140,7 @@ class ZAPUnitTest {
             verifyNoInteractions(errStream);
             verify(exception1, times(0)).printStackTrace();
             verify(exception2, times(0)).printStackTrace();
-            assertThat(testAppender.getLogEvents(), hasSize(2));
+            assertThat(testAppender.getLogEvents()).hasSize(2);
             assertLogEvent(testAppender.getLogEvents().get(0), THREAD_NAME, exception1);
             assertLogEvent(testAppender.getLogEvents().get(1), OTHER_THREAD_NAME, exception2);
         }
@@ -163,7 +159,7 @@ class ZAPUnitTest {
             // Then
             verify(errStream).println(messageWith(THREAD_NAME));
             verify(exception1).printStackTrace();
-            assertThat(testAppender.getLogEvents(), hasSize(1));
+            assertThat(testAppender.getLogEvents()).hasSize(1);
             assertLogEvent(testAppender.getLogEvents().get(0), OTHER_THREAD_NAME, exception2);
         }
 
@@ -178,7 +174,7 @@ class ZAPUnitTest {
             // Then
             verifyNoInteractions(errStream);
             verify(exception, times(0)).printStackTrace();
-            assertThat(testAppender.getLogEvents(), hasSize(1));
+            assertThat(testAppender.getLogEvents()).hasSize(1);
             assertLogEvent(testAppender.getLogEvents().get(0), THREAD_NAME, exception);
         }
 
@@ -194,7 +190,7 @@ class ZAPUnitTest {
             // Then
             verifyNoInteractions(errStream);
             verify(exception, times(0)).printStackTrace();
-            assertThat(testAppender.getLogEvents(), hasSize(0));
+            assertThat(testAppender.getLogEvents()).hasSize(0);
         }
 
         @Test
@@ -240,8 +236,8 @@ class ZAPUnitTest {
 
         private void assertLogEvent(
                 Log4jTestAppender.AppendedLogEvent logEvent, String message, Throwable exception) {
-            assertThat(logEvent.getMessage(), containsString(messageWith(message)));
-            assertThat(logEvent.getException(), is(equalTo(exception)));
+            assertThat(logEvent.getMessage()).contains(messageWith(message));
+            assertThat(logEvent.getException()).isEqualTo(exception);
         }
 
         private static String messageWith(String threadName) {

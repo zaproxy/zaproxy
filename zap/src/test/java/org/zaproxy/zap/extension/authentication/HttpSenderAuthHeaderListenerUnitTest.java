@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +52,7 @@ class HttpSenderAuthHeaderListenerUnitTest {
         HttpSenderAuthHeaderListener listener = new HttpSenderAuthHeaderListener(map::get);
 
         // When / Then
-        assertThat(listener.getListenerOrder(), is(equalTo(Integer.MAX_VALUE)));
+        assertThat(listener.getListenerOrder()).isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test
@@ -68,15 +65,12 @@ class HttpSenderAuthHeaderListenerUnitTest {
         new HttpSenderAuthHeaderListener(map::get);
 
         // When / Then
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(HttpHeader.AUTHORIZATION)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(null)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(null)));
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(HttpHeader.AUTHORIZATION);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(null);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(null);
     }
 
     @Test
@@ -89,16 +83,13 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msg, -1, null);
 
         // Then
-        assertThat(msg.getRequestHeader().getHeaders().size(), is(origHeaderCount));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(HttpHeader.AUTHORIZATION)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(null)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(null)));
+        assertThat(msg.getRequestHeader().getHeaders()).hasSize(origHeaderCount);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(HttpHeader.AUTHORIZATION);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(null);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(null);
     }
 
     @Test
@@ -113,17 +104,15 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msg, -1, null);
 
         // Then
-        assertThat(msg.getRequestHeader().getHeaders().size(), is(origHeaderCount + 1));
-        assertThat(msg.getRequestHeader().getHeader(HttpHeader.AUTHORIZATION), is(headerValue));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(HttpHeader.AUTHORIZATION)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(null)));
+        assertThat(msg.getRequestHeader().getHeaders()).hasSize(origHeaderCount + 1);
+        assertThat(msg.getRequestHeader().getHeader(HttpHeader.AUTHORIZATION))
+                .isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(HttpHeader.AUTHORIZATION);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(null);
     }
 
     @Test
@@ -137,7 +126,7 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msg, -1, null);
 
         // Then
-        assertThat(msg.getRequestHeader().getHeaders().size(), is(origHeaderCount));
+        assertThat(msg.getRequestHeader().getHeaders()).hasSize(origHeaderCount);
     }
 
     @Test
@@ -154,8 +143,8 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msg, -1, null);
 
         // Then
-        assertThat(msg.getRequestHeader().getHeaders().size(), is(origHeaderCount + 1));
-        assertThat(msg.getRequestHeader().getHeader(headerType), is(headerValue));
+        assertThat(msg.getRequestHeader().getHeaders()).hasSize(origHeaderCount + 1);
+        assertThat(msg.getRequestHeader().getHeader(headerType)).isEqualTo(headerValue);
     }
 
     @Test
@@ -171,8 +160,9 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msg, -1, null);
 
         // Then
-        assertThat(msg.getRequestHeader().getHeaders().size(), is(origHeaderCount + 1));
-        assertThat(msg.getRequestHeader().getHeader(HttpHeader.AUTHORIZATION), is(headerValue));
+        assertThat(msg.getRequestHeader().getHeaders()).hasSize(origHeaderCount + 1);
+        assertThat(msg.getRequestHeader().getHeader(HttpHeader.AUTHORIZATION))
+                .isEqualTo(headerValue);
     }
 
     @Test
@@ -189,7 +179,7 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpResponseReceive(msg, -1, null);
 
         // Then
-        assertThat(msg.getRequestHeader().getHeaders().size(), is(origHeaderCount));
+        assertThat(msg.getRequestHeader().getHeaders()).hasSize(origHeaderCount);
     }
 
     @Test
@@ -211,17 +201,14 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msgRemote, -1, null);
 
         // Then
-        assertThat(msgLocal.getRequestHeader().getHeader(headerType), is(headerValue));
-        assertThat(msgRemote.getRequestHeader().getHeader(headerType), is(emptyOrNullString()));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(headerType)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(headerHost)));
+        assertThat(msgLocal.getRequestHeader().getHeader(headerType)).isEqualTo(headerValue);
+        assertThat(msgRemote.getRequestHeader().getHeader(headerType)).isNullOrEmpty();
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(headerType);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(headerHost);
     }
 
     @Test
@@ -242,8 +229,8 @@ class HttpSenderAuthHeaderListenerUnitTest {
         authHeaderListener.onHttpRequestSend(msgRemote, -1, null);
 
         // Then
-        assertThat(msgLocal.getRequestHeader().getHeader(headerType), is(headerValue));
-        assertThat(msgRemote.getRequestHeader().getHeader(headerType), is(headerValue));
+        assertThat(msgLocal.getRequestHeader().getHeader(headerType)).isEqualTo(headerValue);
+        assertThat(msgRemote.getRequestHeader().getHeader(headerType)).isEqualTo(headerValue);
     }
 
     @Test
@@ -261,17 +248,14 @@ class HttpSenderAuthHeaderListenerUnitTest {
         HttpRequestHeader header = msg.getRequestHeader();
 
         // Then
-        assertThat(header.getHeaders().size(), is(equalTo(origHeaderCount + 1)));
-        assertThat(header.getHeader(HttpHeader.AUTHORIZATION), is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(HttpHeader.AUTHORIZATION)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(headerHost)));
+        assertThat(header.getHeaders()).hasSize(origHeaderCount + 1);
+        assertThat(header.getHeader(HttpHeader.AUTHORIZATION)).isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(HttpHeader.AUTHORIZATION);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(headerHost);
     }
 
     @Test
@@ -289,18 +273,15 @@ class HttpSenderAuthHeaderListenerUnitTest {
         HttpRequestHeader header = msg.getRequestHeader();
 
         // Then
-        assertThat(header.getHeaders().size(), is(equalTo(origHeaderCount + 1)));
-        assertThat(header.getHeader(HttpHeader.AUTHORIZATION), is(equalTo(null)));
-        assertThat(header.getHeader(headerType), is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(headerType)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(null)));
+        assertThat(header.getHeaders()).hasSize(origHeaderCount + 1);
+        assertThat(header.getHeader(HttpHeader.AUTHORIZATION)).isEqualTo(null);
+        assertThat(header.getHeader(headerType)).isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(headerType);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(null);
     }
 
     @Test
@@ -319,16 +300,13 @@ class HttpSenderAuthHeaderListenerUnitTest {
         List<HttpHeaderField> headers = msg.getRequestHeader().getHeaders();
 
         // Then
-        assertThat(headers.size(), is(equalTo(origHeaderCount)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(headerType)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(null)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(null)));
+        assertThat(headers).hasSize(origHeaderCount);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(headerType);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(null);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(null);
     }
 
     @Test
@@ -347,17 +325,14 @@ class HttpSenderAuthHeaderListenerUnitTest {
         HttpRequestHeader header = msg.getRequestHeader();
 
         // Then
-        assertThat(header.getHeaders().size(), is(equalTo(origHeaderCount + 1)));
-        assertThat(header.getHeader(HttpHeader.AUTHORIZATION), is(equalTo(headerValue)));
-        assertThat(header.getHeader("my-header"), is(equalTo(null)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER),
-                is(equalTo(HttpHeader.AUTHORIZATION)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE),
-                is(equalTo(headerValue)));
-        assertThat(
-                ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE),
-                is(equalTo(null)));
+        assertThat(header.getHeaders()).hasSize(origHeaderCount + 1);
+        assertThat(header.getHeader(HttpHeader.AUTHORIZATION)).isEqualTo(headerValue);
+        assertThat(header.getHeader("my-header")).isEqualTo(null);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER))
+                .isEqualTo(HttpHeader.AUTHORIZATION);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE))
+                .isEqualTo(headerValue);
+        assertThat(ScriptVars.getGlobalVar(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_SITE))
+                .isEqualTo(null);
     }
 }

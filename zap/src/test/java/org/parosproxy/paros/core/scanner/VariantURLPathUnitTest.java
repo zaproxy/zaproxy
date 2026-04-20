@@ -19,17 +19,11 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -47,7 +41,7 @@ class VariantURLPathUnitTest {
         // When
         List<NameValuePair> parameters = variantUrlPath.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -68,7 +62,7 @@ class VariantURLPathUnitTest {
         // When
         variantUrlPath.setMessage(message);
         // Then
-        assertThat(variantUrlPath.getParamList(), contains(parameter("", 1)));
+        assertThat(variantUrlPath.getParamList()).containsExactly(parameter("", 1));
     }
 
     @Test
@@ -79,10 +73,9 @@ class VariantURLPathUnitTest {
         // When
         variantUrlPath.setMessage(message);
         // Then
-        assertThat(
-                variantUrlPath.getParamList(),
-                contains(
-                        parameter("X", 1), parameter("Y", 2), parameter("Z", 3), parameter("", 4)));
+        assertThat(variantUrlPath.getParamList())
+                .containsExactly(
+                        parameter("X", 1), parameter("Y", 2), parameter("Z", 3), parameter("", 4));
     }
 
     @Test
@@ -93,15 +86,14 @@ class VariantURLPathUnitTest {
         // When
         variantUrlPath.setMessage(message);
         // Then
-        assertThat(
-                variantUrlPath.getParamList(),
-                contains(
+        assertThat(variantUrlPath.getParamList())
+                .containsExactly(
                         parameter("X", 1),
                         parameter("+/ ", 2),
                         parameter("Z", 3),
                         parameter("%", 4),
                         parameter("%A", 5),
-                        parameter("", 6)));
+                        parameter("", 6));
     }
 
     @ParameterizedTest
@@ -114,8 +106,8 @@ class VariantURLPathUnitTest {
         // When
         String injectedValue = variantUrlPath.setParameter(message, parameter("", 1), "", "Value");
         // Then
-        assertThat(injectedValue, is(equalTo("Value")));
-        assertThat(message, containsPath("/Value"));
+        assertThat(injectedValue).isEqualTo("Value");
+        assertThat(message).is(containsPath("/Value"));
     }
 
     @Test
@@ -128,8 +120,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setParameter(message, parameter("X", 1), "X", "Value");
         // Then
-        assertThat(injectedValue, is(equalTo("Value")));
-        assertThat(message, containsPath("/Value/Y/Z"));
+        assertThat(injectedValue).isEqualTo("Value");
+        assertThat(message).is(containsPath("/Value/Y/Z"));
     }
 
     @Test
@@ -142,8 +134,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setParameter(message, parameter("X", 1), "X", "Value A");
         // Then
-        assertThat(injectedValue, is(equalTo("Value A")));
-        assertThat(message, containsPath("/Value%20A/Y/Z"));
+        assertThat(injectedValue).isEqualTo("Value A");
+        assertThat(message).is(containsPath("/Value%20A/Y/Z"));
     }
 
     @Test
@@ -156,8 +148,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setEscapedParameter(message, parameter("X", 1), "X", "Value%20A");
         // Then
-        assertThat(injectedValue, is(equalTo("Value%20A")));
-        assertThat(message, containsPath("/Value%20A/Y/Z"));
+        assertThat(injectedValue).isEqualTo("Value%20A");
+        assertThat(message).is(containsPath("/Value%20A/Y/Z"));
     }
 
     @Test
@@ -170,8 +162,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setParameter(message, parameter("", 4), "", "Value A");
         // Then
-        assertThat(injectedValue, is(equalTo("Value A")));
-        assertThat(message, containsPath("/X/Y/Z/Value%20A"));
+        assertThat(injectedValue).isEqualTo("Value A");
+        assertThat(message).is(containsPath("/X/Y/Z/Value%20A"));
     }
 
     @Test
@@ -184,8 +176,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setEscapedParameter(message, parameter("", 4), "", "Value%20A");
         // Then
-        assertThat(injectedValue, is(equalTo("Value%20A")));
-        assertThat(message, containsPath("/X/Y/Z/Value%20A"));
+        assertThat(injectedValue).isEqualTo("Value%20A");
+        assertThat(message).is(containsPath("/X/Y/Z/Value%20A"));
     }
 
     @ParameterizedTest
@@ -199,8 +191,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setParameter(message, parameter("X", 1), "X", injection);
         // Then
-        assertThat(injectedValue, is(equalTo(injection)));
-        assertThat(message, containsPath("//Y/Z"));
+        assertThat(injectedValue).isEqualTo(injection);
+        assertThat(message).is(containsPath("//Y/Z"));
     }
 
     @Test
@@ -213,8 +205,8 @@ class VariantURLPathUnitTest {
         String injectedValue =
                 variantUrlPath.setParameter(message, parameter("X", 1), "X-Y-Z", "X");
         // Then
-        assertThat(injectedValue, is(equalTo("X")));
-        assertThat(message, containsPath("/X/Y/Z"));
+        assertThat(injectedValue).isEqualTo("X");
+        assertThat(message).is(containsPath("/X/Y/Z"));
     }
 
     @Test
@@ -231,8 +223,8 @@ class VariantURLPathUnitTest {
                                 variantUrlPath.setParameter(
                                         message, parameter("", 5), "", "Illegal"));
         // Then
-        assertThat(e.getClass(), is(equalTo(IllegalArgumentException.class)));
-        assertThat(e.getMessage(), is(equalTo("Invalid position 5")));
+        assertThat(e.getClass()).isEqualTo(IllegalArgumentException.class);
+        assertThat(e.getMessage()).isEqualTo("Invalid position 5");
     }
 
     private static HttpMessage createMessageWithPath(String path) {
@@ -249,30 +241,10 @@ class VariantURLPathUnitTest {
         return new NameValuePair(NameValuePair.TYPE_URL_PATH, value, value, position);
     }
 
-    private static Matcher<HttpMessage> containsPath(String path) {
-        return new BaseMatcher<>() {
-
-            @Override
-            public boolean matches(Object actualValue) {
-                HttpMessage message = (HttpMessage) actualValue;
-                return path.equals(message.getRequestHeader().getURI().getEscapedPath());
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("URL path ").appendValue(path);
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                HttpMessage message = (HttpMessage) item;
-                String path = message.getRequestHeader().getURI().getEscapedPath();
-                if (path.isEmpty()) {
-                    description.appendText("has no path");
-                } else {
-                    description.appendText("was ").appendValue(path);
-                }
-            }
-        };
+    private static Condition<HttpMessage> containsPath(String path) {
+        return new Condition<>(
+                message -> path.equals(message.getRequestHeader().getURI().getEscapedPath()),
+                "URL path %s",
+                path);
     }
 }

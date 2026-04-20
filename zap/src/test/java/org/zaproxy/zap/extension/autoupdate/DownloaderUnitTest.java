@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.net.URI;
@@ -84,7 +79,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(requestConfig.isFollowRedirects(), is(equalTo(true)));
+        assertThat(requestConfig.isFollowRedirects()).isTrue();
     }
 
     @Test
@@ -95,7 +90,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(requestConfig.isNotifyListeners(), is(equalTo(false)));
+        assertThat(requestConfig.isNotifyListeners()).isFalse();
     }
 
     @Test
@@ -107,7 +102,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(downloader.isValidated(), is(equalTo(true)));
+        assertThat(downloader.isValidated()).isTrue();
         assertFileContents();
     }
 
@@ -120,7 +115,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(downloader.isValidated(), is(equalTo(false)));
+        assertThat(downloader.isValidated()).isFalse();
     }
 
     @Test
@@ -132,7 +127,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(downloader.isValidated(), is(equalTo(true)));
+        assertThat(downloader.isValidated()).isTrue();
         assertFileContents();
     }
 
@@ -145,7 +140,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(downloader.isValidated(), is(equalTo(false)));
+        assertThat(downloader.isValidated()).isFalse();
     }
 
     @Test
@@ -157,7 +152,7 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.start();
         // Then
         waitDownloadFinish();
-        assertThat(downloader.isValidated(), is(equalTo(false)));
+        assertThat(downloader.isValidated()).isFalse();
     }
 
     @Test
@@ -181,16 +176,16 @@ class DownloaderUnitTest extends WithConfigsTest {
         downloader.cancelDownload();
         // Then
         waitDownloadFinish();
-        assertThat(downloader.getException(), is(instanceOf(ClosedByInterruptException.class)));
-        assertThat(downloader.getFinished(), is(not(nullValue())));
-        assertThat(downloader.isValidated(), is(equalTo(false)));
-        assertThat(Files.notExists(downloader.getTargetFile().toPath()), is(equalTo(true)));
+        assertThat(downloader.getException()).isInstanceOf(ClosedByInterruptException.class);
+        assertThat(downloader.getFinished()).isNotNull();
+        assertThat(downloader.isValidated()).isFalse();
+        assertThat(Files.notExists(downloader.getTargetFile().toPath())).isTrue();
     }
 
     void assertFileContents() throws IOException {
         Path file = downloader.getTargetFile().toPath();
         String downloadedContents = new String(Files.readAllBytes(file), StandardCharsets.US_ASCII);
-        assertThat(downloadedContents, is(equalTo(FILE_CONTENTS)));
+        assertThat(downloadedContents).isEqualTo(FILE_CONTENTS);
     }
 
     private void waitDownloadFinish() throws InterruptedException {

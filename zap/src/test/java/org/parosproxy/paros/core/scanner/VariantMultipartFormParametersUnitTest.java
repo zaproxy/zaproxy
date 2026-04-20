@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -56,7 +53,7 @@ class VariantMultipartFormParametersUnitTest {
         // When
         List<NameValuePair> parameters = variant.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -86,32 +83,27 @@ class VariantMultipartFormParametersUnitTest {
         // When
         variant.setMessage(createMessage());
         // Then
-        assertThat(variant.getParamList().size(), is(equalTo(4)));
-        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
-        assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
-        assertThat(variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
-        assertThat(
-                variant.getParamList().get(0).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
-        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
-        assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
-        assertThat(
-                variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
-        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
-        assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
-        assertThat(
-                variant.getParamList().get(2).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
-        assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
-        assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
-        assertThat(
-                variant.getParamList().get(3).getValue(), is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
-        assertThat(
-                variant.getParamList().get(3).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+        assertThat(variant.getParamList()).hasSize(4);
+        assertThat(variant.getParamList().get(0).getPosition()).isEqualTo(1);
+        assertThat(variant.getParamList().get(0).getName()).isEqualTo("person");
+        assertThat(variant.getParamList().get(0).getValue()).isEqualTo(DEFAULT_PARAM_CONTENT);
+        assertThat(variant.getParamList().get(0).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM);
+        assertThat(variant.getParamList().get(1).getPosition()).isEqualTo(2);
+        assertThat(variant.getParamList().get(1).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(1).getValue()).isEqualTo(DEFAULT_FILE_NAME);
+        assertThat(variant.getParamList().get(1).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME);
+        assertThat(variant.getParamList().get(2).getPosition()).isEqualTo(3);
+        assertThat(variant.getParamList().get(2).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(2).getValue()).isEqualTo(DEFAULT_CONTENT_TYPE);
+        assertThat(variant.getParamList().get(2).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE);
+        assertThat(variant.getParamList().get(3).getPosition()).isEqualTo(4);
+        assertThat(variant.getParamList().get(3).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(3).getValue()).isEqualTo(DEFAULT_FILE_PARAM_CONTENT);
+        assertThat(variant.getParamList().get(3).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM);
     }
 
     @Test
@@ -129,34 +121,28 @@ class VariantMultipartFormParametersUnitTest {
             // When
             variant.setMessage(msg);
             // Then
-            assertThat(variant.getParamList().size(), is(equalTo(4)));
-            assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
-            assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
-            assertThat(
-                    variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
-            assertThat(
-                    variant.getParamList().get(0).getType(),
-                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
-            assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
-            assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
-            assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
-            assertThat(
-                    variant.getParamList().get(1).getType(),
-                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
-            assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
-            assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
-            assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
-            assertThat(
-                    variant.getParamList().get(2).getType(),
-                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
-            assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
-            assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
-            assertThat(
-                    variant.getParamList().get(3).getValue(),
-                    is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
-            assertThat(
-                    variant.getParamList().get(3).getType(),
-                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+            assertThat(variant.getParamList()).hasSize(4);
+            assertThat(variant.getParamList().get(0).getPosition()).isEqualTo(1);
+            assertThat(variant.getParamList().get(0).getName()).isEqualTo("person");
+            assertThat(variant.getParamList().get(0).getValue()).isEqualTo(DEFAULT_PARAM_CONTENT);
+            assertThat(variant.getParamList().get(0).getType())
+                    .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM);
+            assertThat(variant.getParamList().get(1).getPosition()).isEqualTo(2);
+            assertThat(variant.getParamList().get(1).getName()).isEqualTo("somefile");
+            assertThat(variant.getParamList().get(1).getValue()).isEqualTo(DEFAULT_FILE_NAME);
+            assertThat(variant.getParamList().get(1).getType())
+                    .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME);
+            assertThat(variant.getParamList().get(2).getPosition()).isEqualTo(3);
+            assertThat(variant.getParamList().get(2).getName()).isEqualTo("somefile");
+            assertThat(variant.getParamList().get(2).getValue()).isEqualTo(DEFAULT_CONTENT_TYPE);
+            assertThat(variant.getParamList().get(2).getType())
+                    .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE);
+            assertThat(variant.getParamList().get(3).getPosition()).isEqualTo(4);
+            assertThat(variant.getParamList().get(3).getName()).isEqualTo("somefile");
+            assertThat(variant.getParamList().get(3).getValue())
+                    .isEqualTo(DEFAULT_FILE_PARAM_CONTENT);
+            assertThat(variant.getParamList().get(3).getType())
+                    .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM);
         } finally {
             Locale.setDefault(defaultLocale);
         }
@@ -173,32 +159,27 @@ class VariantMultipartFormParametersUnitTest {
         msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
         variant.setMessage(msg);
         // Then
-        assertThat(variant.getParamList().size(), is(equalTo(4)));
-        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
-        assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
-        assertThat(variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
-        assertThat(
-                variant.getParamList().get(0).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
-        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
-        assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
-        assertThat(
-                variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
-        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
-        assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
-        assertThat(
-                variant.getParamList().get(2).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
-        assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
-        assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
-        assertThat(
-                variant.getParamList().get(3).getValue(), is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
-        assertThat(
-                variant.getParamList().get(3).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+        assertThat(variant.getParamList()).hasSize(4);
+        assertThat(variant.getParamList().get(0).getPosition()).isEqualTo(1);
+        assertThat(variant.getParamList().get(0).getName()).isEqualTo("person");
+        assertThat(variant.getParamList().get(0).getValue()).isEqualTo(DEFAULT_PARAM_CONTENT);
+        assertThat(variant.getParamList().get(0).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM);
+        assertThat(variant.getParamList().get(1).getPosition()).isEqualTo(2);
+        assertThat(variant.getParamList().get(1).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(1).getValue()).isEqualTo(DEFAULT_FILE_NAME);
+        assertThat(variant.getParamList().get(1).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME);
+        assertThat(variant.getParamList().get(2).getPosition()).isEqualTo(3);
+        assertThat(variant.getParamList().get(2).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(2).getValue()).isEqualTo(DEFAULT_CONTENT_TYPE);
+        assertThat(variant.getParamList().get(2).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE);
+        assertThat(variant.getParamList().get(3).getPosition()).isEqualTo(4);
+        assertThat(variant.getParamList().get(3).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(3).getValue()).isEqualTo(DEFAULT_FILE_PARAM_CONTENT);
+        assertThat(variant.getParamList().get(3).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM);
     }
 
     @ParameterizedTest
@@ -223,7 +204,7 @@ class VariantMultipartFormParametersUnitTest {
         msg.setRequestBody(body);
         variant.setMessage(msg);
         // Then
-        assertThat(variant.getParamList().size(), is(equalTo(0)));
+        assertThat(variant.getParamList()).hasSize(0);
     }
 
     @Test
@@ -247,31 +228,27 @@ class VariantMultipartFormParametersUnitTest {
         // When
         variant.setMessage(message);
         // Then
-        assertThat(variant.getParamList().size(), is(equalTo(4)));
-        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
-        assertThat(variant.getParamList().get(0).getName(), is(equalTo("param[]")));
-        assertThat(variant.getParamList().get(0).getValue(), is(equalTo("paramContent[]")));
-        assertThat(
-                variant.getParamList().get(0).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
-        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
-        assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile[]")));
-        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("file[]")));
-        assertThat(
-                variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
-        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
-        assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile[]")));
-        assertThat(variant.getParamList().get(2).getValue(), is(equalTo("ContentType[]")));
-        assertThat(
-                variant.getParamList().get(2).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
-        assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
-        assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile[]")));
-        assertThat(variant.getParamList().get(3).getValue(), is(equalTo("filecontent[]")));
-        assertThat(
-                variant.getParamList().get(3).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+        assertThat(variant.getParamList()).hasSize(4);
+        assertThat(variant.getParamList().get(0).getPosition()).isEqualTo(1);
+        assertThat(variant.getParamList().get(0).getName()).isEqualTo("param[]");
+        assertThat(variant.getParamList().get(0).getValue()).isEqualTo("paramContent[]");
+        assertThat(variant.getParamList().get(0).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM);
+        assertThat(variant.getParamList().get(1).getPosition()).isEqualTo(2);
+        assertThat(variant.getParamList().get(1).getName()).isEqualTo("somefile[]");
+        assertThat(variant.getParamList().get(1).getValue()).isEqualTo("file[]");
+        assertThat(variant.getParamList().get(1).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME);
+        assertThat(variant.getParamList().get(2).getPosition()).isEqualTo(3);
+        assertThat(variant.getParamList().get(2).getName()).isEqualTo("somefile[]");
+        assertThat(variant.getParamList().get(2).getValue()).isEqualTo("ContentType[]");
+        assertThat(variant.getParamList().get(2).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE);
+        assertThat(variant.getParamList().get(3).getPosition()).isEqualTo(4);
+        assertThat(variant.getParamList().get(3).getName()).isEqualTo("somefile[]");
+        assertThat(variant.getParamList().get(3).getValue()).isEqualTo("filecontent[]");
+        assertThat(variant.getParamList().get(3).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM);
     }
 
     @Test
@@ -293,24 +270,21 @@ class VariantMultipartFormParametersUnitTest {
         // When
         variant.setMessage(message);
         // Then
-        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
-        assertThat(variant.getParamList().get(0).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(0).getValue(), is(equalTo("file")));
-        assertThat(
-                variant.getParamList().get(0).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
-        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
-        assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("ContentType")));
-        assertThat(
-                variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
-        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
-        assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(2).getValue(), is(equalTo("filecontent")));
-        assertThat(
-                variant.getParamList().get(2).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+        assertThat(variant.getParamList().get(0).getPosition()).isEqualTo(1);
+        assertThat(variant.getParamList().get(0).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(0).getValue()).isEqualTo("file");
+        assertThat(variant.getParamList().get(0).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME);
+        assertThat(variant.getParamList().get(1).getPosition()).isEqualTo(2);
+        assertThat(variant.getParamList().get(1).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(1).getValue()).isEqualTo("ContentType");
+        assertThat(variant.getParamList().get(1).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE);
+        assertThat(variant.getParamList().get(2).getPosition()).isEqualTo(3);
+        assertThat(variant.getParamList().get(2).getName()).isEqualTo("somefile");
+        assertThat(variant.getParamList().get(2).getValue()).isEqualTo("filecontent");
+        assertThat(variant.getParamList().get(2).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM);
     }
 
     @Test
@@ -346,18 +320,16 @@ class VariantMultipartFormParametersUnitTest {
         // When
         variant.setMessage(message);
         // Then
-        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
-        assertThat(variant.getParamList().get(0).getName(), is(equalTo("email")));
-        assertThat(variant.getParamList().get(0).getValue(), is(equalTo("test@example.com")));
-        assertThat(
-                variant.getParamList().get(0).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
-        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
-        assertThat(variant.getParamList().get(1).getName(), is(equalTo("password")));
-        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("testpass123")));
-        assertThat(
-                variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+        assertThat(variant.getParamList().get(0).getPosition()).isEqualTo(1);
+        assertThat(variant.getParamList().get(0).getName()).isEqualTo("email");
+        assertThat(variant.getParamList().get(0).getValue()).isEqualTo("test@example.com");
+        assertThat(variant.getParamList().get(0).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM);
+        assertThat(variant.getParamList().get(1).getPosition()).isEqualTo(2);
+        assertThat(variant.getParamList().get(1).getName()).isEqualTo("password");
+        assertThat(variant.getParamList().get(1).getValue()).isEqualTo("testpass123");
+        assertThat(variant.getParamList().get(1).getType())
+                .isEqualTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM);
     }
 
     @Test
@@ -385,8 +357,7 @@ class VariantMultipartFormParametersUnitTest {
                         DEFAULT_CONTENT_TYPE,
                         DEFAULT_FILE_PARAM_CONTENT);
         // Then
-        assertThat(
-                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+        assertThat(message.getRequestBody()).hasToString(newMsg.getRequestBody().toString());
     }
 
     @Test
@@ -409,8 +380,7 @@ class VariantMultipartFormParametersUnitTest {
                 createMessage(
                         DEFAULT_PARAM_CONTENT, DEFAULT_FILE_NAME, DEFAULT_CONTENT_TYPE, newValue);
         // Then
-        assertThat(
-                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+        assertThat(message.getRequestBody()).hasToString(newMsg.getRequestBody().toString());
     }
 
     @ParameterizedTest
@@ -438,8 +408,7 @@ class VariantMultipartFormParametersUnitTest {
                         DEFAULT_CONTENT_TYPE,
                         DEFAULT_FILE_PARAM_CONTENT);
         // Then
-        assertThat(
-                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+        assertThat(message.getRequestBody()).hasToString(newMsg.getRequestBody().toString());
     }
 
     @Test
@@ -472,8 +441,7 @@ class VariantMultipartFormParametersUnitTest {
                         DEFAULT_CONTENT_TYPE,
                         DEFAULT_FILE_PARAM_CONTENT);
         // Then
-        assertThat(
-                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+        assertThat(message.getRequestBody()).hasToString(newMsg.getRequestBody().toString());
     }
 
     private static Stream<Arguments> getArgumentsForMultipleModifications() {
@@ -540,8 +508,7 @@ class VariantMultipartFormParametersUnitTest {
         variant.setParameters(message, inputVectorBuilder.build());
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
-        assertThat(
-                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+        assertThat(message.getRequestBody()).hasToString(newMsg.getRequestBody().toString());
     }
 
     @Test
@@ -569,8 +536,7 @@ class VariantMultipartFormParametersUnitTest {
                         newValue,
                         DEFAULT_FILE_PARAM_CONTENT);
         // Then
-        assertThat(
-                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+        assertThat(message.getRequestBody()).hasToString(newMsg.getRequestBody().toString());
     }
 
     private static HttpMessage createBaseMessage() {

@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -67,9 +63,9 @@ class CoreAPIUnitTest {
 
     @Test
     void shouldAddApiElements() {
-        assertThat(coreApi.getApiActions(), hasSize(43));
-        assertThat(coreApi.getApiViews(), hasSize(41));
-        assertThat(coreApi.getApiOthers(), hasSize(13));
+        assertThat(coreApi.getApiActions()).hasSize(43);
+        assertThat(coreApi.getApiViews()).hasSize(41);
+        assertThat(coreApi.getApiOthers()).hasSize(13);
     }
 
     @Test
@@ -82,7 +78,7 @@ class CoreAPIUnitTest {
         ApiResponse response = coreApi.handleApiAction(name, params);
         // Then
         verify(networkApi).handleApiAction("generateRootCaCert", params);
-        assertThat(response, is(equalTo(ApiResponseElement.OK)));
+        assertThat(response).isEqualTo(ApiResponseElement.OK);
     }
 
     @Test
@@ -96,7 +92,7 @@ class CoreAPIUnitTest {
         HttpMessage response = coreApi.handleApiOther(message, name, params);
         // Then
         verify(networkApi).handleApiOther(message, "rootCaCert", params);
-        assertThat(response, is(sameInstance(message)));
+        assertThat(response).isSameAs(message);
     }
 
     @Test
@@ -107,7 +103,7 @@ class CoreAPIUnitTest {
         // When
         Path childPath = CoreAPI.getChildPath(parent, child);
         // Then
-        assertThat(childPath.toString(), is(equalTo(parent + "/" + child)));
+        assertThat(childPath).hasToString(parent + "/" + child);
     }
 
     @Test
@@ -118,7 +114,7 @@ class CoreAPIUnitTest {
         // When
         Path childPath = CoreAPI.getChildPath(parent, child);
         // Then
-        assertThat(childPath.toString(), is(equalTo(parent + child)));
+        assertThat(childPath).hasToString(parent + child);
     }
 
     @Test
@@ -130,7 +126,7 @@ class CoreAPIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> CoreAPI.getChildPath(parent, child));
         // then
-        assertThat(e.getMessage(), is(equalTo("ILLEGAL_PARAMETER (fileName)")));
+        assertThat(e.getMessage()).isEqualTo("ILLEGAL_PARAMETER (fileName)");
     }
 
     @Test
@@ -142,6 +138,6 @@ class CoreAPIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> CoreAPI.getChildPath(parent, child));
         // then
-        assertThat(e.getMessage(), is(equalTo("ILLEGAL_PARAMETER (fileName)")));
+        assertThat(e.getMessage()).isEqualTo("ILLEGAL_PARAMETER (fileName)");
     }
 }

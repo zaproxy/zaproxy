@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,102 +47,102 @@ class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest {
 
     @Test
     void shouldInitBreakPointsToFalseOnInit() {
-        assertFalse(impl.isBreakAll());
-        assertFalse(impl.isBreakRequest());
-        assertFalse(impl.isBreakResponse());
+        assertThat(impl.isBreakAll()).isFalse();
+        assertThat(impl.isBreakRequest()).isFalse();
+        assertThat(impl.isBreakResponse()).isFalse();
     }
 
     @Test
     void shouldBreakOnAllHttpRequestsAndResponses() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
 
         HttpResponseHeader resHeader = new HttpResponseHeader(OK_RESPONSE);
         msg.setResponseHeader(resHeader);
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
     }
 
     @Test
     void shouldBreakOnJustHttpRequests() throws HttpMalformedHeaderException {
         impl.setBreakAllRequests(true);
         HttpMessage msg = new HttpMessage();
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
 
         HttpResponseHeader resHeader = new HttpResponseHeader(OK_RESPONSE);
         msg.setResponseHeader(resHeader);
-        assertFalse(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isFalse();
     }
 
     @Test
     void shouldBreakOnJustHttpResponses() throws HttpMalformedHeaderException {
         impl.setBreakAllResponses(true);
         HttpMessage msg = new HttpMessage();
-        assertFalse(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isFalse();
 
         HttpResponseHeader resHeader = new HttpResponseHeader(OK_RESPONSE);
         msg.setResponseHeader(resHeader);
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
     }
 
     @Test
     void shouldStep() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
 
         impl.step();
-        assertTrue(impl.isStepping());
+        assertThat(impl.isStepping()).isTrue();
         // False the first time
-        assertFalse(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isFalse();
         // Then true for subsequent times
-        assertTrue(impl.isHoldMessage(msg));
-        assertTrue(impl.isStepping());
+        assertThat(impl.isHoldMessage(msg)).isTrue();
+        assertThat(impl.isStepping()).isTrue();
 
         HttpResponseHeader resHeader = new HttpResponseHeader(OK_RESPONSE);
         msg.setResponseHeader(resHeader);
 
         impl.step();
-        assertTrue(impl.isStepping());
+        assertThat(impl.isStepping()).isTrue();
         // False the first time
-        assertFalse(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isFalse();
         // Then true for subsequent times
-        assertTrue(impl.isHoldMessage(msg));
-        assertTrue(impl.isStepping());
+        assertThat(impl.isHoldMessage(msg)).isTrue();
+        assertThat(impl.isStepping()).isTrue();
     }
 
     @Test
     void shouldClearBreaksOnContinue() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
 
         impl.cont();
-        assertFalse(impl.isHoldMessage(msg));
-        assertFalse(impl.isBreakAll());
-        assertFalse(impl.isBreakRequest());
-        assertFalse(impl.isBreakResponse());
+        assertThat(impl.isHoldMessage(msg)).isFalse();
+        assertThat(impl.isBreakAll()).isFalse();
+        assertThat(impl.isBreakRequest()).isFalse();
+        assertThat(impl.isBreakResponse()).isFalse();
 
-        assertFalse(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isFalse();
         // Deliberate duplicate check due to the side effects of stepping
-        assertFalse(impl.isHoldMessage(msg));
-        assertFalse(impl.isStepping());
+        assertThat(impl.isHoldMessage(msg)).isFalse();
+        assertThat(impl.isStepping()).isFalse();
     }
 
     @Test
     void shouldDrop() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
-        assertTrue(impl.isHoldMessage(msg));
+        assertThat(impl.isHoldMessage(msg)).isTrue();
 
         impl.drop();
-        assertTrue(impl.isToBeDropped());
-        assertFalse(impl.isToBeDropped());
-        assertFalse(impl.isToBeDropped());
+        assertThat(impl.isToBeDropped()).isTrue();
+        assertThat(impl.isToBeDropped()).isFalse();
+        assertThat(impl.isToBeDropped()).isFalse();
 
         impl.drop();
-        assertTrue(impl.isToBeDropped());
-        assertFalse(impl.isToBeDropped());
-        assertFalse(impl.isToBeDropped());
+        assertThat(impl.isToBeDropped()).isTrue();
+        assertThat(impl.isToBeDropped()).isFalse();
+        assertThat(impl.isToBeDropped()).isFalse();
     }
 }

@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -43,7 +40,7 @@ class AlertUnitTest {
         // Given / When
         Alert alert = new Alert(1);
         // Then
-        assertThat(alert.getHistoryId(), is(equalTo(0)));
+        assertThat(alert.getHistoryId()).isEqualTo(0);
     }
 
     @Test
@@ -55,7 +52,7 @@ class AlertUnitTest {
         // When
         Alert alert = new Alert(recordAlert);
         // Then
-        assertThat(alert.getHistoryId(), is(equalTo(historyId)));
+        assertThat(alert.getHistoryId()).isEqualTo(historyId);
     }
 
     @Test
@@ -68,7 +65,7 @@ class AlertUnitTest {
         // When
         Alert alert = new Alert(recordAlert, historyReference);
         // Then
-        assertThat(alert.getHistoryId(), is(equalTo(historyId)));
+        assertThat(alert.getHistoryId()).isEqualTo(historyId);
     }
 
     @Test
@@ -76,7 +73,7 @@ class AlertUnitTest {
         // Given / When
         Alert alert = new Alert(1);
         // Then
-        assertThat(alert.getSourceHistoryId(), is(equalTo(0)));
+        assertThat(alert.getSourceHistoryId()).isEqualTo(0);
     }
 
     @Test
@@ -88,7 +85,7 @@ class AlertUnitTest {
         // When
         Alert alert = new Alert(recordAlert);
         // Then
-        assertThat(alert.getSourceHistoryId(), is(equalTo(sourceHistoryId)));
+        assertThat(alert.getSourceHistoryId()).isEqualTo(sourceHistoryId);
     }
 
     @Test
@@ -96,7 +93,7 @@ class AlertUnitTest {
         // Given
         Alert alert = new Alert(1);
         // When / Then
-        assertThat(alert.getAlertRef(), is(equalTo(Integer.toString(alert.getPluginId()))));
+        assertThat(alert.getAlertRef()).isEqualTo(Integer.toString(alert.getPluginId()));
     }
 
     @Test
@@ -107,7 +104,7 @@ class AlertUnitTest {
         // When
         alert.setAlertRef(alertRef);
         // Then
-        assertThat(alert.getAlertRef(), is(equalTo(alertRef)));
+        assertThat(alert.getAlertRef()).isEqualTo(alertRef);
     }
 
     @Test
@@ -115,7 +112,7 @@ class AlertUnitTest {
         // Given
         Alert alert = new Alert(-1);
         // When / Then
-        assertThat(alert.getAlertRef(), is(equalTo("")));
+        assertThat(alert.getAlertRef()).isEmpty();
     }
 
     @Test
@@ -148,7 +145,7 @@ class AlertUnitTest {
         alertB.setAlertRef("1-2");
         boolean equals = alertA.equals(alertB);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -163,7 +160,7 @@ class AlertUnitTest {
         alertB.setUri("https://example.com/script?q=a");
         boolean equals = alertA.equals(alertB);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -178,7 +175,7 @@ class AlertUnitTest {
         alertB.setNodeName("https://example.com/script (q)");
         boolean equals = alertA.equals(alertB);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -193,7 +190,7 @@ class AlertUnitTest {
         alertB.setAlertRef("1-2");
         int cmp = alertA.compareTo(alertB);
         // Then
-        assertThat(cmp, is(equalTo(-1)));
+        assertThat(cmp).isEqualTo(-1);
     }
 
     @Test
@@ -208,7 +205,7 @@ class AlertUnitTest {
         alertB.setNodeName("https://example.com/script (q)");
         int cmp = alertA.compareTo(alertB);
         // Then
-        assertThat(cmp, is(lessThan(0)));
+        assertThat(cmp).isLessThan(0);
     }
 
     @Test
@@ -223,7 +220,7 @@ class AlertUnitTest {
         alertB.setUri("https://example.com/script?q=a");
         int cmp = alertA.compareTo(alertB);
         // Then
-        assertThat(cmp, is(lessThan(0)));
+        assertThat(cmp).isLessThan(0);
     }
 
     @Test
@@ -235,7 +232,7 @@ class AlertUnitTest {
         Alert alert = builder.build();
         int tagCount = alert.getTags().size();
         // Then
-        assertThat(tagCount, is(equalTo(1)));
+        assertThat(tagCount).isEqualTo(1);
     }
 
     @Test
@@ -250,7 +247,7 @@ class AlertUnitTest {
         Alert alert = builder.build();
         int tagCount = alert.getTags().size();
         // Then
-        assertThat(tagCount, is(equalTo(2)));
+        assertThat(tagCount).isEqualTo(2);
     }
 
     @Test
@@ -266,8 +263,8 @@ class AlertUnitTest {
         Alert alert = builder.build();
         int tagCount = alert.getTags().size();
         // Then
-        assertThat(tagCount, is(equalTo(1)));
-        assertThat(alert.getTags().get("Test2"), is(equalTo("")));
+        assertThat(tagCount).isEqualTo(1);
+        assertThat(alert.getTags().get("Test2")).isEmpty();
     }
 
     @Test
@@ -279,7 +276,7 @@ class AlertUnitTest {
         Alert alert = builder.build();
         int tagCount = alert.getTags().size();
         // Then
-        assertThat(tagCount, is(equalTo(0)));
+        assertThat(tagCount).isEqualTo(0);
     }
 
     @ParameterizedTest
@@ -292,7 +289,7 @@ class AlertUnitTest {
         // When
         int tagCount = alert.getTags().size();
         // Then
-        assertThat(tagCount, is(equalTo(0)));
+        assertThat(tagCount).isEqualTo(0);
     }
 
     @Test
@@ -308,9 +305,9 @@ class AlertUnitTest {
         int tagCount = alert.getTags().size();
         // Then
         Map<String, String> tags = alert.getTags();
-        assertThat(tagCount, is(equalTo(1)));
-        assertThat(tags.containsKey(cweKey), is(equalTo(true)));
-        assertThat(tags.get(cweKey), is(equalTo(cweUrl)));
+        assertThat(tagCount).isEqualTo(1);
+        assertThat(tags.containsKey(cweKey)).isTrue();
+        assertThat(tags.get(cweKey)).isEqualTo(cweUrl);
     }
 
     @Test
@@ -328,9 +325,9 @@ class AlertUnitTest {
         int tagCount = alert.getTags().size();
         // Then
         Map<String, String> tags = alert.getTags();
-        assertThat(tagCount, is(equalTo(1)));
-        assertThat(tags.containsKey(cweKey), is(equalTo(true)));
-        assertThat(tags.get(cweKey), is(equalTo(cweUrl)));
+        assertThat(tagCount).isEqualTo(1);
+        assertThat(tags.containsKey(cweKey)).isTrue();
+        assertThat(tags.get(cweKey)).isEqualTo(cweUrl);
     }
 
     @Test
@@ -349,9 +346,9 @@ class AlertUnitTest {
         int tagCount = alert.getTags().size();
         // Then
         Map<String, String> tags = alert.getTags();
-        assertThat(tagCount, is(equalTo(1)));
-        assertThat(tags.containsKey(cwe2Key), is(equalTo(true)));
-        assertThat(tags.get(cwe2Key), is(equalTo(cwe2Url)));
+        assertThat(tagCount).isEqualTo(1);
+        assertThat(tags.containsKey(cwe2Key)).isTrue();
+        assertThat(tags.get(cwe2Key)).isEqualTo(cwe2Url);
     }
 
     @Test
@@ -363,6 +360,6 @@ class AlertUnitTest {
         // When
         Alert newAlert = alert.newInstance();
         // Then
-        assertThat(newAlert.getHistoryId(), is(equalTo(historyId)));
+        assertThat(newAlert.getHistoryId()).isEqualTo(historyId);
     }
 }

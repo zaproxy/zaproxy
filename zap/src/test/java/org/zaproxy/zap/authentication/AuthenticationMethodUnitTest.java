@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.apache.commons.httpclient.URI;
@@ -43,7 +41,7 @@ class AuthenticationMethodUnitTest {
         // when
         boolean equals = authMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -58,7 +56,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -73,7 +71,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -88,7 +86,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -103,7 +101,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -113,7 +111,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(null);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -127,7 +125,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -140,7 +138,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -154,7 +152,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -167,7 +165,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -180,7 +178,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
-        assertThat(equals, is(false));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -191,7 +189,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean auth = authMethod.isAuthenticated(null, user);
         // Then
-        assertThat(auth, is(false));
+        assertThat(auth).isFalse();
     }
 
     @Test
@@ -202,7 +200,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean auth = authMethod.isAuthenticated(msg, null);
         // Then
-        assertThat(auth, is(false));
+        assertThat(auth).isFalse();
     }
 
     @Test
@@ -215,7 +213,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean auth = authMethod.isAuthenticated(msg, user);
         // Then
-        assertThat(auth, is(false));
+        assertThat(auth).isFalse();
     }
 
     @Test
@@ -230,7 +228,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean auth = authMethod.isAuthenticated(msg, user);
         // Then
-        assertThat(auth, is(true));
+        assertThat(auth).isTrue();
     }
 
     @Test
@@ -245,7 +243,7 @@ class AuthenticationMethodUnitTest {
         // When
         boolean auth = authMethod.isAuthenticated(msg, user);
         // Then
-        assertThat(auth, is(false));
+        assertThat(auth).isFalse();
     }
 
     private static AuthenticationMethod createAuthenticationMethod(
