@@ -32,32 +32,32 @@ and subject to their respective licenses.
 | Library                             | License                   |
 |-------------------------------------|---------------------------|
 | commons-beanutils-1.11.0.jar        | Apache 2.0                |
-| commons-codec-1.20.0.jar            | Apache 2.0                |
+| commons-codec-1.21.0.jar            | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
 | commons-csv-1.14.1.jar              | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
 | commons-io-2.21.0.jar               | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
-| commons-lang3-3.19.0.jar            | Apache 2.0                |
-| commons-logging-1.3.5.jar           | Apache 2.0                |
-| commons-text-1.14.0.jar             | Apache 2.0                |
+| commons-lang3-3.20.0.jar            | Apache 2.0                |
+| commons-logging-1.3.6.jar           | Apache 2.0                |
+| commons-text-1.15.0.jar             | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
-| flatlaf-3.7.jar                     | Apache 2.0                |
-| flatlaf-swingx-3.7.jar              | Apache 2.0                |
+| flatlaf-3.7.1.jar                   | Apache 2.0                |
+| flatlaf-swingx-3.7.1.jar            | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.7.4.jar                    | BSD                       |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
-| javahelp-2.0.05.jar                 | GPL + classpath exception |
 | java-semver-0.10.2.jar              | MIT                       |
+| javahelp-2.0.05.jar                 | GPL + classpath exception |
 | jericho-html-3.4.jar                | EPL / LGPL dual license   |
 | jfreechart-1.5.6.jar                | LGPL                      |
 | jgrapht-core-0.9.2.jar              | LGPL 2.1                  |
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
-| log4j-1.2-api-2.25.3.jar            | Apache 2.0                |
-| log4j-api-2.25.3.jar                | Apache 2.0                |
-| log4j-core-2.25.3.jar               | Apache 2.0                |
-| log4j-jul-2.25.3.jar                | Apache 2.0                |
-| rsyntaxtextarea-3.6.0.jar           | BSD-3 clause              |
+| log4j-1.2-api-2.25.4.jar            | Apache 2.0                |
+| log4j-api-2.25.4.jar                | Apache 2.0                |
+| log4j-core-2.25.4.jar               | Apache 2.0                |
+| log4j-jul-2.25.4.jar                | Apache 2.0                |
+| rsyntaxtextarea-3.6.2.jar           | BSD-3 clause              |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
-| xom-1.3.9.jar                       | LGPL                      |
+| xom-1.4.0.jar                       | LGPL                      |
