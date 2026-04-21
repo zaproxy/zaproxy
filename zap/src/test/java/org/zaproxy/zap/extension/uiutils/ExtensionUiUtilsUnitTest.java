@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.uiutils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +40,6 @@ class ExtensionUiUtilsUnitTest {
         // Given / When
         ViewDelegate view = extension.getView();
         // When
-        assertThat(view, is(nullValue()));
+        assertThat(view).isNull();
     }
 }

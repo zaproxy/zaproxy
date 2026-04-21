@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -92,8 +92,9 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
 
         // Then
 
-        assertEquals(
-                """
+        assertThat(TextAlertTree.toString(atModel))
+                .isEqualTo(
+                        """
                 - Alerts
                   - High: Alert A
                     - GET:https://www.example.com
@@ -102,13 +103,12 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                     - GET:https://www.example.net
                   - Medium: Alert A
                     - GET:https://www.example.com
-                """,
-                TextAlertTree.toString(atModel));
+                """);
 
-        assertEquals(a1, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
-        assertEquals(a3, atModel.getRoot().getChildAt(1).getChildAt(0).getAlert());
-        assertEquals(a2, atModel.getRoot().getChildAt(1).getChildAt(1).getAlert());
-        assertEquals(a4, atModel.getRoot().getChildAt(2).getChildAt(0).getAlert());
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getAlert()).isEqualTo(a1);
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(0).getAlert()).isEqualTo(a3);
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(1).getAlert()).isEqualTo(a2);
+        assertThat(atModel.getRoot().getChildAt(2).getChildAt(0).getAlert()).isEqualTo(a4);
     }
 
     @Test
@@ -148,17 +148,17 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         atModel.addPath(a3);
 
         // Then
-        assertEquals(1, atModel.getRoot().getChildCount());
+        assertThat(atModel.getRoot().getChildCount()).isEqualTo(1);
 
         // Only child - Medium risk
-        assertEquals("Alert A", atModel.getRoot().getChildAt(0).getNodeName());
-        assertEquals(Alert.RISK_MEDIUM, atModel.getRoot().getChildAt(0).getRisk());
-        assertEquals(1, atModel.getRoot().getChildAt(0).getChildCount());
+        assertThat(atModel.getRoot().getChildAt(0).getNodeName()).isEqualTo("Alert A");
+        assertThat(atModel.getRoot().getChildAt(0).getRisk()).isEqualTo(Alert.RISK_MEDIUM);
+        assertThat(atModel.getRoot().getChildAt(0).getChildCount()).isEqualTo(1);
 
-        assertEquals(
-                "GET:https://www.example.com(a)",
-                atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName());
-        assertEquals(Alert.RISK_MEDIUM, atModel.getRoot().getChildAt(0).getChildAt(0).getRisk());
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName())
+                .isEqualTo("GET:https://www.example.com(a)");
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getRisk())
+                .isEqualTo(Alert.RISK_MEDIUM);
     }
 
     @Test
@@ -213,10 +213,11 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         AlertNode an3 = atModel.getAlertNode(a3);
 
         // Then
-        assertEquals("GET:https://www.example.com(a)", an1.getNodeName());
-        assertEquals("GET:https://www.example.com(a)", an2.getNodeName());
-        assertEquals("GET:https://www.example.com(a)", an3.getNodeName());
-        assertEquals("GET:https://www.example.com(a)", atModel.getAlertNode(a4).getNodeName());
+        assertThat(an1.getNodeName()).isEqualTo("GET:https://www.example.com(a)");
+        assertThat(an2.getNodeName()).isEqualTo("GET:https://www.example.com(a)");
+        assertThat(an3.getNodeName()).isEqualTo("GET:https://www.example.com(a)");
+        assertThat(atModel.getAlertNode(a4).getNodeName())
+                .isEqualTo("GET:https://www.example.com(a)");
     }
 
     @Test
@@ -271,22 +272,22 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         atModel.updatePath(a1);
 
         // Then
-        assertEquals(2, atModel.getRoot().getChildCount());
+        assertThat(atModel.getRoot().getChildCount()).isEqualTo(2);
 
         // Only child - Medium risk
-        assertEquals("Alert A", atModel.getRoot().getChildAt(0).getNodeName());
-        assertEquals(Alert.RISK_HIGH, atModel.getRoot().getChildAt(0).getRisk());
-        assertEquals(1, atModel.getRoot().getChildAt(0).getChildCount());
+        assertThat(atModel.getRoot().getChildAt(0).getNodeName()).isEqualTo("Alert A");
+        assertThat(atModel.getRoot().getChildAt(0).getRisk()).isEqualTo(Alert.RISK_HIGH);
+        assertThat(atModel.getRoot().getChildAt(0).getChildCount()).isEqualTo(1);
 
-        assertEquals(
-                "GET:https://www.example.com(a)",
-                atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName());
-        assertEquals(Alert.RISK_HIGH, atModel.getRoot().getChildAt(0).getChildAt(0).getRisk());
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getNodeName())
+                .isEqualTo("GET:https://www.example.com(a)");
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getRisk())
+                .isEqualTo(Alert.RISK_HIGH);
 
-        assertEquals(
-                "GET:https://www.example.com(a)",
-                atModel.getRoot().getChildAt(1).getChildAt(0).getNodeName());
-        assertEquals(Alert.RISK_MEDIUM, atModel.getRoot().getChildAt(1).getChildAt(0).getRisk());
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(0).getNodeName())
+                .isEqualTo("GET:https://www.example.com(a)");
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(0).getRisk())
+                .isEqualTo(Alert.RISK_MEDIUM);
     }
 
     @Test
@@ -342,22 +343,22 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         atModel.deletePath(a1);
 
         // Then
-        assertEquals(2, atModel.getRoot().getChildCount());
+        assertThat(atModel.getRoot().getChildCount()).isEqualTo(2);
 
-        assertEquals(
-                """
+        assertThat(TextAlertTree.toString(atModel))
+                .isEqualTo(
+                        """
                 - Alerts
                   - Medium: Alert A
                     - GET:https://www.example.com/a2
                     - GET:https://www.example.net
                   - Medium: Alert A
                     - GET:https://www.example.com/a1
-                """,
-                TextAlertTree.toString(atModel));
+                """);
 
-        assertEquals(a2, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
-        assertEquals(a3, atModel.getRoot().getChildAt(0).getChildAt(1).getAlert());
-        assertEquals(a4, atModel.getRoot().getChildAt(1).getChildAt(0).getAlert());
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getAlert()).isEqualTo(a2);
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(1).getAlert()).isEqualTo(a3);
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(0).getAlert()).isEqualTo(a4);
     }
 
     @Test
@@ -414,8 +415,9 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         atModel.updatePath(a1);
 
         // Then
-        assertEquals(
-                """
+        assertThat(TextAlertTree.toString(atModel))
+                .isEqualTo(
+                        """
                 - Alerts
                   - High: Alert A
                     - GET:https://www.example.com/a1
@@ -424,13 +426,12 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
                     - GET:https://www.example.net
                   - Medium: Alert A
                     - GET:https://www.example.com/a1
-                """,
-                TextAlertTree.toString(atModel));
+                """);
 
-        assertEquals(a1, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
-        assertEquals(a3, atModel.getRoot().getChildAt(1).getChildAt(0).getAlert());
-        assertEquals(a2, atModel.getRoot().getChildAt(1).getChildAt(1).getAlert());
-        assertEquals(a4, atModel.getRoot().getChildAt(2).getChildAt(0).getAlert());
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getAlert()).isEqualTo(a1);
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(0).getAlert()).isEqualTo(a3);
+        assertThat(atModel.getRoot().getChildAt(1).getChildAt(1).getAlert()).isEqualTo(a2);
+        assertThat(atModel.getRoot().getChildAt(2).getChildAt(0).getAlert()).isEqualTo(a4);
     }
 
     @Test
@@ -485,8 +486,8 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         atModel.deletePath(a2);
 
         // Then
-        assertEquals(1, atModel.getRoot().getChildCount());
-        assertEquals(a4, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
+        assertThat(atModel.getRoot().getChildCount()).isEqualTo(1);
+        assertThat(atModel.getRoot().getChildAt(0).getChildAt(0).getAlert()).isEqualTo(a4);
     }
 
     private static Alert newAlert(

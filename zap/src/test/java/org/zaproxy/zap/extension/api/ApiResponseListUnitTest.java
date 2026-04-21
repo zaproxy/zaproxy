@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ class ApiResponseListUnitTest {
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then
-        assertEquals(jsonResponse, "{\"test\":[\"val1\",\"val2\"]}");
+        assertThat("{\"test\":[\"val1\",\"val2\"]}").isEqualTo(jsonResponse);
     }
 
     @Test
@@ -51,8 +51,8 @@ class ApiResponseListUnitTest {
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then
-        assertEquals(
-                jsonResponse,
-                "{\"test\":[\"{\\\"name1\\\":\\\"value1\\\"}\",\"{\\\"name2\\\":\\\"value2\\\"}\"]}");
+        assertThat(
+                        "{\"test\":[\"{\\\"name1\\\":\\\"value1\\\"}\",\"{\\\"name2\\\":\\\"value2\\\"}\"]}")
+                .isEqualTo(jsonResponse);
     }
 }

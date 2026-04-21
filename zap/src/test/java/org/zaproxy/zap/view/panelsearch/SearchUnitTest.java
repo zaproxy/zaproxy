@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.view.panelsearch;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import javax.swing.JButton;
@@ -43,9 +42,9 @@ class SearchUnitTest {
 
         FoundComponent foundComponent = findings.get(0);
         JPanel foundPanel = foundComponent.getParentAsCasted(0);
-        assertThat(foundPanel.getName(), is(panelName));
+        assertThat(foundPanel.getName()).isEqualTo(panelName);
 
         JButton foundButton = foundComponent.getComponentCasted();
-        assertThat(foundButton.getText(), is(btnText));
+        assertThat(foundButton.getText()).isEqualTo(btnText);
     }
 }

@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.model.SiteNode;
@@ -36,8 +34,8 @@ class TargetUnitTest {
         // When
         Target target = new Target(startNode, null, true, true);
         // Then
-        assertThat(target.getStartNode(), is(nullValue()));
-        assertThat(target.getStartNodes(), is(nullValue()));
+        assertThat(target.getStartNode()).isNull();
+        assertThat(target.getStartNodes()).isNull();
     }
 
     @Test
@@ -48,7 +46,7 @@ class TargetUnitTest {
         // When
         target.setStartNode(siteNode);
         // Then
-        assertThat(target.getStartNode(), is(nullValue()));
-        assertThat(target.getStartNodes(), is(nullValue()));
+        assertThat(target.getStartNode()).isNull();
+        assertThat(target.getStartNodes()).isNull();
     }
 }

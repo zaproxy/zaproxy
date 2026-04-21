@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -61,8 +55,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setGlobalVar(key, value);
         // Then
-        assertThat(ScriptVars.getGlobalVars(), hasEntry(key, value));
-        assertThat(ScriptVars.getGlobalVar(key), is(equalTo(value)));
+        assertThat(ScriptVars.getGlobalVars()).containsEntry(key, value);
+        assertThat(ScriptVars.getGlobalVar(key)).isEqualTo(value);
     }
 
     @Test
@@ -74,8 +68,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setGlobalVar(key, null);
         // Then
-        assertThat(ScriptVars.getGlobalVars(), not(hasEntry(key, value)));
-        assertThat(ScriptVars.getGlobalVar(key), is(nullValue()));
+        assertThat(ScriptVars.getGlobalVars()).doesNotContainEntry(key, value);
+        assertThat(ScriptVars.getGlobalVar(key)).isNull();
     }
 
     @Test
@@ -106,8 +100,8 @@ class ScriptVarsUnitTest {
         // When
         Map<String, String> vars = ScriptVars.getScriptVars(scriptName);
         // Then
-        assertThat(vars, is(notNullValue()));
-        assertThat(vars.size(), is(equalTo(0)));
+        assertThat(vars).isNotNull();
+        assertThat(vars).hasSize(0);
     }
 
     @Test
@@ -118,7 +112,7 @@ class ScriptVarsUnitTest {
         // When
         String value = ScriptVars.getScriptVar(scriptName, key);
         // Then
-        assertThat(value, is(nullValue()));
+        assertThat(value).isNull();
     }
 
     @Test
@@ -141,8 +135,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptVar(scriptContext, key, value);
         // Then
-        assertThat(ScriptVars.getScriptVars(scriptName), hasEntry(key, value));
-        assertThat(ScriptVars.getScriptVar(scriptContext, key), is(equalTo(value)));
+        assertThat(ScriptVars.getScriptVars(scriptName)).containsEntry(key, value);
+        assertThat(ScriptVars.getScriptVar(scriptContext, key)).isEqualTo(value);
     }
 
     @Test
@@ -156,8 +150,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptVar(scriptContext, key, null);
         // Then
-        assertThat(ScriptVars.getScriptVars(scriptName), not(hasEntry(key, value)));
-        assertThat(ScriptVars.getScriptVar(scriptContext, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptVars(scriptName)).doesNotContainEntry(key, value);
+        assertThat(ScriptVars.getScriptVar(scriptContext, key)).isNull();
     }
 
     @Test
@@ -246,7 +240,7 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptVar(scriptContext1, key, createValue());
         // Then
-        assertThat(ScriptVars.getScriptVar(scriptContext2, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptVar(scriptContext2, key)).isNull();
     }
 
     @Test
@@ -258,8 +252,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptVar(scriptName, key, value);
         // Then
-        assertThat(ScriptVars.getScriptVars(scriptName), hasEntry(key, value));
-        assertThat(ScriptVars.getScriptVar(scriptName, key), is(equalTo(value)));
+        assertThat(ScriptVars.getScriptVars(scriptName)).containsEntry(key, value);
+        assertThat(ScriptVars.getScriptVar(scriptName, key)).isEqualTo(value);
     }
 
     @Test
@@ -272,8 +266,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptVar(scriptName, key, null);
         // Then
-        assertThat(ScriptVars.getScriptVars(scriptName), not(hasEntry(key, value)));
-        assertThat(ScriptVars.getScriptVar(scriptName, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptVars(scriptName)).doesNotContainEntry(key, value);
+        assertThat(ScriptVars.getScriptVar(scriptName, key)).isNull();
     }
 
     @Test
@@ -349,7 +343,7 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptVar(scriptName1, key, createValue());
         // Then
-        assertThat(ScriptVars.getScriptVar(scriptName2, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptVar(scriptName2, key)).isNull();
     }
 
     @Test
@@ -363,10 +357,10 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.clear();
         // Then
-        assertThat(ScriptVars.getGlobalVars().size(), is(equalTo(0)));
-        assertThat(ScriptVars.getGlobalCustomVars().size(), is(equalTo(0)));
-        assertThat(ScriptVars.getScriptVars(scriptName).size(), is(equalTo(0)));
-        assertThat(ScriptVars.getScriptCustomVars(scriptName).size(), is(equalTo(0)));
+        assertThat(ScriptVars.getGlobalVars()).hasSize(0);
+        assertThat(ScriptVars.getGlobalCustomVars()).hasSize(0);
+        assertThat(ScriptVars.getScriptVars(scriptName)).hasSize(0);
+        assertThat(ScriptVars.getScriptCustomVars(scriptName)).hasSize(0);
     }
 
     @Test
@@ -380,9 +374,9 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.clearGlobalVars();
         // Then
-        assertThat(ScriptVars.getGlobalVars().size(), is(equalTo(0)));
-        assertThat(ScriptVars.getGlobalCustomVars().size(), is(equalTo(0)));
-        assertThat(ScriptVars.getScriptVars(scriptName).size(), is(equalTo(1)));
+        assertThat(ScriptVars.getGlobalVars()).hasSize(0);
+        assertThat(ScriptVars.getGlobalCustomVars()).hasSize(0);
+        assertThat(ScriptVars.getScriptVars(scriptName)).hasSize(1);
     }
 
     @Test
@@ -399,12 +393,12 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.clearScriptVars(scriptName1);
         // Then
-        assertThat(ScriptVars.getScriptVars(scriptName1).size(), is(equalTo(0)));
-        assertThat(ScriptVars.getScriptCustomVars(scriptName1).size(), is(equalTo(0)));
-        assertThat(ScriptVars.getGlobalVars().size(), is(equalTo(1)));
-        assertThat(ScriptVars.getGlobalCustomVars().size(), is(equalTo(1)));
-        assertThat(ScriptVars.getScriptVars(scriptName2).size(), is(equalTo(1)));
-        assertThat(ScriptVars.getScriptCustomVars(scriptName2).size(), is(equalTo(1)));
+        assertThat(ScriptVars.getScriptVars(scriptName1)).hasSize(0);
+        assertThat(ScriptVars.getScriptCustomVars(scriptName1)).hasSize(0);
+        assertThat(ScriptVars.getGlobalVars()).hasSize(1);
+        assertThat(ScriptVars.getGlobalCustomVars()).hasSize(1);
+        assertThat(ScriptVars.getScriptVars(scriptName2)).hasSize(1);
+        assertThat(ScriptVars.getScriptCustomVars(scriptName2)).hasSize(1);
     }
 
     @Test
@@ -425,8 +419,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setGlobalCustomVar(key, value);
         // Then
-        assertThat(ScriptVars.getGlobalCustomVars(), hasEntry(key, value));
-        assertThat(ScriptVars.getGlobalCustomVar(key), is(equalTo(value)));
+        assertThat(ScriptVars.getGlobalCustomVars()).containsEntry(key, value);
+        assertThat(ScriptVars.getGlobalCustomVar(key)).isEqualTo(value);
     }
 
     @Test
@@ -438,8 +432,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setGlobalCustomVar(key, null);
         // Then
-        assertThat(ScriptVars.getGlobalCustomVars(), not(hasEntry(key, value)));
-        assertThat(ScriptVars.getGlobalCustomVar(key), is(nullValue()));
+        assertThat(ScriptVars.getGlobalCustomVars()).doesNotContainEntry(key, value);
+        assertThat(ScriptVars.getGlobalCustomVar(key)).isNull();
     }
 
     @Test
@@ -471,8 +465,8 @@ class ScriptVarsUnitTest {
         // When
         Map<String, Object> vars = ScriptVars.getScriptCustomVars(scriptName);
         // Then
-        assertThat(vars, is(notNullValue()));
-        assertThat(vars.size(), is(equalTo(0)));
+        assertThat(vars).isNotNull();
+        assertThat(vars).hasSize(0);
     }
 
     @Test
@@ -483,7 +477,7 @@ class ScriptVarsUnitTest {
         // When
         Object value = ScriptVars.getScriptCustomVar(scriptName, key);
         // Then
-        assertThat(value, is(nullValue()));
+        assertThat(value).isNull();
     }
 
     @Test
@@ -507,8 +501,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptCustomVar(scriptContext, key, value);
         // Then
-        assertThat(ScriptVars.getScriptCustomVars(scriptName), hasEntry(key, value));
-        assertThat(ScriptVars.getScriptCustomVar(scriptContext, key), is(equalTo(value)));
+        assertThat(ScriptVars.getScriptCustomVars(scriptName)).containsEntry(key, value);
+        assertThat(ScriptVars.getScriptCustomVar(scriptContext, key)).isEqualTo(value);
     }
 
     @Test
@@ -522,8 +516,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptCustomVar(scriptContext, key, null);
         // Then
-        assertThat(ScriptVars.getScriptCustomVars(scriptName), not(hasEntry(key, value)));
-        assertThat(ScriptVars.getScriptCustomVar(scriptContext, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptCustomVars(scriptName)).doesNotContainEntry(key, value);
+        assertThat(ScriptVars.getScriptCustomVar(scriptContext, key)).isNull();
     }
 
     @Test
@@ -608,7 +602,7 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptCustomVar(scriptContext1, key, createCustomValue());
         // Then
-        assertThat(ScriptVars.getScriptCustomVar(scriptContext2, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptCustomVar(scriptContext2, key)).isNull();
     }
 
     @Test
@@ -620,8 +614,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptCustomVar(scriptName, key, value);
         // Then
-        assertThat(ScriptVars.getScriptCustomVars(scriptName), hasEntry(key, value));
-        assertThat(ScriptVars.getScriptCustomVar(scriptName, key), is(equalTo(value)));
+        assertThat(ScriptVars.getScriptCustomVars(scriptName)).containsEntry(key, value);
+        assertThat(ScriptVars.getScriptCustomVar(scriptName, key)).isEqualTo(value);
     }
 
     @Test
@@ -634,8 +628,8 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptCustomVar(scriptName, key, null);
         // Then
-        assertThat(ScriptVars.getScriptCustomVars(scriptName), not(hasEntry(key, value)));
-        assertThat(ScriptVars.getScriptCustomVar(scriptName, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptCustomVars(scriptName)).doesNotContainEntry(key, value);
+        assertThat(ScriptVars.getScriptCustomVar(scriptName, key)).isNull();
     }
 
     @Test
@@ -702,7 +696,7 @@ class ScriptVarsUnitTest {
         // When
         ScriptVars.setScriptCustomVar(scriptName1, key, createCustomValue());
         // Then
-        assertThat(ScriptVars.getScriptCustomVar(scriptName2, key), is(nullValue()));
+        assertThat(ScriptVars.getScriptCustomVar(scriptName2, key)).isNull();
     }
 
     private static String createKey() {

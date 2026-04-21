@@ -19,12 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
@@ -107,7 +102,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getTechSet(), is(equalTo(TechSet.getAllTech())));
+        assertThat(plugin.getTechSet()).isEqualTo(TechSet.getAllTech());
     }
 
     @Test
@@ -115,7 +110,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getConfig(), is(equalTo(null)));
+        assertThat(plugin.getConfig()).isEqualTo(null);
     }
 
     @Test
@@ -126,7 +121,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // WHen
         plugin.setConfig(config);
         // Then
-        assertThat(plugin.getConfig(), is(equalTo(config)));
+        assertThat(plugin.getConfig()).isEqualTo(config);
     }
 
     @Test
@@ -134,7 +129,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getCodeName(), is(equalTo("PluginTestUtils$TestPlugin")));
+        assertThat(plugin.getCodeName()).isEqualTo("PluginTestUtils$TestPlugin");
     }
 
     @Test
@@ -142,7 +137,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getDependency(), is(emptyArray()));
+        assertThat(plugin.getDependency()).isEmpty();
     }
 
     @Test
@@ -150,7 +145,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getWascId(), is(equalTo(0)));
+        assertThat(plugin.getWascId()).isEqualTo(0);
     }
 
     @Test
@@ -158,7 +153,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getCweId(), is(equalTo(0)));
+        assertThat(plugin.getCweId()).isEqualTo(0);
     }
 
     @Test
@@ -166,7 +161,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getRisk(), is(equalTo(Alert.RISK_MEDIUM)));
+        assertThat(plugin.getRisk()).isEqualTo(Alert.RISK_MEDIUM);
     }
 
     @Test
@@ -175,7 +170,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getDelayInMs(), is(equalTo(0)));
+        assertThat(plugin.getDelayInMs()).isEqualTo(0);
     }
 
     @Test
@@ -187,7 +182,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDelayInMs(aDelayInMs);
         // Then
-        assertThat(plugin.getDelayInMs(), is(equalTo(aDelayInMs)));
+        assertThat(plugin.getDelayInMs()).isEqualTo(aDelayInMs);
     }
 
     @Test
@@ -195,7 +190,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getStatus(), is(equalTo(AddOn.Status.unknown)));
+        assertThat(plugin.getStatus()).isEqualTo(AddOn.Status.unknown);
     }
 
     @Test
@@ -206,7 +201,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setStatus(aStatus);
         // Then
-        assertThat(plugin.getStatus(), is(equalTo(aStatus)));
+        assertThat(plugin.getStatus()).isEqualTo(aStatus);
     }
 
     @Test
@@ -214,7 +209,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -224,7 +219,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAlertThreshold(AlertThreshold.OFF);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -234,7 +229,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.FALSE);
     }
 
     private static Stream<Arguments> alertThresholdsAndEnabledState() {
@@ -253,7 +248,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDefaultAlertThreshold(defaultThreshold);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(enabled)));
+        assertThat(plugin.isEnabled()).isEqualTo(enabled);
     }
 
     @Test
@@ -264,7 +259,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.setAlertThreshold(AlertThreshold.OFF);
         plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.FALSE);
     }
 
     @ParameterizedTest
@@ -278,7 +273,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
         plugin.setAlertThreshold(threshold);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.TRUE);
     }
 
     @ParameterizedTest
@@ -293,7 +288,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDefaultAlertThreshold(threshold);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -312,7 +307,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setEnabled(aState);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(aState)));
+        assertThat(plugin.isEnabled()).isEqualTo(aState);
     }
 
     @Test
@@ -320,7 +315,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getAttackStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
+        assertThat(plugin.getAttackStrength()).isEqualTo(Plugin.AttackStrength.MEDIUM);
     }
 
     @Test
@@ -341,7 +336,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAttackStrength(anAttackStrength);
         // Then
-        assertThat(plugin.getAttackStrength(), is(equalTo(anAttackStrength)));
+        assertThat(plugin.getAttackStrength()).isEqualTo(anAttackStrength);
     }
 
     @Test
@@ -349,7 +344,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getAttackStrength(true), is(equalTo(Plugin.AttackStrength.DEFAULT)));
+        assertThat(plugin.getAttackStrength(true)).isEqualTo(Plugin.AttackStrength.DEFAULT);
     }
 
     @Test
@@ -361,7 +356,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDefaultAttackStrength(anAttackStrength);
         // Then
-        assertThat(plugin.getAttackStrength(false), is(equalTo(anAttackStrength)));
+        assertThat(plugin.getAttackStrength(false)).isEqualTo(anAttackStrength);
     }
 
     @Test
@@ -373,7 +368,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAttackStrength(anAttackStrength);
         // Then
-        assertThat(plugin.getAttackStrength(true), is(equalTo(anAttackStrength)));
+        assertThat(plugin.getAttackStrength(true)).isEqualTo(anAttackStrength);
     }
 
     @Test
@@ -381,7 +376,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getAlertThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
+        assertThat(plugin.getAlertThreshold()).isEqualTo(Plugin.AlertThreshold.MEDIUM);
     }
 
     @Test
@@ -402,7 +397,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAlertThreshold(anAlertThreshold);
         // Then
-        assertThat(plugin.getAlertThreshold(), is(equalTo(anAlertThreshold)));
+        assertThat(plugin.getAlertThreshold()).isEqualTo(anAlertThreshold);
     }
 
     @Test
@@ -414,7 +409,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAlertThreshold(Plugin.AlertThreshold.OFF);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -426,7 +421,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAlertThreshold(Plugin.AlertThreshold.HIGH);
         // Then
-        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+        assertThat(plugin.isEnabled()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -437,7 +432,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setEnabled(true);
         // Then
-        assertThat(plugin.getAlertThreshold(true), is(equalTo(Plugin.AlertThreshold.DEFAULT)));
+        assertThat(plugin.getAlertThreshold(true)).isEqualTo(Plugin.AlertThreshold.DEFAULT);
     }
 
     @Test
@@ -445,7 +440,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getAlertThreshold(true), is(equalTo(Plugin.AlertThreshold.DEFAULT)));
+        assertThat(plugin.getAlertThreshold(true)).isEqualTo(Plugin.AlertThreshold.DEFAULT);
     }
 
     @Test
@@ -454,7 +449,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         AbstractPlugin plugin = createAbstractPluginWithConfig();
         plugin.setEnabled(false);
         // Then
-        assertThat(plugin.getAlertThreshold(true), is(equalTo(Plugin.AlertThreshold.OFF)));
+        assertThat(plugin.getAlertThreshold(true)).isEqualTo(Plugin.AlertThreshold.OFF);
     }
 
     @Test
@@ -466,7 +461,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDefaultAlertThreshold(anAlertThreshold);
         // Then
-        assertThat(plugin.getAlertThreshold(false), is(equalTo(anAlertThreshold)));
+        assertThat(plugin.getAlertThreshold(false)).isEqualTo(anAlertThreshold);
     }
 
     @Test
@@ -478,7 +473,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setAlertThreshold(anAlertThreshold);
         // Then
-        assertThat(plugin.getAlertThreshold(true), is(equalTo(anAlertThreshold)));
+        assertThat(plugin.getAlertThreshold(true)).isEqualTo(anAlertThreshold);
     }
 
     @Test
@@ -513,13 +508,13 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         pluginA.cloneInto(pluginB);
         // Then
-        assertThat(pluginA.isEnabled(), is(equalTo(pluginB.isEnabled())));
-        assertThat(pluginA.getAlertThreshold(), is(equalTo(pluginB.getAlertThreshold())));
-        assertThat(pluginA.getAlertThreshold(true), is(equalTo(pluginB.getAlertThreshold(true))));
-        assertThat(pluginA.getAttackStrength(), is(equalTo(pluginB.getAttackStrength())));
-        assertThat(pluginA.getAttackStrength(true), is(equalTo(pluginB.getAttackStrength(true))));
-        assertThat(pluginA.getTechSet(), is(equalTo(pluginB.getTechSet())));
-        assertThat(pluginA.getStatus(), is(equalTo(pluginB.getStatus())));
+        assertThat(pluginA.isEnabled()).isEqualTo(pluginB.isEnabled());
+        assertThat(pluginA.getAlertThreshold()).isEqualTo(pluginB.getAlertThreshold());
+        assertThat(pluginA.getAlertThreshold(true)).isEqualTo(pluginB.getAlertThreshold(true));
+        assertThat(pluginA.getAttackStrength()).isEqualTo(pluginB.getAttackStrength());
+        assertThat(pluginA.getAttackStrength(true)).isEqualTo(pluginB.getAttackStrength(true));
+        assertThat(pluginA.getTechSet()).isEqualTo(pluginB.getTechSet());
+        assertThat(pluginA.getStatus()).isEqualTo(pluginB.getStatus());
     }
 
     @Test
@@ -530,7 +525,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean equals = pluginA.equals(pluginB);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -541,7 +536,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean equals = pluginA.equals(pluginB);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -552,7 +547,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean equals = pluginA.equals(pluginB);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -563,7 +558,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         int comparisonResult = pluginA.compareTo(pluginB);
         // Then
-        assertThat(comparisonResult, is(equalTo(-1)));
+        assertThat(comparisonResult).isEqualTo(-1);
     }
 
     @Test
@@ -574,7 +569,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         int comparisonResult = pluginA.compareTo(pluginB);
         // Then
-        assertThat(comparisonResult, is(equalTo(0)));
+        assertThat(comparisonResult).isEqualTo(0);
     }
 
     @Test
@@ -585,7 +580,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         int comparisonResult = pluginA.compareTo(pluginB);
         // Then
-        assertThat(comparisonResult, is(equalTo(1)));
+        assertThat(comparisonResult).isEqualTo(1);
     }
 
     @Test
@@ -608,9 +603,9 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         pluginB.loadFrom(pluginA.getConfig());
         // Then
-        assertThat(pluginB.isEnabled(), is(equalTo(Boolean.TRUE)));
-        assertThat(pluginB.getAlertThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
-        assertThat(pluginB.getAttackStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
+        assertThat(pluginB.isEnabled()).isEqualTo(Boolean.TRUE);
+        assertThat(pluginB.getAlertThreshold()).isEqualTo(Plugin.AlertThreshold.MEDIUM);
+        assertThat(pluginB.getAttackStrength()).isEqualTo(Plugin.AttackStrength.MEDIUM);
     }
 
     @Test
@@ -624,9 +619,9 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         pluginB.loadFrom(pluginA.getConfig());
         // Then
-        assertThat(pluginB.isEnabled(), is(equalTo(Boolean.FALSE)));
-        assertThat(pluginB.getAlertThreshold(), is(equalTo(Plugin.AlertThreshold.HIGH)));
-        assertThat(pluginB.getAttackStrength(), is(equalTo(Plugin.AttackStrength.INSANE)));
+        assertThat(pluginB.isEnabled()).isEqualTo(Boolean.FALSE);
+        assertThat(pluginB.getAlertThreshold()).isEqualTo(Plugin.AlertThreshold.HIGH);
+        assertThat(pluginB.getAttackStrength()).isEqualTo(Plugin.AttackStrength.INSANE);
     }
 
     @Test
@@ -639,9 +634,9 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.loadFrom(emptyConfig);
         // Then
-        assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("true")));
-        assertThat(config.getString(basePropertyKey + "level"), is(equalTo(null)));
-        assertThat(config.getString(basePropertyKey + "strength"), is(equalTo(null)));
+        assertThat(config.getString(basePropertyKey + "enabled")).isEqualTo("true");
+        assertThat(config.getString(basePropertyKey + "level")).isEqualTo(null);
+        assertThat(config.getString(basePropertyKey + "strength")).isEqualTo(null);
     }
 
     @Test
@@ -657,13 +652,11 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         pluginB.loadFrom(pluginA.getConfig());
         // Then
-        assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("false")));
-        assertThat(
-                config.getString(basePropertyKey + "level"),
-                is(equalTo(Plugin.AlertThreshold.LOW.name())));
-        assertThat(
-                config.getString(basePropertyKey + "strength"),
-                is(equalTo(Plugin.AttackStrength.HIGH.name())));
+        assertThat(config.getString(basePropertyKey + "enabled")).isEqualTo("false");
+        assertThat(config.getString(basePropertyKey + "level"))
+                .isEqualTo(Plugin.AlertThreshold.LOW.name());
+        assertThat(config.getString(basePropertyKey + "strength"))
+                .isEqualTo(Plugin.AttackStrength.HIGH.name());
     }
 
     @Test
@@ -684,21 +677,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.bingo(risk, confidence, uri, param, attack, otherInfo, alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(plugin.getName())));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo("")));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
-        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(plugin.getName());
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(plugin.getDescription());
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEmpty();
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(plugin.getSolution());
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(plugin.getCweId());
+        assertThat(alert.getWascId()).isEqualTo(plugin.getWascId());
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -715,7 +708,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -732,7 +725,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -754,21 +747,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.bingo(risk, confidence, uri, param, attack, otherInfo, evidence, alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(plugin.getName())));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo(evidence)));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
-        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(plugin.getName());
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(plugin.getDescription());
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEqualTo(evidence);
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(plugin.getSolution());
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(plugin.getCweId());
+        assertThat(alert.getWascId()).isEqualTo(plugin.getWascId());
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -785,7 +778,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", "", alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -802,7 +795,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", "", alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -836,21 +829,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(name)));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(description)));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo("")));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(solution)));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
-        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(name);
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(description);
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEmpty();
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(solution);
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(plugin.getCweId());
+        assertThat(alert.getWascId()).isEqualTo(plugin.getWascId());
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -868,7 +861,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, "", "", uri, "", "", "", "", alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -886,7 +879,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, "", "", uri, "", "", "", "", alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -922,21 +915,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(name)));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(description)));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo(evidence)));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(solution)));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
-        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(name);
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(description);
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEqualTo(evidence);
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(solution);
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(plugin.getCweId());
+        assertThat(alert.getWascId()).isEqualTo(plugin.getWascId());
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -964,7 +957,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -992,7 +985,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -1032,21 +1025,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(name)));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(description)));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo(evidence)));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(solution)));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(cweId)));
-        assertThat(alert.getWascId(), is(equalTo(wascId)));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(name);
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(description);
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEqualTo(evidence);
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(solution);
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(cweId);
+        assertThat(alert.getWascId()).isEqualTo(wascId);
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -1076,7 +1069,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -1106,7 +1099,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -1148,21 +1141,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(name)));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(description)));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo(evidence)));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(solution)));
-        assertThat(alert.getReference(), is(equalTo(reference)));
-        assertThat(alert.getCweId(), is(equalTo(cweId)));
-        assertThat(alert.getWascId(), is(equalTo(wascId)));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(name);
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(description);
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEqualTo(evidence);
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(solution);
+        assertThat(alert.getReference()).isEqualTo(reference);
+        assertThat(alert.getCweId()).isEqualTo(cweId);
+        assertThat(alert.getWascId()).isEqualTo(wascId);
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -1193,7 +1186,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -1224,7 +1217,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 alertMessage);
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getUri(), is(equalTo(messageUri)));
+        assertThat(alert.getUri()).isEqualTo(messageUri);
     }
 
     @Test
@@ -1247,21 +1240,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.newAlert().setMessage(alertMessage).raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(plugin.getName())));
-        assertThat(alert.getRisk(), is(equalTo(plugin.getRisk())));
-        assertThat(alert.getConfidence(), is(equalTo(Alert.CONFIDENCE_MEDIUM)));
-        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo("")));
-        assertThat(alert.getAttack(), is(equalTo("")));
-        assertThat(alert.getEvidence(), is(equalTo("")));
-        assertThat(alert.getOtherInfo(), is(equalTo("")));
-        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
-        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(plugin.getName());
+        assertThat(alert.getRisk()).isEqualTo(plugin.getRisk());
+        assertThat(alert.getConfidence()).isEqualTo(Alert.CONFIDENCE_MEDIUM);
+        assertThat(alert.getDescription()).isEqualTo(plugin.getDescription());
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEmpty();
+        assertThat(alert.getAttack()).isEmpty();
+        assertThat(alert.getEvidence()).isEmpty();
+        assertThat(alert.getOtherInfo()).isEmpty();
+        assertThat(alert.getSolution()).isEqualTo(plugin.getSolution());
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(plugin.getCweId());
+        assertThat(alert.getWascId()).isEqualTo(plugin.getWascId());
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -1303,21 +1296,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
                 .raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(name)));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(description)));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo(evidence)));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(solution)));
-        assertThat(alert.getReference(), is(equalTo(reference)));
-        assertThat(alert.getCweId(), is(equalTo(cweId)));
-        assertThat(alert.getWascId(), is(equalTo(wascId)));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(name);
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(description);
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEqualTo(evidence);
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(solution);
+        assertThat(alert.getReference()).isEqualTo(reference);
+        assertThat(alert.getCweId()).isEqualTo(cweId);
+        assertThat(alert.getWascId()).isEqualTo(wascId);
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -1335,7 +1328,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.newAlert().setUri("uri").setMessage(message).raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getSourceHistoryId(), is(equalTo(sourceHistoryId)));
+        assertThat(alert.getSourceHistoryId()).isEqualTo(sourceHistoryId);
     }
 
     @Test
@@ -1358,13 +1351,11 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.saveTo(config);
         // Then
-        assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("true")));
-        assertThat(
-                config.getString(basePropertyKey + "level"),
-                is(equalTo(Plugin.AlertThreshold.HIGH.name())));
-        assertThat(
-                config.getString(basePropertyKey + "strength"),
-                is(equalTo(Plugin.AttackStrength.INSANE.name())));
+        assertThat(config.getString(basePropertyKey + "enabled")).isEqualTo("true");
+        assertThat(config.getString(basePropertyKey + "level"))
+                .isEqualTo(Plugin.AlertThreshold.HIGH.name());
+        assertThat(config.getString(basePropertyKey + "strength"))
+                .isEqualTo(Plugin.AttackStrength.INSANE.name());
     }
 
     @Test
@@ -1377,7 +1368,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, type);
         verifyNoInteractions(analyser);
     }
@@ -1393,7 +1384,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verifyNoInteractions(analyser);
     }
@@ -1409,7 +1400,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage200(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verifyNoInteractions(analyser);
@@ -1424,7 +1415,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, type);
     }
 
@@ -1441,7 +1432,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(expectedResult)));
+        assertThat(result).isEqualTo(expectedResult);
         verify(parent).isCustomPage(message, type);
         verify(analyser).isFileExist(message);
     }
@@ -1457,7 +1448,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1474,7 +1465,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1495,7 +1486,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1516,7 +1507,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1537,7 +1528,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1555,7 +1546,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
     }
 
@@ -1571,7 +1562,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage404(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
     }
@@ -1585,7 +1576,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, type);
@@ -1602,7 +1593,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, type);
@@ -1619,7 +1610,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, type);
@@ -1638,7 +1629,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, type);
@@ -1655,7 +1646,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, type);
@@ -1673,7 +1664,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
     }
 
@@ -1689,7 +1680,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
     }
@@ -1704,7 +1695,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPageOther(message);
         // Then
-        assertThat(result, is(equalTo(expectedResult)));
+        assertThat(result).isEqualTo(expectedResult);
         verify(parent).isCustomPage(message, type);
     }
 
@@ -1718,7 +1709,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPageAuthIssue(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, type);
         verifyNoInteractions(analyser);
     }
@@ -1733,7 +1724,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPageAuthIssue(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, type);
     }
@@ -1749,7 +1740,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isPageAuthIssue(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verifyNoInteractions(analyser);
     }
@@ -1768,7 +1759,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1789,7 +1780,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1810,7 +1801,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1831,7 +1822,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
         verify(parent).isCustomPage(message, type);
@@ -1850,7 +1841,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
     }
 
@@ -1868,7 +1859,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isSuccess(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
     }
@@ -1885,7 +1876,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isClientError(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, type);
     }
@@ -1904,7 +1895,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isClientError(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, type);
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
     }
@@ -1922,7 +1913,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isClientError(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, type);
     }
@@ -1940,7 +1931,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isClientError(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, type);
     }
@@ -1958,7 +1949,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isClientError(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
     }
 
@@ -1976,7 +1967,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isClientError(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
     }
 
@@ -1991,7 +1982,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isServerError(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, type);
     }
@@ -2007,7 +1998,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isServerError(message);
         // Then
-        assertThat(result, is(equalTo(true)));
+        assertThat(result).isTrue();
         verify(parent).isCustomPage(message, type);
     }
 
@@ -2022,7 +2013,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isServerError(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
         verify(parent).isCustomPage(message, type);
     }
@@ -2038,7 +2029,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isServerError(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
     }
 
@@ -2053,7 +2044,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         boolean result = plugin.isServerError(message);
         // Then
-        assertThat(result, is(equalTo(false)));
+        assertThat(result).isFalse();
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
     }
 
@@ -2071,9 +2062,8 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.sendAndReceive(message, true, true);
         // Then
-        assertThat(
-                message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID),
-                is(equalTo("123456789")));
+        assertThat(message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID))
+                .isEqualTo("123456789");
     }
 
     @Test
@@ -2090,7 +2080,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.sendAndReceive(message, true, true);
         // Then
-        assertThat(message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID), is(nullValue()));
+        assertThat(message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID)).isNull();
     }
 
     @ParameterizedTest
@@ -2153,7 +2143,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     private static void assertContentLength(HttpHeader header, String value) {
-        assertThat(header.getHeader(HttpHeader.CONTENT_LENGTH), is(equalTo(value)));
+        assertThat(header.getHeader(HttpHeader.CONTENT_LENGTH)).isEqualTo(value);
     }
 
     private static HttpMessage messageWithMethod(String method) {

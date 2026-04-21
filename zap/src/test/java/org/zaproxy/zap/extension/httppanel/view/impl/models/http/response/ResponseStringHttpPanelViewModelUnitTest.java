@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -84,7 +82,7 @@ class ResponseStringHttpPanelViewModelUnitTest
         // When
         String data = model.getData();
         // Then
-        assertThat(data, is(emptyString()));
+        assertThat(data).isEmpty();
     }
 
     @Override

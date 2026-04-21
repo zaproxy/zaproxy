@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -65,8 +63,8 @@ public class ErrorUtilsUnitTest {
         // Given
         Exception e = new Exception("Test", new Exception(message));
         // When / Then
-        assertThat(ErrorUtils.handleDiskSpaceException(e), is(equalTo(true)));
-        assertThat(ErrorUtils.getOutOfDiskSpaceHandler().isOutOfSpace(), is(equalTo(true)));
+        assertThat(ErrorUtils.handleDiskSpaceException(e)).isTrue();
+        assertThat(ErrorUtils.getOutOfDiskSpaceHandler().isOutOfSpace()).isTrue();
     }
 
     @Test
@@ -88,8 +86,8 @@ public class ErrorUtilsUnitTest {
         // Given
         Exception e = new Exception("Test", new Exception("Not a disk space exception"));
         // When / Then
-        assertThat(ErrorUtils.handleDiskSpaceException(e), is(equalTo(false)));
-        assertThat(ErrorUtils.getOutOfDiskSpaceHandler().isOutOfSpace(), is(equalTo(false)));
+        assertThat(ErrorUtils.handleDiskSpaceException(e)).isFalse();
+        assertThat(ErrorUtils.getOutOfDiskSpaceHandler().isOutOfSpace()).isFalse();
     }
 
     @Test
@@ -99,7 +97,7 @@ public class ErrorUtilsUnitTest {
         ErrorUtils.setOutOfDiskSpaceHandler(handler);
         Exception e = new Exception("Test", new Exception("Data File size limit is reached"));
         // When / Then
-        assertThat(ErrorUtils.handleDiskSpaceException(e), is(equalTo(false)));
+        assertThat(ErrorUtils.handleDiskSpaceException(e)).isFalse();
         verify(handler, times(1)).handleDiskSpaceException(e);
     }
 
@@ -108,7 +106,7 @@ public class ErrorUtilsUnitTest {
         // Given
         Exception e = new Exception("Test", new Exception("This exception has a cause"));
         // When / Then
-        assertThat(ErrorUtils.hasCause(e, "has a"), is(equalTo(true)));
+        assertThat(ErrorUtils.hasCause(e, "has a")).isTrue();
     }
 
     @Test
@@ -116,7 +114,7 @@ public class ErrorUtilsUnitTest {
         // Given
         Exception e = new Exception("Test", new Exception("This exception has a cause"));
         // When / Then
-        assertThat(ErrorUtils.hasCause(e, "not in the cause"), is(equalTo(false)));
+        assertThat(ErrorUtils.hasCause(e, "not in the cause")).isFalse();
     }
 
     @Test
@@ -124,7 +122,7 @@ public class ErrorUtilsUnitTest {
         // Given
         Exception e = new Exception("Test", new Exception());
         // When / Then
-        assertThat(ErrorUtils.hasCause(e, "no message in the cause"), is(equalTo(false)));
+        assertThat(ErrorUtils.hasCause(e, "no message in the cause")).isFalse();
     }
 
     @Test
@@ -132,6 +130,6 @@ public class ErrorUtilsUnitTest {
         // Given
         Exception e = new Exception("Test");
         // When / Then
-        assertThat(ErrorUtils.hasCause(e, "Test"), is(equalTo(false)));
+        assertThat(ErrorUtils.hasCause(e, "Test")).isFalse();
     }
 }

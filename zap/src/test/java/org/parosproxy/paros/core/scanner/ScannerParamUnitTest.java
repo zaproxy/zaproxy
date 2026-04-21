@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.AfterAll;
@@ -66,7 +63,7 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getThreadPerHost(), is(equalTo(threadPerHost)));
+        assertThat(param.getThreadPerHost()).isEqualTo(threadPerHost);
     }
 
     @Test
@@ -74,7 +71,7 @@ class ScannerParamUnitTest {
         // Given / When
         param.load(configuration);
         // Then
-        assertThat(param.getThreadPerHost(), is(equalTo(Constant.getDefaultThreadCount())));
+        assertThat(param.getThreadPerHost()).isEqualTo(Constant.getDefaultThreadCount());
     }
 
     @ParameterizedTest
@@ -85,7 +82,7 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getThreadPerHost(), is(equalTo(1)));
+        assertThat(param.getThreadPerHost()).isEqualTo(1);
     }
 
     @ParameterizedTest
@@ -94,10 +91,9 @@ class ScannerParamUnitTest {
         // Given / When
         param.setThreadPerHost(threadPerHost);
         // Then
-        assertThat(param.getThreadPerHost(), is(equalTo(threadPerHost)));
-        assertThat(
-                configuration.getProperty("scanner.threadPerHost"),
-                is(equalTo(String.valueOf(threadPerHost))));
+        assertThat(param.getThreadPerHost()).isEqualTo(threadPerHost);
+        assertThat(configuration.getProperty("scanner.threadPerHost"))
+                .isEqualTo(String.valueOf(threadPerHost));
     }
 
     @ParameterizedTest
@@ -106,8 +102,8 @@ class ScannerParamUnitTest {
         // Given / When
         param.setThreadPerHost(threadPerHost);
         // Then
-        assertThat(param.getThreadPerHost(), is(equalTo(1)));
-        assertThat(configuration.getProperty("scanner.threadPerHost"), is(equalTo("1")));
+        assertThat(param.getThreadPerHost()).isEqualTo(1);
+        assertThat(configuration.getProperty("scanner.threadPerHost")).isEqualTo("1");
     }
 
     @ParameterizedTest
@@ -118,7 +114,7 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getHostPerScan(), is(equalTo(hostPerScan)));
+        assertThat(param.getHostPerScan()).isEqualTo(hostPerScan);
     }
 
     @ParameterizedTest
@@ -129,7 +125,7 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getHostPerScan(), is(equalTo(1)));
+        assertThat(param.getHostPerScan()).isEqualTo(1);
     }
 
     @ParameterizedTest
@@ -138,10 +134,9 @@ class ScannerParamUnitTest {
         // Given / When
         param.setHostPerScan(hostPerScan);
         // Then
-        assertThat(param.getHostPerScan(), is(equalTo(hostPerScan)));
-        assertThat(
-                configuration.getProperty("scanner.hostPerScan"),
-                is(equalTo(String.valueOf(hostPerScan))));
+        assertThat(param.getHostPerScan()).isEqualTo(hostPerScan);
+        assertThat(configuration.getProperty("scanner.hostPerScan"))
+                .isEqualTo(String.valueOf(hostPerScan));
     }
 
     @ParameterizedTest
@@ -150,8 +145,8 @@ class ScannerParamUnitTest {
         // Given / When
         param.setHostPerScan(hostPerScan);
         // Then
-        assertThat(param.getHostPerScan(), is(equalTo(1)));
-        assertThat(configuration.getProperty("scanner.hostPerScan"), is(equalTo("1")));
+        assertThat(param.getHostPerScan()).isEqualTo(1);
+        assertThat(configuration.getProperty("scanner.hostPerScan")).isEqualTo("1");
     }
 
     @Test
@@ -159,7 +154,7 @@ class ScannerParamUnitTest {
         // Given / When
         boolean scanNullJsonValues = param.isScanNullJsonValues();
         // Then
-        assertThat(scanNullJsonValues, is(equalTo(false)));
+        assertThat(scanNullJsonValues).isFalse();
     }
 
     @Test
@@ -170,7 +165,7 @@ class ScannerParamUnitTest {
         // When
         boolean scanNullJsonValues = param.isScanNullJsonValues();
         // Then
-        assertThat(scanNullJsonValues, is(equalTo(false)));
+        assertThat(scanNullJsonValues).isFalse();
     }
 
     @ParameterizedTest
@@ -182,7 +177,7 @@ class ScannerParamUnitTest {
         // When
         boolean scanNullJsonValues = param.isScanNullJsonValues();
         // Then
-        assertThat(scanNullJsonValues, is(equalTo(value)));
+        assertThat(scanNullJsonValues).isEqualTo(value);
     }
 
     @ParameterizedTest
@@ -191,8 +186,7 @@ class ScannerParamUnitTest {
         // Given / When
         param.setScanNullJsonValues(value);
         // Then
-        assertThat(
-                configuration.getBoolean(ScannerParam.SCAN_NULL_JSON_VALUES), is(equalTo(value)));
+        assertThat(configuration.getBoolean(ScannerParam.SCAN_NULL_JSON_VALUES)).isEqualTo(value);
     }
 
     @ParameterizedTest
@@ -203,7 +197,7 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getMaxAlertsPerRule(), is(equalTo(maxAlertsPerRule)));
+        assertThat(param.getMaxAlertsPerRule()).isEqualTo(maxAlertsPerRule);
     }
 
     @ParameterizedTest
@@ -214,7 +208,7 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getMaxAlertsPerRule(), is(equalTo(0)));
+        assertThat(param.getMaxAlertsPerRule()).isEqualTo(0);
     }
 
     @ParameterizedTest
@@ -223,10 +217,9 @@ class ScannerParamUnitTest {
         // Given / When
         param.setMaxAlertsPerRule(maxAlertsPerRule);
         // Then
-        assertThat(param.getMaxAlertsPerRule(), is(equalTo(maxAlertsPerRule)));
-        assertThat(
-                configuration.getProperty("scanner.maxAlertsPerRule"),
-                is(equalTo(maxAlertsPerRule)));
+        assertThat(param.getMaxAlertsPerRule()).isEqualTo(maxAlertsPerRule);
+        assertThat(configuration.getProperty("scanner.maxAlertsPerRule"))
+                .isEqualTo(maxAlertsPerRule);
     }
 
     @ParameterizedTest
@@ -235,8 +228,8 @@ class ScannerParamUnitTest {
         // Given / When
         param.setMaxAlertsPerRule(maxAlertsPerRule);
         // Then
-        assertThat(param.getMaxAlertsPerRule(), is(equalTo(0)));
-        assertThat(configuration.getProperty("scanner.maxAlertsPerRule"), is(equalTo(0)));
+        assertThat(param.getMaxAlertsPerRule()).isEqualTo(0);
+        assertThat(configuration.getProperty("scanner.maxAlertsPerRule")).isEqualTo(0);
     }
 
     @Test
@@ -247,10 +240,10 @@ class ScannerParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(configuration.getProperty("scanner.antiCSRF"), is(equalTo(true)));
-        assertThat(param.getHandleAntiCSRFTokens(), is(equalTo(true)));
-        assertNull(configuration.getProperty("scanner.antiCSFR"));
-        assertNull(configuration.getProperty("scanner.deleteOnShutdown"));
+        assertThat(configuration.getProperty("scanner.antiCSRF")).isEqualTo(true);
+        assertThat(param.getHandleAntiCSRFTokens()).isTrue();
+        assertThat(configuration.getProperty("scanner.antiCSFR")).isNull();
+        assertThat(configuration.getProperty("scanner.deleteOnShutdown")).isNull();
     }
 
     @Test
@@ -258,7 +251,7 @@ class ScannerParamUnitTest {
         // Given / When
         boolean exclude = param.isExcludeAntiCsrfTokens();
         // Then
-        assertThat(exclude, is(equalTo(true)));
+        assertThat(exclude).isTrue();
     }
 
     @Test
@@ -269,7 +262,7 @@ class ScannerParamUnitTest {
         // When
         boolean exclude = param.isExcludeAntiCsrfTokens();
         // Then
-        assertThat(exclude, is(equalTo(true)));
+        assertThat(exclude).isTrue();
     }
 
     @ParameterizedTest
@@ -281,7 +274,7 @@ class ScannerParamUnitTest {
         // When
         boolean exclude = param.isExcludeAntiCsrfTokens();
         // Then
-        assertThat(exclude, is(equalTo(value)));
+        assertThat(exclude).isEqualTo(value);
     }
 
     @ParameterizedTest
@@ -290,8 +283,7 @@ class ScannerParamUnitTest {
         // Given / When
         param.setExcludeAntiCsrfTokens(value);
         // Then
-        assertThat(
-                configuration.getBoolean(ScannerParam.EXCLUDE_ANTI_CSRF_TOKENS),
-                is(equalTo(value)));
+        assertThat(configuration.getBoolean(ScannerParam.EXCLUDE_ANTI_CSRF_TOKENS))
+                .isEqualTo(value);
     }
 }

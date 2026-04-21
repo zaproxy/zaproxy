@@ -19,12 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -46,7 +41,7 @@ class VariantPlainBodyUnitTest {
         // When
         List<NameValuePair> parameters = variant.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -75,7 +70,7 @@ class VariantPlainBodyUnitTest {
         // When
         variant.setMessage(msg);
         // Then
-        assertThat(variant.getParamList(), is(empty()));
+        assertThat(variant.getParamList()).isEmpty();
     }
 
     @Test
@@ -89,7 +84,7 @@ class VariantPlainBodyUnitTest {
         // When
         variant.setMessage(msg);
         // Then
-        assertThat(variant.getParamList(), is(empty()));
+        assertThat(variant.getParamList()).isEmpty();
     }
 
     @ParameterizedTest
@@ -106,10 +101,10 @@ class VariantPlainBodyUnitTest {
         // When
         variant.setMessage(msg);
         // Then
-        assertThat(variant.getParamList(), hasSize(1));
+        assertThat(variant.getParamList()).hasSize(1);
         NameValuePair nvp = variant.getParamList().get(0);
-        assertThat(nvp.getName(), is(emptyString()));
-        assertThat(nvp.getValue(), is(equalTo(body)));
+        assertThat(nvp.getName()).isEmpty();
+        assertThat(nvp.getValue()).isEqualTo(body);
     }
 
     private static HttpMessage createBasicMessage() {

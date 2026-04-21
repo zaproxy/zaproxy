@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.view.table;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -59,7 +57,7 @@ class DefaultHistoryReferencesTableEntryUnitTest {
         DefaultHistoryReferencesTableEntry entry =
                 new DefaultHistoryReferencesTableEntry(historyReference, columns);
         // Then
-        assertThat(entry.getHostName(), is(equalTo("example.com")));
+        assertThat(entry.getHostName()).isEqualTo("example.com");
     }
 
     @Test
@@ -72,7 +70,7 @@ class DefaultHistoryReferencesTableEntryUnitTest {
         DefaultHistoryReferencesTableEntry entry =
                 new DefaultHistoryReferencesTableEntry(historyReference, columns);
         // Then
-        assertThat(entry.getHostName(), is(equalTo("example.com")));
+        assertThat(entry.getHostName()).isEqualTo("example.com");
     }
 
     private static URI createUri(String uri) {

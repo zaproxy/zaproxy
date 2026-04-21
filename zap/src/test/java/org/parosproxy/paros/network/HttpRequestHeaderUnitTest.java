@@ -19,13 +19,7 @@
  */
 package org.parosproxy.paros.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
@@ -50,7 +44,7 @@ class HttpRequestHeaderUnitTest {
         // When
         boolean empty = header.isEmpty();
         // Then
-        assertThat(empty, is(equalTo(true)));
+        assertThat(empty).isTrue();
     }
 
     @Test
@@ -61,7 +55,7 @@ class HttpRequestHeaderUnitTest {
         // When
         boolean empty = header.isEmpty();
         // Then
-        assertThat(empty, is(equalTo(false)));
+        assertThat(empty).isFalse();
     }
 
     @Test
@@ -72,7 +66,7 @@ class HttpRequestHeaderUnitTest {
         // When
         boolean empty = header.isEmpty();
         // Then
-        assertThat(empty, is(equalTo(false)));
+        assertThat(empty).isFalse();
     }
 
     @ParameterizedTest
@@ -93,7 +87,7 @@ class HttpRequestHeaderUnitTest {
         // When
         String parsedVersion = header.getVersion();
         // Then
-        assertThat(parsedVersion, is(equalTo(version)));
+        assertThat(parsedVersion).isEqualTo(version);
     }
 
     @Test
@@ -103,13 +97,13 @@ class HttpRequestHeaderUnitTest {
         // When
         HttpRequestHeader header = new HttpRequestHeader(data);
         // Then
-        assertThat(header.getMethod(), is(equalTo("CONNECT")));
-        assertThat(header.getHostName(), is(equalTo("example.com")));
-        assertThat(header.getHostPort(), is(equalTo(443)));
-        assertThat(header.getURI().getAuthority(), is(equalTo("example.com:443")));
-        assertThat(header.getURI().getHost(), is(equalTo("example.com")));
-        assertThat(header.getURI().getPort(), is(equalTo(443)));
-        assertThat(header.getURI().toString(), is(equalTo("example.com:443")));
+        assertThat(header.getMethod()).isEqualTo("CONNECT");
+        assertThat(header.getHostName()).isEqualTo("example.com");
+        assertThat(header.getHostPort()).isEqualTo(443);
+        assertThat(header.getURI().getAuthority()).isEqualTo("example.com:443");
+        assertThat(header.getURI().getHost()).isEqualTo("example.com");
+        assertThat(header.getURI().getPort()).isEqualTo(443);
+        assertThat(header.getURI()).hasToString("example.com:443");
     }
 
     @Test
@@ -119,7 +113,7 @@ class HttpRequestHeaderUnitTest {
         // When
         boolean image = header.isImage();
         // Then
-        assertThat(image, is(equalTo(false)));
+        assertThat(image).isFalse();
     }
 
     @Test
@@ -130,7 +124,7 @@ class HttpRequestHeaderUnitTest {
         // When
         boolean image = header.isImage();
         // Then
-        assertThat(image, is(equalTo(false)));
+        assertThat(image).isFalse();
     }
 
     @Test
@@ -143,7 +137,7 @@ class HttpRequestHeaderUnitTest {
             // When
             boolean image = header.isImage();
             // Then
-            assertThat(image, is(equalTo(true)));
+            assertThat(image).isTrue();
         }
     }
 
@@ -155,8 +149,8 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(cookies);
         // Then
-        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("c1=v1")));
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeader(HttpHeader.COOKIE)).isEqualTo("c1=v1");
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).hasSize(1);
     }
 
     @Test
@@ -168,8 +162,8 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(cookies);
         // Then
-        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v3; c1=v1; c2=v2")));
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeader(HttpHeader.COOKIE)).isEqualTo("v3; c1=v1; c2=v2");
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).hasSize(1);
     }
 
     @Test
@@ -180,8 +174,8 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(cookies);
         // Then
-        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v1")));
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeader(HttpHeader.COOKIE)).isEqualTo("v1");
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).hasSize(1);
     }
 
     @Test
@@ -192,7 +186,7 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(cookies);
         // Then
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), is(empty()));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).isEmpty();
     }
 
     @Test
@@ -203,7 +197,7 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(noCookies);
         // Then
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), is(empty()));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).isEmpty();
     }
 
     @Test
@@ -215,7 +209,7 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(paramsWithoutCookies);
         // Then
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), is(empty()));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).isEmpty();
     }
 
     @Test
@@ -227,8 +221,8 @@ class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(cookies);
         // Then
-        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v3; c1=v1; c2=v2")));
-        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeader(HttpHeader.COOKIE)).isEqualTo("v3; c1=v1; c2=v2");
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE)).hasSize(1);
     }
 
     @Test
@@ -238,7 +232,7 @@ class HttpRequestHeaderUnitTest {
         HttpRequestHeader header =
                 new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11);
         // Then
-        assertThat(header.getHeaderValues(HttpHeader.CONTENT_LENGTH), is(empty()));
+        assertThat(header.getHeaderValues(HttpHeader.CONTENT_LENGTH)).isEmpty();
     }
 
     private static Stream<Arguments> falseTestCssUrls() {
@@ -251,7 +245,7 @@ class HttpRequestHeaderUnitTest {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
-        assertFalse(reqHeader.isCss());
+        assertThat(reqHeader.isCss()).isFalse();
     }
 
     private static Stream<Arguments> trueTestCssUrls() {
@@ -264,7 +258,7 @@ class HttpRequestHeaderUnitTest {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
-        assertTrue(reqHeader.isCss());
+        assertThat(reqHeader.isCss()).isTrue();
     }
 
     private static Stream<Arguments> falseTestImageUrls() {
@@ -277,7 +271,7 @@ class HttpRequestHeaderUnitTest {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
-        assertFalse(reqHeader.isImage());
+        assertThat(reqHeader.isImage()).isFalse();
     }
 
     private static Stream<Arguments> trueTestImageUrls() {
@@ -291,7 +285,7 @@ class HttpRequestHeaderUnitTest {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
-        assertTrue(reqHeader.isImage());
+        assertThat(reqHeader.isImage()).isTrue();
     }
 
     private static Stream<Arguments> falseTestUrls(String extension) {

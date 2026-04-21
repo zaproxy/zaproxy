@@ -19,9 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -54,7 +52,7 @@ class VariantDdnPathUnitTest {
         // When
         List<NameValuePair> parameters = variantDdnPath.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -81,11 +79,11 @@ class VariantDdnPathUnitTest {
         // When
         addParamsFromPath(variantDdnPath, ddnPath, actualPath);
         // Then
-        assertThat(variantDdnPath.getParamList().size(), is(1));
+        assertThat(variantDdnPath.getParamList()).hasSize(1);
         NameValuePair param = variantDdnPath.getParamList().get(0);
-        assertThat(param.getName(), is("«param»"));
-        assertThat(param.getValue(), is("example"));
-        assertThat(param.getPosition(), is(ddnPosition));
+        assertThat(param.getName()).isEqualTo("«param»");
+        assertThat(param.getValue()).isEqualTo("example");
+        assertThat(param.getPosition()).isEqualTo(ddnPosition);
     }
 
     @Test
@@ -97,13 +95,13 @@ class VariantDdnPathUnitTest {
         // When
         addParamsFromPath(variantDdnPath, ddnPath, actualPath);
         // Then
-        assertThat(variantDdnPath.getParamList().size(), is(3));
-        assertThat(variantDdnPath.getParamList().get(0).getName(), is("«param1»"));
-        assertThat(variantDdnPath.getParamList().get(0).getValue(), is("value1"));
-        assertThat(variantDdnPath.getParamList().get(1).getName(), is("«param2»"));
-        assertThat(variantDdnPath.getParamList().get(1).getValue(), is("value2"));
-        assertThat(variantDdnPath.getParamList().get(2).getName(), is("«param3»"));
-        assertThat(variantDdnPath.getParamList().get(2).getValue(), is("value3"));
+        assertThat(variantDdnPath.getParamList()).hasSize(3);
+        assertThat(variantDdnPath.getParamList().get(0).getName()).isEqualTo("«param1»");
+        assertThat(variantDdnPath.getParamList().get(0).getValue()).isEqualTo("value1");
+        assertThat(variantDdnPath.getParamList().get(1).getName()).isEqualTo("«param2»");
+        assertThat(variantDdnPath.getParamList().get(1).getValue()).isEqualTo("value2");
+        assertThat(variantDdnPath.getParamList().get(2).getName()).isEqualTo("«param3»");
+        assertThat(variantDdnPath.getParamList().get(2).getValue()).isEqualTo("value3");
     }
 
     @Test
@@ -116,7 +114,7 @@ class VariantDdnPathUnitTest {
         // When
         variantDdnPath.setEscapedParameter(msg, nameValuePair, "", "../../etc/passwd");
         // Then
-        assertThat(msg.getRequestHeader().getURI().getPath(), is("/user/../../etc/passwd"));
+        assertThat(msg.getRequestHeader().getURI().getPath()).isEqualTo("/user/../../etc/passwd");
     }
 
     private static void addParamsFromPath(

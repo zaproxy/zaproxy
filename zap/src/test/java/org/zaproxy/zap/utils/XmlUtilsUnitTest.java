@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
@@ -37,7 +36,7 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(result, is("<aaa>"));
+        assertThat(result).isEqualTo("<aaa>");
     }
 
     @Test
@@ -47,7 +46,7 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(result, is("<aaa:<bbb>,<ccc>,<ddd>>"));
+        assertThat(result).isEqualTo("<aaa:<bbb>,<ccc>,<ddd>>");
     }
 
     @Test
@@ -58,7 +57,7 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(result, is("<description:<date>>"));
+        assertThat(result).isEqualTo("<description:<date>>");
     }
 
     @Test
@@ -112,7 +111,8 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(result, is("<breakfast_menu:<food:<name>,<price>,<description>,<calories>>..>"));
+        assertThat(result)
+                .isEqualTo("<breakfast_menu:<food:<name>,<price>,<description>,<calories>>..>");
     }
 
     @Test
@@ -218,9 +218,8 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(
-                result,
-                is(
+        assertThat(result)
+                .isEqualTo(
                         "<PurchaseOrders:<PurchaseOrder:<Address:<Name>,<Street>,<City>,<State>,<Zip>,<Country>>..,"
                                 + "<DeliveryNotes>,<Items:"
                                 + "<Item:<ProductName>,<Quantity>,<USPrice>,<Comment>>,"
@@ -229,7 +228,7 @@ class XmlUtilsUnitTest {
                                 + "<DeliveryNotes>,<Items:"
                                 + "<Item:<ProductName>,<Quantity>,<USPrice>>>>,"
                                 + "<PurchaseOrder:<Address:<Name>,<Street>,<City>,<State>,<Zip>,<Country>>..,"
-                                + "<Items:<Item:<ProductName>,<Quantity>,<USPrice>>..>>>"));
+                                + "<Items:<Item:<ProductName>,<Quantity>,<USPrice>>..>>>");
     }
 
     @Test
@@ -247,7 +246,7 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(result, is("<actions:<action:<a>>,<action:<c>>..,<action:<b>>..>"));
+        assertThat(result).isEqualTo("<actions:<action:<a>>,<action:<c>>..,<action:<b>>..>");
     }
 
     @Test
@@ -262,9 +261,9 @@ class XmlUtilsUnitTest {
         // when
         String result = XmlUtils.getXmlKeyString(xml);
         // then
-        assertThat(
-                result,
-                is(expectedXml.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "..."));
+        assertThat(result)
+                .isEqualTo(
+                        expectedXml.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "...");
     }
 
     @Test

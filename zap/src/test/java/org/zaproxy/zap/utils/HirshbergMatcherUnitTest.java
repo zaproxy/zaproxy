@@ -19,10 +19,8 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -60,7 +58,7 @@ class HirshbergMatcherUnitTest {
         // When
         String lcs = matcher.getLCS(EMPTY_STRING, NON_EMPTY_STRING);
         // Then
-        assertThat(lcs, is(equalTo(EMPTY_STRING)));
+        assertThat(lcs).isEqualTo(EMPTY_STRING);
     }
 
     @Test
@@ -70,7 +68,7 @@ class HirshbergMatcherUnitTest {
         // When
         String lcs = matcher.getLCS(NON_EMPTY_STRING, EMPTY_STRING);
         // Then
-        assertThat(lcs, is(equalTo(EMPTY_STRING)));
+        assertThat(lcs).isEqualTo(EMPTY_STRING);
     }
 
     @Test
@@ -80,7 +78,7 @@ class HirshbergMatcherUnitTest {
         // When
         String lcs = matcher.getLCS(EMPTY_STRING, EMPTY_STRING);
         // Then
-        assertThat(lcs, is(equalTo(EMPTY_STRING)));
+        assertThat(lcs).isEqualTo(EMPTY_STRING);
     }
 
     @Test
@@ -92,7 +90,7 @@ class HirshbergMatcherUnitTest {
         // When
         String lcs = matcher.getLCS(stringA, stringB);
         // Then
-        assertThat(lcs, is(equalTo("GTCGTCGGAAGCCGGCCGAA")));
+        assertThat(lcs).isEqualTo("GTCGTCGGAAGCCGGCCGAA");
     }
 
     @Test
@@ -105,8 +103,8 @@ class HirshbergMatcherUnitTest {
         String lcs1 = matcher.getLCS(stringA, stringB);
         String lcs2 = matcher.getLCS(stringB, stringA);
         // Then
-        assertThat(lcs1, is(equalTo(lcs2)));
-        assertThat(lcs2, is(equalTo("hman")));
+        assertThat(lcs1).isEqualTo(lcs2);
+        assertThat(lcs2).isEqualTo("hman");
     }
 
     @Test
@@ -118,7 +116,7 @@ class HirshbergMatcherUnitTest {
         // When
         String lcs = matcher.getLCS(stringA, stringB);
         // Then
-        assertThat(lcs, is(equalTo(stringB)));
+        assertThat(lcs).isEqualTo(stringB);
     }
 
     @Test
@@ -130,7 +128,7 @@ class HirshbergMatcherUnitTest {
         // When
         String lcs = matcher.getLCS(stringA, stringB);
         // Then
-        assertThat(lcs, is(equalTo(EMPTY_STRING)));
+        assertThat(lcs).isEqualTo(EMPTY_STRING);
     }
 
     @Test
@@ -140,7 +138,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(null, NON_EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MIN_RATIO);
     }
 
     @Test
@@ -150,7 +148,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(NON_EMPTY_STRING, null);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MIN_RATIO);
     }
 
     @Test
@@ -160,7 +158,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(null, null);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MAX_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MAX_RATIO);
     }
 
     @Test
@@ -170,7 +168,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(EMPTY_STRING, NON_EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MIN_RATIO);
     }
 
     @Test
@@ -180,7 +178,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(NON_EMPTY_STRING, EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MIN_RATIO);
     }
 
     @Test
@@ -190,7 +188,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(EMPTY_STRING, EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MAX_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MAX_RATIO);
     }
 
     @Test
@@ -202,7 +200,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(stringA, stringB);
         // Then
-        assertThat(ratio, is(closeTo(0.4285, 0.001)));
+        assertThat(ratio).isCloseTo(0.4285, within(0.001));
     }
 
     @Test
@@ -214,7 +212,7 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(stringA, stringB);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MAX_RATIO)));
+        assertThat(ratio).isEqualTo(HirshbergMatcher.MAX_RATIO);
     }
 
     @Test
@@ -226,6 +224,6 @@ class HirshbergMatcherUnitTest {
         // When
         double ratio = matcher.getMatchRatio(stringA, stringB);
         // Then
-        assertThat(ratio, is(equalTo(0.0)));
+        assertThat(ratio).isEqualTo(0.0);
     }
 }

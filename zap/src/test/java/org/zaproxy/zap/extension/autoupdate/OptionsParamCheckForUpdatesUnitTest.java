@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import org.apache.commons.configuration.FileConfiguration;
@@ -39,7 +35,7 @@ class OptionsParamCheckForUpdatesUnitTest {
         // Given / When
         OptionsParamCheckForUpdates param = new OptionsParamCheckForUpdates();
         // Then
-        assertThat(param.getConfig(), is(equalTo(null)));
+        assertThat(param.getConfig()).isEqualTo(null);
     }
 
     @Test
@@ -50,19 +46,18 @@ class OptionsParamCheckForUpdatesUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.isCheckOnStart(), is(true));
-        assertThat(param.getDayLastChecked(), is(nullValue()));
-        assertThat(param.getDayLastInstallWarned(), is(nullValue()));
-        assertThat(param.getDayLastUpdateWarned(), is(nullValue()));
-        assertThat(param.isDownloadNewRelease(), is(false));
-        assertThat(param.isCheckAddonUpdates(), is(true));
-        assertThat(param.isInstallAddonUpdates(), is(false));
-        assertThat(param.isInstallScannerRules(), is(false));
-        assertThat(param.isReportReleaseAddons(), is(false));
-        assertThat(param.isReportBetaAddons(), is(false));
-        assertThat(param.isReportAlphaAddons(), is(false));
-        assertThat(param.getAddonDirectories(), is(empty()));
-        assertThat(
-                param.getDownloadDirectory(), is(equalTo(new File(Constant.FOLDER_LOCAL_PLUGIN))));
+        assertThat(param.isCheckOnStart()).isTrue();
+        assertThat(param.getDayLastChecked()).isNull();
+        assertThat(param.getDayLastInstallWarned()).isNull();
+        assertThat(param.getDayLastUpdateWarned()).isNull();
+        assertThat(param.isDownloadNewRelease()).isFalse();
+        assertThat(param.isCheckAddonUpdates()).isTrue();
+        assertThat(param.isInstallAddonUpdates()).isFalse();
+        assertThat(param.isInstallScannerRules()).isFalse();
+        assertThat(param.isReportReleaseAddons()).isFalse();
+        assertThat(param.isReportBetaAddons()).isFalse();
+        assertThat(param.isReportAlphaAddons()).isFalse();
+        assertThat(param.getAddonDirectories()).isEmpty();
+        assertThat(param.getDownloadDirectory()).isEqualTo(new File(Constant.FOLDER_LOCAL_PLUGIN));
     }
 }

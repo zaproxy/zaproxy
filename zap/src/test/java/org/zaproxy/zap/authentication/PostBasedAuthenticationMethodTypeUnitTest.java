@@ -20,8 +20,7 @@
 package org.zaproxy.zap.authentication;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -374,8 +373,8 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             method.authenticate(sessMethod, creds, user);
 
             // Then
-            assertThat(orderedReqData.size(), is(2));
-            assertThat(expectedRequestBody, is(orderedReqData.get(1)));
+            assertThat(orderedReqData).hasSize(2);
+            assertThat(expectedRequestBody).isEqualTo(orderedReqData.get(1));
         }
     }
 }

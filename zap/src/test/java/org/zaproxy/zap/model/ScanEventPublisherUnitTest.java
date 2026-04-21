@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
@@ -61,18 +59,18 @@ class ScanEventPublisherUnitTest {
         String name = pub.getPublisherName();
 
         // Then
-        assertThat(name, is("org.zaproxy.zap.model.ScanEventPublisher"));
+        assertThat(name).isEqualTo("org.zaproxy.zap.model.ScanEventPublisher");
     }
 
     void assertIsBasicEvent(String event, Target target) {
         List<Event> events = sub.getEvents();
-        assertThat(events.size(), is(1));
-        assertThat(events.get(0).getEventType(), is(event));
-        assertThat(events.get(0).getPublisher(), is(pub));
-        assertThat(events.get(0).getTarget(), is(target));
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0).getEventType()).isEqualTo(event);
+        assertThat(events.get(0).getPublisher()).isEqualTo(pub);
+        assertThat(events.get(0).getTarget()).isEqualTo(target);
         Map<String, String> params = events.get(0).getParameters();
-        assertThat(params.size(), is(1));
-        assertThat(params.get(ScanEventPublisher.SCAN_ID), is("1"));
+        assertThat(params).hasSize(1);
+        assertThat(params.get(ScanEventPublisher.SCAN_ID)).isEqualTo("1");
     }
 
     @Test
@@ -150,15 +148,15 @@ class ScanEventPublisherUnitTest {
         List<Event> events = sub.getEvents();
 
         // Then
-        assertThat(events.size(), is(1));
-        assertThat(events.get(0).getEventType(), is(event));
-        assertThat(events.get(0).getPublisher(), is(pub));
-        assertThat(events.get(0).getTarget(), is(nullValue()));
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0).getEventType()).isEqualTo(event);
+        assertThat(events.get(0).getPublisher()).isEqualTo(pub);
+        assertThat(events.get(0).getTarget()).isNull();
         Map<String, String> params = events.get(0).getParameters();
-        assertThat(params.size(), is(3));
-        assertThat(params.get(ScanEventPublisher.SCAN_ID), is("2"));
-        assertThat(params.get(ScanEventPublisher.USER_ID), is("1"));
-        assertThat(params.get(ScanEventPublisher.USER_NAME), is("test"));
+        assertThat(params).hasSize(3);
+        assertThat(params.get(ScanEventPublisher.SCAN_ID)).isEqualTo("2");
+        assertThat(params.get(ScanEventPublisher.USER_ID)).isEqualTo("1");
+        assertThat(params.get(ScanEventPublisher.USER_NAME)).isEqualTo("test");
     }
 
     @Test
@@ -171,14 +169,14 @@ class ScanEventPublisherUnitTest {
         List<Event> events = sub.getEvents();
 
         // Then
-        assertThat(events.size(), is(1));
-        assertThat(events.get(0).getEventType(), is(event));
-        assertThat(events.get(0).getPublisher(), is(pub));
-        assertThat(events.get(0).getTarget(), is(nullValue()));
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0).getEventType()).isEqualTo(event);
+        assertThat(events.get(0).getPublisher()).isEqualTo(pub);
+        assertThat(events.get(0).getTarget()).isNull();
         Map<String, String> params = events.get(0).getParameters();
-        assertThat(params.size(), is(2));
-        assertThat(params.get(ScanEventPublisher.SCAN_ID), is("2"));
-        assertThat(params.get(ScanEventPublisher.TARGET_URL), is("https://www.example.com"));
+        assertThat(params).hasSize(2);
+        assertThat(params.get(ScanEventPublisher.SCAN_ID)).isEqualTo("2");
+        assertThat(params.get(ScanEventPublisher.TARGET_URL)).isEqualTo("https://www.example.com");
     }
 
     @Test
@@ -188,14 +186,14 @@ class ScanEventPublisherUnitTest {
         List<Event> events = sub.getEvents();
 
         // Then
-        assertThat(events.size(), is(1));
-        assertThat(events.get(0).getEventType(), is(ScanEventPublisher.SCAN_PROGRESS_EVENT));
-        assertThat(events.get(0).getPublisher(), is(pub));
-        assertThat(events.get(0).getTarget(), is(nullValue()));
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0).getEventType()).isEqualTo(ScanEventPublisher.SCAN_PROGRESS_EVENT);
+        assertThat(events.get(0).getPublisher()).isEqualTo(pub);
+        assertThat(events.get(0).getTarget()).isNull();
         Map<String, String> params = events.get(0).getParameters();
-        assertThat(params.size(), is(2));
-        assertThat(params.get(ScanEventPublisher.SCAN_ID), is("2"));
-        assertThat(params.get(ScanEventPublisher.SCAN_PROGRESS), is("57"));
+        assertThat(params).hasSize(2);
+        assertThat(params.get(ScanEventPublisher.SCAN_ID)).isEqualTo("2");
+        assertThat(params.get(ScanEventPublisher.SCAN_PROGRESS)).isEqualTo("57");
     }
 
     private class TestConsumer implements EventConsumer {

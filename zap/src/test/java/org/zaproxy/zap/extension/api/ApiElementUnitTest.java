@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -55,8 +51,8 @@ class ApiElementUnitTest {
                                             ELEMENT_NAME,
                                             DEFAULT_MANDATORY_PARAMS,
                                             DEFAULT_OPTIONAL_PARAMS));
-            assertThat(api.getMandatoryParamNames(), is(equalTo(DEFAULT_MANDATORY_PARAMS)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(DEFAULT_OPTIONAL_PARAMS)));
+            assertThat(api.getMandatoryParamNames()).isEqualTo(DEFAULT_MANDATORY_PARAMS);
+            assertThat(api.getOptionalParamNames()).isEqualTo(DEFAULT_OPTIONAL_PARAMS);
         }
 
         @Test
@@ -73,9 +69,7 @@ class ApiElementUnitTest {
                                             ELEMENT_NAME,
                                             mandatoryParams,
                                             DEFAULT_OPTIONAL_PARAMS));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
         }
 
         @Test
@@ -92,9 +86,7 @@ class ApiElementUnitTest {
                                             ELEMENT_NAME,
                                             DEFAULT_MANDATORY_PARAMS,
                                             optionalParams));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
         }
 
         @Test
@@ -108,9 +100,7 @@ class ApiElementUnitTest {
                     assertThrows(
                             IllegalArgumentException.class,
                             () -> new ApiElement(ELEMENT_NAME, mandatoryParams, optionalParams));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
         }
 
         @ParameterizedTest
@@ -126,9 +116,7 @@ class ApiElementUnitTest {
                                             defaultMethod,
                                             DEFAULT_MANDATORY_PARAMS,
                                             DEFAULT_OPTIONAL_PARAMS));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString("default method")));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains("default method");
         }
     }
 
@@ -148,8 +136,8 @@ class ApiElementUnitTest {
             // When
             api.setMandatoryParamNames(mandatoryParams);
             // Then
-            assertThat(api.getMandatoryParamNames(), is(equalTo(mandatoryParams)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(DEFAULT_OPTIONAL_PARAMS)));
+            assertThat(api.getMandatoryParamNames()).isEqualTo(mandatoryParams);
+            assertThat(api.getOptionalParamNames()).isEqualTo(DEFAULT_OPTIONAL_PARAMS);
         }
 
         @Test
@@ -159,8 +147,8 @@ class ApiElementUnitTest {
             // When
             api.setOptionalParamNames(optionalParams);
             // Then
-            assertThat(api.getMandatoryParamNames(), is(equalTo(DEFAULT_MANDATORY_PARAMS)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(optionalParams)));
+            assertThat(api.getMandatoryParamNames()).isEqualTo(DEFAULT_MANDATORY_PARAMS);
+            assertThat(api.getOptionalParamNames()).isEqualTo(optionalParams);
         }
 
         @Test
@@ -173,11 +161,9 @@ class ApiElementUnitTest {
                     assertThrows(
                             IllegalArgumentException.class,
                             () -> api.setMandatoryParamNames(mandatoryParams));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
-            assertThat(api.getMandatoryParamNames(), is(equalTo(DEFAULT_MANDATORY_PARAMS)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(DEFAULT_OPTIONAL_PARAMS)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
+            assertThat(api.getMandatoryParamNames()).isEqualTo(DEFAULT_MANDATORY_PARAMS);
+            assertThat(api.getOptionalParamNames()).isEqualTo(DEFAULT_OPTIONAL_PARAMS);
         }
 
         @Test
@@ -190,11 +176,9 @@ class ApiElementUnitTest {
                     assertThrows(
                             IllegalArgumentException.class,
                             () -> api.setMandatoryParamNames(mandatoryParams));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
-            assertThat(api.getMandatoryParamNames(), is(equalTo(DEFAULT_MANDATORY_PARAMS)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(DEFAULT_OPTIONAL_PARAMS)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
+            assertThat(api.getMandatoryParamNames()).isEqualTo(DEFAULT_MANDATORY_PARAMS);
+            assertThat(api.getOptionalParamNames()).isEqualTo(DEFAULT_OPTIONAL_PARAMS);
         }
 
         @Test
@@ -207,11 +191,9 @@ class ApiElementUnitTest {
                     assertThrows(
                             IllegalArgumentException.class,
                             () -> api.setOptionalParamNames(optionalParams));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
-            assertThat(api.getMandatoryParamNames(), is(equalTo(DEFAULT_MANDATORY_PARAMS)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(DEFAULT_OPTIONAL_PARAMS)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
+            assertThat(api.getMandatoryParamNames()).isEqualTo(DEFAULT_MANDATORY_PARAMS);
+            assertThat(api.getOptionalParamNames()).isEqualTo(DEFAULT_OPTIONAL_PARAMS);
         }
 
         @Test
@@ -224,11 +206,9 @@ class ApiElementUnitTest {
                     assertThrows(
                             IllegalArgumentException.class,
                             () -> api.setOptionalParamNames(mandatoryParams));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
-            assertThat(api.getMandatoryParamNames(), is(equalTo(DEFAULT_MANDATORY_PARAMS)));
-            assertThat(api.getOptionalParamNames(), is(equalTo(DEFAULT_OPTIONAL_PARAMS)));
+            assertThat(ex.getMessage()).contains(ELEMENT_NAME).contains(duplicatedParam);
+            assertThat(api.getMandatoryParamNames()).isEqualTo(DEFAULT_MANDATORY_PARAMS);
+            assertThat(api.getOptionalParamNames()).isEqualTo(DEFAULT_OPTIONAL_PARAMS);
         }
     }
 }

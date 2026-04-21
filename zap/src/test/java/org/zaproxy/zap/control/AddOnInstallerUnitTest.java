@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -64,9 +61,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         Path addOnDataDir = AddOnInstaller.getAddOnDataDir(addOn);
         // Then
-        assertThat(
-                Paths.get(Constant.getZapHome()).relativize(addOnDataDir),
-                is(equalTo(Paths.get("addOnData/addOnId/1.0.0"))));
+        assertThat(Paths.get(Constant.getZapHome()).relativize(addOnDataDir))
+                .isEqualTo(Paths.get("addOnData/addOnId/1.0.0"));
     }
 
     @Test
@@ -76,9 +72,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         Path addOnLibsDir = AddOnInstaller.getAddOnLibsDir(addOn);
         // Then
-        assertThat(
-                Paths.get(Constant.getZapHome()).relativize(addOnLibsDir),
-                is(equalTo(Paths.get("addOnData/addOnId/1.0.0/libs"))));
+        assertThat(Paths.get(Constant.getZapHome()).relativize(addOnLibsDir))
+                .isEqualTo(Paths.get("addOnData/addOnId/1.0.0/libs"));
     }
 
     @Test
@@ -96,8 +91,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         AddOnInstaller.deleteLegacyAddOnLibsDir(addOns);
         // Then
-        assertThat(Files.notExists(addOnALibsDir), is(equalTo(true)));
-        assertThat(Files.notExists(addOnBLibsDir), is(equalTo(true)));
+        assertThat(Files.notExists(addOnALibsDir)).isTrue();
+        assertThat(Files.notExists(addOnBLibsDir)).isTrue();
     }
 
     @Test
@@ -107,8 +102,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.installAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
-        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn)), is(equalTo(true)));
+        assertThat(successfully).isTrue();
+        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn))).isTrue();
     }
 
     @Test
@@ -118,7 +113,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.installAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
+        assertThat(successfully).isTrue();
         assertInstalledLibs(addOn, "lib1", "lib2");
     }
 
@@ -130,8 +125,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.installAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
-        assertThat(contents(lib2), is(equalTo(DEFAULT_LIB_CONTENTS)));
+        assertThat(successfully).isTrue();
+        assertThat(contents(lib2)).isEqualTo(DEFAULT_LIB_CONTENTS);
     }
 
     @Test
@@ -142,7 +137,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.installMissingAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
+        assertThat(successfully).isTrue();
         assertInstalledLibs(addOn, "lib1", "lib2");
     }
 
@@ -154,9 +149,9 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.installMissingAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
+        assertThat(successfully).isTrue();
         assertInstalledLibs(addOn, "lib1", "lib2");
-        assertThat(contents(lib2), is(equalTo("FileContents")));
+        assertThat(contents(lib2)).isEqualTo("FileContents");
     }
 
     @Test
@@ -168,8 +163,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.uninstallAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
-        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn)), is(equalTo(true)));
+        assertThat(successfully).isTrue();
+        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn))).isTrue();
     }
 
     @Test
@@ -180,9 +175,9 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.uninstallAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
-        assertThat(Files.notExists(addOnDataLibsDir(addOn)), is(equalTo(true)));
-        assertThat(Files.exists(customFile), is(equalTo(true)));
+        assertThat(successfully).isTrue();
+        assertThat(Files.notExists(addOnDataLibsDir(addOn))).isTrue();
+        assertThat(Files.exists(customFile)).isTrue();
     }
 
     @Test
@@ -195,8 +190,8 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.uninstallAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
-        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn)), is(equalTo(true)));
+        assertThat(successfully).isTrue();
+        assertThat(Files.notExists(AddOnInstaller.getAddOnDataDir(addOn))).isTrue();
     }
 
     @Test
@@ -208,7 +203,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.uninstallAddOnLibs(addOn);
         // Then
-        assertThat(successfully, is(equalTo(true)));
+        assertThat(successfully).isTrue();
         assertInstalledLibs(addOn, "lib1", "lib2");
     }
 
@@ -225,7 +220,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.softUninstall(addOn, callback);
         // Then
-        assertThat(successfully, is(equalTo(true)));
+        assertThat(successfully).isTrue();
         verify(Constant.messages).removeMessageBundle(bundlePrefix);
         verifyNoMoreInteractions(Constant.messages);
     }
@@ -242,7 +237,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // When
         boolean successfully = AddOnInstaller.softUninstall(addOn, callback);
         // Then
-        assertThat(successfully, is(equalTo(true)));
+        assertThat(successfully).isTrue();
         verifyNoInteractions(Constant.messages);
     }
 
@@ -251,8 +246,10 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
 
         try (Stream<Path> files = Files.list(addOnLibsDir)) {
             assertThat(
-                    files.map(Path::getFileName).map(Path::toString).collect(Collectors.toList()),
-                    containsInAnyOrder(fileNames));
+                            files.map(Path::getFileName)
+                                    .map(Path::toString)
+                                    .collect(Collectors.toList()))
+                    .containsExactlyInAnyOrder(fileNames);
         }
     }
 

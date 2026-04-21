@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -67,6 +65,6 @@ class PopupMenuItemIncludeSiteInContextUnitTest {
         // When
         String regex = popup.createRegex(leafHostNode);
         // Then
-        assertThat(regex, is(equalTo(".*")));
+        assertThat(regex).isEqualTo(".*");
     }
 }

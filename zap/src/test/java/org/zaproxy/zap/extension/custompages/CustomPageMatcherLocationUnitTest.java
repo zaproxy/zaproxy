@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.custompages;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
@@ -47,7 +45,7 @@ class CustomPageMatcherLocationUnitTest {
         CustomPageMatcherLocation location =
                 CustomPageMatcherLocation.getCustomPagePageMatcherLocationWithId(id);
         // Then
-        assertTrue(Arrays.asList(CustomPageMatcherLocation.values()).contains(location));
+        assertThat(Arrays.asList(CustomPageMatcherLocation.values()).contains(location)).isTrue();
     }
 
     @ParameterizedTest
@@ -57,7 +55,7 @@ class CustomPageMatcherLocationUnitTest {
         CustomPageMatcherLocation location =
                 CustomPageMatcherLocation.getCustomPagePageMatcherLocationWithId(id);
         // Then
-        assertEquals(CustomPageMatcherLocation.getDefaultLocation(), location);
+        assertThat(location).isEqualTo(CustomPageMatcherLocation.getDefaultLocation());
     }
 
     @ParameterizedTest
@@ -67,8 +65,8 @@ class CustomPageMatcherLocationUnitTest {
         CustomPageMatcherLocation location =
                 CustomPageMatcherLocation.getCustomPagePageMatcherLocationWithId(id);
         // Then
-        assertNotNull(location.toString());
-        assertTrue(!location.toString().isEmpty());
+        assertThat(location.toString()).isNotNull();
+        assertThat(!location.toString().isEmpty()).isTrue();
     }
 
     @Test
@@ -76,9 +74,8 @@ class CustomPageMatcherLocationUnitTest {
         // Given
         I18N i18n = new I18N(Locale.ENGLISH);
         // When/Then
-        assertEquals("URL", i18n.getString(CustomPageMatcherLocation.URL.getNameKey()));
-        assertEquals(
-                "Response",
-                i18n.getString(CustomPageMatcherLocation.RESPONSE_CONTENT.getNameKey()));
+        assertThat(i18n.getString(CustomPageMatcherLocation.URL.getNameKey())).isEqualTo("URL");
+        assertThat(i18n.getString(CustomPageMatcherLocation.RESPONSE_CONTENT.getNameKey()))
+                .isEqualTo("Response");
     }
 }

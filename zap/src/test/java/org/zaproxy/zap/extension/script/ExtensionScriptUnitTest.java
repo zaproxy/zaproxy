@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -59,7 +56,7 @@ class ExtensionScriptUnitTest {
         // When
         ScriptsCache<Script> scriptsCache = extensionScript.createScriptsCache(configuration);
         // Then
-        assertThat(scriptsCache, is(not(nullValue())));
+        assertThat(scriptsCache).isNotNull();
     }
 
     @Test
@@ -90,8 +87,8 @@ class ExtensionScriptUnitTest {
         ScriptEngineWrapper wrapper = extensionScript.getEngineWrapper("Test");
 
         // Then
-        assertThat(wrapper, is(not(nullValue())));
-        assertThat(wrapper.getEngineName(), is("Test"));
+        assertThat(wrapper).isNotNull();
+        assertThat(wrapper.getEngineName()).isEqualTo("Test");
     }
 
     @Test
@@ -119,8 +116,8 @@ class ExtensionScriptUnitTest {
         ScriptEngineWrapper wrapper = extensionScript.getEngineWrapper("Oracle Nashorn");
 
         // Then
-        assertThat(wrapper, is(not(nullValue())));
-        assertThat(wrapper.getEngineName(), is("Graal.js"));
+        assertThat(wrapper).isNotNull();
+        assertThat(wrapper.getEngineName()).isEqualTo("Graal.js");
     }
 
     private interface Script {}

@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -118,7 +113,7 @@ class LocaleUtilsUnitTest {
         // When
         String patternRegex = pattern.toString();
         // Then
-        assertThat(regex, is(equalTo(patternRegex)));
+        assertThat(regex).isEqualTo(patternRegex);
     }
 
     @Test
@@ -136,7 +131,7 @@ class LocaleUtilsUnitTest {
         Pattern pattern = LocaleUtils.createResourceFilesPattern(FILE_NAME, FILE_EXTENSION);
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(true)));
+            assertThat(pattern.matcher(file).matches()).as(file).isTrue();
         }
     }
 
@@ -154,7 +149,7 @@ class LocaleUtilsUnitTest {
         Pattern pattern = LocaleUtils.createResourceFilesPattern(FILE_NAME, FILE_EXTENSION);
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(false)));
+            assertThat(pattern.matcher(file).matches()).as(file).isFalse();
         }
     }
 
@@ -173,7 +168,7 @@ class LocaleUtilsUnitTest {
         Pattern pattern = LocaleUtils.createMessagesPropertiesFilePattern();
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(true)));
+            assertThat(pattern.matcher(file).matches()).as(file).isTrue();
         }
     }
 
@@ -191,7 +186,7 @@ class LocaleUtilsUnitTest {
         Pattern pattern = LocaleUtils.createMessagesPropertiesFilePattern();
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(false)));
+            assertThat(pattern.matcher(file).matches()).as(file).isFalse();
         }
     }
 
@@ -201,7 +196,7 @@ class LocaleUtilsUnitTest {
         List<String> locales = LocaleUtils.getAvailableLocales();
 
         // When/Then
-        assertThat(locales, is(not(empty())));
+        assertThat(locales).isNotEmpty();
     }
 
     @Test
@@ -213,7 +208,7 @@ class LocaleUtilsUnitTest {
         String firstAvailableLocale = locales.get(0);
 
         // Then
-        assertThat(firstAvailableLocale, is(equalTo("en_GB")));
+        assertThat(firstAvailableLocale).isEqualTo("en_GB");
     }
 
     @Test
@@ -231,7 +226,8 @@ class LocaleUtilsUnitTest {
         // Then
         List<String> displayNames =
                 locales.stream().map(ViewLocale::toString).collect(Collectors.toUnmodifiableList());
-        assertThat(displayNames, contains("English", "português (Brasil)", "português (Portugal)"));
+        assertThat(displayNames)
+                .containsExactly("English", "português (Brasil)", "português (Portugal)");
     }
 
     @Test
@@ -251,14 +247,13 @@ class LocaleUtilsUnitTest {
                         return null;
                     });
             // Then
-            assertThat(
-                    resources,
-                    contains(
+            assertThat(resources)
+                    .containsExactly(
                             "org/example/file_es_ES.ext",
                             "org/example/file_es.ext",
                             "org/example/file.ext",
                             "org/example/file_fr_FR.ext",
-                            "org/example/file_fr.ext"));
+                            "org/example/file_fr.ext");
         } finally {
             Locale.setDefault(defaultLocale);
         }
@@ -282,14 +277,13 @@ class LocaleUtilsUnitTest {
                         return null;
                     });
             // Then
-            assertThat(
-                    resources,
-                    contains(
+            assertThat(resources)
+                    .containsExactly(
                             "org/example/dir_es_ES/file_es_ES.ext",
                             "org/example/dir_es/file_es.ext",
                             "org/example/dir/file.ext",
                             "org/example/dir_fr_FR/file_fr_FR.ext",
-                            "org/example/dir_fr/file_fr.ext"));
+                            "org/example/dir_fr/file_fr.ext");
         } finally {
             Locale.setDefault(defaultLocale);
         }
@@ -311,12 +305,11 @@ class LocaleUtilsUnitTest {
                     return null;
                 });
         // Then
-        assertThat(
-                resources,
-                contains(
+        assertThat(resources)
+                .containsExactly(
                         "org/example/file_es_ES.ext",
                         "org/example/file_es.ext",
-                        "org/example/file.ext"));
+                        "org/example/file.ext");
     }
 
     @Test
@@ -336,14 +329,13 @@ class LocaleUtilsUnitTest {
                     return null;
                 });
         // Then
-        assertThat(
-                resources,
-                contains(
+        assertThat(resources)
+                .containsExactly(
                         "org/example/file_es_ES.ext",
                         "org/example/file_es.ext",
                         "org/example/file.ext",
                         "org/example/file_fr_FR.ext",
-                        "org/example/file_fr.ext"));
+                        "org/example/file_fr.ext");
     }
 
     @Test
@@ -363,12 +355,11 @@ class LocaleUtilsUnitTest {
                     return null;
                 });
         // Then
-        assertThat(
-                resources,
-                contains(
+        assertThat(resources)
+                .containsExactly(
                         "org/example/dir_es_ES/file_es_ES.ext",
                         "org/example/dir_es/file_es.ext",
-                        "org/example/dir/file.ext"));
+                        "org/example/dir/file.ext");
     }
 
     private static ResourceBundle.Control mockResourceBundleControl() {

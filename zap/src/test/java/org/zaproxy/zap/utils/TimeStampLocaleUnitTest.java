@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.net.URL;
@@ -84,7 +83,7 @@ class TimeStampLocaleUnitTest extends TestUtils {
                     errors.add("File with unhandled locale: " + fileName);
                 }
             }
-            assertThat(errors.toString(), errors, hasSize(0));
+            assertThat(errors).as(errors.toString()).hasSize(0);
         }
     }
 

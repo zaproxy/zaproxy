@@ -19,12 +19,8 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +43,7 @@ class VariantAbstractQueryUnitTest {
         // When
         List<NameValuePair> parameters = variantAbstractQuery.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -83,9 +79,8 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
         // Then
-        assertThat(
-                variantAbstractQuery.getParamList(),
-                contains(param(NAME_VALUE_PAIR_TYPE, "query", "query", 0)));
+        assertThat(variantAbstractQuery.getParamList())
+                .containsExactly(param(NAME_VALUE_PAIR_TYPE, "query", "query", 0));
     }
 
     @Test
@@ -97,7 +92,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
         // Then
-        assertThat(variantAbstractQuery.getParamList(), is(empty()));
+        assertThat(variantAbstractQuery.getParamList()).isEmpty();
     }
 
     @Test
@@ -109,11 +104,10 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         // Then
-        assertThat(
-                variantAbstractQuery.getParamList(),
-                contains(
+        assertThat(variantAbstractQuery.getParamList())
+                .containsExactly(
                         param(NAME_VALUE_PAIR_TYPE, "a", "b", 0),
-                        param(NAME_VALUE_PAIR_TYPE, "c", "d", 1)));
+                        param(NAME_VALUE_PAIR_TYPE, "c", "d", 1));
     }
 
     @Test
@@ -125,11 +119,10 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         // Then
-        assertThat(
-                variantAbstractQuery.getParamList(),
-                contains(
+        assertThat(variantAbstractQuery.getParamList())
+                .containsExactly(
                         param(NAME_VALUE_PAIR_TYPE, "", "b", 0),
-                        param(NAME_VALUE_PAIR_TYPE, "c", "", 1)));
+                        param(NAME_VALUE_PAIR_TYPE, "c", "", 1));
     }
 
     @Test
@@ -146,14 +139,13 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         // Then
-        assertThat(
-                variantAbstractQuery.getParamList(),
-                contains(
+        assertThat(variantAbstractQuery.getParamList())
+                .containsExactly(
                         param(NAME_VALUE_PAIR_TYPE, "a[0]", "b", 0),
                         param(NAME_VALUE_PAIR_TYPE, "a[1]", "d", 1),
                         param(NAME_VALUE_PAIR_TYPE, "e", "f", 2),
                         param(NAME_VALUE_PAIR_TYPE, "g[0]", "h", 3),
-                        param(NAME_VALUE_PAIR_TYPE, "i", "j", 4)));
+                        param(NAME_VALUE_PAIR_TYPE, "i", "j", 4));
     }
 
     @Test
@@ -169,9 +161,8 @@ class VariantAbstractQueryUnitTest {
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         variantAbstractQuery.setParameters(otherType, otherParameters);
         // Then
-        assertThat(
-                variantAbstractQuery.getParamList(),
-                contains(param(otherType, "e", "f", 0), param(otherType, "g", "h", 1)));
+        assertThat(variantAbstractQuery.getParamList())
+                .containsExactly(param(otherType, "e", "f", 0), param(otherType, "g", "h", 1));
     }
 
     @Test
@@ -194,7 +185,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setEscapedParameter(message, param("a", "b", 0), "y", "escaped");
         // Then
-        assertThat(values, contains("d", "f"));
+        assertThat(values).containsExactly("d", "f");
     }
 
     @Test
@@ -217,7 +208,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("a", "b", 0), "y", "not-escaped");
         // Then
-        assertThat(values, contains("not-escaped", "d", "f"));
+        assertThat(values).containsExactly("not-escaped", "d", "f");
     }
 
     @Test
@@ -240,7 +231,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("a", "b", 0), "y", "z");
         // Then
-        assertThat(names, contains("y", "c", "e"));
+        assertThat(names).containsExactly("y", "c", "e");
     }
 
     @Test
@@ -268,7 +259,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("e", "f", 2), "e", "f");
         // Then
-        assertThat(names, contains("a[]", "a[]", "e", "g[]", "i"));
+        assertThat(names).containsExactly("a[]", "a[]", "e", "g[]", "i");
     }
 
     @Test
@@ -290,7 +281,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("a[]", "b", 0), "y", "z");
         // Then
-        assertThat(names, contains("y"));
+        assertThat(names).containsExactly("y");
     }
 
     @Test
@@ -312,7 +303,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("a[]", "b", 0), "a[0]", "z");
         // Then
-        assertThat(names, contains("a[0]"));
+        assertThat(names).containsExactly("a[0]");
     }
 
     @Test
@@ -342,8 +333,8 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("query", "query", 0), "y", "z");
         // Then
-        assertThat(names, contains("y"));
-        assertThat(values, contains("z"));
+        assertThat(names).containsExactly("y");
+        assertThat(values).containsExactly("z");
     }
 
     @Test
@@ -365,7 +356,7 @@ class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameter(message, param("a", "b", 0), "y", "z");
         // Then
-        assertTrue(buildMessageCalled.isTrue());
+        assertThat(buildMessageCalled.isTrue()).isTrue();
     }
 
     private static HttpMessage createMessage() {

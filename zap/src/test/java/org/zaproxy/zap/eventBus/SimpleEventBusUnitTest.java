@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.eventBus;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +52,9 @@ class SimpleEventBusUnitTest {
         seb.publishSyncEvent(pub, event2);
         seb.publishSyncEvent(pub, event3);
         // Then
-        assertTrue(cons.getEvents().contains(event1));
-        assertTrue(cons.getEvents().contains(event2));
-        assertTrue(cons.getEvents().contains(event3));
+        assertThat(cons.getEvents().contains(event1)).isTrue();
+        assertThat(cons.getEvents().contains(event2)).isTrue();
+        assertThat(cons.getEvents().contains(event3)).isTrue();
     }
 
     @Test
@@ -76,9 +72,9 @@ class SimpleEventBusUnitTest {
         seb.publishSyncEvent(pub, event2);
         seb.publishSyncEvent(pub, event3);
         // Then
-        assertTrue(cons.getEvents().contains(event1));
-        assertTrue(cons.getEvents().contains(event2));
-        assertFalse(cons.getEvents().contains(event3));
+        assertThat(cons.getEvents().contains(event1)).isTrue();
+        assertThat(cons.getEvents().contains(event2)).isTrue();
+        assertThat(cons.getEvents().contains(event3)).isFalse();
     }
 
     @Test
@@ -104,12 +100,12 @@ class SimpleEventBusUnitTest {
         seb.publishSyncEvent(pub2, eventp2e2);
         seb.publishSyncEvent(pub2, eventp2e3);
         // Then
-        assertTrue(cons.getEvents().contains(eventp1e1));
-        assertTrue(cons.getEvents().contains(eventp1e2));
-        assertTrue(cons.getEvents().contains(eventp1e3));
-        assertFalse(cons.getEvents().contains(eventp2e1));
-        assertFalse(cons.getEvents().contains(eventp2e2));
-        assertFalse(cons.getEvents().contains(eventp2e3));
+        assertThat(cons.getEvents().contains(eventp1e1)).isTrue();
+        assertThat(cons.getEvents().contains(eventp1e2)).isTrue();
+        assertThat(cons.getEvents().contains(eventp1e3)).isTrue();
+        assertThat(cons.getEvents().contains(eventp2e1)).isFalse();
+        assertThat(cons.getEvents().contains(eventp2e2)).isFalse();
+        assertThat(cons.getEvents().contains(eventp2e3)).isFalse();
     }
 
     @Test
@@ -128,9 +124,9 @@ class SimpleEventBusUnitTest {
         seb.unregisterConsumer(cons, "Pub1");
         seb.publishSyncEvent(pub, event3);
         // Then
-        assertTrue(cons.getEvents().contains(event1));
-        assertTrue(cons.getEvents().contains(event2));
-        assertFalse(cons.getEvents().contains(event3));
+        assertThat(cons.getEvents().contains(event1)).isTrue();
+        assertThat(cons.getEvents().contains(event2)).isTrue();
+        assertThat(cons.getEvents().contains(event3)).isFalse();
     }
 
     @Test
@@ -162,13 +158,13 @@ class SimpleEventBusUnitTest {
         seb.publishSyncEvent(pub2, eventp2e3);
         seb.publishSyncEvent(pub3, eventp3e3);
         // Then
-        assertTrue(cons.getEvents().contains(eventp1e1));
-        assertTrue(cons.getEvents().contains(eventp1e2));
-        assertTrue(cons.getEvents().contains(eventp2e1));
-        assertTrue(cons.getEvents().contains(eventp2e2));
-        assertFalse(cons.getEvents().contains(eventp1e3));
-        assertFalse(cons.getEvents().contains(eventp2e3));
-        assertFalse(cons.getEvents().contains(eventp3e3));
+        assertThat(cons.getEvents().contains(eventp1e1)).isTrue();
+        assertThat(cons.getEvents().contains(eventp1e2)).isTrue();
+        assertThat(cons.getEvents().contains(eventp2e1)).isTrue();
+        assertThat(cons.getEvents().contains(eventp2e2)).isTrue();
+        assertThat(cons.getEvents().contains(eventp1e3)).isFalse();
+        assertThat(cons.getEvents().contains(eventp2e3)).isFalse();
+        assertThat(cons.getEvents().contains(eventp3e3)).isFalse();
     }
 
     @Test
@@ -184,8 +180,8 @@ class SimpleEventBusUnitTest {
         seb.registerPublisher(publisher, new String[] {"event"});
         seb.publishSyncEvent(publisher, event);
         // Then
-        assertThat(consumer1.getEvents(), contains(event));
-        assertThat(consumer2.getEvents(), contains(event));
+        assertThat(consumer1.getEvents()).containsExactly(event);
+        assertThat(consumer2.getEvents()).containsExactly(event);
     }
 
     @Test
@@ -211,8 +207,8 @@ class SimpleEventBusUnitTest {
         seb.publishSyncEvent(publisher, event1);
         seb.publishSyncEvent(publisher, event2);
         // Then
-        assertThat(consumer1.getEvents(), contains(event1));
-        assertThat(consumer2.getEvents(), contains(event1, event2));
+        assertThat(consumer1.getEvents()).containsExactly(event1);
+        assertThat(consumer2.getEvents()).containsExactly(event1, event2);
     }
 
     @Test
@@ -230,10 +226,10 @@ class SimpleEventBusUnitTest {
         Set<String> p3Events = seb.getEventTypesForPublisher("publisher-3");
 
         // Then
-        assertThat(pubNames, contains("publisher-2", "publisher-1"));
-        assertThat(p1Events, contains("event-p1-1", "event-p1-2", "event-p1-3"));
-        assertThat(p2Events, contains("event-p2-1", "event-p2-2"));
-        assertThat(p3Events, hasSize(0));
+        assertThat(pubNames).containsExactly("publisher-2", "publisher-1");
+        assertThat(p1Events).containsExactly("event-p1-1", "event-p1-2", "event-p1-3");
+        assertThat(p2Events).containsExactly("event-p2-1", "event-p2-2");
+        assertThat(p3Events).hasSize(0);
     }
 
     @Test
@@ -252,10 +248,10 @@ class SimpleEventBusUnitTest {
         Set<String> p3Events = seb.getEventTypesForPublisher("publisher-3");
 
         // Then
-        assertThat(pubNames, contains("publisher-2"));
-        assertThat(p2Events, contains("event-p2-1", "event-p2-2"));
-        assertThat(p1Events, hasSize(0));
-        assertThat(p3Events, hasSize(0));
+        assertThat(pubNames).containsExactly("publisher-2");
+        assertThat(p2Events).containsExactly("event-p2-1", "event-p2-2");
+        assertThat(p1Events).hasSize(0);
+        assertThat(p3Events).hasSize(0);
     }
 
     private class TestEventConsumer implements EventConsumer {

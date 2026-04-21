@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,15 +51,15 @@ public class AlertSetUnitTest {
         boolean add3 = alertSet.addAll(alerts);
 
         // Then
-        assertTrue(add1);
-        assertTrue(add2);
-        assertTrue(add3);
-        assertEquals(5, alertSet.size());
-        assertTrue(alertSet.hasAlert(a1.getAlertId()));
-        assertTrue(alertSet.hasAlert(a2.getAlertId()));
-        assertTrue(alertSet.hasAlert(a3.getAlertId()));
-        assertTrue(alertSet.hasAlert(a4.getAlertId()));
-        assertTrue(alertSet.hasAlert(a5.getAlertId()));
+        assertThat(add1).isTrue();
+        assertThat(add2).isTrue();
+        assertThat(add3).isTrue();
+        assertThat(alertSet.size()).isEqualTo(5);
+        assertThat(alertSet.hasAlert(a1.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a2.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a3.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a4.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a5.getAlertId())).isTrue();
     }
 
     @Test
@@ -83,15 +79,15 @@ public class AlertSetUnitTest {
         boolean add3 = alertSet.addAll(alerts);
 
         // Then
-        assertFalse(add1);
-        assertFalse(add2);
-        assertFalse(add3);
-        assertEquals(5, alertSet.size());
-        assertTrue(alertSet.hasAlert(a1.getAlertId()));
-        assertTrue(alertSet.hasAlert(a2.getAlertId()));
-        assertTrue(alertSet.hasAlert(a3.getAlertId()));
-        assertTrue(alertSet.hasAlert(a4.getAlertId()));
-        assertTrue(alertSet.hasAlert(a5.getAlertId()));
+        assertThat(add1).isFalse();
+        assertThat(add2).isFalse();
+        assertThat(add3).isFalse();
+        assertThat(alertSet.size()).isEqualTo(5);
+        assertThat(alertSet.hasAlert(a1.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a2.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a3.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a4.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a5.getAlertId())).isTrue();
     }
 
     @Test
@@ -112,13 +108,13 @@ public class AlertSetUnitTest {
         boolean rem4 = alertSet.removeAll(alerts);
 
         // Then
-        assertTrue(rem1);
-        assertTrue(rem2);
-        assertFalse(rem3);
-        assertFalse(rem4);
-        assertEquals(2, alertSet.size());
-        assertTrue(alertSet.hasAlert(a2.getAlertId()));
-        assertTrue(alertSet.hasAlert(a3.getAlertId()));
+        assertThat(rem1).isTrue();
+        assertThat(rem2).isTrue();
+        assertThat(rem3).isFalse();
+        assertThat(rem4).isFalse();
+        assertThat(alertSet.size()).isEqualTo(2);
+        assertThat(alertSet.hasAlert(a2.getAlertId())).isTrue();
+        assertThat(alertSet.hasAlert(a3.getAlertId())).isTrue();
     }
 
     @Test
@@ -138,16 +134,16 @@ public class AlertSetUnitTest {
         List<Alert> getl3 = alertSet.getAll();
 
         // Then
-        assertNull(get1);
-        assertEquals(0, getl1.size());
-        assertEquals(a1, get2);
-        assertEquals(1, getl2.size());
-        assertEquals(a1, getl2.get(0));
-        assertEquals(a1, get2);
-        assertNotNull(get3);
-        assertEquals(2, getl3.size());
-        assertTrue(getl3.contains(a1));
-        assertTrue(getl3.contains(a2));
+        assertThat(get1).isNull();
+        assertThat(getl1).hasSize(0);
+        assertThat(get2).isEqualTo(a1);
+        assertThat(getl2).hasSize(1);
+        assertThat(getl2.get(0)).isEqualTo(a1);
+        assertThat(get2).isEqualTo(a1);
+        assertThat(get3).isNotNull();
+        assertThat(getl3).hasSize(2);
+        assertThat(getl3.contains(a1)).isTrue();
+        assertThat(getl3.contains(a2)).isTrue();
     }
 
     @Test
@@ -176,8 +172,8 @@ public class AlertSetUnitTest {
         alertSet.add(a1);
 
         // Then
-        assertTrue(alertSet.hasSimilar(a2));
-        assertFalse(alertSet.hasSimilar(a3));
+        assertThat(alertSet.hasSimilar(a2)).isTrue();
+        assertThat(alertSet.hasSimilar(a3)).isFalse();
     }
 
     @Test
@@ -196,9 +192,9 @@ public class AlertSetUnitTest {
         boolean empty2 = alertSet.isEmpty();
 
         // Then
-        assertFalse(empty1);
-        assertTrue(empty2);
-        assertEquals(0, alertSet.size());
+        assertThat(empty1).isFalse();
+        assertThat(empty2).isTrue();
+        assertThat(alertSet.size()).isEqualTo(0);
     }
 
     @Test
@@ -254,12 +250,12 @@ public class AlertSetUnitTest {
         Alert high5 = alertSet.getHighestRisk();
 
         // Then
-        assertNull(high0);
-        assertNull(high1);
-        assertEquals(a2, high2);
-        assertEquals(a3, high3);
-        assertEquals(a4, high4);
-        assertEquals(a5, high5);
+        assertThat(high0).isNull();
+        assertThat(high1).isNull();
+        assertThat(high2).isEqualTo(a2);
+        assertThat(high3).isEqualTo(a3);
+        assertThat(high4).isEqualTo(a4);
+        assertThat(high5).isEqualTo(a5);
     }
 
     private Alert getAlert(int alertId, String name, String nodeName, String uri) {

@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.resources;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.util.Map;
@@ -62,7 +58,7 @@ class Log4jBootstrapConfigurationTest {
         // Given / When
         String name = configuration.getName();
         // Then
-        assertThat(name, is(equalTo("ZAP Bootstrap Config")));
+        assertThat(name).isEqualTo("ZAP Bootstrap Config");
     }
 
     @Test
@@ -70,7 +66,7 @@ class Log4jBootstrapConfigurationTest {
         // Given / When
         Level level = configuration.getRootLogger().getLevel();
         // Then
-        assertThat(level, is(equalTo(Level.ERROR)));
+        assertThat(level).isEqualTo(Level.ERROR);
     }
 
     @Test
@@ -78,7 +74,7 @@ class Log4jBootstrapConfigurationTest {
         // Given / When
         Map<String, Appender> appenders = configuration.getRootLogger().getAppenders();
         // Then
-        assertThat(appenders.values(), hasSize(1));
-        assertThat(appenders.get("stdout"), is(notNullValue()));
+        assertThat(appenders.values()).hasSize(1);
+        assertThat(appenders.get("stdout")).isNotNull();
     }
 }

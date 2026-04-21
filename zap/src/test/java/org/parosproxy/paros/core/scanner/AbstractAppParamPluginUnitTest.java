@@ -20,10 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -69,21 +66,21 @@ class AbstractAppParamPluginUnitTest extends PluginTestUtils {
         plugin.newAlert().setMessage(alertMessage).raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(plugin.getName())));
-        assertThat(alert.getRisk(), is(equalTo(plugin.getRisk())));
-        assertThat(alert.getConfidence(), is(equalTo(Alert.CONFIDENCE_MEDIUM)));
-        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
-        assertThat(alert.getUri(), is(equalTo(URI)));
-        assertThat(alert.getParam(), is(equalTo("")));
-        assertThat(alert.getAttack(), is(equalTo("")));
-        assertThat(alert.getEvidence(), is(equalTo("")));
-        assertThat(alert.getOtherInfo(), is(equalTo("")));
-        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
-        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
-        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
-        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(plugin.getName());
+        assertThat(alert.getRisk()).isEqualTo(plugin.getRisk());
+        assertThat(alert.getConfidence()).isEqualTo(Alert.CONFIDENCE_MEDIUM);
+        assertThat(alert.getDescription()).isEqualTo(plugin.getDescription());
+        assertThat(alert.getUri()).isEqualTo(URI);
+        assertThat(alert.getParam()).isEmpty();
+        assertThat(alert.getAttack()).isEmpty();
+        assertThat(alert.getEvidence()).isEmpty();
+        assertThat(alert.getOtherInfo()).isEmpty();
+        assertThat(alert.getSolution()).isEqualTo(plugin.getSolution());
+        assertThat(alert.getReference()).isEqualTo(plugin.getReference());
+        assertThat(alert.getCweId()).isEqualTo(plugin.getCweId());
+        assertThat(alert.getWascId()).isEqualTo(plugin.getWascId());
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -121,21 +118,21 @@ class AbstractAppParamPluginUnitTest extends PluginTestUtils {
                 .raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
-        assertThat(alert.getName(), is(equalTo(name)));
-        assertThat(alert.getRisk(), is(equalTo(risk)));
-        assertThat(alert.getConfidence(), is(equalTo(confidence)));
-        assertThat(alert.getDescription(), is(equalTo(description)));
-        assertThat(alert.getUri(), is(equalTo(uri)));
-        assertThat(alert.getParam(), is(equalTo(param)));
-        assertThat(alert.getAttack(), is(equalTo(attack)));
-        assertThat(alert.getEvidence(), is(equalTo(evidence)));
-        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
-        assertThat(alert.getSolution(), is(equalTo(solution)));
-        assertThat(alert.getReference(), is(equalTo(reference)));
-        assertThat(alert.getCweId(), is(equalTo(cweId)));
-        assertThat(alert.getWascId(), is(equalTo(wascId)));
-        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+        assertThat(alert.getPluginId()).isEqualTo(plugin.getId());
+        assertThat(alert.getName()).isEqualTo(name);
+        assertThat(alert.getRisk()).isEqualTo(risk);
+        assertThat(alert.getConfidence()).isEqualTo(confidence);
+        assertThat(alert.getDescription()).isEqualTo(description);
+        assertThat(alert.getUri()).isEqualTo(uri);
+        assertThat(alert.getParam()).isEqualTo(param);
+        assertThat(alert.getAttack()).isEqualTo(attack);
+        assertThat(alert.getEvidence()).isEqualTo(evidence);
+        assertThat(alert.getOtherInfo()).isEqualTo(otherInfo);
+        assertThat(alert.getSolution()).isEqualTo(solution);
+        assertThat(alert.getReference()).isEqualTo(reference);
+        assertThat(alert.getCweId()).isEqualTo(cweId);
+        assertThat(alert.getWascId()).isEqualTo(wascId);
+        assertThat(alert.getMessage()).isSameAs(alertMessage);
     }
 
     @Test
@@ -148,7 +145,7 @@ class AbstractAppParamPluginUnitTest extends PluginTestUtils {
         plugin.newAlert().setMessage(alertMessage).raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getInputVector(), is(equalTo(inputVector)));
+        assertThat(alert.getInputVector()).isEqualTo(inputVector);
     }
 
     @Test
@@ -162,7 +159,7 @@ class AbstractAppParamPluginUnitTest extends PluginTestUtils {
         plugin.newAlert().setMessage(alertMessage).raise();
         // Then
         Alert alert = getRaisedAlert(hostProcess);
-        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getParam()).isEqualTo(param);
     }
 
     private static HttpMessage createAlertMessage() {

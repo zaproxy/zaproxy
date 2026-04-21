@@ -19,9 +19,7 @@
  */
 package org.parosproxy.paros.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +43,7 @@ class SiteNodeUnitTest {
         // When
         String name = siteNode.getName();
         // Then
-        assertThat(name, is(equalTo("http://example.com")));
+        assertThat(name).isEqualTo("http://example.com");
     }
 
     @Test
@@ -56,7 +54,7 @@ class SiteNodeUnitTest {
         // When
         String name = siteNode.getName();
         // Then
-        assertThat(name, is(equalTo("http://example.com")));
+        assertThat(name).isEqualTo("http://example.com");
     }
 
     @Test
@@ -69,7 +67,7 @@ class SiteNodeUnitTest {
         // When
         String name = leafNode.getName();
         // Then
-        assertThat(name, is(equalTo("leaf")));
+        assertThat(name).isEqualTo("leaf");
     }
 
     @Test
@@ -84,6 +82,6 @@ class SiteNodeUnitTest {
         // When
         String name = branchNode.getName();
         // Then
-        assertThat(name, is(equalTo("branch")));
+        assertThat(name).isEqualTo("branch");
     }
 }

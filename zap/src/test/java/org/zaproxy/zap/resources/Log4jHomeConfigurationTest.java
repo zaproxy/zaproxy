@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.resources;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.util.Map;
@@ -63,7 +59,7 @@ class Log4jHomeConfigurationTest {
         // Given / When
         String name = configuration.getName();
         // Then
-        assertThat(name, is(equalTo("ZAP Home Config")));
+        assertThat(name).isEqualTo("ZAP Home Config");
     }
 
     @Test
@@ -71,7 +67,7 @@ class Log4jHomeConfigurationTest {
         // Given / When
         Level level = configuration.getRootLogger().getLevel();
         // Then
-        assertThat(level, is(equalTo(Level.INFO)));
+        assertThat(level).isEqualTo(Level.INFO);
     }
 
     @Test
@@ -79,9 +75,9 @@ class Log4jHomeConfigurationTest {
         // Given / When
         Map<String, Appender> appenders = configuration.getRootLogger().getAppenders();
         // Then
-        assertThat(appenders.values(), hasSize(2));
-        assertThat(appenders.get("stdout"), is(notNullValue()));
-        assertThat(appenders.get("RollingFile"), is(notNullValue()));
+        assertThat(appenders.values()).hasSize(2);
+        assertThat(appenders.get("stdout")).isNotNull();
+        assertThat(appenders.get("RollingFile")).isNotNull();
     }
 
     @Test
@@ -89,8 +85,8 @@ class Log4jHomeConfigurationTest {
         // Given / When
         LoggerConfig loggerConfig = configuration.getLoggerConfig("org.parosproxy.paros");
         // Then
-        assertThat(loggerConfig, is(notNullValue()));
-        assertThat(loggerConfig.getLevel(), is(equalTo(Level.INFO)));
+        assertThat(loggerConfig).isNotNull();
+        assertThat(loggerConfig.getLevel()).isEqualTo(Level.INFO);
     }
 
     @Test
@@ -98,8 +94,8 @@ class Log4jHomeConfigurationTest {
         // Given / When
         LoggerConfig loggerConfig = configuration.getLoggerConfig("org.zaproxy.zap");
         // Then
-        assertThat(loggerConfig, is(notNullValue()));
-        assertThat(loggerConfig.getLevel(), is(equalTo(Level.INFO)));
+        assertThat(loggerConfig).isNotNull();
+        assertThat(loggerConfig.getLevel()).isEqualTo(Level.INFO);
     }
 
     @Test
@@ -107,8 +103,8 @@ class Log4jHomeConfigurationTest {
         // Given / When
         LoggerConfig loggerConfig = configuration.getLoggerConfig("org.apache.commons.httpclient");
         // Then
-        assertThat(loggerConfig, is(notNullValue()));
-        assertThat(loggerConfig.getLevel(), is(equalTo(Level.ERROR)));
+        assertThat(loggerConfig).isNotNull();
+        assertThat(loggerConfig.getLevel()).isEqualTo(Level.ERROR);
     }
 
     @Test
@@ -116,7 +112,7 @@ class Log4jHomeConfigurationTest {
         // Given / When
         LoggerConfig loggerConfig = configuration.getLoggerConfig("net.htmlparser.jericho");
         // Then
-        assertThat(loggerConfig, is(notNullValue()));
-        assertThat(loggerConfig.getLevel(), is(equalTo(Level.OFF)));
+        assertThat(loggerConfig).isNotNull();
+        assertThat(loggerConfig.getLevel()).isEqualTo(Level.OFF);
     }
 }

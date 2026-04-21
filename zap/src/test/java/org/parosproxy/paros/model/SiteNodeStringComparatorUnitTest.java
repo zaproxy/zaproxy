@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +42,7 @@ class SiteNodeStringComparatorUnitTest {
         // When
         int result = comparator.compare(sn1, sn2);
         // Then
-        assertThat(result, is(equalTo(0)));
+        assertThat(result).isEqualTo(0);
     }
 
     @Test
@@ -56,7 +53,7 @@ class SiteNodeStringComparatorUnitTest {
         // When
         int result = comparator.compare(sn1, sn2);
         // Then
-        assertThat(result, is(lessThan(0)));
+        assertThat(result).isLessThan(0);
     }
 
     @Test
@@ -67,7 +64,7 @@ class SiteNodeStringComparatorUnitTest {
         // When
         int result = comparator.compare(sn1, sn2);
         // Then
-        assertThat(result, is(lessThan(0)));
+        assertThat(result).isLessThan(0);
     }
 
     private static SiteNode createSiteNode(String method, String path) {

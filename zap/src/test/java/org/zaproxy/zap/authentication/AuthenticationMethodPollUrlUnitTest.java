@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -90,9 +88,9 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(1));
-        assertThat(orderedReqs.get(0), is(pollUrl));
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(1);
+        assertThat(orderedReqs.get(0)).isEqualTo(pollUrl);
     }
 
     @Test
@@ -123,18 +121,18 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(2));
-        assertThat(orderedReqs.get(0), is(pollUrl));
-        assertThat(orderedReqs.get(1), is(pollUrl));
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(1);
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(1);
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(2);
+        assertThat(orderedReqs.get(0)).isEqualTo(pollUrl);
+        assertThat(orderedReqs.get(1)).isEqualTo(pollUrl);
     }
 
     @Test
@@ -164,14 +162,14 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
-        assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
-        assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
-        assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
-        assertThat(orderedReqs.size(), is(4));
+        assertThat(method.isAuthenticated(testMsg, user)).isFalse();
+        assertThat(orderedReqs).hasSize(1);
+        assertThat(method.isAuthenticated(testMsg, user)).isFalse();
+        assertThat(orderedReqs).hasSize(2);
+        assertThat(method.isAuthenticated(testMsg, user)).isFalse();
+        assertThat(orderedReqs).hasSize(3);
+        assertThat(method.isAuthenticated(testMsg, user)).isFalse();
+        assertThat(orderedReqs).hasSize(4);
     }
 
     @Test
@@ -202,20 +200,20 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(1));
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(1);
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(1);
         user.getAuthenticationState().setLastPollResult(false);
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqs.size(), is(2));
-        assertThat(orderedReqs.get(0), is(pollUrl));
-        assertThat(orderedReqs.get(1), is(pollUrl));
+        assertThat(method.isAuthenticated(testMsg, user)).isTrue();
+        assertThat(orderedReqs).hasSize(2);
+        assertThat(orderedReqs.get(0)).isEqualTo(pollUrl);
+        assertThat(orderedReqs.get(1)).isEqualTo(pollUrl);
     }
 
     @Test
@@ -248,37 +246,37 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         given(user2.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
         // First poll for user1
-        assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(orderedReqs).hasSize(1);
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
 
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
         // First poll for user2
-        assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(orderedReqs).hasSize(2);
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
 
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
         // Should not have changed yet
-        assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(orderedReqs).hasSize(2);
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
         // Second poll for user1
-        assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(orderedReqs).hasSize(3);
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user1)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
         // Should not have changed yet
-        assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(orderedReqs).hasSize(3);
+        assertThat(method.isAuthenticated(testMsg, user2)).isTrue();
         // Second poll for user2
-        assertThat(orderedReqs.size(), is(4));
+        assertThat(orderedReqs).hasSize(4);
     }
 
     @Test
@@ -310,12 +308,11 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         method.isAuthenticated(testMsg, user);
 
         // Then
-        assertThat(pollMessages, hasSize(1));
+        assertThat(pollMessages).hasSize(1);
         HttpRequestHeader requestHeader = pollMessages.get(0).getRequestHeader();
-        assertThat(
-                requestHeader.getHeader("Authorization"),
-                is("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature"));
-        assertThat(requestHeader.getHeader("X-Custom-Time"), is("2025-07-19T10:30:45.123Z"));
-        assertThat(requestHeader.getHeader("Content-Type"), is("application/json"));
+        assertThat(requestHeader.getHeader("Authorization"))
+                .isEqualTo("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature");
+        assertThat(requestHeader.getHeader("X-Custom-Time")).isEqualTo("2025-07-19T10:30:45.123Z");
+        assertThat(requestHeader.getHeader("Content-Type")).isEqualTo("application/json");
     }
 }

@@ -20,16 +20,7 @@
 package org.parosproxy.paros.network;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
@@ -87,7 +78,7 @@ class HttpMessageUnitTest {
         // When
         boolean eventStream = message.isEventStream();
         // Then
-        assertThat(eventStream, is(equalTo(true)));
+        assertThat(eventStream).isTrue();
     }
 
     @Test
@@ -99,7 +90,7 @@ class HttpMessageUnitTest {
         // When
         boolean eventStream = message.isEventStream();
         // Then
-        assertThat(eventStream, is(equalTo(false)));
+        assertThat(eventStream).isFalse();
     }
 
     @Test
@@ -111,7 +102,7 @@ class HttpMessageUnitTest {
         // When
         boolean eventStream = message.isEventStream();
         // Then
-        assertThat(eventStream, is(equalTo(true)));
+        assertThat(eventStream).isTrue();
     }
 
     @Test
@@ -123,7 +114,7 @@ class HttpMessageUnitTest {
         // When
         boolean eventStream = message.isEventStream();
         // Then
-        assertThat(eventStream, is(equalTo(false)));
+        assertThat(eventStream).isFalse();
     }
 
     @Test
@@ -133,32 +124,24 @@ class HttpMessageUnitTest {
         // When
         HttpMessage copy = new HttpMessage(message);
         // Then
-        assertThat(copy.getRequestHeader(), is(not(sameInstance(message.getRequestHeader()))));
-        assertThat(
-                copy.getRequestHeader().toString(),
-                is(equalTo(message.getRequestHeader().toString())));
-        assertThat(copy.getRequestBody(), is(not(sameInstance(message.getRequestBody()))));
-        assertThat(
-                copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
-        assertThat(copy.getResponseHeader(), is(not(sameInstance(message.getResponseHeader()))));
-        assertThat(
-                copy.getResponseHeader().toString(),
-                is(equalTo(message.getResponseHeader().toString())));
-        assertThat(copy.getResponseBody(), is(not(sameInstance(message.getResponseBody()))));
-        assertThat(
-                copy.getResponseBody().toString(),
-                is(equalTo(message.getResponseBody().toString())));
+        assertThat(copy.getRequestHeader()).isNotSameAs(message.getRequestHeader());
+        assertThat(copy.getRequestHeader()).hasToString(message.getRequestHeader().toString());
+        assertThat(copy.getRequestBody()).isNotSameAs(message.getRequestBody());
+        assertThat(copy.getRequestBody()).hasToString(message.getRequestBody().toString());
+        assertThat(copy.getResponseHeader()).isNotSameAs(message.getResponseHeader());
+        assertThat(copy.getResponseHeader()).hasToString(message.getResponseHeader().toString());
+        assertThat(copy.getResponseBody()).isNotSameAs(message.getResponseBody());
+        assertThat(copy.getResponseBody()).hasToString(message.getResponseBody().toString());
 
-        assertThat(copy.getUserObject(), is(sameInstance(message.getUserObject())));
-        assertThat(copy.getTimeSentMillis(), is(equalTo(message.getTimeSentMillis())));
-        assertThat(copy.getTimeElapsedMillis(), is(equalTo(message.getTimeElapsedMillis())));
-        assertThat(copy.getNote(), is(equalTo(message.getNote())));
-        assertThat(copy.getHistoryRef(), is(sameInstance(message.getHistoryRef())));
-        assertThat(copy.getHttpSession(), is(sameInstance(message.getHttpSession())));
-        assertThat(copy.getRequestingUser(), is(sameInstance(message.getRequestingUser())));
-        assertThat(copy.isForceIntercept(), is(equalTo(message.isForceIntercept())));
-        assertThat(
-                copy.isResponseFromTargetHost(), is(equalTo(message.isResponseFromTargetHost())));
+        assertThat(copy.getUserObject()).isSameAs(message.getUserObject());
+        assertThat(copy.getTimeSentMillis()).isEqualTo(message.getTimeSentMillis());
+        assertThat(copy.getTimeElapsedMillis()).isEqualTo(message.getTimeElapsedMillis());
+        assertThat(copy.getNote()).isEqualTo(message.getNote());
+        assertThat(copy.getHistoryRef()).isSameAs(message.getHistoryRef());
+        assertThat(copy.getHttpSession()).isSameAs(message.getHttpSession());
+        assertThat(copy.getRequestingUser()).isSameAs(message.getRequestingUser());
+        assertThat(copy.isForceIntercept()).isEqualTo(message.isForceIntercept());
+        assertThat(copy.isResponseFromTargetHost()).isEqualTo(message.isResponseFromTargetHost());
     }
 
     @Test
@@ -168,27 +151,24 @@ class HttpMessageUnitTest {
         // When
         HttpMessage copy = message.cloneRequest();
         // Then
-        assertThat(copy.getRequestHeader(), is(not(sameInstance(message.getRequestHeader()))));
-        assertThat(
-                copy.getRequestHeader().toString(),
-                is(equalTo(message.getRequestHeader().toString())));
-        assertThat(copy.getRequestBody(), is(not(sameInstance(message.getRequestBody()))));
-        assertThat(
-                copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
-        assertThat(copy.getResponseHeader(), is(not(sameInstance(message.getResponseHeader()))));
-        assertThat(copy.getResponseHeader().isEmpty(), is(equalTo(true)));
-        assertThat(copy.getResponseBody(), is(not(sameInstance(message.getResponseBody()))));
-        assertThat(copy.getResponseBody().toString(), is(equalTo("")));
+        assertThat(copy.getRequestHeader()).isNotSameAs(message.getRequestHeader());
+        assertThat(copy.getRequestHeader()).hasToString(message.getRequestHeader().toString());
+        assertThat(copy.getRequestBody()).isNotSameAs(message.getRequestBody());
+        assertThat(copy.getRequestBody()).hasToString(message.getRequestBody().toString());
+        assertThat(copy.getResponseHeader()).isNotSameAs(message.getResponseHeader());
+        assertThat(copy.getResponseHeader().isEmpty()).isTrue();
+        assertThat(copy.getResponseBody()).isNotSameAs(message.getResponseBody());
+        assertThat(copy.getResponseBody().toString()).isEmpty();
 
-        assertThat(copy.getUserObject(), is(nullValue()));
-        assertThat(copy.getTimeSentMillis(), is(equalTo(0L)));
-        assertThat(copy.getTimeElapsedMillis(), is(equalTo(0)));
-        assertThat(copy.getNote(), is(equalTo("")));
-        assertThat(copy.getHistoryRef(), is(nullValue()));
-        assertThat(copy.getHttpSession(), is(nullValue()));
-        assertThat(copy.getRequestingUser(), is(nullValue()));
-        assertThat(copy.isForceIntercept(), is(equalTo(false)));
-        assertThat(copy.isResponseFromTargetHost(), is(equalTo(false)));
+        assertThat(copy.getUserObject()).isNull();
+        assertThat(copy.getTimeSentMillis()).isEqualTo(0L);
+        assertThat(copy.getTimeElapsedMillis()).isEqualTo(0);
+        assertThat(copy.getNote()).isEmpty();
+        assertThat(copy.getHistoryRef()).isNull();
+        assertThat(copy.getHttpSession()).isNull();
+        assertThat(copy.getRequestingUser()).isNull();
+        assertThat(copy.isForceIntercept()).isFalse();
+        assertThat(copy.isResponseFromTargetHost()).isFalse();
     }
 
     @Test
@@ -198,31 +178,24 @@ class HttpMessageUnitTest {
         // When
         HttpMessage copy = message.cloneAll();
         // Then
-        assertThat(copy.getRequestHeader(), is(not(sameInstance(message.getRequestHeader()))));
-        assertThat(
-                copy.getRequestHeader().toString(),
-                is(equalTo(message.getRequestHeader().toString())));
-        assertThat(copy.getRequestBody(), is(not(sameInstance(message.getRequestBody()))));
-        assertThat(
-                copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
-        assertThat(copy.getResponseHeader(), is(not(sameInstance(message.getResponseHeader()))));
-        assertThat(
-                copy.getResponseHeader().toString(),
-                is(equalTo(message.getResponseHeader().toString())));
-        assertThat(copy.getResponseBody(), is(not(sameInstance(message.getResponseBody()))));
-        assertThat(
-                copy.getResponseBody().toString(),
-                is(equalTo(message.getResponseBody().toString())));
+        assertThat(copy.getRequestHeader()).isNotSameAs(message.getRequestHeader());
+        assertThat(copy.getRequestHeader()).hasToString(message.getRequestHeader().toString());
+        assertThat(copy.getRequestBody()).isNotSameAs(message.getRequestBody());
+        assertThat(copy.getRequestBody()).hasToString(message.getRequestBody().toString());
+        assertThat(copy.getResponseHeader()).isNotSameAs(message.getResponseHeader());
+        assertThat(copy.getResponseHeader()).hasToString(message.getResponseHeader().toString());
+        assertThat(copy.getResponseBody()).isNotSameAs(message.getResponseBody());
+        assertThat(copy.getResponseBody()).hasToString(message.getResponseBody().toString());
 
-        assertThat(copy.getUserObject(), is(nullValue()));
-        assertThat(copy.getTimeSentMillis(), is(equalTo(0L)));
-        assertThat(copy.getTimeElapsedMillis(), is(equalTo(0)));
-        assertThat(copy.getNote(), is(equalTo("")));
-        assertThat(copy.getHistoryRef(), is(nullValue()));
-        assertThat(copy.getHttpSession(), is(nullValue()));
-        assertThat(copy.getRequestingUser(), is(nullValue()));
-        assertThat(copy.isForceIntercept(), is(equalTo(false)));
-        assertThat(copy.isResponseFromTargetHost(), is(equalTo(false)));
+        assertThat(copy.getUserObject()).isNull();
+        assertThat(copy.getTimeSentMillis()).isEqualTo(0L);
+        assertThat(copy.getTimeElapsedMillis()).isEqualTo(0);
+        assertThat(copy.getNote()).isEmpty();
+        assertThat(copy.getHistoryRef()).isNull();
+        assertThat(copy.getHttpSession()).isNull();
+        assertThat(copy.getRequestingUser()).isNull();
+        assertThat(copy.isForceIntercept()).isFalse();
+        assertThat(copy.isResponseFromTargetHost()).isFalse();
     }
 
     @Test
@@ -236,12 +209,10 @@ class HttpMessageUnitTest {
         // When
         message.mutateHttpMethod(HttpRequestHeader.GET);
         // Then
-        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
-        assertThat(
-                message.getRequestHeader().getURI().toString(), is("http://www.example.com:9000"));
-        assertThat(
-                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
-                is("www.example.com:9000"));
+        assertThat(message.getRequestHeader().getMethod()).isEqualTo(HttpRequestHeader.GET);
+        assertThat(message.getRequestHeader().getURI()).hasToString("http://www.example.com:9000");
+        assertThat(message.getRequestHeader().getHeader(HttpRequestHeader.HOST))
+                .isEqualTo("www.example.com:9000");
     }
 
     @Test
@@ -255,12 +226,10 @@ class HttpMessageUnitTest {
         // When
         message.mutateHttpMethod(HttpRequestHeader.GET);
         // Then
-        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
-        assertThat(
-                message.getRequestHeader().getURI().toString(), is("https://www.example.com:443"));
-        assertThat(
-                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
-                is("www.example.com:443"));
+        assertThat(message.getRequestHeader().getMethod()).isEqualTo(HttpRequestHeader.GET);
+        assertThat(message.getRequestHeader().getURI()).hasToString("https://www.example.com:443");
+        assertThat(message.getRequestHeader().getHeader(HttpRequestHeader.HOST))
+                .isEqualTo("www.example.com:443");
     }
 
     @Test
@@ -274,11 +243,10 @@ class HttpMessageUnitTest {
         // When
         message.mutateHttpMethod(HttpRequestHeader.CONNECT);
         // Then
-        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.CONNECT));
-        assertThat(message.getRequestHeader().getURI().toString(), is("www.example.com:9000"));
-        assertThat(
-                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
-                is("www.example.com:9000"));
+        assertThat(message.getRequestHeader().getMethod()).isEqualTo(HttpRequestHeader.CONNECT);
+        assertThat(message.getRequestHeader().getURI()).hasToString("www.example.com:9000");
+        assertThat(message.getRequestHeader().getHeader(HttpRequestHeader.HOST))
+                .isEqualTo("www.example.com:9000");
     }
 
     @Test
@@ -323,19 +291,17 @@ class HttpMessageUnitTest {
         // When
         message.mutateHttpMethod(HttpRequestHeader.POST);
         // Then
-        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.POST));
-        assertThat(
-                message.getRequestHeader().getURI().getURI(),
-                is(method.equals(HttpRequestHeader.CONNECT) ? "http://" + authority : baseUri));
-        assertThat(
-                message.getRequestHeader().getHeader(HttpRequestHeader.CONTENT_TYPE),
-                is(
+        assertThat(message.getRequestHeader().getMethod()).isEqualTo(HttpRequestHeader.POST);
+        assertThat(message.getRequestHeader().getURI().getURI())
+                .isEqualTo(
+                        method.equals(HttpRequestHeader.CONNECT) ? "http://" + authority : baseUri);
+        assertThat(message.getRequestHeader().getHeader(HttpRequestHeader.CONTENT_TYPE))
+                .isEqualTo(
                         method.equals(HttpRequestHeader.CONNECT)
                                 ? null
-                                : HttpRequestHeader.FORM_URLENCODED_CONTENT_TYPE));
-        assertThat(
-                message.getRequestBody().toString(),
-                is(method.equals(HttpRequestHeader.CONNECT) ? "" : urlParams));
+                                : HttpRequestHeader.FORM_URLENCODED_CONTENT_TYPE);
+        assertThat(message.getRequestBody())
+                .hasToString(method.equals(HttpRequestHeader.CONNECT) ? "" : urlParams);
     }
 
     @ParameterizedTest
@@ -353,17 +319,14 @@ class HttpMessageUnitTest {
         // When
         message.mutateHttpMethod(method);
         // Then
-        assertThat(message.getRequestHeader().getMethod(), is(method));
+        assertThat(message.getRequestHeader().getMethod()).isEqualTo(method);
         if (method.equals(HttpRequestHeader.CONNECT)) {
-            assertThat(
-                    message.getRequestHeader().getURI().toString(),
-                    is(new URI(baseUri, false).getAuthority()));
+            assertThat(message.getRequestHeader().getURI())
+                    .hasToString(new URI(baseUri, false).getAuthority());
         } else {
-            assertThat(
-                    message.getRequestHeader().getURI().toString(), is(baseUri + "?" + urlParams));
+            assertThat(message.getRequestHeader().getURI()).hasToString(baseUri + "?" + urlParams);
         }
-        assertThat(
-                message.getRequestHeader().getHeader(HttpRequestHeader.CONTENT_TYPE), nullValue());
+        assertThat(message.getRequestHeader().getHeader(HttpRequestHeader.CONTENT_TYPE)).isNull();
     }
 
     @Test
@@ -376,7 +339,7 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody(new byte[0]);
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body)).isNotEmpty();
     }
 
     @Test
@@ -389,7 +352,7 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody("Body");
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body)).isNotEmpty();
     }
 
     @Test
@@ -419,7 +382,7 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody(new byte[0]);
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body)).isNotEmpty();
     }
 
     @Test
@@ -434,7 +397,7 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody("Body");
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body)).isNotEmpty();
     }
 
     @ParameterizedTest
@@ -528,7 +491,7 @@ class HttpMessageUnitTest {
         // When
         boolean webSocketUpgrade = message.isWebSocketUpgrade();
         // Then
-        assertThat(webSocketUpgrade, is(equalTo(true)));
+        assertThat(webSocketUpgrade).isTrue();
     }
 
     @Test
@@ -543,7 +506,7 @@ class HttpMessageUnitTest {
         // When
         boolean webSocketUpgrade = message.isWebSocketUpgrade();
         // Then
-        assertThat(webSocketUpgrade, is(equalTo(true)));
+        assertThat(webSocketUpgrade).isTrue();
     }
 
     @Test
@@ -558,7 +521,7 @@ class HttpMessageUnitTest {
         // When
         boolean webSocketUpgrade = message.isWebSocketUpgrade();
         // Then
-        assertThat(webSocketUpgrade, is(equalTo(true)));
+        assertThat(webSocketUpgrade).isTrue();
     }
 
     @Test
@@ -571,7 +534,7 @@ class HttpMessageUnitTest {
         // When
         boolean webSocketUpgrade = message.isWebSocketUpgrade();
         // Then
-        assertThat(webSocketUpgrade, is(equalTo(false)));
+        assertThat(webSocketUpgrade).isFalse();
     }
 
     @Test
@@ -584,7 +547,7 @@ class HttpMessageUnitTest {
         // When
         boolean webSocketUpgrade = message.isWebSocketUpgrade();
         // Then
-        assertThat(webSocketUpgrade, is(equalTo(false)));
+        assertThat(webSocketUpgrade).isFalse();
     }
 
     @Test
@@ -596,8 +559,8 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody("");
         // Then
-        assertThat(message.getRequestBody().getCharset(), is(equalTo("UTF-16BE")));
-        assertThat(testAppender.getLogEvents(), hasSize(0));
+        assertThat(message.getRequestBody().getCharset()).isEqualTo("UTF-16BE");
+        assertThat(testAppender.getLogEvents()).hasSize(0);
     }
 
     @ParameterizedTest
@@ -614,9 +577,9 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody(body);
         // Then
-        assertThat(message.getRequestBody().getCharset(), is(equalTo(expectedCharset)));
-        assertThat(message.getRequestBody().toString(), is(equalTo(expectedBody)));
-        assertThat(testAppender.getLogEvents(), hasSize(0));
+        assertThat(message.getRequestBody().getCharset()).isEqualTo(expectedCharset);
+        assertThat(message.getRequestBody()).hasToString(expectedBody);
+        assertThat(testAppender.getLogEvents()).hasSize(0);
     }
 
     @ParameterizedTest
@@ -632,12 +595,11 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody("Body");
         // Then
-        assertThat(message.getRequestBody().getCharset(), is(equalTo("ISO-8859-1")));
-        assertThat(message.getRequestBody().toString(), is(equalTo("Body")));
-        assertThat(testAppender.getLogEvents(), hasSize(1));
-        assertThat(
-                testAppender.getLogEvents().get(0).getMessage(),
-                containsString("Failed to set charset"));
+        assertThat(message.getRequestBody().getCharset()).isEqualTo("ISO-8859-1");
+        assertThat(message.getRequestBody()).hasToString("Body");
+        assertThat(testAppender.getLogEvents()).hasSize(1);
+        assertThat(testAppender.getLogEvents().get(0).getMessage())
+                .contains("Failed to set charset");
     }
 
     @Test
@@ -657,17 +619,13 @@ class HttpMessageUnitTest {
         message.setRequestBody("Body");
         message.setRequestBody("Body");
         // Then
-        assertThat(testAppender.getLogEvents(), hasSize(2));
-        assertThat(
-                testAppender.getLogEvents().get(0).getMessage(),
-                allOf(
-                        containsString("Failed to set charset"),
-                        containsString("charset=1st_unknown")));
-        assertThat(
-                testAppender.getLogEvents().get(1).getMessage(),
-                allOf(
-                        containsString("Failed to set charset"),
-                        containsString("charset=2nd_unknown")));
+        assertThat(testAppender.getLogEvents()).hasSize(2);
+        assertThat(testAppender.getLogEvents().get(0).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=1st_unknown");
+        assertThat(testAppender.getLogEvents().get(1).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=2nd_unknown");
     }
 
     @Test
@@ -686,13 +644,13 @@ class HttpMessageUnitTest {
         message.setRequestBody("Body");
         message.setRequestBody("Body");
         // Then
-        assertThat(testAppender.getLogEvents(), hasSize(2));
-        assertThat(
-                testAppender.getLogEvents().get(0).getMessage(),
-                allOf(containsString("Failed to set charset"), containsString("charset=unknown")));
-        assertThat(
-                testAppender.getLogEvents().get(1).getMessage(),
-                allOf(containsString("Failed to set charset"), containsString("charset=unknown")));
+        assertThat(testAppender.getLogEvents()).hasSize(2);
+        assertThat(testAppender.getLogEvents().get(0).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=unknown");
+        assertThat(testAppender.getLogEvents().get(1).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=unknown");
     }
 
     static Stream<Arguments> setBodyData() {
@@ -721,8 +679,8 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody("");
         // Then
-        assertThat(message.getResponseBody().getCharset(), is(equalTo("UTF-16LE")));
-        assertThat(testAppender.getLogEvents(), hasSize(0));
+        assertThat(message.getResponseBody().getCharset()).isEqualTo("UTF-16LE");
+        assertThat(testAppender.getLogEvents()).hasSize(0);
     }
 
     @ParameterizedTest
@@ -739,9 +697,9 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody(body);
         // Then
-        assertThat(message.getResponseBody().getCharset(), is(equalTo(expectedCharset)));
-        assertThat(message.getResponseBody().toString(), is(equalTo(expectedBody)));
-        assertThat(testAppender.getLogEvents(), hasSize(0));
+        assertThat(message.getResponseBody().getCharset()).isEqualTo(expectedCharset);
+        assertThat(message.getResponseBody()).hasToString(expectedBody);
+        assertThat(testAppender.getLogEvents()).hasSize(0);
     }
 
     @ParameterizedTest
@@ -757,12 +715,11 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody("Body");
         // Then
-        assertThat(message.getResponseBody().getCharset(), is(equalTo("UTF-8")));
-        assertThat(message.getResponseBody().toString(), is(equalTo("Body")));
-        assertThat(testAppender.getLogEvents(), hasSize(1));
-        assertThat(
-                testAppender.getLogEvents().get(0).getMessage(),
-                containsString("Failed to set charset"));
+        assertThat(message.getResponseBody().getCharset()).isEqualTo("UTF-8");
+        assertThat(message.getResponseBody()).hasToString("Body");
+        assertThat(testAppender.getLogEvents()).hasSize(1);
+        assertThat(testAppender.getLogEvents().get(0).getMessage())
+                .contains("Failed to set charset");
     }
 
     @Test
@@ -782,17 +739,13 @@ class HttpMessageUnitTest {
         message.setResponseBody("Body");
         message.setResponseBody("Body");
         // Then
-        assertThat(testAppender.getLogEvents(), hasSize(2));
-        assertThat(
-                testAppender.getLogEvents().get(0).getMessage(),
-                allOf(
-                        containsString("Failed to set charset"),
-                        containsString("charset=1st_unknown")));
-        assertThat(
-                testAppender.getLogEvents().get(1).getMessage(),
-                allOf(
-                        containsString("Failed to set charset"),
-                        containsString("charset=2nd_unknown")));
+        assertThat(testAppender.getLogEvents()).hasSize(2);
+        assertThat(testAppender.getLogEvents().get(0).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=1st_unknown");
+        assertThat(testAppender.getLogEvents().get(1).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=2nd_unknown");
     }
 
     @Test
@@ -811,13 +764,13 @@ class HttpMessageUnitTest {
         message.setResponseBody("Body");
         message.setResponseBody("Body");
         // Then
-        assertThat(testAppender.getLogEvents(), hasSize(2));
-        assertThat(
-                testAppender.getLogEvents().get(0).getMessage(),
-                allOf(containsString("Failed to set charset"), containsString("charset=unknown")));
-        assertThat(
-                testAppender.getLogEvents().get(1).getMessage(),
-                allOf(containsString("Failed to set charset"), containsString("charset=unknown")));
+        assertThat(testAppender.getLogEvents()).hasSize(2);
+        assertThat(testAppender.getLogEvents().get(0).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=unknown");
+        assertThat(testAppender.getLogEvents().get(1).getMessage())
+                .contains("Failed to set charset")
+                .contains("charset=unknown");
     }
 
     private static HttpMessage newHttpMessage() throws Exception {

@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan.filters.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,7 +69,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(false));
+        assertThat(filterResult.isFiltered()).isFalse();
     }
 
     @Test
@@ -88,7 +87,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(false));
+        assertThat(filterResult.isFiltered()).isFalse();
     }
 
     @Test
@@ -107,7 +106,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(false));
+        assertThat(filterResult.isFiltered()).isFalse();
     }
 
     @Test
@@ -125,7 +124,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(false));
+        assertThat(filterResult.isFiltered()).isFalse();
     }
 
     @Test
@@ -143,7 +142,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(true));
+        assertThat(filterResult.isFiltered()).isTrue();
     }
 
     @Test
@@ -161,7 +160,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(false));
+        assertThat(filterResult.isFiltered()).isFalse();
     }
 
     @Test
@@ -180,7 +179,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(true));
+        assertThat(filterResult.isFiltered()).isTrue();
     }
 
     @Test
@@ -200,7 +199,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(true));
+        assertThat(filterResult.isFiltered()).isTrue();
     }
 
     @Test
@@ -220,7 +219,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(true));
+        assertThat(filterResult.isFiltered()).isTrue();
     }
 
     @Test
@@ -239,6 +238,6 @@ class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        assertThat(filterResult.isFiltered(), is(false));
+        assertThat(filterResult.isFiltered()).isFalse();
     }
 }

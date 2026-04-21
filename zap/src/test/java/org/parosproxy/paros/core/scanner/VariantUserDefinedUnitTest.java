@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -42,7 +39,7 @@ class VariantUserDefinedUnitTest {
         // When
         List<NameValuePair> parameters = variant.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -82,7 +79,7 @@ class VariantUserDefinedUnitTest {
         // When
         variant.setMessage(msg);
         // Then
-        assertThat(variant.getParamList().size(), is(equalTo(expected)));
+        assertThat(variant.getParamList()).hasSize(expected);
     }
 
     private static HttpMessage createBasicMessage() {

@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,33 +45,33 @@ class StandardParameterParserUnitTest {
 
     @Test
     void defaultValues() {
-        assertEquals(spp.getDefaultKeyValuePairSeparator(), "&");
-        assertEquals(spp.getDefaultKeyValueSeparator(), "=");
+        assertThat(spp.getDefaultKeyValuePairSeparator()).isEqualTo("&");
+        assertThat(spp.getDefaultKeyValueSeparator()).isEqualTo("=");
     }
 
     @Test
     void defaultParser() {
-        assertEquals(spp.getKeyValuePairSeparators(), "&");
-        assertEquals(spp.getKeyValueSeparators(), "=");
-        assertEquals(spp.getStructuralParameters().size(), 0);
+        assertThat(spp.getKeyValuePairSeparators()).isEqualTo("&");
+        assertThat(spp.getKeyValueSeparators()).isEqualTo("=");
+        assertThat(spp.getStructuralParameters()).hasSize(0);
 
         @SuppressWarnings("deprecation")
         Map<String, String> res = spp.parse("a=b&b=c&d=f");
-        assertEquals(res.size(), 3);
-        assertEquals(res.get("a"), "b");
-        assertEquals(res.get("b"), "c");
-        assertEquals(res.get("d"), "f");
+        assertThat(res).hasSize(3);
+        assertThat(res.get("a")).isEqualTo("b");
+        assertThat(res.get("b")).isEqualTo("c");
+        assertThat(res.get("d")).isEqualTo("f");
 
         List<NameValuePair> res2 = spp.parseParameters("a=b&b=c&d=f&d=g");
-        assertEquals(res2.size(), 4);
-        assertEquals(res2.get(0).getName(), "a");
-        assertEquals(res2.get(0).getValue(), "b");
-        assertEquals(res2.get(1).getName(), "b");
-        assertEquals(res2.get(1).getValue(), "c");
-        assertEquals(res2.get(2).getName(), "d");
-        assertEquals(res2.get(2).getValue(), "f");
-        assertEquals(res2.get(3).getName(), "d");
-        assertEquals(res2.get(3).getValue(), "g");
+        assertThat(res2).hasSize(4);
+        assertThat(res2.get(0).getName()).isEqualTo("a");
+        assertThat(res2.get(0).getValue()).isEqualTo("b");
+        assertThat(res2.get(1).getName()).isEqualTo("b");
+        assertThat(res2.get(1).getValue()).isEqualTo("c");
+        assertThat(res2.get(2).getName()).isEqualTo("d");
+        assertThat(res2.get(2).getValue()).isEqualTo("f");
+        assertThat(res2.get(3).getName()).isEqualTo("d");
+        assertThat(res2.get(3).getValue()).isEqualTo("g");
     }
 
     @Test
@@ -85,7 +79,7 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseParameters(null);
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -93,9 +87,9 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseParameters("");
         // Then
-        assertThat(parameters, hasSize(1));
-        assertThat(parameters.get(0).getName(), is(equalTo("")));
-        assertThat(parameters.get(0).getValue(), is(equalTo("")));
+        assertThat(parameters).hasSize(1);
+        assertThat(parameters.get(0).getName()).isEmpty();
+        assertThat(parameters.get(0).getValue()).isEmpty();
     }
 
     @Test
@@ -103,11 +97,11 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseParameters("%x=1&b=2");
         // Then
-        assertThat(parameters, hasSize(2));
-        assertThat(parameters.get(0).getName(), is(equalTo("%x")));
-        assertThat(parameters.get(0).getValue(), is(equalTo("1")));
-        assertThat(parameters.get(1).getName(), is(equalTo("b")));
-        assertThat(parameters.get(1).getValue(), is(equalTo("2")));
+        assertThat(parameters).hasSize(2);
+        assertThat(parameters.get(0).getName()).isEqualTo("%x");
+        assertThat(parameters.get(0).getValue()).isEqualTo("1");
+        assertThat(parameters.get(1).getName()).isEqualTo("b");
+        assertThat(parameters.get(1).getValue()).isEqualTo("2");
     }
 
     @Test
@@ -115,11 +109,11 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseParameters("a=%x&b=2");
         // Then
-        assertThat(parameters, hasSize(2));
-        assertThat(parameters.get(0).getName(), is(equalTo("a")));
-        assertThat(parameters.get(0).getValue(), is(equalTo("%x")));
-        assertThat(parameters.get(1).getName(), is(equalTo("b")));
-        assertThat(parameters.get(1).getValue(), is(equalTo("2")));
+        assertThat(parameters).hasSize(2);
+        assertThat(parameters.get(0).getName()).isEqualTo("a");
+        assertThat(parameters.get(0).getValue()).isEqualTo("%x");
+        assertThat(parameters.get(1).getName()).isEqualTo("b");
+        assertThat(parameters.get(1).getValue()).isEqualTo("2");
     }
 
     @Test
@@ -127,11 +121,11 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseParameters("a&b");
         // Then
-        assertThat(parameters, hasSize(2));
-        assertThat(parameters.get(0).getName(), is(equalTo("a")));
-        assertThat(parameters.get(0).getValue(), is(equalTo("")));
-        assertThat(parameters.get(1).getName(), is(equalTo("b")));
-        assertThat(parameters.get(1).getValue(), is(equalTo("")));
+        assertThat(parameters).hasSize(2);
+        assertThat(parameters.get(0).getName()).isEqualTo("a");
+        assertThat(parameters.get(0).getValue()).isEmpty();
+        assertThat(parameters.get(1).getName()).isEqualTo("b");
+        assertThat(parameters.get(1).getValue()).isEmpty();
     }
 
     @Test
@@ -139,7 +133,7 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseRawParameters(null);
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -147,9 +141,9 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseRawParameters("");
         // Then
-        assertThat(parameters, hasSize(1));
-        assertThat(parameters.get(0).getName(), is(equalTo("")));
-        assertThat(parameters.get(0).getValue(), is(nullValue()));
+        assertThat(parameters).hasSize(1);
+        assertThat(parameters.get(0).getName()).isEmpty();
+        assertThat(parameters.get(0).getValue()).isNull();
     }
 
     @Test
@@ -157,11 +151,11 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseRawParameters("%x=1&b%25=%20");
         // Then
-        assertThat(parameters, hasSize(2));
-        assertThat(parameters.get(0).getName(), is(equalTo("%x")));
-        assertThat(parameters.get(0).getValue(), is(equalTo("1")));
-        assertThat(parameters.get(1).getName(), is(equalTo("b%25")));
-        assertThat(parameters.get(1).getValue(), is(equalTo("%20")));
+        assertThat(parameters).hasSize(2);
+        assertThat(parameters.get(0).getName()).isEqualTo("%x");
+        assertThat(parameters.get(0).getValue()).isEqualTo("1");
+        assertThat(parameters.get(1).getName()).isEqualTo("b%25");
+        assertThat(parameters.get(1).getValue()).isEqualTo("%20");
     }
 
     @Test
@@ -169,11 +163,11 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseRawParameters("=1&=2");
         // Then
-        assertThat(parameters, hasSize(2));
-        assertThat(parameters.get(0).getName(), is(equalTo("")));
-        assertThat(parameters.get(0).getValue(), is(equalTo("1")));
-        assertThat(parameters.get(1).getName(), is(equalTo("")));
-        assertThat(parameters.get(1).getValue(), is(equalTo("2")));
+        assertThat(parameters).hasSize(2);
+        assertThat(parameters.get(0).getName()).isEmpty();
+        assertThat(parameters.get(0).getValue()).isEqualTo("1");
+        assertThat(parameters.get(1).getName()).isEmpty();
+        assertThat(parameters.get(1).getValue()).isEqualTo("2");
     }
 
     @Test
@@ -181,11 +175,11 @@ class StandardParameterParserUnitTest {
         // Given / When
         List<NameValuePair> parameters = spp.parseRawParameters("a&b");
         // Then
-        assertThat(parameters, hasSize(2));
-        assertThat(parameters.get(0).getName(), is(equalTo("a")));
-        assertThat(parameters.get(0).getValue(), is(nullValue()));
-        assertThat(parameters.get(1).getName(), is(equalTo("b")));
-        assertThat(parameters.get(1).getValue(), is(nullValue()));
+        assertThat(parameters).hasSize(2);
+        assertThat(parameters.get(0).getName()).isEqualTo("a");
+        assertThat(parameters.get(0).getValue()).isNull();
+        assertThat(parameters.get(1).getName()).isEqualTo("b");
+        assertThat(parameters.get(1).getValue()).isNull();
     }
 
     @Test
@@ -199,20 +193,20 @@ class StandardParameterParserUnitTest {
         Map<String, String> res = spp.parse("a=b&c;b:c");
         List<NameValuePair> res2 = spp.parseParameters("a=b&c;b:c");
 
-        assertEquals(spp.getKeyValuePairSeparators(), ";");
-        assertEquals(spp.getKeyValueSeparators(), ":=");
-        assertEquals(spp.getStructuralParameters().size(), 1);
-        assertEquals(spp.getStructuralParameters().get(0), "page");
+        assertThat(spp.getKeyValuePairSeparators()).isEqualTo(";");
+        assertThat(spp.getKeyValueSeparators()).isEqualTo(":=");
+        assertThat(spp.getStructuralParameters()).hasSize(1);
+        assertThat(spp.getStructuralParameters().get(0)).isEqualTo("page");
 
-        assertEquals(res.size(), 2);
-        assertEquals(res.get("a"), "b&c");
-        assertEquals(res.get("b"), "c");
+        assertThat(res).hasSize(2);
+        assertThat(res.get("a")).isEqualTo("b&c");
+        assertThat(res.get("b")).isEqualTo("c");
 
-        assertEquals(res2.size(), 2);
-        assertEquals(res2.get(0).getName(), "a");
-        assertEquals(res2.get(0).getValue(), "b&c");
-        assertEquals(res2.get(1).getName(), "b");
-        assertEquals(res2.get(1).getValue(), "c");
+        assertThat(res2).hasSize(2);
+        assertThat(res2.get(0).getName()).isEqualTo("a");
+        assertThat(res2.get(0).getValue()).isEqualTo("b&c");
+        assertThat(res2.get(1).getName()).isEqualTo("b");
+        assertThat(res2.get(1).getValue()).isEqualTo("c");
     }
 
     @Test
@@ -230,20 +224,20 @@ class StandardParameterParserUnitTest {
         Map<String, String> res = spp2.parse("a=b&c;b:c");
         List<NameValuePair> res2 = spp2.parseParameters("a=b&c;b:c");
 
-        assertEquals(spp2.getKeyValuePairSeparators(), ";");
-        assertEquals(spp2.getKeyValueSeparators(), ":=");
-        assertEquals(spp2.getStructuralParameters().size(), 1);
-        assertEquals(spp2.getStructuralParameters().get(0), "page");
+        assertThat(spp2.getKeyValuePairSeparators()).isEqualTo(";");
+        assertThat(spp2.getKeyValueSeparators()).isEqualTo(":=");
+        assertThat(spp2.getStructuralParameters()).hasSize(1);
+        assertThat(spp2.getStructuralParameters().get(0)).isEqualTo("page");
 
-        assertEquals(res.size(), 2);
-        assertEquals(res.get("a"), "b&c");
-        assertEquals(res.get("b"), "c");
-        assertEquals(res2.size(), 2);
+        assertThat(res).hasSize(2);
+        assertThat(res.get("a")).isEqualTo("b&c");
+        assertThat(res.get("b")).isEqualTo("c");
+        assertThat(res2).hasSize(2);
 
-        assertEquals(res2.get(0).getName(), "a");
-        assertEquals(res2.get(0).getValue(), "b&c");
-        assertEquals(res2.get(1).getName(), "b");
-        assertEquals(res2.get(1).getValue(), "c");
+        assertThat(res2.get(0).getName()).isEqualTo("a");
+        assertThat(res2.get(0).getValue()).isEqualTo("b&c");
+        assertThat(res2.get(1).getName()).isEqualTo("b");
+        assertThat(res2.get(1).getValue()).isEqualTo("c");
     }
 
     @ParameterizedTest
@@ -255,11 +249,11 @@ class StandardParameterParserUnitTest {
         // When
         parser.init(config);
         // Then
-        assertThat(parser.getKeyValuePairSeparators(), is(equalTo("&")));
-        assertThat(parser.getDefaultKeyValuePairSeparator(), is(equalTo("&")));
-        assertThat(parser.getKeyValueSeparators(), is(equalTo("=")));
-        assertThat(parser.getDefaultKeyValueSeparator(), is(equalTo("=")));
-        assertThat(parser.getStructuralParameters(), hasSize(0));
+        assertThat(parser.getKeyValuePairSeparators()).isEqualTo("&");
+        assertThat(parser.getDefaultKeyValuePairSeparator()).isEqualTo("&");
+        assertThat(parser.getKeyValueSeparators()).isEqualTo("=");
+        assertThat(parser.getDefaultKeyValueSeparator()).isEqualTo("=");
+        assertThat(parser.getStructuralParameters()).hasSize(0);
     }
 
     /**
@@ -285,37 +279,38 @@ class StandardParameterParserUnitTest {
     @Test
     void ancestorPath() throws Exception {
         // standard urls
-        assertEquals(
-                "", spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 0));
-        assertEquals(
-                "/path",
-                spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 1));
-        assertEquals(
-                "/path/to",
-                spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 2));
-        assertEquals(
-                "/path/to/element",
-                spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 3));
-        assertEquals(
-                "/path",
-                spp.getAncestorPath(new URI("http://example.org/path?page=12&data=123", true), 3));
-        assertEquals(
-                "/path",
-                spp.getAncestorPath(
-                        new URI("http://example.org/path?page=12&data=123&type=1", true), 3));
+        assertThat(spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 0))
+                .isEmpty();
+        assertThat(spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 1))
+                .isEqualTo("/path");
+        assertThat(spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 2))
+                .isEqualTo("/path/to");
+        assertThat(spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 3))
+                .isEqualTo("/path/to/element");
+        assertThat(
+                        spp.getAncestorPath(
+                                new URI("http://example.org/path?page=12&data=123", true), 3))
+                .isEqualTo("/path");
+        assertThat(
+                        spp.getAncestorPath(
+                                new URI("http://example.org/path?page=12&data=123&type=1", true),
+                                3))
+                .isEqualTo("/path");
 
         // With structural params
         List<String> structuralParameters = new ArrayList<>();
         structuralParameters.add("page");
         structuralParameters.add("type");
         spp.setStructuralParameters(structuralParameters);
-        assertEquals(
-                "/path?page=12",
-                spp.getAncestorPath(new URI("http://example.org/path?page=12&data=123", true), 3));
-        assertEquals(
-                "/path?page=12&type=1",
-                spp.getAncestorPath(
-                        new URI("http://example.org/path?page=12&data=123&type=1", true), 3));
+        assertThat(
+                        spp.getAncestorPath(
+                                new URI("http://example.org/path?page=12&data=123", true), 3))
+                .isEqualTo("/path?page=12");
+        assertThat(
+                        spp.getAncestorPath(
+                                new URI("http://example.org/path?page=12&data=123&type=1", true),
+                                3))
+                .isEqualTo("/path?page=12&type=1");
 
         // with data driven nodes
         Context context = new Context(null, 0);
@@ -324,11 +319,9 @@ class StandardParameterParserUnitTest {
                 new StructuralNodeModifier(StructuralNodeModifier.Type.DataDrivenNode, p, "DDN");
         context.addDataDrivenNodes(ddn);
         spp.setContext(context);
-        assertEquals(
-                "/path/to/(.+?)",
-                spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa", true), 3));
-        assertEquals(
-                "/path/to/(.+?)/aa",
-                spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa", true), 4));
+        assertThat(spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa", true), 3))
+                .isEqualTo("/path/to/(.+?)");
+        assertThat(spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa", true), 4))
+                .isEqualTo("/path/to/(.+?)/aa");
     }
 }

@@ -20,12 +20,7 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -93,7 +88,7 @@ class ExtensionAntiCSRFUnitTest {
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message);
             // Then
             verify(extensionAntiCSRF).getTokensFromResponse(eq(message), any(Source.class));
-            assertThat(tokens, is(notNullValue()));
+            assertThat(tokens).isNotNull();
         }
 
         @Test
@@ -103,7 +98,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, is(empty()));
+            assertThat(tokens).isEmpty();
         }
 
         @Test
@@ -113,7 +108,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, is(empty()));
+            assertThat(tokens).isEmpty();
         }
 
         @Test
@@ -126,7 +121,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, is(empty()));
+            assertThat(tokens).isEmpty();
         }
 
         @Test
@@ -137,7 +132,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, is(empty()));
+            assertThat(tokens).isEmpty();
         }
 
         @Test
@@ -148,7 +143,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, is(empty()));
+            assertThat(tokens).isEmpty();
         }
 
         @Test
@@ -159,7 +154,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, is(empty()));
+            assertThat(tokens).isEmpty();
         }
 
         @Test
@@ -174,7 +169,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(3));
+            assertThat(tokens).hasSize(3);
             assertAntiCsrfToken(tokens.get(0), message, KNOWN_TOKEN_1, "value1", 0);
             assertAntiCsrfToken(tokens.get(1), message, KNOWN_TOKEN_2, "value2", 0);
             assertAntiCsrfToken(tokens.get(2), message, KNOWN_TOKEN_3, "value3", 1);
@@ -192,7 +187,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(3));
+            assertThat(tokens).hasSize(3);
             assertAntiCsrfToken(tokens.get(0), message, KNOWN_TOKEN_1, "value1", 0);
             assertAntiCsrfToken(tokens.get(1), message, KNOWN_TOKEN_2, "value2", 0);
             assertAntiCsrfToken(tokens.get(2), message, KNOWN_TOKEN_3, "value3", 1);
@@ -210,7 +205,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(3));
+            assertThat(tokens).hasSize(3);
             assertAntiCsrfToken(tokens.get(0), message, KNOWN_TOKEN_1, "value1", 0);
             assertAntiCsrfToken(tokens.get(1), message, KNOWN_TOKEN_2, "value2", 0);
             assertAntiCsrfToken(tokens.get(2), message, KNOWN_TOKEN_3, "value3", 1);
@@ -223,7 +218,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(1));
+            assertThat(tokens).hasSize(1);
             assertAntiCsrfToken(tokens.get(0), message, KNOWN_TOKEN_1, "value", 0);
         }
 
@@ -244,7 +239,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(2));
+            assertThat(tokens).hasSize(2);
             assertAntiCsrfToken(
                     tokens.get(0), message, KNOWN_TOKEN_1.toLowerCase(Locale.ROOT), "value1", 0);
             assertAntiCsrfToken(
@@ -268,7 +263,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(3));
+            assertThat(tokens).hasSize(3);
             assertAntiCsrfToken(tokens.get(0), message, stringWithKnownToken1, "value1", 0);
             assertAntiCsrfToken(tokens.get(1), message, stringWithKnownToken2, "value2", 0);
             assertAntiCsrfToken(tokens.get(2), message, stringWithKnownToken3, "value3", 1);
@@ -291,7 +286,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
-            assertThat(tokens, hasSize(0));
+            assertThat(tokens).hasSize(0);
         }
 
         @ParameterizedTest
@@ -301,7 +296,7 @@ class ExtensionAntiCSRFUnitTest {
             String extendedToken = token;
             given(antiCsrfParam.isPartialMatchingEnabled()).willReturn(true);
             // When / Then
-            assertThat(extensionAntiCSRF.isAntiCsrfToken(extendedToken), is(equalTo(true)));
+            assertThat(extensionAntiCSRF.isAntiCsrfToken(extendedToken)).isTrue();
         }
     }
 
@@ -332,7 +327,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             String form = extensionAntiCSRF.generateForm(message);
             // Then
-            assertThat(form, is(equalTo(expectedForm(uri, params))));
+            assertThat(form).isEqualTo(expectedForm(uri, params));
         }
 
         @Test
@@ -346,7 +341,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             String form = extensionAntiCSRF.generateForm(message);
             // Then
-            assertThat(form, is(equalTo(expectedForm(uri, params))));
+            assertThat(form).isEqualTo(expectedForm(uri, params));
         }
 
         @Test
@@ -360,7 +355,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             String form = extensionAntiCSRF.generateForm(message);
             // Then
-            assertThat(form, is(equalTo(expectedForm(uri, params))));
+            assertThat(form).isEqualTo(expectedForm(uri, params));
         }
 
         @Test
@@ -374,7 +369,7 @@ class ExtensionAntiCSRFUnitTest {
             // When
             String form = extensionAntiCSRF.generateForm(message, actionUri);
             // Then
-            assertThat(form, is(equalTo(expectedForm(actionUri, params))));
+            assertThat(form).isEqualTo(expectedForm(actionUri, params));
         }
 
         private static TreeSet<HtmlParameter> params(HtmlParameter... params) {
@@ -433,10 +428,10 @@ class ExtensionAntiCSRFUnitTest {
 
     private static void assertAntiCsrfToken(
             AntiCsrfToken token, HttpMessage message, String name, String value, int formIndex) {
-        assertThat(token.getMsg(), is(equalTo(message)));
-        assertThat(token.getName(), is(equalTo(name)));
-        assertThat(token.getValue(), is(equalTo(value)));
-        assertThat(token.getFormIndex(), is(equalTo(formIndex)));
+        assertThat(token.getMsg()).isEqualTo(message);
+        assertThat(token.getName()).isEqualTo(name);
+        assertThat(token.getValue()).isEqualTo(value);
+        assertThat(token.getFormIndex()).isEqualTo(formIndex);
     }
 
     private static Source createSource(String... forms) {

@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -37,8 +36,8 @@ class ContentMatcherUnitTest {
         // When
         ContentMatcher matcher = ContentMatcher.getInstance(file);
         // Then
-        assertThat(patternsOf(matcher), contains("Regex 1", "Regex 2"));
-        assertThat(stringsOf(matcher), contains("String 1", "String 2"));
+        assertThat(patternsOf(matcher)).containsExactly("Regex 1", "Regex 2");
+        assertThat(stringsOf(matcher)).containsExactly("String 1", "String 2");
     }
 
     private static List<String> patternsOf(ContentMatcher matcher) {

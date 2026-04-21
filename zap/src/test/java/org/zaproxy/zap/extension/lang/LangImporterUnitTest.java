@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.lang;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -44,7 +42,7 @@ class LangImporterUnitTest {
         Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(true)));
+            assertThat(pattern.matcher(file).matches()).as(file).isTrue();
         }
     }
 
@@ -56,7 +54,7 @@ class LangImporterUnitTest {
         Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(false)));
+            assertThat(pattern.matcher(file).matches()).as(file).isFalse();
         }
     }
 }

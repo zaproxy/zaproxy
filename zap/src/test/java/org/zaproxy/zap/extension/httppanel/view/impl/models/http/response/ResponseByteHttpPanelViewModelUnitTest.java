@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -82,6 +80,6 @@ class ResponseByteHttpPanelViewModelUnitTest
         // When
         byte[] data = model.getData();
         // Then
-        assertThat(data.length, is(equalTo(0)));
+        assertThat(data.length).isEqualTo(0);
     }
 }

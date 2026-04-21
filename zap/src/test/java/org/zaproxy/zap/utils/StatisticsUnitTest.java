@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -42,7 +36,7 @@ class StatisticsUnitTest {
         // When
         Long value = statistics.getStat(STAT_KEY);
         // Then
-        assertThat(value, is(nullValue()));
+        assertThat(value).isNull();
     }
 
     @Test
@@ -52,7 +46,7 @@ class StatisticsUnitTest {
         // When
         statistics.incCounter(STAT_KEY);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(1L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(1L);
     }
 
     @Test
@@ -63,7 +57,7 @@ class StatisticsUnitTest {
         // When
         statistics.incCounter(STAT_KEY);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(2L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(2L);
     }
 
     @Test
@@ -73,7 +67,7 @@ class StatisticsUnitTest {
         // When
         statistics.incCounter(STAT_KEY, 5);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(5L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(5L);
     }
 
     @Test
@@ -84,7 +78,7 @@ class StatisticsUnitTest {
         // When
         statistics.incCounter(STAT_KEY, 5);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(6L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(6L);
     }
 
     @Test
@@ -94,7 +88,7 @@ class StatisticsUnitTest {
         // When
         statistics.incCounter(STAT_KEY, -5);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(-5L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(-5L);
     }
 
     @Test
@@ -104,7 +98,7 @@ class StatisticsUnitTest {
         // When
         statistics.decCounter(STAT_KEY);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(-1L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(-1L);
     }
 
     @Test
@@ -115,7 +109,7 @@ class StatisticsUnitTest {
         // When
         statistics.decCounter(STAT_KEY);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(-2L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(-2L);
     }
 
     @Test
@@ -125,7 +119,7 @@ class StatisticsUnitTest {
         // When
         statistics.decCounter(STAT_KEY, 5);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(-5L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(-5L);
     }
 
     @Test
@@ -136,7 +130,7 @@ class StatisticsUnitTest {
         // When
         statistics.decCounter(STAT_KEY, 5);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(-6L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(-6L);
     }
 
     @Test
@@ -146,7 +140,7 @@ class StatisticsUnitTest {
         // When
         statistics.decCounter(STAT_KEY, -5);
         // Then
-        assertThat(statistics.getStat(STAT_KEY), is(equalTo(5L)));
+        assertThat(statistics.getStat(STAT_KEY)).isEqualTo(5L);
     }
 
     @Test
@@ -160,13 +154,11 @@ class StatisticsUnitTest {
         // When
         Map<String, Long> stats = statistics.getStats("stats");
         // Then
-        assertThat(
-                stats,
-                allOf(
-                        hasKey("stats.a"),
-                        hasKey("stats.b"),
-                        not(hasKey("other.stats.a")),
-                        not(hasKey("other.stats.b"))));
+        assertThat(stats)
+                .containsKey("stats.a")
+                .containsKey("stats.b")
+                .doesNotContainKey("other.stats.a")
+                .doesNotContainKey("other.stats.b");
     }
 
     @Test
@@ -179,7 +171,7 @@ class StatisticsUnitTest {
         // When
         Map<String, Long> stats = statistics.getStats("stats");
         // Then
-        assertThat(stats.size(), is(equalTo(0)));
+        assertThat(stats).hasSize(0);
     }
 
     @Test
@@ -191,8 +183,8 @@ class StatisticsUnitTest {
         // When
         statistics.clearAll();
         // Then
-        assertThat(statistics.getStat("stats.a"), is(nullValue()));
-        assertThat(statistics.getStat("other.stats.a"), is(nullValue()));
+        assertThat(statistics.getStat("stats.a")).isNull();
+        assertThat(statistics.getStat("other.stats.a")).isNull();
     }
 
     @Test
@@ -207,10 +199,10 @@ class StatisticsUnitTest {
         // When
         statistics.clear("stats");
         // Then
-        assertThat(statistics.getStat("stats"), is(nullValue()));
-        assertThat(statistics.getStat("stats.a"), is(nullValue()));
-        assertThat(statistics.getStat("stats.b"), is(nullValue()));
-        assertThat(statistics.getStat("other.stats.a"), is(not(nullValue())));
-        assertThat(statistics.getStat("other.stats.b"), is(not(nullValue())));
+        assertThat(statistics.getStat("stats")).isNull();
+        assertThat(statistics.getStat("stats.a")).isNull();
+        assertThat(statistics.getStat("stats.b")).isNull();
+        assertThat(statistics.getStat("other.stats.a")).isNotNull();
+        assertThat(statistics.getStat("other.stats.b")).isNotNull();
     }
 }

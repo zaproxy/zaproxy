@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
@@ -40,7 +38,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertThat(processedValue).isEqualTo(quoted(value));
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -51,7 +49,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertThat(processedValue).isEqualTo(quoted(value));
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -62,7 +60,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertThat(processedValue).isEqualTo(quoted(value));
         assertDoubleQuotedValueAfterJsonObject(processedValue, value);
     }
 
@@ -73,7 +71,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertThat(processedValue).isEqualTo(quoted(value));
         assertDoubleQuotedValueAfterJsonObject(processedValue, value);
     }
 
@@ -84,7 +82,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(value)));
+        assertThat(processedValue).isEqualTo(value);
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -95,7 +93,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(value)));
+        assertThat(processedValue).isEqualTo(value);
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -106,7 +104,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(value)));
+        assertThat(processedValue).isEqualTo(value);
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -117,7 +115,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(value)));
+        assertThat(processedValue).isEqualTo(value);
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -128,7 +126,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(value)));
+        assertThat(processedValue).isEqualTo(value);
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -139,7 +137,7 @@ class JsonUtilUnitTest {
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
-        assertThat(processedValue, is(equalTo(value)));
+        assertThat(processedValue).isEqualTo(value);
         assertValueAfterJsonObject(processedValue, value);
     }
 
@@ -155,7 +153,7 @@ class JsonUtilUnitTest {
         String res = JsonUtil.getJsonKeyString(json);
 
         // Then
-        assertThat(res, is(equalTo("{aaa,ccc,eee}")));
+        assertThat(res).isEqualTo("{aaa,ccc,eee}");
     }
 
     @Test
@@ -169,7 +167,7 @@ class JsonUtilUnitTest {
         String res = JsonUtil.getJsonKeyString(json);
 
         // Then
-        assertThat(res, is(equalTo("[]")));
+        assertThat(res).isEqualTo("[]");
     }
 
     @Test
@@ -184,7 +182,7 @@ class JsonUtilUnitTest {
         String res = JsonUtil.getJsonKeyString(json);
 
         // Then
-        assertThat(res, is(equalTo("{aaa:{bbb,ddd},fff:[{ggg},{iii}]}")));
+        assertThat(res).isEqualTo("{aaa:{bbb,ddd},fff:[{ggg},{iii}]}");
     }
 
     @Test
@@ -197,7 +195,7 @@ class JsonUtilUnitTest {
         String res = JsonUtil.getJsonKeyString(json);
 
         // Then
-        assertThat(res, is(equalTo("[{aaa:{bbb,ddd}}..]")));
+        assertThat(res).isEqualTo("[{aaa:{bbb,ddd}}..]");
     }
 
     @Test
@@ -212,9 +210,9 @@ class JsonUtilUnitTest {
         // when
         String res = JsonUtil.getJsonKeyString(json);
         // then
-        assertThat(
-                res,
-                is(expectedName.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "..."));
+        assertThat(res)
+                .isEqualTo(
+                        expectedName.substring(0, SessionStructure.MAX_NODE_NAME_SIZE - 3) + "...");
     }
 
     @Test
@@ -230,7 +228,7 @@ class JsonUtilUnitTest {
         // When
         jsonObject.put(key, processedValue);
         // Then
-        assertThat(jsonObject.getString(key), is(equalTo(value)));
+        assertThat(jsonObject.getString(key)).isEqualTo(value);
     }
 
     private static void assertDoubleQuotedValueAfterJsonObject(
@@ -241,7 +239,7 @@ class JsonUtilUnitTest {
         // When
         jsonObject.put(key, processedValue);
         // Then
-        assertThat(jsonObject.getString(key), is(equalTo(doubleQuoted(value))));
+        assertThat(jsonObject.getString(key)).isEqualTo(doubleQuoted(value));
     }
 
     private static String quoted(String value) {

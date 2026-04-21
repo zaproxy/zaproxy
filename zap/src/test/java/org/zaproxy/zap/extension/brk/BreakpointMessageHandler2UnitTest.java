@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.brk;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
@@ -64,7 +62,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, onlyIfInScope);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     @ParameterizedTest
@@ -84,7 +82,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(false)));
+        assertThat(breakpoint).isFalse();
     }
 
     @ParameterizedTest
@@ -104,7 +102,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     @ParameterizedTest
@@ -124,7 +122,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     @ParameterizedTest
@@ -142,7 +140,7 @@ class BreakpointMessageHandler2UnitTest {
                                 breakpointMessageHandler.isBreakpoint(
                                         message, request, onlyIfInScope));
         // Then
-        assertThat(breakpoint, is(equalTo(false)));
+        assertThat(breakpoint).isFalse();
     }
 
     @ParameterizedTest
@@ -155,7 +153,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, onlyIfInScope);
         // Then
-        assertThat(breakpoint, is(equalTo(false)));
+        assertThat(breakpoint).isFalse();
     }
 
     @Test
@@ -167,7 +165,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     @Test
@@ -179,7 +177,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(false)));
+        assertThat(breakpoint).isFalse();
     }
 
     @Test
@@ -191,7 +189,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     @Test
@@ -203,7 +201,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(false)));
+        assertThat(breakpoint).isFalse();
     }
 
     @ParameterizedTest
@@ -215,7 +213,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     @ParameterizedTest
@@ -230,7 +228,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, onlyIfInScope);
         // Then
-        assertThat(breakpoint, is(equalTo(false)));
+        assertThat(breakpoint).isFalse();
     }
 
     @ParameterizedTest
@@ -246,7 +244,7 @@ class BreakpointMessageHandler2UnitTest {
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, onlyIfInScope);
         // Then
-        assertThat(breakpoint, is(equalTo(true)));
+        assertThat(breakpoint).isTrue();
     }
 
     static Stream<Arguments> requestAndOnlyIfInScope() {

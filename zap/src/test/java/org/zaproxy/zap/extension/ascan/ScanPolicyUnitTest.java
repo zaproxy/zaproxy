@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -45,7 +43,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getDefaultThreshold(), is(equalTo(Plugin.AlertThreshold.HIGH)));
+        assertThat(scanPolicy.getDefaultThreshold()).isEqualTo(Plugin.AlertThreshold.HIGH);
     }
 
     @Test
@@ -56,7 +54,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getDefaultThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
+        assertThat(scanPolicy.getDefaultThreshold()).isEqualTo(Plugin.AlertThreshold.MEDIUM);
     }
 
     @Test
@@ -67,7 +65,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getDefaultStrength(), is(equalTo(Plugin.AttackStrength.LOW)));
+        assertThat(scanPolicy.getDefaultStrength()).isEqualTo(Plugin.AttackStrength.LOW);
     }
 
     @Test
@@ -78,7 +76,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getDefaultStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
+        assertThat(scanPolicy.getDefaultStrength()).isEqualTo(Plugin.AttackStrength.MEDIUM);
     }
 
     @Test
@@ -109,7 +107,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getDefaultThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
+        assertThat(scanPolicy.getDefaultThreshold()).isEqualTo(Plugin.AlertThreshold.MEDIUM);
     }
 
     @Test
@@ -120,7 +118,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getDefaultStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
+        assertThat(scanPolicy.getDefaultStrength()).isEqualTo(Plugin.AttackStrength.MEDIUM);
     }
 
     @ParameterizedTest
@@ -132,7 +130,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.isLocked(), is(equalTo(locked)));
+        assertThat(scanPolicy.isLocked()).isEqualTo(locked);
     }
 
     @ParameterizedTest
@@ -144,7 +142,7 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then
-        assertThat(scanPolicy.getPluginFactory().isLocked(), is(equalTo(locked)));
+        assertThat(scanPolicy.getPluginFactory().isLocked()).isEqualTo(locked);
     }
 
     @ParameterizedTest
@@ -155,8 +153,8 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         scanPolicy.setLocked(locked);
         // Then
-        assertThat(scanPolicy.isLocked(), is(equalTo(locked)));
-        assertThat(scanPolicy.getPluginFactory().isLocked(), is(equalTo(locked)));
+        assertThat(scanPolicy.isLocked()).isEqualTo(locked);
+        assertThat(scanPolicy.getPluginFactory().isLocked()).isEqualTo(locked);
     }
 
     @ParameterizedTest
@@ -169,6 +167,6 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // When
         scanPolicy.saveTo(conf);
         // Then
-        assertThat(conf.getBoolean("locked"), is(equalTo(locked)));
+        assertThat(conf.getBoolean("locked")).isEqualTo(locked);
     }
 }

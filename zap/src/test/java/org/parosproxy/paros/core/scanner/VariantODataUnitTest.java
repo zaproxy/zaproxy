@@ -19,8 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -302,6 +301,6 @@ class VariantODataUnitTest {
         // Check that the msg contains now well formatted URI with the injected parameter
         URI hackedURI = msg.getRequestHeader().getURI();
         String hackedURIasStr = hackedURI.getURI();
-        assertThat("RequestHeader.uri", hackedURIasStr, is(expectedHackedURI));
+        assertThat(hackedURIasStr).as("RequestHeader.uri").isEqualTo(expectedHackedURI);
     }
 }

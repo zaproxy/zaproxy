@@ -19,10 +19,7 @@
  */
 package org.apache.commons.httpclient;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +33,7 @@ class URIUnitTest {
         // When
         int port = uri.getPort();
         // Then
-        assertThat(port, is(equalTo(8080)));
+        assertThat(port).isEqualTo(8080);
     }
 
     @Test
@@ -46,7 +43,7 @@ class URIUnitTest {
         // When
         int port = uri.getPort();
         // Then
-        assertThat(port, is(equalTo(3001)));
+        assertThat(port).isEqualTo(3001);
     }
 
     @Test
@@ -54,12 +51,12 @@ class URIUnitTest {
         // Given / When
         URI uri = URI.fromAuthority("www.example.com:8080");
         // Then
-        assertThat(uri.getScheme(), is(nullValue()));
-        assertThat(uri.getAuthority(), is(equalTo("www.example.com:8080")));
-        assertThat(uri.getHost(), is(equalTo("www.example.com")));
-        assertThat(uri.getPort(), is(equalTo(8080)));
-        assertThat(uri.getPath(), is(nullValue()));
-        assertThat(uri.toString(), is(equalTo("www.example.com:8080")));
+        assertThat(uri.getScheme()).isNull();
+        assertThat(uri.getAuthority()).isEqualTo("www.example.com:8080");
+        assertThat(uri.getHost()).isEqualTo("www.example.com");
+        assertThat(uri.getPort()).isEqualTo(8080);
+        assertThat(uri.getPath()).isNull();
+        assertThat(uri).hasToString("www.example.com:8080");
     }
 
     @Test
@@ -67,11 +64,11 @@ class URIUnitTest {
         // Given / When
         URI uri = URI.fromAuthority("hive_test_00.example.com:443");
         // Then
-        assertThat(uri.getScheme(), is(nullValue()));
-        assertThat(uri.getAuthority(), is(equalTo("hive_test_00.example.com:443")));
-        assertThat(uri.getHost(), is(equalTo("hive_test_00.example.com")));
-        assertThat(uri.getPort(), is(equalTo(443)));
-        assertThat(uri.getPath(), is(nullValue()));
-        assertThat(uri.toString(), is(equalTo("hive_test_00.example.com:443")));
+        assertThat(uri.getScheme()).isNull();
+        assertThat(uri.getAuthority()).isEqualTo("hive_test_00.example.com:443");
+        assertThat(uri.getHost()).isEqualTo("hive_test_00.example.com");
+        assertThat(uri.getPort()).isEqualTo(443);
+        assertThat(uri.getPath()).isNull();
+        assertThat(uri).hasToString("hive_test_00.example.com:443");
     }
 }

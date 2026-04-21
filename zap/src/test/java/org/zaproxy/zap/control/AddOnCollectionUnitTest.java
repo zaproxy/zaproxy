@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.StringReader;
@@ -154,45 +151,41 @@ class AddOnCollectionUnitTest {
     @Test
     void testMainVersion() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
-        assertThat(coll.getZapRelease().getVersion(), is("2.0.0"));
+        assertThat(coll.getZapRelease().getVersion()).isEqualTo("2.0.0");
     }
 
     @Test
     void testDailyUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.daily);
-        assertThat(
-                coll.getZapRelease().getUrl().toString(),
-                is("http://zaproxy.googlecode.com/files/ZAP_WEEKLY_D-2012-12-31.zip"));
+        assertThat(coll.getZapRelease().getUrl())
+                .hasToString("http://zaproxy.googlecode.com/files/ZAP_WEEKLY_D-2012-12-31.zip");
     }
 
     @Test
     void testWinUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
-        assertThat(
-                coll.getZapRelease().getUrl().toString(),
-                is("http://zaproxy.googlecode.com/files/ZAP_fake_windows_2.0.0.exe"));
+        assertThat(coll.getZapRelease().getUrl())
+                .hasToString("http://zaproxy.googlecode.com/files/ZAP_fake_windows_2.0.0.exe");
     }
 
     @Test
     void testLinuxUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.linux);
-        assertThat(
-                coll.getZapRelease().getUrl().toString(),
-                is("http://zaproxy.googlecode.com/files/ZAP_fake_linux_2.0.0.tar.gzip"));
+        assertThat(coll.getZapRelease().getUrl())
+                .hasToString("http://zaproxy.googlecode.com/files/ZAP_fake_linux_2.0.0.tar.gzip");
     }
 
     @Test
     void testMacUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.mac);
-        assertThat(
-                coll.getZapRelease().getUrl().toString(),
-                is("http://zaproxy.googlecode.com/files/ZAP_fake_mac_2.0.0.zip"));
+        assertThat(coll.getZapRelease().getUrl())
+                .hasToString("http://zaproxy.googlecode.com/files/ZAP_fake_mac_2.0.0.zip");
     }
 
     @Test
     void testDailyVersion() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.daily);
-        assertThat(coll.getZapRelease().getVersion(), is("D-2012-12-31"));
+        assertThat(coll.getZapRelease().getVersion()).isEqualTo("D-2012-12-31");
     }
 
     @Test
@@ -200,8 +193,8 @@ class AddOnCollectionUnitTest {
         AddOnCollection collA = new AddOnCollection(configA, Platform.daily);
         AddOnCollection collB = new AddOnCollection(configB, Platform.daily);
         List<AddOn> updAddOns = collB.getUpdatedAddOns(collA);
-        assertThat(updAddOns.size(), is(1));
-        assertThat(updAddOns.get(0).getId(), is("bbb"));
+        assertThat(updAddOns).hasSize(1);
+        assertThat(updAddOns.get(0).getId()).isEqualTo("bbb");
     }
 
     @Test
@@ -209,8 +202,8 @@ class AddOnCollectionUnitTest {
         AddOnCollection collA = new AddOnCollection(configA, Platform.daily);
         AddOnCollection collB = new AddOnCollection(configB, Platform.daily);
         List<AddOn> newAddOns = collB.getNewAddOns(collA);
-        assertThat(newAddOns.size(), is(1));
-        assertThat(newAddOns.get(0).getId(), is("ddd"));
+        assertThat(newAddOns).hasSize(1);
+        assertThat(newAddOns.get(0).getId()).isEqualTo("ddd");
     }
 
     @Test
@@ -220,16 +213,16 @@ class AddOnCollectionUnitTest {
         // When
         AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
         // Then
-        assertThat(addOnCollection.getAddOns().size(), is(equalTo(9)));
-        assertThat(addOnCollection.getAddOn("AddOn1"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn2"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn4"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn5"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn6"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn7"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+        assertThat(addOnCollection.getAddOns()).hasSize(9);
+        assertThat(addOnCollection.getAddOn("AddOn1")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn2")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn3")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn4")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn5")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn6")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn7")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn8")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn9")).isNotNull();
     }
 
     @Test
@@ -239,11 +232,11 @@ class AddOnCollectionUnitTest {
         // When
         AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
         // Then
-        assertThat(addOnCollection.getAddOns().size(), is(equalTo(4)));
-        assertThat(addOnCollection.getAddOn("AddOn2"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+        assertThat(addOnCollection.getAddOns()).hasSize(4);
+        assertThat(addOnCollection.getAddOn("AddOn2")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn3")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn8")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn9")).isNotNull();
     }
 
     @Test
@@ -253,10 +246,10 @@ class AddOnCollectionUnitTest {
         // When
         AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
         // Then
-        assertThat(addOnCollection.getAddOns().size(), is(equalTo(3)));
-        assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
-        assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+        assertThat(addOnCollection.getAddOns()).hasSize(3);
+        assertThat(addOnCollection.getAddOn("AddOn3")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn8")).isNotNull();
+        assertThat(addOnCollection.getAddOn("AddOn9")).isNotNull();
     }
 
     @Test
@@ -267,7 +260,7 @@ class AddOnCollectionUnitTest {
         // When
         String releaseDate = addOn.getReleaseDate();
         // Then
-        assertThat(releaseDate, is(equalTo("2020-05-22")));
+        assertThat(releaseDate).isEqualTo("2020-05-22");
     }
 
     @Test
@@ -296,8 +289,8 @@ class AddOnCollectionUnitTest {
         // When
         coll.setMandatoryAddOns(mandatoryAddOns);
         // Then
-        assertThat(coll.getAddOn("bbb").isMandatory(), is(equalTo(true)));
-        assertThat(coll.getAddOn("ddd").isMandatory(), is(equalTo(false)));
+        assertThat(coll.getAddOn("bbb").isMandatory()).isTrue();
+        assertThat(coll.getAddOn("ddd").isMandatory()).isFalse();
     }
 
     @Test
@@ -312,7 +305,7 @@ class AddOnCollectionUnitTest {
         // When
         coll.addAddOn(addOn);
         // Then
-        assertThat(coll.getAddOn("bbb").isMandatory(), is(equalTo(true)));
+        assertThat(coll.getAddOn("bbb").isMandatory()).isTrue();
     }
 
     private ZapXmlConfiguration createConfiguration(String file) throws ConfigurationException {

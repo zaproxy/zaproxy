@@ -20,15 +20,7 @@
 package org.zaproxy.zap.extension.script;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -83,7 +75,7 @@ class ScriptsCacheUnitTest {
         // Given / When
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
         // Then
-        assertThat(cachedScripts, is(empty()));
+        assertThat(cachedScripts).isEmpty();
         verifyNoInteractions(extensionScript);
     }
 
@@ -100,7 +92,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(0));
+        assertThat(cachedScripts).hasSize(0);
         verify(extensionScript, times(1)).getScripts(scriptType);
         verifyNoMoreInteractions(extensionScript);
     }
@@ -118,7 +110,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(2));
+        assertThat(cachedScripts).hasSize(2);
         assertCachedScript(cachedScripts.get(0), scriptWrapper1, script1);
         assertCachedScript(cachedScripts.get(1), scriptWrapper2, script2);
         verify(extensionScript, times(1)).getScripts(scriptType);
@@ -141,7 +133,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(1));
+        assertThat(cachedScripts).hasSize(1);
         assertCachedScript(cachedScripts.get(0), scriptWrapper2, script2);
         verify(extensionScript, times(1)).getScripts(scriptType);
         verify(extensionScript, times(1)).getInterface(scriptWrapper2, targetInterface);
@@ -163,7 +155,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(1));
+        assertThat(cachedScripts).hasSize(1);
         assertCachedScript(cachedScripts.get(0), scriptWrapper2, script2);
         verify(extensionScript, times(2)).getScripts(scriptType);
         verify(extensionScript, times(1)).getInterface(scriptWrapper1, targetInterface);
@@ -189,7 +181,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(2));
+        assertThat(cachedScripts).hasSize(2);
         assertCachedScript(cachedScripts.get(0), scriptWrapper1, script1);
         assertCachedScript(cachedScripts.get(1), scriptWrapper2, refreshedScript);
         verify(extensionScript, times(2)).getScripts(scriptType);
@@ -212,7 +204,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(1));
+        assertThat(cachedScripts).hasSize(1);
         assertCachedScript(cachedScripts.get(0), scriptWrapper1, script1);
         verify(extensionScript, times(1)).getScripts(scriptType);
         verify(extensionScript, times(1)).getInterface(scriptWrapper1, targetInterface);
@@ -238,7 +230,7 @@ class ScriptsCacheUnitTest {
         scriptsCache.refresh();
         // Then
         List<CachedScript<Script>> cachedScripts = scriptsCache.getCachedScripts();
-        assertThat(cachedScripts, hasSize(1));
+        assertThat(cachedScripts).hasSize(1);
         assertCachedScript(cachedScripts.get(0), scriptWrapper1, script1);
         verify(extensionScript, times(1)).getScripts(scriptType);
         verify(extensionScript, times(1)).getInterface(scriptWrapper1, targetInterface);
@@ -258,8 +250,8 @@ class ScriptsCacheUnitTest {
         // When
         scriptsCache.execute(e -> scriptsExecuted.add(e));
         // Then
-        assertThat(scriptsExecuted, hasSize(1));
-        assertThat(scriptsExecuted.get(0), is(sameInstance(script)));
+        assertThat(scriptsExecuted).hasSize(1);
+        assertThat(scriptsExecuted.get(0)).isSameAs(script);
     }
 
     @Test
@@ -278,8 +270,8 @@ class ScriptsCacheUnitTest {
                     throw exception;
                 });
         // Then
-        assertThat(scriptsExecuted, hasSize(1));
-        assertThat(scriptsExecuted.get(0), is(sameInstance(script)));
+        assertThat(scriptsExecuted).hasSize(1);
+        assertThat(scriptsExecuted.get(0)).isSameAs(script);
         verify(extensionScript, times(1)).handleScriptException(scriptWrapper, exception);
     }
 
@@ -293,8 +285,8 @@ class ScriptsCacheUnitTest {
         // When
         scriptsCache.refreshAndExecute(e -> scriptsExecuted.add(e));
         // Then
-        assertThat(scriptsExecuted, hasSize(1));
-        assertThat(scriptsExecuted.get(0), is(sameInstance(script)));
+        assertThat(scriptsExecuted).hasSize(1);
+        assertThat(scriptsExecuted.get(0)).isSameAs(script);
     }
 
     @Test
@@ -313,8 +305,8 @@ class ScriptsCacheUnitTest {
                     throw exception;
                 });
         // Then
-        assertThat(scriptsExecuted, hasSize(1));
-        assertThat(scriptsExecuted.get(0), is(sameInstance(script)));
+        assertThat(scriptsExecuted).hasSize(1);
+        assertThat(scriptsExecuted.get(0)).isSameAs(script);
         verify(extensionScript, times(1)).handleScriptException(scriptWrapper, exception);
     }
 
@@ -328,9 +320,9 @@ class ScriptsCacheUnitTest {
         // When / When
         scriptsCache.refreshAndExecute((sw, s) -> scriptsExecuted.add(new Pair<>(sw, s)));
         // Then
-        assertThat(scriptsExecuted, hasSize(1));
-        assertThat(scriptsExecuted.get(0).first, is(sameInstance(scriptWrapper)));
-        assertThat(scriptsExecuted.get(0).second, is(sameInstance(script)));
+        assertThat(scriptsExecuted).hasSize(1);
+        assertThat(scriptsExecuted.get(0).first).isSameAs(scriptWrapper);
+        assertThat(scriptsExecuted.get(0).second).isSameAs(script);
     }
 
     @Test
@@ -350,9 +342,9 @@ class ScriptsCacheUnitTest {
                     throw exception;
                 });
         // Then
-        assertThat(scriptsExecuted, hasSize(1));
-        assertThat(scriptsExecuted.get(0).first, is(sameInstance(scriptWrapper)));
-        assertThat(scriptsExecuted.get(0).second, is(sameInstance(script)));
+        assertThat(scriptsExecuted).hasSize(1);
+        assertThat(scriptsExecuted.get(0).first).isSameAs(scriptWrapper);
+        assertThat(scriptsExecuted.get(0).second).isSameAs(script);
         verify(extensionScript, times(1)).handleScriptException(scriptWrapper, exception);
     }
 
@@ -391,7 +383,7 @@ class ScriptsCacheUnitTest {
             // When
             IllegalStateException e = assertThrows(IllegalStateException.class, builder::build);
             // Then
-            assertThat(e.getMessage(), containsString("script type"));
+            assertThat(e.getMessage()).contains("script type");
         }
 
         @Test
@@ -403,7 +395,7 @@ class ScriptsCacheUnitTest {
             // When
             IllegalStateException e = assertThrows(IllegalStateException.class, builder::build);
             // Then
-            assertThat(e.getMessage(), containsString("target interface"));
+            assertThat(e.getMessage()).contains("target interface");
         }
 
         @Test
@@ -419,11 +411,9 @@ class ScriptsCacheUnitTest {
             // When
             IllegalStateException e = assertThrows(IllegalStateException.class, builder::build);
             // Then
-            assertThat(
-                    e.getMessage(),
-                    allOf(
-                            containsString("interface error message provider"),
-                            containsString("interface provider")));
+            assertThat(e.getMessage())
+                    .contains("interface error message provider")
+                    .contains("interface provider");
         }
 
         @Test
@@ -439,10 +429,10 @@ class ScriptsCacheUnitTest {
             // When
             Configuration<Script> configuration = builder.build();
             // Then
-            assertThat(configuration.getScriptType(), is(equalTo(SCRIPT_TYPE)));
-            assertThat(configuration.getTargetInterface(), is(equalTo(Script.class)));
-            assertThat(configuration.getInterfaceProvider(), is(equalTo(interfaceProvider)));
-            assertThat(configuration.getInterfaceErrorMessageProvider(), is(nullValue()));
+            assertThat(configuration.getScriptType()).isEqualTo(SCRIPT_TYPE);
+            assertThat(configuration.getTargetInterface()).isEqualTo(Script.class);
+            assertThat(configuration.getInterfaceProvider()).isEqualTo(interfaceProvider);
+            assertThat(configuration.getInterfaceErrorMessageProvider()).isNull();
         }
 
         @Test
@@ -458,12 +448,11 @@ class ScriptsCacheUnitTest {
             // When
             Configuration<Script> configuration = builder.build();
             // Then
-            assertThat(configuration.getScriptType(), is(equalTo(SCRIPT_TYPE)));
-            assertThat(configuration.getTargetInterface(), is(equalTo(Script.class)));
-            assertThat(
-                    configuration.getInterfaceErrorMessageProvider(),
-                    is(equalTo(interfaceErrorMessageProvider)));
-            assertThat(configuration.getInterfaceProvider(), is(nullValue()));
+            assertThat(configuration.getScriptType()).isEqualTo(SCRIPT_TYPE);
+            assertThat(configuration.getTargetInterface()).isEqualTo(Script.class);
+            assertThat(configuration.getInterfaceErrorMessageProvider())
+                    .isEqualTo(interfaceErrorMessageProvider);
+            assertThat(configuration.getInterfaceProvider()).isNull();
         }
     }
 
@@ -477,8 +466,8 @@ class ScriptsCacheUnitTest {
 
     private static void assertCachedScript(
             CachedScript<Script> cachedScript, ScriptWrapper scriptWrapper, Script script) {
-        assertThat(cachedScript.getScriptWrapper(), is(sameInstance(scriptWrapper)));
-        assertThat(cachedScript.getScript(), is(sameInstance(script)));
+        assertThat(cachedScript.getScriptWrapper()).isSameAs(scriptWrapper);
+        assertThat(cachedScript.getScript()).isSameAs(script);
     }
 
     private interface Script {}

@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.log4j;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.startsWith;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +81,8 @@ class ExtensionLog4jUnitTest {
             // When
             logger.log(level, message);
             // Then
-            assertThat(logEvents, hasSize(1));
-            assertThat(logEvents.get(0), startsWith(message));
+            assertThat(logEvents).hasSize(1);
+            assertThat(logEvents.get(0)).startsWith(message);
         }
 
         @ParameterizedTest
@@ -96,7 +94,7 @@ class ExtensionLog4jUnitTest {
             // When
             logger.log(level, message);
             // Then
-            assertThat(logEvents, hasSize(0));
+            assertThat(logEvents).hasSize(0);
         }
     }
 }

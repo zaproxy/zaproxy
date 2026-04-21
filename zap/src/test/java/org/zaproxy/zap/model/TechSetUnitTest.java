@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -38,8 +33,9 @@ class TechSetUnitTest {
 
     @Test
     void getAllTechShouldHaveTech() {
-        assertThat(TechSet.getAllTech().getIncludeTech(), contains(Tech.getTopLevel().toArray()));
-        assertThat(TechSet.getAllTech().getExcludeTech(), empty());
+        assertThat(TechSet.getAllTech().getIncludeTech())
+                .containsExactlyElementsOf(Tech.getTopLevel());
+        assertThat(TechSet.getAllTech().getExcludeTech()).isEmpty();
     }
 
     @ParameterizedTest
@@ -53,8 +49,8 @@ class TechSetUnitTest {
         // Then
         Set<Tech> excludedSet = full.getExcludeTech();
         int langSize = techsToExclude.size();
-        assertThat(excludedSet.size(), is(equalTo(langSize)));
-        assertTrue(excludedSet.containsAll(techsToExclude));
+        assertThat(excludedSet).hasSize(langSize);
+        assertThat(excludedSet.containsAll(techsToExclude)).isTrue();
     }
 
     @ParameterizedTest
@@ -68,8 +64,8 @@ class TechSetUnitTest {
         // Then
         Set<Tech> includeSet = full.getIncludeTech();
         int langSize = techsToInclude.size();
-        assertThat(includeSet.size(), is(equalTo(langSize)));
-        assertTrue(includeSet.containsAll(techsToInclude));
+        assertThat(includeSet).hasSize(langSize);
+        assertThat(includeSet.containsAll(techsToInclude)).isTrue();
     }
 
     private static Stream<Arguments> shouldReturnTestableTechs() {

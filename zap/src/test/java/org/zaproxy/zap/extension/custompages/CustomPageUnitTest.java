@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.custompages;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
@@ -46,7 +44,7 @@ class CustomPageUnitTest {
         // Given/When
         CustomPage.Type type = CustomPage.Type.getCustomPageTypeWithId(id);
         // Then
-        assertTrue(Arrays.asList(CustomPage.Type.values()).contains(type));
+        assertThat(Arrays.asList(CustomPage.Type.values()).contains(type)).isTrue();
     }
 
     @ParameterizedTest
@@ -55,7 +53,7 @@ class CustomPageUnitTest {
         // Given/When
         CustomPage.Type type = CustomPage.Type.getCustomPageTypeWithId(id);
         // Then
-        assertEquals(CustomPage.Type.getDefaultType(), type);
+        assertThat(type).isEqualTo(CustomPage.Type.getDefaultType());
     }
 
     @ParameterizedTest
@@ -64,8 +62,8 @@ class CustomPageUnitTest {
         // Given/When
         CustomPage.Type type = CustomPage.Type.getCustomPageTypeWithId(id);
         // Then
-        assertNotNull(type.toString());
-        assertTrue(!type.toString().isEmpty());
+        assertThat(type.toString()).isNotNull();
+        assertThat(!type.toString().isEmpty()).isTrue();
     }
 
     @Test
@@ -73,10 +71,11 @@ class CustomPageUnitTest {
         // Given
         I18N i18n = new I18N(Locale.ENGLISH);
         // When/Then
-        assertEquals("Error Page", i18n.getString(CustomPage.Type.ERROR_500.getNameKey()));
-        assertEquals("Not Found", i18n.getString(CustomPage.Type.NOTFOUND_404.getNameKey()));
-        assertEquals("Ok", i18n.getString(CustomPage.Type.OK_200.getNameKey()));
-        assertEquals("Other", i18n.getString(CustomPage.Type.OTHER.getNameKey()));
-        assertEquals("Auth. Issue", i18n.getString(CustomPage.Type.AUTH_4XX.getNameKey()));
+        assertThat(i18n.getString(CustomPage.Type.ERROR_500.getNameKey())).isEqualTo("Error Page");
+        assertThat(i18n.getString(CustomPage.Type.NOTFOUND_404.getNameKey()))
+                .isEqualTo("Not Found");
+        assertThat(i18n.getString(CustomPage.Type.OK_200.getNameKey())).isEqualTo("Ok");
+        assertThat(i18n.getString(CustomPage.Type.OTHER.getNameKey())).isEqualTo("Other");
+        assertThat(i18n.getString(CustomPage.Type.AUTH_4XX.getNameKey())).isEqualTo("Auth. Issue");
     }
 }

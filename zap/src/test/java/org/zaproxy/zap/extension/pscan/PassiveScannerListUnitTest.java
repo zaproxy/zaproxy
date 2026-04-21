@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,7 +43,7 @@ class PassiveScannerListUnitTest {
 
     @Test
     void shouldHaveNoScannersByDefault() {
-        assertThat(psl.list(), is(empty()));
+        assertThat(psl.list()).isEmpty();
     }
 
     @Test
@@ -59,8 +53,8 @@ class PassiveScannerListUnitTest {
         // When
         boolean scannerAdded = psl.add(scanner);
         // Then
-        assertThat(psl.list(), contains(scanner));
-        assertThat(scannerAdded, is(equalTo(true)));
+        assertThat(psl.list()).containsExactly(scanner);
+        assertThat(scannerAdded).isTrue();
     }
 
     @Test
@@ -74,8 +68,8 @@ class PassiveScannerListUnitTest {
         psl.add(scanner1);
         boolean otherScannerAdded = psl.add(otherScannerWithSameName);
         // Then
-        assertThat(psl.list(), contains(scanner1));
-        assertThat(otherScannerAdded, is(equalTo(false)));
+        assertThat(psl.list()).containsExactly(scanner1);
+        assertThat(otherScannerAdded).isFalse();
     }
 
     @Test
@@ -89,8 +83,8 @@ class PassiveScannerListUnitTest {
         // When
         PassiveScanner removedScanner = psl.removeScanner(scanner2.getClass().getName());
         // Then
-        assertThat(psl.list(), contains(scanner1));
-        assertThat(removedScanner, is(sameInstance(scanner2)));
+        assertThat(psl.list()).containsExactly(scanner1);
+        assertThat(removedScanner).isSameAs(scanner2);
     }
 
     @Test
@@ -100,7 +94,7 @@ class PassiveScannerListUnitTest {
         // When
         PassiveScanner removedScanner = psl.removeScanner(scanner.getClass().getName());
         // Then
-        assertThat(removedScanner, is(nullValue()));
+        assertThat(removedScanner).isNull();
     }
 
     @Test
@@ -116,7 +110,7 @@ class PassiveScannerListUnitTest {
         // When
         psl.setAutoTagScanners(scanners);
         // Then
-        assertThat(psl.list(), contains(scanner1, scanner2));
+        assertThat(psl.list()).containsExactly(scanner1, scanner2);
     }
 
     @Test
@@ -135,7 +129,7 @@ class PassiveScannerListUnitTest {
         // When
         psl.setAutoTagScanners(scanners);
         // Then
-        assertThat(psl.list(), contains(scanner2, scanner3));
+        assertThat(psl.list()).containsExactly(scanner2, scanner3);
     }
 
     @Test
@@ -151,7 +145,7 @@ class PassiveScannerListUnitTest {
         // When
         psl.setAutoTagScanners(scanners);
         // Then
-        assertThat(psl.list(), contains(scanner1));
+        assertThat(psl.list()).containsExactly(scanner1);
     }
 
     @Test
@@ -171,7 +165,7 @@ class PassiveScannerListUnitTest {
                                             psl.removeScanner(e.getClass().getName());
                                             psl.add(e);
                                         }));
-        assertThat(psl.list(), contains(scanner1, scanner2));
+        assertThat(psl.list()).containsExactly(scanner1, scanner2);
     }
 
     @Test
@@ -193,7 +187,7 @@ class PassiveScannerListUnitTest {
                                             psl.removeScanner(e.getClass().getName());
                                             psl.add(e);
                                         }));
-        assertThat(psl.list(), contains(scanner1, scanner2));
+        assertThat(psl.list()).containsExactly(scanner1, scanner2);
     }
 
     /** An interface to mock {@code PassiveScanner}s with different class name. */

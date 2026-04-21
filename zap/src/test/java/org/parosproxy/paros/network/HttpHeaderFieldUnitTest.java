@@ -19,9 +19,7 @@
  */
 package org.parosproxy.paros.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.stream.Stream;
@@ -50,8 +48,8 @@ class HttpHeaderFieldUnitTest {
         // Given / When
         HttpHeaderField headerField = new HttpHeaderField(name, value);
         // Then
-        assertThat(headerField.getName(), is(equalTo(name)));
-        assertThat(headerField.getValue(), is(equalTo(value)));
+        assertThat(headerField.getName()).isEqualTo(name);
+        assertThat(headerField.getValue()).isEqualTo(value);
     }
 
     static Stream<Arguments> hashCodesProvider() {
@@ -70,7 +68,7 @@ class HttpHeaderFieldUnitTest {
         // When
         int hashCode = headerField.hashCode();
         // Then
-        assertThat(hashCode, is(equalTo(expectedHashCode)));
+        assertThat(hashCode).isEqualTo(expectedHashCode);
     }
 
     @Test
@@ -80,7 +78,7 @@ class HttpHeaderFieldUnitTest {
         // When
         boolean equals = headerField.equals(headerField);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @ParameterizedTest
@@ -92,7 +90,7 @@ class HttpHeaderFieldUnitTest {
         // When
         boolean equals = headerField.equals(otherEqualHttpHeaderField);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -102,7 +100,7 @@ class HttpHeaderFieldUnitTest {
         // When
         boolean equals = headerField.equals(null);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     static Stream<Arguments> differencesProvider() {
@@ -123,7 +121,7 @@ class HttpHeaderFieldUnitTest {
         // When
         boolean equals = headerField.equals(otherHttpHeaderField);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -136,7 +134,7 @@ class HttpHeaderFieldUnitTest {
         // When
         boolean equals = headerField.equals(otherHttpHeaderField);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     static Stream<Arguments> stringsProvider() {
@@ -156,6 +154,6 @@ class HttpHeaderFieldUnitTest {
         // When
         String toString = headerField.toString();
         // Then
-        assertThat(toString, is(equalTo(expectedString)));
+        assertThat(toString).isEqualTo(expectedString);
     }
 }

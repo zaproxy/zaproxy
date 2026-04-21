@@ -19,8 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.charset.Charset;
@@ -46,7 +45,7 @@ class ByteBuilderUnitTest {
         // when
         int defaultCapacity = byteBuilder.capacity();
         // then
-        assertThat(defaultCapacity, is(10));
+        assertThat(defaultCapacity).isEqualTo(10);
     }
 
     @Test
@@ -56,7 +55,7 @@ class ByteBuilderUnitTest {
         // when
         int capacity = byteBuilder.capacity();
         // then
-        assertThat(capacity, is(42));
+        assertThat(capacity).isEqualTo(42);
     }
 
     @Test
@@ -66,7 +65,7 @@ class ByteBuilderUnitTest {
         // when
         int capacity = byteBuilder.capacity();
         // then
-        assertThat(capacity, is(2 * TEST_ARRAY.length));
+        assertThat(capacity).isEqualTo(2 * TEST_ARRAY.length);
     }
 
     @Test
@@ -77,7 +76,7 @@ class ByteBuilderUnitTest {
         byteBuilder.ensureCapacity(20);
         int capacity = byteBuilder.capacity();
         // then
-        assertThat(capacity, is(20));
+        assertThat(capacity).isEqualTo(20);
     }
 
     @Test
@@ -87,7 +86,7 @@ class ByteBuilderUnitTest {
         // when
         int size = byteBuilder.size();
         // then
-        assertThat(size, is(0));
+        assertThat(size).isEqualTo(0);
     }
 
     @Test
@@ -97,7 +96,7 @@ class ByteBuilderUnitTest {
         // when
         int size = byteBuilder.size();
         // then
-        assertThat(size, is(3));
+        assertThat(size).isEqualTo(3);
     }
 
     @Test
@@ -108,7 +107,7 @@ class ByteBuilderUnitTest {
         // when
         String string = byteBuilder.toString();
         // then
-        assertThat(string, is("A-Z"));
+        assertThat(string).isEqualTo("A-Z");
     }
 
     @Test
@@ -119,7 +118,7 @@ class ByteBuilderUnitTest {
         // when
         byte[] subSequence = byteBuilder.subSequence(3, 6);
         // then
-        assertThat(subSequence, is(new byte[] {4, 5, 6}));
+        assertThat(subSequence).containsExactly(new byte[] {4, 5, 6});
     }
 
     @Test
@@ -130,7 +129,7 @@ class ByteBuilderUnitTest {
         // when
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(bytes));
+        assertThat(toByteArray).containsExactly(bytes);
     }
 
     @Test
@@ -141,7 +140,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append((byte) 2);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 2}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 2});
     }
 
     @Test
@@ -152,7 +151,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new byte[] {1, 2});
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 1, 2}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 1, 2});
     }
 
     @Test
@@ -163,7 +162,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new byte[] {1, 2, 3, 4, 5, 6}, 1, 3);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 2, 3, 4}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 2, 3, 4});
     }
 
     @Test
@@ -183,7 +182,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append('3');
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 51}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 51});
     }
 
     @Test
@@ -194,7 +193,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new char[] {'3', '5'});
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 51, 53}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 51, 53});
     }
 
     @Test
@@ -205,7 +204,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new char[] {'1', '2', '3', '4', '5', '6'}, 1, 3);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 50, 51, 52}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 50, 51, 52});
     }
 
     @Test
@@ -226,7 +225,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(false);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 1, 0}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 1, 0});
     }
 
     @Test
@@ -237,7 +236,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append((short) 3);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 0, 3}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 0, 3});
     }
 
     @Test
@@ -248,7 +247,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(2);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 0, 0, 0, 2}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 0, 0, 0, 2});
     }
 
     @Test
@@ -259,7 +258,8 @@ class ByteBuilderUnitTest {
         byteBuilder.append(1234567890123456789L);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 17, 34, 16, -12, 125, -23, -127, 21}));
+        assertThat(toByteArray)
+                .containsExactly(new byte[] {1, 2, 3, 17, 34, 16, -12, 125, -23, -127, 21});
     }
 
     @Test
@@ -270,7 +270,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(1234567890123456789.12f);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 93, -119, 16, -120}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 93, -119, 16, -120});
     }
 
     @Test
@@ -281,7 +281,8 @@ class ByteBuilderUnitTest {
         byteBuilder.append(1234567890123456789.12);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 67, -79, 34, 16, -12, 125, -23, -127}));
+        assertThat(toByteArray)
+                .containsExactly(new byte[] {1, 2, 3, 67, -79, 34, 16, -12, 125, -23, -127});
     }
 
     @Test
@@ -297,7 +298,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new FooClass());
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 1, 2}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 1, 2});
     }
 
     @Test
@@ -308,7 +309,8 @@ class ByteBuilderUnitTest {
         byteBuilder.append((Object) 123456);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 0, 0, 0, 6, 49, 50, 51, 52, 53, 54}));
+        assertThat(toByteArray)
+                .containsExactly(new byte[] {1, 2, 3, 0, 0, 0, 6, 49, 50, 51, 52, 53, 54});
     }
 
     @Test
@@ -319,13 +321,12 @@ class ByteBuilderUnitTest {
         byteBuilder.append("FooBarBaz£$%^&*", StandardCharsets.UTF_8);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(
-                toByteArray,
-                is(
+        assertThat(toByteArray)
+                .containsExactly(
                         new byte[] {
                             1, 2, 3, 0, 0, 0, 16, 70, 111, 111, 66, 97, 114, 66, 97, 122, -62, -93,
                             36, 37, 94, 38, 42
-                        }));
+                        });
     }
 
     @Test
@@ -336,7 +337,7 @@ class ByteBuilderUnitTest {
         // When
         byteBuilder.append(value);
         // Then
-        assertThat(byteBuilder.toByteArray(), is(lengthAndBytesOf(value)));
+        assertThat(byteBuilder.toByteArray()).containsExactly(lengthAndBytesOf(value));
     }
 
     @Test
@@ -347,13 +348,12 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new StringBuffer("FooBarBaz£$%^&*"), StandardCharsets.UTF_8);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(
-                toByteArray,
-                is(
+        assertThat(toByteArray)
+                .containsExactly(
                         new byte[] {
                             1, 2, 3, 0, 0, 0, 16, 70, 111, 111, 66, 97, 114, 66, 97, 122, -62, -93,
                             36, 37, 94, 38, 42
-                        }));
+                        });
     }
 
     @Test
@@ -364,7 +364,7 @@ class ByteBuilderUnitTest {
         // when
         byteBuilder.append(new StringBuffer(value));
         // then
-        assertThat(byteBuilder.toByteArray(), is(lengthAndBytesOf(value)));
+        assertThat(byteBuilder.toByteArray()).containsExactly(lengthAndBytesOf(value));
     }
 
     @Test
@@ -375,7 +375,7 @@ class ByteBuilderUnitTest {
         byteBuilder.append(new ByteBuilder(new byte[] {5, 5}));
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 5, 5}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 5, 5});
     }
 
     @Test
@@ -386,7 +386,7 @@ class ByteBuilderUnitTest {
         byteBuilder.appendSpecial(1234567890123456789L, 3, true);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, 105, -127, 21}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, 105, -127, 21});
     }
 
     @Test
@@ -397,7 +397,7 @@ class ByteBuilderUnitTest {
         byteBuilder.appendSpecial(-1234567890123456789L, 3, true);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
-        assertThat(toByteArray, is(new byte[] {1, 2, 3, -106, 126, -21}));
+        assertThat(toByteArray).containsExactly(new byte[] {1, 2, 3, -106, 126, -21});
     }
 
     private static byte[] lengthAndBytesOf(String value) {

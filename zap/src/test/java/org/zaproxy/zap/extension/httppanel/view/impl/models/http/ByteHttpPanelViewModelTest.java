@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,7 +100,7 @@ public abstract class ByteHttpPanelViewModelTest<T1 extends HttpHeader, T2 exten
         // When
         byte[] data = model.getData();
         // Then
-        assertThat(data.length, is(equalTo(0)));
+        assertThat(data.length).isEqualTo(0);
     }
 
     @Test
@@ -112,7 +110,7 @@ public abstract class ByteHttpPanelViewModelTest<T1 extends HttpHeader, T2 exten
         // When
         byte[] data = model.getData();
         // Then
-        assertThat(data, is(equalTo(MESSAGE)));
+        assertThat(data).isEqualTo(MESSAGE);
     }
 
     @Test

@@ -19,12 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Vector;
@@ -53,7 +48,7 @@ class KbUnitTest {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
-        assertThat(knowledgeBase.get(TEST_KEY), is(equalTo(TEST_OBJECT_1)));
+        assertThat(knowledgeBase.get(TEST_KEY)).isEqualTo(TEST_OBJECT_1);
     }
 
     @Test
@@ -69,8 +64,8 @@ class KbUnitTest {
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_2);
         // Then
         Vector<Object> result = knowledgeBase.getList(TEST_KEY);
-        assertThat(result, hasSize(2));
-        assertThat(result, contains(TEST_OBJECT_1, TEST_OBJECT_2));
+        assertThat(result).hasSize(2);
+        assertThat(result).containsExactly(TEST_OBJECT_1, TEST_OBJECT_2);
     }
 
     @Test
@@ -84,7 +79,7 @@ class KbUnitTest {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_BOOLEAN);
         // Then
-        assertThat(knowledgeBase.getBoolean(TEST_KEY), is(equalTo(TEST_BOOLEAN)));
+        assertThat(knowledgeBase.getBoolean(TEST_KEY)).isEqualTo(TEST_BOOLEAN);
     }
 
     @Test
@@ -98,7 +93,7 @@ class KbUnitTest {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_STRING);
         // Then
-        assertThat(knowledgeBase.getString(TEST_KEY), is(equalTo(TEST_STRING)));
+        assertThat(knowledgeBase.getString(TEST_KEY)).isEqualTo(TEST_STRING);
     }
 
     @Test
@@ -112,7 +107,7 @@ class KbUnitTest {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
-        assertThat(knowledgeBase.get(ANOTHER_KEY), is(nullValue()));
+        assertThat(knowledgeBase.get(ANOTHER_KEY)).isNull();
     }
 
     @Test
@@ -120,7 +115,7 @@ class KbUnitTest {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
-        assertThat(knowledgeBase.getBoolean(TEST_KEY), is(false));
+        assertThat(knowledgeBase.getBoolean(TEST_KEY)).isFalse();
     }
 
     @Test
@@ -128,6 +123,6 @@ class KbUnitTest {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
-        assertThat(knowledgeBase.getString(TEST_KEY), is(nullValue()));
+        assertThat(knowledgeBase.getString(TEST_KEY)).isNull();
     }
 }

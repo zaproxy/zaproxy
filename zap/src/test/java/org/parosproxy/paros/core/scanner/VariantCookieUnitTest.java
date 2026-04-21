@@ -19,18 +19,11 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -46,7 +39,7 @@ class VariantCookieUnitTest {
         // When
         List<NameValuePair> parameters = variantCookie.getParamList();
         // Then
-        assertThat(parameters, is(empty()));
+        assertThat(parameters).isEmpty();
     }
 
     @Test
@@ -78,7 +71,7 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList(), is(empty()));
+        assertThat(variantCookie.getParamList()).isEmpty();
     }
 
     @Test
@@ -89,7 +82,7 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList(), is(empty()));
+        assertThat(variantCookie.getParamList()).isEmpty();
     }
 
     @Test
@@ -100,10 +93,9 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(3)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(cookie("a", "b", 0), cookie("c", "\"d\"", 1), cookie("e", "f", 2)));
+        assertThat(variantCookie.getParamList()).hasSize(3);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(cookie("a", "b", 0), cookie("c", "\"d\"", 1), cookie("e", "f", 2));
     }
 
     @Test
@@ -114,16 +106,15 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(6)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(
+        assertThat(variantCookie.getParamList()).hasSize(6);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(
                         cookie("a", "b", 0),
                         cookie("c", "d", 1),
                         cookie("e", "f", 2),
                         cookie("g", "h", 3),
                         cookie("i", "j", 4),
-                        cookie("k", "l", 5)));
+                        cookie("k", "l", 5));
     }
 
     @Test
@@ -134,15 +125,14 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(5)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(
+        assertThat(variantCookie.getParamList()).hasSize(5);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(
                         cookie("a", "", 0),
                         cookie("", "d", 1),
                         cookie(null, "e", 2),
                         cookie("g", "\"h", 3),
-                        cookie("i", "j\"", 4)));
+                        cookie("i", "j\"", 4));
     }
 
     @Test
@@ -154,10 +144,9 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(8)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(
+        assertThat(variantCookie.getParamList()).hasSize(8);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(
                         cookie("a", "", 0),
                         cookie("", "d", 1),
                         cookie(null, "e", 2),
@@ -165,7 +154,7 @@ class VariantCookieUnitTest {
                         cookie("", "j", 4),
                         cookie("l", "", 5),
                         cookie("n", "\"", 6),
-                        cookie("", "\"", 7)));
+                        cookie("", "\"", 7));
     }
 
     @Test
@@ -177,15 +166,14 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(5)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(
+        assertThat(variantCookie.getParamList()).hasSize(5);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(
                         cookie("a", "b", 0),
                         cookie("c", "d", 1),
                         cookie("e", "%26%27%28%29%2A", 2),
                         cookie("", "%27", 3),
-                        cookie(null, "%26", 4)));
+                        cookie(null, "%26", 4));
     }
 
     @Test
@@ -197,15 +185,14 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(5)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(
+        assertThat(variantCookie.getParamList()).hasSize(5);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(
                         cookie("a", "b", 0),
                         cookie("c", "d", 1),
                         cookie("e", "&'()*", 2),
                         cookie("", "'", 3),
-                        cookie(null, "&", 4)));
+                        cookie(null, "&", 4));
     }
 
     @Test
@@ -216,14 +203,13 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(4)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(
+        assertThat(variantCookie.getParamList()).hasSize(4);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(
                         cookie("%29", "b", 0),
                         cookie("c", "d", 1),
                         cookie("e", "f", 2),
-                        cookie("%26", "", 3)));
+                        cookie("%26", "", 3));
     }
 
     @Test
@@ -236,10 +222,9 @@ class VariantCookieUnitTest {
         variantCookie.setMessage(messageWithCookies);
         variantCookie.setMessage(otherMessageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(3)));
-        assertThat(
-                variantCookie.getParamList(),
-                contains(cookie("g", "h", 0), cookie("i", "j", 1), cookie("k", "l", 2)));
+        assertThat(variantCookie.getParamList()).hasSize(3);
+        assertThat(variantCookie.getParamList())
+                .containsExactly(cookie("g", "h", 0), cookie("i", "j", 1), cookie("k", "l", 2));
     }
 
     @Test
@@ -251,8 +236,8 @@ class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie("a", "b", 0), "y", "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=z")));
-        assertThat(message, containsCookieHeader("y=z; c=d; e=f"));
+        assertThat(injectedCookie).isEqualTo("y=z");
+        assertThat(message).is(containsCookieHeader("y=z; c=d; e=f"));
     }
 
     @Test
@@ -264,8 +249,8 @@ class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie(null, "b", 1), "y", "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=z")));
-        assertThat(message, containsCookieHeader("a; y=z; d; e="));
+        assertThat(injectedCookie).isEqualTo("y=z");
+        assertThat(message).is(containsCookieHeader("a; y=z; d; e="));
     }
 
     @Test
@@ -278,8 +263,8 @@ class VariantCookieUnitTest {
         String injectedCookie =
                 variantCookie.setParameter(message, cookie("a", "b", 0), "y", "&'()");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=&'()")));
-        assertThat(message, containsCookieHeader("y=&'(); c=d; e=f"));
+        assertThat(injectedCookie).isEqualTo("y=&'()");
+        assertThat(message).is(containsCookieHeader("y=&'(); c=d; e=f"));
     }
 
     @Test
@@ -292,8 +277,8 @@ class VariantCookieUnitTest {
         String injectedCookie =
                 variantCookie.setParameter(message, cookie("a", "b", 0), "y", "&'()");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=%26%27%28%29")));
-        assertThat(message, containsCookieHeader("y=%26%27%28%29; c=d; e=f"));
+        assertThat(injectedCookie).isEqualTo("y=%26%27%28%29");
+        assertThat(message).is(containsCookieHeader("y=%26%27%28%29; c=d; e=f"));
     }
 
     @Test
@@ -307,8 +292,8 @@ class VariantCookieUnitTest {
                 variantCookie.setEscapedParameter(
                         message, cookie("a", "b", 0), "y", "%26%27%28%29");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=%26%27%28%29")));
-        assertThat(message, containsCookieHeader("y=%26%27%28%29; c=d; e=f"));
+        assertThat(injectedCookie).isEqualTo("y=%26%27%28%29");
+        assertThat(message).is(containsCookieHeader("y=%26%27%28%29; c=d; e=f"));
     }
 
     @Test
@@ -322,9 +307,9 @@ class VariantCookieUnitTest {
                 variantCookie.setParameter(message, cookie("a", "b", 0), "y", "z");
         String injectedCookie = variantCookie.setParameter(message, cookie("e", "f", 2), "i", "j");
         // Then
-        assertThat(previouslyInjectedCookie, is(equalTo("y=z")));
-        assertThat(injectedCookie, is(equalTo("i=j")));
-        assertThat(message, containsCookieHeader("a=b; c=d; i=j"));
+        assertThat(previouslyInjectedCookie).isEqualTo("y=z");
+        assertThat(injectedCookie).isEqualTo("i=j");
+        assertThat(message).is(containsCookieHeader("a=b; c=d; i=j"));
     }
 
     @Test
@@ -336,8 +321,8 @@ class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie("c", "d", 1), "y", "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=z")));
-        assertThat(message, containsCookieHeader("a=b; y=z; e=f"));
+        assertThat(injectedCookie).isEqualTo("y=z");
+        assertThat(message).is(containsCookieHeader("a=b; y=z; e=f"));
     }
 
     @Test
@@ -350,8 +335,8 @@ class VariantCookieUnitTest {
         String injectedCookie =
                 variantCookie.setParameter(message, cookie("DifferentName", "d", 1), "y", "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=z")));
-        assertThat(message, containsCookieHeader("a=b; y=z"));
+        assertThat(injectedCookie).isEqualTo("y=z");
+        assertThat(message).is(containsCookieHeader("a=b; y=z"));
     }
 
     @Test
@@ -364,8 +349,8 @@ class VariantCookieUnitTest {
         String injectedCookie =
                 variantCookie.setParameter(message, cookie("c", "DifferentValue", 1), "y", "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("y=z")));
-        assertThat(message, containsCookieHeader("a=b; y=z"));
+        assertThat(injectedCookie).isEqualTo("y=z");
+        assertThat(message).is(containsCookieHeader("a=b; y=z"));
     }
 
     @Test
@@ -377,7 +362,7 @@ class VariantCookieUnitTest {
         // When
         variantCookie.setParameter(message, cookie("c", "d", 3), "y", "z");
         // Then
-        assertThat(message, containsCookieHeader("a=b; c=d"));
+        assertThat(message).is(containsCookieHeader("a=b; c=d"));
     }
 
     @Test
@@ -389,8 +374,8 @@ class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie("e", "f", 2), null, "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("z")));
-        assertThat(message, containsCookieHeader("a=b; c=d; z"));
+        assertThat(injectedCookie).isEqualTo("z");
+        assertThat(message).is(containsCookieHeader("a=b; c=d; z"));
     }
 
     @Test
@@ -402,8 +387,8 @@ class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie("c", "d", 1), "c", null);
         // Then
-        assertThat(injectedCookie, is(equalTo("c=")));
-        assertThat(message, containsCookieHeader("a=b; c=; e=f"));
+        assertThat(injectedCookie).isEqualTo("c=");
+        assertThat(message).is(containsCookieHeader("a=b; c=; e=f"));
     }
 
     @Test
@@ -416,8 +401,8 @@ class VariantCookieUnitTest {
         String injectedCookie =
                 variantCookie.setParameter(message, cookie("c", "d", 1), null, null);
         // Then
-        assertThat(injectedCookie, is(nullValue()));
-        assertThat(message, containsCookieHeader("a=b; e=f"));
+        assertThat(injectedCookie).isNull();
+        assertThat(message).is(containsCookieHeader("a=b; e=f"));
     }
 
     @Test
@@ -430,8 +415,8 @@ class VariantCookieUnitTest {
         String injectedCookie =
                 variantCookie.setParameter(message, cookie("a", "b", 0), null, null);
         // Then
-        assertThat(injectedCookie, is(nullValue()));
-        assertThat(message, hasNoCookieHeaders());
+        assertThat(injectedCookie).isNull();
+        assertThat(message).is(hasNoCookieHeaders());
     }
 
     private static HttpMessage createMessageWithoutCookies() {
@@ -465,68 +450,20 @@ class VariantCookieUnitTest {
         return new NameValuePair(NameValuePair.TYPE_COOKIE, name, value, position);
     }
 
-    private static Matcher<HttpMessage> containsCookieHeader(final String cookies) {
-        return new BaseMatcher<>() {
-
-            @Override
-            public boolean matches(Object actualValue) {
-                HttpMessage message = (HttpMessage) actualValue;
-                List<String> cookieLines =
-                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
-                if (cookieLines.size() != 1) {
-                    return false;
-                }
-                return cookies.equals(cookieLines.get(0));
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("cookie header ").appendValue(cookies);
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                HttpMessage message = (HttpMessage) item;
-                List<String> cookieLines =
-                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
-                if (cookieLines.isEmpty()) {
-                    description.appendText("has no cookie headers");
-                } else if (cookieLines.size() == 1) {
-                    description.appendText("was ").appendValue(cookieLines.get(0));
-                } else {
-                    description.appendText("has multiple cookie headers ").appendValue(cookieLines);
-                }
-            }
-        };
+    private static Condition<HttpMessage> containsCookieHeader(final String cookies) {
+        return new Condition<>(
+                message -> {
+                    List<String> cookieLines =
+                            message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
+                    return cookieLines.size() == 1 && cookies.equals(cookieLines.get(0));
+                },
+                "cookie header %s",
+                cookies);
     }
 
-    private static Matcher<HttpMessage> hasNoCookieHeaders() {
-        return new BaseMatcher<>() {
-
-            @Override
-            public boolean matches(Object actualValue) {
-                HttpMessage message = (HttpMessage) actualValue;
-                return message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE).isEmpty();
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("no cookie header");
-            }
-
-            @Override
-            public void describeMismatch(Object item, Description description) {
-                HttpMessage message = (HttpMessage) item;
-                List<String> cookieLines =
-                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
-                if (cookieLines.size() == 1) {
-                    description
-                            .appendText("has one cookie header ")
-                            .appendValue(cookieLines.get(0));
-                } else {
-                    description.appendText("has multiple cookie headers ").appendValue(cookieLines);
-                }
-            }
-        };
+    private static Condition<HttpMessage> hasNoCookieHeaders() {
+        return new Condition<>(
+                message -> message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE).isEmpty(),
+                "no cookie header");
     }
 }

@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.ext;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
@@ -40,7 +37,7 @@ class ExtensionParamUnitTest {
         // Given / When
         ExtensionParam param = new ExtensionParam();
         // Then
-        assertThat(param.getConfig(), is(equalTo(null)));
+        assertThat(param.getConfig()).isEqualTo(null);
     }
 
     @Test
@@ -50,7 +47,7 @@ class ExtensionParamUnitTest {
         // When
         ExtensionParam clone = param.clone();
         // Then
-        assertThat(clone, is(not(equalTo(null))));
+        assertThat(clone).isNotEqualTo(null);
     }
 
     @Test
@@ -61,11 +58,11 @@ class ExtensionParamUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.isExtensionEnabled("Extension 1"), is(equalTo(false)));
-        assertThat(param.isExtensionEnabled("Extension 2"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 3"), is(equalTo(false)));
-        assertThat(param.isExtensionEnabled("Extension 4"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 5"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 1")).isFalse();
+        assertThat(param.isExtensionEnabled("Extension 2")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 3")).isFalse();
+        assertThat(param.isExtensionEnabled("Extension 4")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 5")).isTrue();
     }
 
     @Test
@@ -75,9 +72,9 @@ class ExtensionParamUnitTest {
         // When
         param.load(createMalformedTestConfig());
         // Then
-        assertThat(param.isExtensionEnabled("Extension 1"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 2"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 3"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 1")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 2")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 3")).isTrue();
     }
 
     @Test
@@ -89,9 +86,9 @@ class ExtensionParamUnitTest {
         // When
         ExtensionParam clone = param.clone();
         // Then
-        assertThat(clone.isExtensionEnabled("Extension 1"), is(equalTo(false)));
-        assertThat(clone.isExtensionEnabled("Extension 2"), is(equalTo(true)));
-        assertThat(clone.isExtensionEnabled("Extension 3"), is(equalTo(false)));
+        assertThat(clone.isExtensionEnabled("Extension 1")).isFalse();
+        assertThat(clone.isExtensionEnabled("Extension 2")).isTrue();
+        assertThat(clone.isExtensionEnabled("Extension 3")).isFalse();
     }
 
     @Test
@@ -122,12 +119,12 @@ class ExtensionParamUnitTest {
         // When
         param.setExtensionsState(states);
         // Then
-        assertThat(param.isExtensionEnabled("Extension 1"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 2"), is(equalTo(false)));
-        assertThat(param.isExtensionEnabled("Extension 3"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 4"), is(equalTo(false)));
-        assertThat(param.isExtensionEnabled("Extension 5"), is(equalTo(true)));
-        assertThat(param.isExtensionEnabled("Extension 6"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 1")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 2")).isFalse();
+        assertThat(param.isExtensionEnabled("Extension 3")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 4")).isFalse();
+        assertThat(param.isExtensionEnabled("Extension 5")).isTrue();
+        assertThat(param.isExtensionEnabled("Extension 6")).isTrue();
     }
 
     @Test
@@ -140,12 +137,12 @@ class ExtensionParamUnitTest {
         // When
         param.setExtensionsState(states);
         // Then
-        assertThat(config.getString("extensions.extension(0).name"), is(equalTo("Extension 2")));
-        assertThat(config.getBoolean("extensions.extension(0).enabled"), is(equalTo(false)));
-        assertThat(config.getString("extensions.extension(1).name"), is(equalTo("Extension 4")));
-        assertThat(config.getBoolean("extensions.extension(1).enabled"), is(equalTo(false)));
-        assertThat(config.containsKey("extensions.extension(2).name"), is(equalTo(false)));
-        assertThat(config.containsKey("extensions.extension(2).enabled"), is(equalTo(false)));
+        assertThat(config.getString("extensions.extension(0).name")).isEqualTo("Extension 2");
+        assertThat(config.getBoolean("extensions.extension(0).enabled")).isFalse();
+        assertThat(config.getString("extensions.extension(1).name")).isEqualTo("Extension 4");
+        assertThat(config.getBoolean("extensions.extension(1).enabled")).isFalse();
+        assertThat(config.containsKey("extensions.extension(2).name")).isFalse();
+        assertThat(config.containsKey("extensions.extension(2).enabled")).isFalse();
     }
 
     @Test
@@ -160,7 +157,7 @@ class ExtensionParamUnitTest {
         // When
         param.setExtensionsState(states);
         // Then
-        assertThat(param.getConfig().getKeys().hasNext(), is(equalTo(false)));
+        assertThat(param.getConfig().getKeys().hasNext()).isFalse();
     }
 
     private static Map<String, Boolean> extensionsState(boolean... states) {

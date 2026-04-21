@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.authorization;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.withSettings;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -82,7 +82,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                 new BasicAuthorizationDetectionMethod(null, null, null, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 
     @Test
@@ -92,7 +92,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                 new BasicAuthorizationDetectionMethod(null, "", "", LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 
     @Test
@@ -102,7 +102,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                 new BasicAuthorizationDetectionMethod(STATUS_CODE, "", "", LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -113,7 +113,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         null, "", RESPONSE_TARGET_TEXT, LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -124,7 +124,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         null, "Location: " + LOCATION_URL, null, LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -134,7 +134,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                 new BasicAuthorizationDetectionMethod(STATUS_CODE + 1, "", "", LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 
     @Test
@@ -145,7 +145,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         null, "", RESPONSE_TARGET_TEXT + "RANDOM", LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 
     @Test
@@ -156,7 +156,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         null, "Location: " + LOCATION_URL + "/extra", null, LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 
     @Test
@@ -166,7 +166,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                 new BasicAuthorizationDetectionMethod(STATUS_CODE, "", "", LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -177,7 +177,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         null, "", RESPONSE_TARGET_TEXT, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -188,7 +188,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         null, "Location: " + LOCATION_URL, null, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(true, authorizationMethod.isResponseForUnauthorizedRequest(message));
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -199,7 +199,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE + 1, "", RESPONSE_TARGET_TEXT, LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
 
         // Given
         authorizationMethod =
@@ -207,7 +207,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE, null, RESPONSE_TARGET_TEXT + "?TEST", LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
 
         // Given
         authorizationMethod =
@@ -218,7 +218,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -229,7 +229,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE + 1, "", RESPONSE_TARGET_TEXT + "EXTRA", LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
 
         // Given
         authorizationMethod =
@@ -240,7 +240,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         LogicalOperator.OR);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 
     @Test
@@ -251,7 +251,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE, "", RESPONSE_TARGET_TEXT, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
 
         // Given
         authorizationMethod =
@@ -259,7 +259,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE, LOCATION_URL, RESPONSE_TARGET_TEXT, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), true);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isTrue();
     }
 
     @Test
@@ -270,7 +270,7 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE + 2, null, RESPONSE_TARGET_TEXT, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
 
         // Given
         authorizationMethod =
@@ -278,6 +278,6 @@ class BasicAuthorizationDetectionMethodUnitTest {
                         STATUS_CODE, "No Location", RESPONSE_TARGET_TEXT, LogicalOperator.AND);
 
         // When/Then
-        assertEquals(authorizationMethod.isResponseForUnauthorizedRequest(message), false);
+        assertThat(authorizationMethod.isResponseForUnauthorizedRequest(message)).isFalse();
     }
 }

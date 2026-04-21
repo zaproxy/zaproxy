@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.AfterAll;
@@ -66,7 +64,7 @@ class PassiveScanParamUnitTest {
         // When
         param.load(configuration);
         // Then
-        assertThat(param.getPassiveScanThreads(), is(equalTo(threads)));
+        assertThat(param.getPassiveScanThreads()).isEqualTo(threads);
     }
 
     @Test
@@ -74,7 +72,6 @@ class PassiveScanParamUnitTest {
         // Given / When
         param.load(configuration);
         // Then
-        assertThat(
-                param.getPassiveScanThreads(), is(equalTo(Constant.getDefaultThreadCount() / 2)));
+        assertThat(param.getPassiveScanThreads()).isEqualTo(Constant.getDefaultThreadCount() / 2);
     }
 }

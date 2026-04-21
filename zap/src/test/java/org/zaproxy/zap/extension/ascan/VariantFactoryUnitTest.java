@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
@@ -101,18 +95,18 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         // When
         List<Variant> variants = factory.createVariants(scanOptions, message);
         // Then
-        assertThat(variants.size(), is(equalTo(11)));
-        assertThat(variants.get(0).getClass(), is(equalTo(VariantURLQuery.class)));
-        assertThat(variants.get(1).getClass(), is(equalTo(VariantODataIdQuery.class)));
-        assertThat(variants.get(2).getClass(), is(equalTo(VariantODataFilterQuery.class)));
-        assertThat(variants.get(3).getClass(), is(equalTo(VariantDdnPath.class)));
-        assertThat(variants.get(4).getClass(), is(equalTo(VariantFormQuery.class)));
-        assertThat(variants.get(5).getClass(), is(equalTo(VariantMultipartFormParameters.class)));
-        assertThat(variants.get(6).getClass(), is(equalTo(VariantXMLQuery.class)));
-        assertThat(variants.get(7).getClass(), is(equalTo(VariantJSONQuery.class)));
-        assertThat(variants.get(8).getClass(), is(equalTo(VariantGWTQuery.class)));
-        assertThat(variants.get(9).getClass(), is(equalTo(VariantDirectWebRemotingQuery.class)));
-        assertThat(variants.get(10).getClass(), is(equalTo(VariantPlainBody.class)));
+        assertThat(variants).hasSize(11);
+        assertThat(variants.get(0).getClass()).isEqualTo(VariantURLQuery.class);
+        assertThat(variants.get(1).getClass()).isEqualTo(VariantODataIdQuery.class);
+        assertThat(variants.get(2).getClass()).isEqualTo(VariantODataFilterQuery.class);
+        assertThat(variants.get(3).getClass()).isEqualTo(VariantDdnPath.class);
+        assertThat(variants.get(4).getClass()).isEqualTo(VariantFormQuery.class);
+        assertThat(variants.get(5).getClass()).isEqualTo(VariantMultipartFormParameters.class);
+        assertThat(variants.get(6).getClass()).isEqualTo(VariantXMLQuery.class);
+        assertThat(variants.get(7).getClass()).isEqualTo(VariantJSONQuery.class);
+        assertThat(variants.get(8).getClass()).isEqualTo(VariantGWTQuery.class);
+        assertThat(variants.get(9).getClass()).isEqualTo(VariantDirectWebRemotingQuery.class);
+        assertThat(variants.get(10).getClass()).isEqualTo(VariantPlainBody.class);
     }
 
     @Test
@@ -129,7 +123,7 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createVariants(scanOptions, message);
 
         // Then
-        assertThat(variants.size(), is(equalTo(0)));
+        assertThat(variants).hasSize(0);
     }
 
     @Test
@@ -146,21 +140,21 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createVariants(scanOptions, message);
 
         // Then
-        assertThat(variants.size(), is(equalTo(14)));
-        assertThat(variants.get(0).getClass(), is(equalTo(VariantURLQuery.class)));
-        assertThat(variants.get(1).getClass(), is(equalTo(VariantODataIdQuery.class)));
-        assertThat(variants.get(2).getClass(), is(equalTo(VariantODataFilterQuery.class)));
-        assertThat(variants.get(3).getClass(), is(equalTo(VariantFormQuery.class)));
-        assertThat(variants.get(4).getClass(), is(equalTo(VariantMultipartFormParameters.class)));
-        assertThat(variants.get(5).getClass(), is(equalTo(VariantXMLQuery.class)));
-        assertThat(variants.get(6).getClass(), is(equalTo(VariantJSONQuery.class)));
-        assertThat(variants.get(7).getClass(), is(equalTo(VariantGWTQuery.class)));
-        assertThat(variants.get(8).getClass(), is(equalTo(VariantDirectWebRemotingQuery.class)));
-        assertThat(variants.get(9).getClass(), is(equalTo(VariantHeader.class)));
-        assertThat(variants.get(10).getClass(), is(equalTo(VariantURLPath.class)));
-        assertThat(variants.get(11).getClass(), is(equalTo(VariantCookie.class)));
-        assertThat(variants.get(12).getClass(), is(equalTo(VariantUserDefined.class)));
-        assertThat(variants.get(13).getClass(), is(equalTo(VariantPlainBody.class)));
+        assertThat(variants).hasSize(14);
+        assertThat(variants.get(0).getClass()).isEqualTo(VariantURLQuery.class);
+        assertThat(variants.get(1).getClass()).isEqualTo(VariantODataIdQuery.class);
+        assertThat(variants.get(2).getClass()).isEqualTo(VariantODataFilterQuery.class);
+        assertThat(variants.get(3).getClass()).isEqualTo(VariantFormQuery.class);
+        assertThat(variants.get(4).getClass()).isEqualTo(VariantMultipartFormParameters.class);
+        assertThat(variants.get(5).getClass()).isEqualTo(VariantXMLQuery.class);
+        assertThat(variants.get(6).getClass()).isEqualTo(VariantJSONQuery.class);
+        assertThat(variants.get(7).getClass()).isEqualTo(VariantGWTQuery.class);
+        assertThat(variants.get(8).getClass()).isEqualTo(VariantDirectWebRemotingQuery.class);
+        assertThat(variants.get(9).getClass()).isEqualTo(VariantHeader.class);
+        assertThat(variants.get(10).getClass()).isEqualTo(VariantURLPath.class);
+        assertThat(variants.get(11).getClass()).isEqualTo(VariantCookie.class);
+        assertThat(variants.get(12).getClass()).isEqualTo(VariantUserDefined.class);
+        assertThat(variants.get(13).getClass()).isEqualTo(VariantPlainBody.class);
     }
 
     @Test
@@ -174,19 +168,19 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         // When
         List<Variant> variants = factory.createVariants(scanOptions, message);
         // Then
-        assertThat(variants.size(), is(equalTo(12)));
-        assertThat(variants.get(0).getClass(), is(equalTo(VariantURLQuery.class)));
-        assertThat(variants.get(1).getClass(), is(equalTo(VariantODataIdQuery.class)));
-        assertThat(variants.get(2).getClass(), is(equalTo(VariantODataFilterQuery.class)));
-        assertThat(variants.get(3).getClass(), is(equalTo(VariantDdnPath.class)));
-        assertThat(variants.get(4).getClass(), is(equalTo(VariantFormQuery.class)));
-        assertThat(variants.get(5).getClass(), is(equalTo(VariantMultipartFormParameters.class)));
-        assertThat(variants.get(6).getClass(), is(equalTo(VariantXMLQuery.class)));
-        assertThat(variants.get(7).getClass(), is(equalTo(VariantJSONQuery.class)));
-        assertThat(variants.get(8).getClass(), is(equalTo(VariantGWTQuery.class)));
-        assertThat(variants.get(9).getClass(), is(equalTo(VariantDirectWebRemotingQuery.class)));
-        assertThat(variants.get(10).getClass(), is(equalTo(VariantPlainBody.class)));
-        assertThat(variants.get(11).getClass(), is(equalTo(TestVariant.class)));
+        assertThat(variants).hasSize(12);
+        assertThat(variants.get(0).getClass()).isEqualTo(VariantURLQuery.class);
+        assertThat(variants.get(1).getClass()).isEqualTo(VariantODataIdQuery.class);
+        assertThat(variants.get(2).getClass()).isEqualTo(VariantODataFilterQuery.class);
+        assertThat(variants.get(3).getClass()).isEqualTo(VariantDdnPath.class);
+        assertThat(variants.get(4).getClass()).isEqualTo(VariantFormQuery.class);
+        assertThat(variants.get(5).getClass()).isEqualTo(VariantMultipartFormParameters.class);
+        assertThat(variants.get(6).getClass()).isEqualTo(VariantXMLQuery.class);
+        assertThat(variants.get(7).getClass()).isEqualTo(VariantJSONQuery.class);
+        assertThat(variants.get(8).getClass()).isEqualTo(VariantGWTQuery.class);
+        assertThat(variants.get(9).getClass()).isEqualTo(VariantDirectWebRemotingQuery.class);
+        assertThat(variants.get(10).getClass()).isEqualTo(VariantPlainBody.class);
+        assertThat(variants.get(11).getClass()).isEqualTo(TestVariant.class);
     }
 
     @Test
@@ -197,7 +191,7 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createSiteModifyingVariants();
 
         // Then
-        assertThat(variants.size(), is(equalTo(0)));
+        assertThat(variants).hasSize(0);
     }
 
     @Test
@@ -209,8 +203,8 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createSiteModifyingVariants();
 
         // Then
-        assertThat(variants.size(), is(equalTo(1)));
-        assertThat(variants.get(0).getClass(), is(equalTo(TestVariant.class)));
+        assertThat(variants).hasSize(1);
+        assertThat(variants.get(0).getClass()).isEqualTo(TestVariant.class);
     }
 
     @ParameterizedTest
@@ -226,7 +220,7 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createVariants(scanOptions, message);
         // Then
         VariantJSONQuery jsonVariant = getVariant(variants, VariantJSONQuery.class);
-        assertThat(jsonVariant.isScanNullValues(), is(equalTo(scanNulls)));
+        assertThat(jsonVariant.isScanNullValues()).isEqualTo(scanNulls);
     }
 
     @Test
@@ -236,7 +230,7 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         // When
         List<Variant> variants = factory.createSiteModifyingVariants();
         // Then
-        variants.forEach(e -> assertThat(e, is(not(instanceOf(VariantScript.class)))));
+        variants.forEach(e -> assertThat(e).isNotInstanceOf(VariantScript.class));
     }
 
     @Test
@@ -249,14 +243,12 @@ class VariantFactoryUnitTest extends WithConfigsTest {
                 ArgumentCaptor.forClass(Configuration.class);
         verify(extensionScript).createScriptsCache(argumentCaptor.capture());
         Configuration<VariantScript> configuration = argumentCaptor.getValue();
-        assertThat(configuration.getScriptType(), is(equalTo(SCRIPT_TYPE)));
-        assertThat(configuration.getTargetInterface(), is(equalTo(TARGET_INTERFACE)));
+        assertThat(configuration.getScriptType()).isEqualTo(SCRIPT_TYPE);
+        assertThat(configuration.getTargetInterface()).isEqualTo(TARGET_INTERFACE);
         InterfaceErrorMessageProvider errorMessageProvider =
                 configuration.getInterfaceErrorMessageProvider();
-        assertThat(errorMessageProvider, is(not(nullValue())));
-        assertThat(
-                errorMessageProvider.getErrorMessage(mock(ScriptWrapper.class)),
-                is(not(nullValue())));
+        assertThat(errorMessageProvider).isNotNull();
+        assertThat(errorMessageProvider.getErrorMessage(mock(ScriptWrapper.class))).isNotNull();
     }
 
     @Test
@@ -271,8 +263,8 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createSiteModifyingVariants();
         // Then
         verify(scriptsCache, times(1)).refreshAndExecute(any(ScriptWrapperAction.class));
-        assertThat(variants, hasSize(1));
-        assertThat(variants.get(0), is(instanceOf(VariantCustom.class)));
+        assertThat(variants).hasSize(1);
+        assertThat(variants.get(0)).isInstanceOf(VariantCustom.class);
     }
 
     @Test
@@ -285,7 +277,7 @@ class VariantFactoryUnitTest extends WithConfigsTest {
         List<Variant> variants = factory.createSiteModifyingVariants();
         // Then
         verify(scriptsCache, times(1)).refreshAndExecute(any(ScriptWrapperAction.class));
-        assertThat(variants, hasSize(0));
+        assertThat(variants).hasSize(0);
     }
 
     static class TestVariant implements Variant {

@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -43,7 +40,7 @@ class AddOnClassnamesUnitTest {
                         IllegalArgumentException.class,
                         () -> new AddOnClassnames(allowed, Collections.emptyList()));
         // Then
-        assertThat(e.getMessage(), containsString("allowedClassnames"));
+        assertThat(e.getMessage()).contains("allowedClassnames");
     }
 
     @Test
@@ -56,15 +53,15 @@ class AddOnClassnamesUnitTest {
                         IllegalArgumentException.class,
                         () -> new AddOnClassnames(Collections.emptyList(), restricted));
         // Then
-        assertThat(e.getMessage(), containsString("restrictedClassnames"));
+        assertThat(e.getMessage()).contains("restrictedClassnames");
     }
 
     @Test
     void shouldAllowAllWithAllAllowed() {
         // Given AddOnClassnames.ALL_ALLOWED
         // When / Then
-        assertThat(AddOnClassnames.ALL_ALLOWED.isAllowed("org.example.X"), is(equalTo(true)));
-        assertThat(AddOnClassnames.ALL_ALLOWED.isAllowed("org.x.y.z.Class"), is(equalTo(true)));
+        assertThat(AddOnClassnames.ALL_ALLOWED.isAllowed("org.example.X")).isTrue();
+        assertThat(AddOnClassnames.ALL_ALLOWED.isAllowed("org.x.y.z.Class")).isTrue();
     }
 
     @Test
@@ -75,8 +72,8 @@ class AddOnClassnamesUnitTest {
         // When
         AddOnClassnames addOnClassnames = new AddOnClassnames(allowed, restricted);
         // Then
-        assertThat(addOnClassnames.isAllowed("org.example.X"), is(equalTo(true)));
-        assertThat(addOnClassnames.isAllowed("org.x.y.z.Class"), is(equalTo(true)));
+        assertThat(addOnClassnames.isAllowed("org.example.X")).isTrue();
+        assertThat(addOnClassnames.isAllowed("org.x.y.z.Class")).isTrue();
     }
 
     @Test
@@ -88,14 +85,12 @@ class AddOnClassnamesUnitTest {
         // When
         AddOnClassnames addOnClassnames = new AddOnClassnames(allowed, Collections.emptyList());
         // Then
-        assertThat(addOnClassnames.isAllowed(allowedClass), is(equalTo(true)));
-        assertThat(addOnClassnames.isAllowed(allowedClass + "$1"), is(equalTo(true)));
-        assertThat(addOnClassnames.isAllowed(allowedPackage + "ClassX"), is(equalTo(true)));
-        assertThat(addOnClassnames.isAllowed(allowedPackage + "ClassY"), is(equalTo(true)));
-        assertThat(addOnClassnames.isAllowed("org.example.ClassNotAllowed"), is(equalTo(false)));
-        assertThat(
-                addOnClassnames.isAllowed("org.example.package.not.allowed.Class"),
-                is(equalTo(false)));
+        assertThat(addOnClassnames.isAllowed(allowedClass)).isTrue();
+        assertThat(addOnClassnames.isAllowed(allowedClass + "$1")).isTrue();
+        assertThat(addOnClassnames.isAllowed(allowedPackage + "ClassX")).isTrue();
+        assertThat(addOnClassnames.isAllowed(allowedPackage + "ClassY")).isTrue();
+        assertThat(addOnClassnames.isAllowed("org.example.ClassNotAllowed")).isFalse();
+        assertThat(addOnClassnames.isAllowed("org.example.package.not.allowed.Class")).isFalse();
     }
 
     @Test
@@ -107,12 +102,12 @@ class AddOnClassnamesUnitTest {
         // When
         AddOnClassnames addOnClassnames = new AddOnClassnames(Collections.emptyList(), restricted);
         // Then
-        assertThat(addOnClassnames.isAllowed(restrictedClass), is(equalTo(false)));
-        assertThat(addOnClassnames.isAllowed(restrictedClass + "$1"), is(equalTo(false)));
-        assertThat(addOnClassnames.isAllowed(restrictedPackage + "ClassX"), is(equalTo(false)));
-        assertThat(addOnClassnames.isAllowed(restrictedPackage + "ClassY"), is(equalTo(false)));
-        assertThat(addOnClassnames.isAllowed("org.example.x.X"), is(equalTo(true)));
-        assertThat(addOnClassnames.isAllowed("org.example.y.Y"), is(equalTo(true)));
+        assertThat(addOnClassnames.isAllowed(restrictedClass)).isFalse();
+        assertThat(addOnClassnames.isAllowed(restrictedClass + "$1")).isFalse();
+        assertThat(addOnClassnames.isAllowed(restrictedPackage + "ClassX")).isFalse();
+        assertThat(addOnClassnames.isAllowed(restrictedPackage + "ClassY")).isFalse();
+        assertThat(addOnClassnames.isAllowed("org.example.x.X")).isTrue();
+        assertThat(addOnClassnames.isAllowed("org.example.y.Y")).isTrue();
     }
 
     @Test

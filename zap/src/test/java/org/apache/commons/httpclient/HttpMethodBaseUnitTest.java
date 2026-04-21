@@ -19,10 +19,7 @@
  */
 package org.apache.commons.httpclient;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -44,7 +41,7 @@ class HttpMethodBaseUnitTest {
     @MethodSource("cookieHeaderProvider")
     void testParseCookieHeader(String cookieHeaderValue, int numberOfCookies) {
         List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com", cookieHeaderValue);
-        assertThat(cookies, hasSize(numberOfCookies));
+        assertThat(cookies).hasSize(numberOfCookies);
     }
 
     static Stream<Arguments> cookieHeaderProvider() {
@@ -66,8 +63,7 @@ class HttpMethodBaseUnitTest {
         // When
         methodBase.addHostRequestHeader(null, conn);
         // Then
-        assertThat(
-                methodBase.getRequestHeaders(), is(arrayContaining(headerA, EXPECTED_HOST_HEADER)));
+        assertThat(methodBase.getRequestHeaders()).containsExactly(headerA, EXPECTED_HOST_HEADER);
     }
 
     @Test
@@ -82,8 +78,7 @@ class HttpMethodBaseUnitTest {
         // When
         methodBase.addHostRequestHeader(null, conn);
         // Then
-        assertThat(
-                methodBase.getRequestHeaders(), is(arrayContaining(EXPECTED_HOST_HEADER, headerA)));
+        assertThat(methodBase.getRequestHeaders()).containsExactly(EXPECTED_HOST_HEADER, headerA);
     }
 
     @Test
@@ -95,7 +90,7 @@ class HttpMethodBaseUnitTest {
         // When
         methodBase.addHostRequestHeader(null, conn);
         // Then
-        assertThat(methodBase.getRequestHeaders(), is(arrayContaining(EXPECTED_HOST_HEADER)));
+        assertThat(methodBase.getRequestHeaders()).containsExactly(EXPECTED_HOST_HEADER);
     }
 
     @Test
@@ -112,9 +107,8 @@ class HttpMethodBaseUnitTest {
         // When
         methodBase.addHostRequestHeader(null, conn);
         // Then
-        assertThat(
-                methodBase.getRequestHeaders(),
-                is(arrayContaining(headerA, EXPECTED_HOST_HEADER, headerB)));
+        assertThat(methodBase.getRequestHeaders())
+                .containsExactly(headerA, EXPECTED_HOST_HEADER, headerB);
     }
 
     @Test
@@ -135,9 +129,8 @@ class HttpMethodBaseUnitTest {
         // When
         methodBase.addHostRequestHeader(null, conn);
         // Then
-        assertThat(
-                methodBase.getRequestHeaders(),
-                is(arrayContaining(headerA, EXPECTED_HOST_HEADER, headerB)));
+        assertThat(methodBase.getRequestHeaders())
+                .containsExactly(headerA, EXPECTED_HOST_HEADER, headerB);
     }
 
     @Test
@@ -158,9 +151,8 @@ class HttpMethodBaseUnitTest {
         // When
         methodBase.addHostRequestHeader(null, conn);
         // Then
-        assertThat(
-                methodBase.getRequestHeaders(),
-                is(arrayContaining(headerA, EXPECTED_HOST_HEADER, headerB)));
+        assertThat(methodBase.getRequestHeaders())
+                .containsExactly(headerA, EXPECTED_HOST_HEADER, headerB);
     }
 
     private static HttpConnection connection(String host, int port) {

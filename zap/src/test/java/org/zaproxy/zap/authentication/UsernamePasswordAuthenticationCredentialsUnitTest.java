@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -58,7 +52,7 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
         boolean isConfigured = usernamePasswordAuthenticationCredentials.isConfigured();
 
         // Then
-        assertThat(isConfigured, is(true));
+        assertThat(isConfigured).isTrue();
     }
 
     @Test
@@ -67,7 +61,7 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
         boolean isConfigured = notConfiguredInstance.isConfigured();
 
         // Then
-        assertThat(isConfigured, is(false));
+        assertThat(isConfigured).isFalse();
     }
 
     @Test
@@ -78,7 +72,7 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
         // When
         boolean isConfigured = credentials.isConfigured();
         // Then
-        assertThat(isConfigured, is(false));
+        assertThat(isConfigured).isFalse();
     }
 
     @Test
@@ -95,7 +89,7 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
                         () -> usernamePasswordAuthenticationCredentials.encode(fieldSeparator));
 
         // Then
-        assertThat(e.getMessage(), containsString("separator"));
+        assertThat(e.getMessage()).contains("separator");
     }
 
     @Test
@@ -112,7 +106,7 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
         String encodedResult = usernamePasswordAuthenticationCredentials.encode(stringSeparator);
 
         // Then
-        assertThat(encodedResult, is(nullPattern));
+        assertThat(encodedResult).isEqualTo(nullPattern);
     }
 
     @Test
@@ -125,14 +119,12 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
             String encodedUsernamePassword =
                     usernamePasswordAuthenticationCredentials.encode(correctSeparator);
 
-            assertThat(
-                    String.format("Failed to encode with '%s'", correctSeparator),
-                    encodedUsernamePassword,
-                    notNullValue());
-            assertThat(
-                    String.format("Failed to properly encode with '%s'", correctSeparator),
-                    encodedUsernamePassword,
-                    is("bXlVc2Vy~bXlQYXNz~"));
+            assertThat(encodedUsernamePassword)
+                    .as(String.format("Failed to encode with '%s'", correctSeparator))
+                    .isNotNull();
+            assertThat(encodedUsernamePassword)
+                    .as(String.format("Failed to properly encode with '%s'", correctSeparator))
+                    .isEqualTo("bXlVc2Vy~bXlQYXNz~");
         }
     }
 
@@ -145,8 +137,8 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
         // When
         authCredentials.decode(encodedCredentials);
         // Then
-        assertThat(authCredentials.getUsername(), is(equalTo("")));
-        assertThat(authCredentials.getPassword(), is(equalTo("")));
+        assertThat(authCredentials.getUsername()).isEmpty();
+        assertThat(authCredentials.getPassword()).isEmpty();
     }
 
     @Test
@@ -157,16 +149,14 @@ class UsernamePasswordAuthenticationCredentialsUnitTest {
         JSON jsonRepresentation = apiResponse.toJSON();
 
         // Then
-        assertThat(apiResponse, notNullValue());
-        assertThat(apiResponse.getName(), equalToIgnoringCase("credentials"));
-        assertThat(
-                jsonRepresentation.toString(),
-                allOf(
-                        containsString("username"),
-                        containsString(username),
-                        containsString("password"),
-                        containsString(password),
-                        containsString("type"),
-                        containsString("UsernamePasswordAuthenticationCredentials")));
+        assertThat(apiResponse).isNotNull();
+        assertThat(apiResponse.getName()).isEqualToIgnoringCase("credentials");
+        assertThat(jsonRepresentation.toString())
+                .contains("username")
+                .contains(username)
+                .contains("password")
+                .contains(password)
+                .contains("type")
+                .contains("UsernamePasswordAuthenticationCredentials");
     }
 }

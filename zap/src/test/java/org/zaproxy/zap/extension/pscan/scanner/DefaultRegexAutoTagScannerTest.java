@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.pscan.scanner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -185,10 +183,9 @@ class DefaultRegexAutoTagScannerTest {
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
 
         verify(listener).counterInc(siteCaptor.capture(), keyCaptor.capture());
-        assertThat(siteCaptor.getValue(), is(equalTo(DEFAULT_EXPECTED_SITE)));
-        assertThat(rule.getConf(), is(equalTo(expectedConf)));
-        assertThat(
-                keyCaptor.getValue(),
-                is(equalTo(RegexAutoTagScanner.TAG_STATS_PREFIX + rule.getConf())));
+        assertThat(siteCaptor.getValue()).isEqualTo(DEFAULT_EXPECTED_SITE);
+        assertThat(rule.getConf()).isEqualTo(expectedConf);
+        assertThat(keyCaptor.getValue())
+                .isEqualTo(RegexAutoTagScanner.TAG_STATS_PREFIX + rule.getConf());
     }
 }

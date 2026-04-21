@@ -19,10 +19,7 @@
  */
 package org.parosproxy.paros.network;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -86,8 +83,8 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         parameter.setValue(null);
         // Then
-        assertThat(parameter.getName(), is(equalTo(NON_NULL_NAME)));
-        assertThat(parameter.getValue(), is(equalTo(null)));
+        assertThat(parameter.getName()).isEqualTo(NON_NULL_NAME);
+        assertThat(parameter.getValue()).isEqualTo(null);
     }
 
     @Test
@@ -97,8 +94,8 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, value);
         // Then
-        assertThat(parameter.getName(), is(equalTo(NON_NULL_NAME)));
-        assertThat(parameter.getValue(), is(equalTo(value)));
+        assertThat(parameter.getName()).isEqualTo(NON_NULL_NAME);
+        assertThat(parameter.getValue()).isEqualTo(value);
     }
 
     @Test
@@ -108,9 +105,9 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(cookieLine);
         // Then
-        assertThat(parameter.getType(), is(equalTo(HtmlParameter.Type.cookie)));
-        assertThat(parameter.getName(), is(equalTo("")));
-        assertThat(parameter.getValue(), is(equalTo("")));
+        assertThat(parameter.getType()).isEqualTo(HtmlParameter.Type.cookie);
+        assertThat(parameter.getName()).isEmpty();
+        assertThat(parameter.getValue()).isEmpty();
     }
 
     @Test
@@ -120,9 +117,9 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(cookieLine);
         // Then
-        assertThat(parameter.getType(), is(equalTo(HtmlParameter.Type.cookie)));
-        assertThat(parameter.getName(), is(equalTo("")));
-        assertThat(parameter.getValue(), is(equalTo("value")));
+        assertThat(parameter.getType()).isEqualTo(HtmlParameter.Type.cookie);
+        assertThat(parameter.getName()).isEmpty();
+        assertThat(parameter.getValue()).isEqualTo("value");
     }
 
     @Test
@@ -132,9 +129,9 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(cookieLine);
         // Then
-        assertThat(parameter.getType(), is(equalTo(HtmlParameter.Type.cookie)));
-        assertThat(parameter.getName(), is(equalTo("name")));
-        assertThat(parameter.getValue(), is(equalTo("")));
+        assertThat(parameter.getType()).isEqualTo(HtmlParameter.Type.cookie);
+        assertThat(parameter.getName()).isEqualTo("name");
+        assertThat(parameter.getValue()).isEmpty();
     }
 
     @Test
@@ -144,9 +141,9 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(cookieLine);
         // Then
-        assertThat(parameter.getType(), is(equalTo(HtmlParameter.Type.cookie)));
-        assertThat(parameter.getName(), is(equalTo("")));
-        assertThat(parameter.getValue(), is(equalTo("")));
+        assertThat(parameter.getType()).isEqualTo(HtmlParameter.Type.cookie);
+        assertThat(parameter.getName()).isEmpty();
+        assertThat(parameter.getValue()).isEmpty();
     }
 
     @Test
@@ -156,9 +153,9 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(cookieLine);
         // Then
-        assertThat(parameter.getType(), is(equalTo(HtmlParameter.Type.cookie)));
-        assertThat(parameter.getName(), is(equalTo("name")));
-        assertThat(parameter.getValue(), is(equalTo("value")));
+        assertThat(parameter.getType()).isEqualTo(HtmlParameter.Type.cookie);
+        assertThat(parameter.getName()).isEqualTo("name");
+        assertThat(parameter.getValue()).isEqualTo("value");
     }
 
     @Test
@@ -168,10 +165,11 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         // When
         HtmlParameter parameter = new HtmlParameter(cookieLine);
         // Then
-        assertThat(parameter.getType(), is(equalTo(HtmlParameter.Type.cookie)));
-        assertThat(parameter.getName(), is(equalTo("name")));
-        assertThat(parameter.getValue(), is(equalTo("value")));
-        assertThat(parameter.getFlags(), containsInAnyOrder("attribute1", "attribute2=value2"));
+        assertThat(parameter.getType()).isEqualTo(HtmlParameter.Type.cookie);
+        assertThat(parameter.getName()).isEqualTo("name");
+        assertThat(parameter.getValue()).isEqualTo("value");
+        assertThat(parameter.getFlags())
+                .containsExactlyInAnyOrder("attribute1", "attribute2=value2");
     }
 
     @Test
@@ -181,8 +179,8 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
                 new HtmlParameter(HtmlParameter.Type.cookie, NON_NULL_NAME, NON_NULL_VALUE);
         HtmlParameter p2 = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, NON_NULL_VALUE);
         // When / Then
-        assertThat(p1.compareTo(p2), is(equalTo(-2)));
-        assertThat(p2.compareTo(p1), is(equalTo(2)));
+        assertThat(p1.compareTo(p2)).isEqualTo(-2);
+        assertThat(p2.compareTo(p1)).isEqualTo(2);
     }
 
     @Test
@@ -191,8 +189,8 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         HtmlParameter pA = new HtmlParameter(HtmlParameter.Type.url, "A", NON_NULL_VALUE);
         HtmlParameter pB = new HtmlParameter(HtmlParameter.Type.url, "B", NON_NULL_VALUE);
         // When / Then
-        assertThat(pA.compareTo(pB), is(equalTo(-1)));
-        assertThat(pB.compareTo(pA), is(equalTo(1)));
+        assertThat(pA.compareTo(pB)).isEqualTo(-1);
+        assertThat(pB.compareTo(pA)).isEqualTo(1);
     }
 
     @Test
@@ -202,9 +200,9 @@ class HtmlParameterUnitTest extends HttpBodyTestUtils {
         HtmlParameter pB = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, "B");
         HtmlParameter pNull = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, null);
         // When / Then
-        assertThat(pA.compareTo(pB), is(equalTo(-1)));
-        assertThat(pB.compareTo(pA), is(equalTo(1)));
-        assertThat(pA.compareTo(pNull), is(equalTo(1)));
-        assertThat(pNull.compareTo(pA), is(equalTo(-1)));
+        assertThat(pA.compareTo(pB)).isEqualTo(-1);
+        assertThat(pB.compareTo(pA)).isEqualTo(1);
+        assertThat(pA.compareTo(pNull)).isEqualTo(1);
+        assertThat(pNull.compareTo(pA)).isEqualTo(-1);
     }
 }

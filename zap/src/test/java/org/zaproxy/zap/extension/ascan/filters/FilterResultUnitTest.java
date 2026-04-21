@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan.filters;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.both;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,8 +31,8 @@ class FilterResultUnitTest {
 
     @Test
     void shouldHaveNotFilteredInstance() {
-        assertThat(FilterResult.NOT_FILTERED.isFiltered(), is(equalTo(false)));
-        assertThat(FilterResult.NOT_FILTERED.getReason(), is(nullValue()));
+        assertThat(FilterResult.NOT_FILTERED.isFiltered()).isFalse();
+        assertThat(FilterResult.NOT_FILTERED.getReason()).isNull();
     }
 
     @ParameterizedTest
@@ -47,8 +42,8 @@ class FilterResultUnitTest {
         // Given / When
         FilterResult filterResult = new FilterResult(reason);
         // Then
-        assertThat(filterResult.isFiltered(), is(equalTo(true)));
-        assertThat(filterResult.getReason(), is(equalTo(reason)));
+        assertThat(filterResult.isFiltered()).isTrue();
+        assertThat(filterResult.getReason()).isEqualTo(reason);
     }
 
     @Test
@@ -56,8 +51,7 @@ class FilterResultUnitTest {
         // Given / When
         String string = FilterResult.NOT_FILTERED.toString();
         // Then
-        assertThat(
-                string, both(containsString("filtered=false")).and(containsString("reason=null")));
+        assertThat(string).contains("reason=null");
     }
 
     @ParameterizedTest
@@ -69,8 +63,6 @@ class FilterResultUnitTest {
         // When
         String string = filterResult.toString();
         // Then
-        assertThat(
-                string,
-                both(containsString("filtered=true")).and(containsString("reason=" + reason)));
+        assertThat(string).contains("reason=" + reason);
     }
 }

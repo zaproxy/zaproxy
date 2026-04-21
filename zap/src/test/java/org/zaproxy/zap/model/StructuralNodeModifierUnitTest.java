@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +33,8 @@ class StructuralNodeModifierUnitTest {
         // When
         var snm = new StructuralNodeModifier(data);
         // Then
-        assertThat(snm.getName(), is(equalTo("name")));
-        assertThat(snm.getType(), is(equalTo(StructuralNodeModifier.Type.StructuralParameter)));
-        assertThat(snm.getPattern(), is(nullValue()));
+        assertThat(snm.getName()).isEqualTo("name");
+        assertThat(snm.getType()).isEqualTo(StructuralNodeModifier.Type.StructuralParameter);
+        assertThat(snm.getPattern()).isNull();
     }
 }

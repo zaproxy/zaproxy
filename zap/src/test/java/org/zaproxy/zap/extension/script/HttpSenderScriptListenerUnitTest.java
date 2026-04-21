@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
@@ -80,7 +76,7 @@ class HttpSenderScriptListenerUnitTest extends WithConfigsTest {
         // When
         int listenerOrder = httpSenderScriptListener.getListenerOrder();
         // Then
-        assertThat(listenerOrder, is(equalTo(Integer.MAX_VALUE)));
+        assertThat(listenerOrder).isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test
@@ -93,12 +89,12 @@ class HttpSenderScriptListenerUnitTest extends WithConfigsTest {
                 ArgumentCaptor.forClass(Configuration.class);
         verify(extensionScript).createScriptsCache(argumentCaptor.capture());
         Configuration<HttpSenderScript> configuration = argumentCaptor.getValue();
-        assertThat(configuration.getScriptType(), is(equalTo(SCRIPT_TYPE)));
-        assertThat(configuration.getTargetInterface(), is(equalTo(TARGET_INTERFACE)));
+        assertThat(configuration.getScriptType()).isEqualTo(SCRIPT_TYPE);
+        assertThat(configuration.getTargetInterface()).isEqualTo(TARGET_INTERFACE);
         InterfaceErrorMessageProvider errorMessageProvider =
                 configuration.getInterfaceErrorMessageProvider();
-        assertThat(errorMessageProvider, is(not(nullValue())));
-        assertThat(errorMessageProvider.getErrorMessage(null), is(not(nullValue())));
+        assertThat(errorMessageProvider).isNotNull();
+        assertThat(errorMessageProvider.getErrorMessage(null)).isNotNull();
     }
 
     @Test
@@ -119,7 +115,7 @@ class HttpSenderScriptListenerUnitTest extends WithConfigsTest {
                 ArgumentCaptor.forClass(HttpSenderScriptHelper.class);
         verify(script, times(1))
                 .sendingRequest(eq(message), eq(initiator), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getHttpSender(), is(equalTo(sender)));
+        assertThat(argumentCaptor.getValue().getHttpSender()).isEqualTo(sender);
     }
 
     @Test
@@ -140,7 +136,7 @@ class HttpSenderScriptListenerUnitTest extends WithConfigsTest {
                 ArgumentCaptor.forClass(HttpSenderScriptHelper.class);
         verify(script, times(1))
                 .responseReceived(eq(message), eq(initiator), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getHttpSender(), is(equalTo(sender)));
+        assertThat(argumentCaptor.getValue().getHttpSender()).isEqualTo(sender);
     }
 
     @SuppressWarnings("unchecked")

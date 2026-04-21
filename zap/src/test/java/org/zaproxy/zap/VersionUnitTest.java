@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -43,7 +38,7 @@ class VersionUnitTest {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> new Version(version));
         // Then
-        assertThat(e.getMessage(), containsString("null"));
+        assertThat(e.getMessage()).contains("null");
     }
 
     @Test
@@ -54,7 +49,7 @@ class VersionUnitTest {
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> new Version(version));
         // Then
-        assertThat(e.getMessage(), containsString("empty"));
+        assertThat(e.getMessage()).contains("empty");
     }
 
     @Test
@@ -67,7 +62,7 @@ class VersionUnitTest {
                         IllegalArgumentException.class,
                         () -> new Version(versionWithOnlyMajorNumber));
         // Then
-        assertThat(e.getMessage(), containsString("is not valid"));
+        assertThat(e.getMessage()).contains("is not valid");
     }
 
     @Test
@@ -80,7 +75,7 @@ class VersionUnitTest {
                         IllegalArgumentException.class,
                         () -> new Version(versionWithOnlyMajorAndMinorNumbers));
         // Then
-        assertThat(e.getMessage(), containsString("is not valid"));
+        assertThat(e.getMessage()).contains("is not valid");
     }
 
     @Test
@@ -107,7 +102,7 @@ class VersionUnitTest {
         // When
         boolean equals = version.equals(differentVersion);
         // Then
-        assertThat(equals, is(equalTo(true)));
+        assertThat(equals).isTrue();
     }
 
     @Test
@@ -118,7 +113,7 @@ class VersionUnitTest {
         // When
         boolean equals = version.equals(differentVersion);
         // Then
-        assertThat(equals, is(equalTo(false)));
+        assertThat(equals).isFalse();
     }
 
     @Test
@@ -129,7 +124,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(olderVersion);
         // Then
-        assertThat(comparisonResult, is(greaterThan(0)));
+        assertThat(comparisonResult).isGreaterThan(0);
     }
 
     @Test
@@ -140,7 +135,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(olderVersion);
         // Then
-        assertThat(comparisonResult, is(greaterThan(0)));
+        assertThat(comparisonResult).isGreaterThan(0);
     }
 
     @Test
@@ -151,7 +146,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(olderVersion);
         // Then
-        assertThat(comparisonResult, is(greaterThan(0)));
+        assertThat(comparisonResult).isGreaterThan(0);
     }
 
     @Test
@@ -162,7 +157,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(sameVersion);
         // Then
-        assertThat(comparisonResult, is(equalTo(0)));
+        assertThat(comparisonResult).isEqualTo(0);
     }
 
     @Test
@@ -173,7 +168,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(newerVersion);
         // Then
-        assertThat(comparisonResult, is(lessThan(0)));
+        assertThat(comparisonResult).isLessThan(0);
     }
 
     @Test
@@ -184,7 +179,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(newerVersion);
         // Then
-        assertThat(comparisonResult, is(lessThan(0)));
+        assertThat(comparisonResult).isLessThan(0);
     }
 
     @Test
@@ -195,7 +190,7 @@ class VersionUnitTest {
         // When
         int comparisonResult = version.compareTo(newerVersion);
         // Then
-        assertThat(comparisonResult, is(lessThan(0)));
+        assertThat(comparisonResult).isLessThan(0);
     }
 
     @Test
@@ -206,7 +201,7 @@ class VersionUnitTest {
         // When
         boolean matchResult = version.matches(rangeVersion);
         // Then
-        assertThat(matchResult, is(equalTo(true)));
+        assertThat(matchResult).isTrue();
     }
 
     @Test
@@ -219,7 +214,7 @@ class VersionUnitTest {
             // When
             boolean matchResult = version.matches(rangeVersion);
             // Then
-            assertThat(matchResult, is(equalTo(true)));
+            assertThat(matchResult).isTrue();
         }
     }
 
@@ -231,7 +226,7 @@ class VersionUnitTest {
         // When
         boolean matchResult = version.matches(rangeVersion);
         // Then
-        assertThat(matchResult, is(equalTo(true)));
+        assertThat(matchResult).isTrue();
     }
 
     @Test
@@ -242,7 +237,7 @@ class VersionUnitTest {
         // When
         boolean matchResult = version.matches(rangeVersion);
         // Then
-        assertThat(matchResult, is(equalTo(true)));
+        assertThat(matchResult).isTrue();
     }
 
     @Test
@@ -253,7 +248,7 @@ class VersionUnitTest {
         // When
         boolean matchResult = version.matches(rangeVersion);
         // Then
-        assertThat(matchResult, is(equalTo(true)));
+        assertThat(matchResult).isTrue();
     }
 
     @Test
@@ -264,7 +259,7 @@ class VersionUnitTest {
         // When
         boolean matchResult = version.matches(rangeVersion);
         // Then
-        assertThat(matchResult, is(equalTo(true)));
+        assertThat(matchResult).isTrue();
     }
 
     @Test
@@ -275,7 +270,7 @@ class VersionUnitTest {
         // When
         boolean matchResult = version.matches(rangeVersion);
         // Then
-        assertThat(matchResult, is(equalTo(false)));
+        assertThat(matchResult).isFalse();
     }
 
     @Test
@@ -285,6 +280,6 @@ class VersionUnitTest {
         // When
         String string = version.toString();
         // Then
-        assertThat(string, is(equalTo("1.2.3")));
+        assertThat(string).isEqualTo("1.2.3");
     }
 }

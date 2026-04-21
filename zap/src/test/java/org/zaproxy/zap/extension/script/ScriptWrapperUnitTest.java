@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,7 +35,7 @@ class ScriptWrapperUnitTest {
         // When
         scriptWrapper.setContents(contents);
         // Then
-        assertThat(scriptWrapper.getContents(), is(equalTo(contents)));
+        assertThat(scriptWrapper.getContents()).isEqualTo(contents);
     }
 
     @Test
@@ -50,7 +47,7 @@ class ScriptWrapperUnitTest {
         // When
         scriptWrapper.setContents(contents);
         // Then
-        assertThat(scriptWrapper.getModCount(), is(not(equalTo(oldModCount))));
+        assertThat(scriptWrapper.getModCount()).isNotEqualTo(oldModCount);
     }
 
     @Test
@@ -63,7 +60,7 @@ class ScriptWrapperUnitTest {
         // When
         scriptWrapper.setContents(contents);
         // Then
-        assertThat(scriptWrapper.getModCount(), is(equalTo(oldModCount)));
+        assertThat(scriptWrapper.getModCount()).isEqualTo(oldModCount);
     }
 
     @Test
@@ -76,8 +73,8 @@ class ScriptWrapperUnitTest {
         // When
         scriptWrapper.setEnabled(true);
         // Then
-        assertThat(scriptWrapper.isEnabled(), is(true));
-        assertThat(scriptWrapper.isChanged(), is(false));
+        assertThat(scriptWrapper.isEnabled()).isTrue();
+        assertThat(scriptWrapper.isChanged()).isFalse();
     }
 
     @Test
@@ -90,6 +87,6 @@ class ScriptWrapperUnitTest {
         // When
         scriptWrapper.setEnabled(true);
         // Then
-        assertThat(scriptWrapper.isEnabled(), is(false));
+        assertThat(scriptWrapper.isEnabled()).isFalse();
     }
 }

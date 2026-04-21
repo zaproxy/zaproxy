@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
 import java.util.stream.Stream;
@@ -100,7 +97,7 @@ class ZapBootstrapUnitTest {
     }
 
     private static void assertLevel(LoggerConfig loggerConfig, Level level) {
-        assertThat(loggerConfig, is(notNullValue()));
-        assertThat(loggerConfig.getLevel(), is(equalTo(level)));
+        assertThat(loggerConfig).isNotNull();
+        assertThat(loggerConfig.getLevel()).isEqualTo(level);
     }
 }

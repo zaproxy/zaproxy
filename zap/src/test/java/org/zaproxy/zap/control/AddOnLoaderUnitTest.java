@@ -19,13 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.verify;
 
@@ -68,8 +62,8 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // Given dirs
         // When / Then
         AddOnLoader addOnLoader = assertDoesNotThrow(() -> new AddOnLoader(dirs));
-        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun(), is(empty()));
-        assertThat(addOnLoader.getAddOnCollection().getAddOns(), is(empty()));
+        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun()).isEmpty();
+        assertThat(addOnLoader.getAddOnCollection().getAddOns()).isEmpty();
     }
 
     @Test
@@ -79,8 +73,8 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         AddOnLoader addOnLoader = new AddOnLoader(emptyDirectory);
         // Then
-        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun(), is(empty()));
-        assertThat(addOnLoader.getAddOnCollection().getAddOns(), is(empty()));
+        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun()).isEmpty();
+        assertThat(addOnLoader.getAddOnCollection().getAddOns()).isEmpty();
     }
 
     @Test
@@ -93,14 +87,12 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         AddOnLoader addOnLoader = new AddOnLoader(dirWithAddOns);
         // Then
-        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun(), is(empty()));
-        assertThat(addOnLoader.getAddOnCollection().getAddOns(), hasSize(2));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus(),
-                is(equalTo(InstallationStatus.INSTALLED)));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus(),
-                is(equalTo(InstallationStatus.INSTALLED)));
+        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun()).isEmpty();
+        assertThat(addOnLoader.getAddOnCollection().getAddOns()).hasSize(2);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus())
+                .isEqualTo(InstallationStatus.INSTALLED);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus())
+                .isEqualTo(InstallationStatus.INSTALLED);
     }
 
     @Test
@@ -114,13 +106,13 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         List<Extension> extensions = sorted(addOnLoader.getExtensions());
         // Then
-        assertThat(extensions, hasSize(2));
+        assertThat(extensions).hasSize(2);
         assertExtensionCanonicalName(extensions.get(0), extensionA);
         assertExtensionCanonicalName(extensions.get(1), extensionB);
     }
 
     private static void assertExtensionCanonicalName(Extension extension, String extensionA) {
-        assertThat(extension.getClass().getCanonicalName(), is(equalTo(extensionA)));
+        assertThat(extension.getClass().getCanonicalName()).isEqualTo(extensionA);
     }
 
     @Test
@@ -135,7 +127,7 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         List<Extension> extensions = sorted(addOnLoader.getExtensions());
         // Then
-        assertThat(extensions, hasSize(2));
+        assertThat(extensions).hasSize(2);
         assertExtensionCanonicalName(extensions.get(0), extensionA);
         assertExtensionCanonicalName(extensions.get(1), extensionB);
     }
@@ -164,7 +156,7 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         List<Extension> extensions = sorted(addOnLoader.getExtensions());
         // Then
-        assertThat(extensions, hasSize(3));
+        assertThat(extensions).hasSize(3);
         assertExtensionCanonicalName(extensions.get(2), extensionOptional);
     }
 
@@ -202,7 +194,7 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         assertExtensionRemoved(addOnBExtensions.get(1));
         assertExtensionRemoved(addOnBExtensions.get(2));
         List<Extension> extensions = addOnLoader.getExtensions();
-        assertThat(extensions, hasSize(1));
+        assertThat(extensions).hasSize(1);
         assertExtensionCanonicalName(extensions.get(0), extensionB);
     }
 
@@ -249,7 +241,7 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // Then
         assertExtensionRemoved(addOnCExtensions.get(1));
         List<Extension> extensions = addOnLoader.getExtensions();
-        assertThat(extensions, hasSize(1));
+        assertThat(extensions).hasSize(1);
         assertExtensionCanonicalName(extensions.get(0), extensionC);
     }
 
@@ -264,14 +256,12 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         AddOnLoader addOnLoader = new AddOnLoader(dirWithAddOns);
         // Then
-        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun(), is(empty()));
-        assertThat(addOnLoader.getAddOnCollection().getAddOns(), hasSize(2));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus(),
-                is(equalTo(InstallationStatus.NOT_INSTALLED)));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus(),
-                is(equalTo(InstallationStatus.INSTALLED)));
+        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun()).isEmpty();
+        assertThat(addOnLoader.getAddOnCollection().getAddOns()).hasSize(2);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus())
+                .isEqualTo(InstallationStatus.NOT_INSTALLED);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus())
+                .isEqualTo(InstallationStatus.INSTALLED);
     }
 
     @Test
@@ -290,14 +280,13 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // 2nd run
         AddOnLoader addOnLoader = new AddOnLoader(dirWithAddOns);
         // Then
-        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun(), contains("addon1"));
-        assertThat(addOnLoader.getAddOnCollection().getAddOns(), hasSize(2));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus(),
-                is(equalTo(InstallationStatus.NOT_INSTALLED)));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus(),
-                is(equalTo(InstallationStatus.INSTALLED)));
+        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun())
+                .containsExactly("addon1");
+        assertThat(addOnLoader.getAddOnCollection().getAddOns()).hasSize(2);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus())
+                .isEqualTo(InstallationStatus.NOT_INSTALLED);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus())
+                .isEqualTo(InstallationStatus.INSTALLED);
     }
 
     @Test
@@ -317,14 +306,13 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // 2nd run
         AddOnLoader addOnLoader = new AddOnLoader(dirWithAddOns);
         // Then
-        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun(), contains("addon1"));
-        assertThat(addOnLoader.getAddOnCollection().getAddOns(), hasSize(2));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus(),
-                is(equalTo(InstallationStatus.INSTALLED)));
-        assertThat(
-                addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus(),
-                is(equalTo(InstallationStatus.INSTALLED)));
+        assertThat(addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun())
+                .containsExactly("addon1");
+        assertThat(addOnLoader.getAddOnCollection().getAddOns()).hasSize(2);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon1").getInstallationStatus())
+                .isEqualTo(InstallationStatus.INSTALLED);
+        assertThat(addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus())
+                .isEqualTo(InstallationStatus.INSTALLED);
     }
 
     @Test
@@ -338,8 +326,8 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         addOnLoader.removeAddOn(addOn, false, AddOnLoader.NULL_CALLBACK);
         // Then
-        assertThat(Files.exists(addOn.getFile().toPath()), is(equalTo(false)));
-        assertThat(addOnLoader.getBlockList(), not(contains("id")));
+        assertThat(Files.exists(addOn.getFile().toPath())).isFalse();
+        assertThat(addOnLoader.getBlockList()).doesNotContain("id");
     }
 
     @Test
@@ -353,8 +341,8 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         addOnLoader.removeAddOn(addOn, false, AddOnLoader.NULL_CALLBACK);
         // Then
-        assertThat(Files.exists(addOn.getFile().toPath()), is(equalTo(true)));
-        assertThat(addOnLoader.getBlockList(), contains("id"));
+        assertThat(Files.exists(addOn.getFile().toPath())).isTrue();
+        assertThat(addOnLoader.getBlockList()).containsExactly("id");
     }
 
     @Test
@@ -369,8 +357,8 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // When
         addOnLoader.removeAddOn(addOn, false, AddOnLoader.NULL_CALLBACK);
         // Then
-        assertThat(Files.exists(addOn.getFile().toPath()), is(equalTo(true)));
-        assertThat(addOnLoader.getBlockList(), not(contains("id")));
+        assertThat(Files.exists(addOn.getFile().toPath())).isTrue();
+        assertThat(addOnLoader.getBlockList()).doesNotContain("id");
     }
 
     private void assertExtensionRemoved(Extension extension) {
