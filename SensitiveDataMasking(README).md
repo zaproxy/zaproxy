@@ -2,6 +2,7 @@
 
 This document summarizes the code changes made in this branch/PR compared to the ZAP upstream baseline you started from.
 
+Masking is disabled by default and needs to be enabled in Tools -> Options -> Sensitive data (tab in left of window pane of options menu) 
 ## 1. Added new parameter class for storing masking settings
 
 **File**: `zaproxy/zap/src/main/java/org/zaproxy/zap/extension/sensitive/OptionsParamSensitiveData.java`  
