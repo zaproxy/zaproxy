@@ -1,8 +1,12 @@
 package org.zaproxy.zap.extension.sensitive;
 
 import java.util.Locale;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class SensitiveDataUtils {
+
+    private static final Logger LOGGER = LogManager.getLogger(SensitiveDataUtils.class);
 
     private SensitiveDataUtils() {}
 
@@ -25,7 +29,11 @@ public final class SensitiveDataUtils {
 
             if (normalizedKey.contains(sensitiveKey.toLowerCase(Locale.ROOT))) {
                 String maskValue = sensitiveDataOptions.getMaskValue();
-                return (maskValue == null || maskValue.isEmpty()) ? "****" : maskValue;
+                String finalMask = (maskValue == null || maskValue.isEmpty()) ? "****" : maskValue;
+
+                LOGGER.info("[SensitiveDataMask] key='{}' masked", key);
+
+                return finalMask;
             }
         }
 
@@ -53,6 +61,8 @@ public final class SensitiveDataUtils {
         if (maskedValue.equals(headerValue)) {
             return headerLine;
         }
+
+        LOGGER.info("[SensitiveDataMask] Mask applied to header '{}'", headerName);
 
         return headerLine.substring(0, separatorIndex + 1) + " " + maskedValue;
     }

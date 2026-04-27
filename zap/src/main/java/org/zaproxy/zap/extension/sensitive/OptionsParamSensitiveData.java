@@ -34,7 +34,7 @@ public class OptionsParamSensitiveData extends AbstractParam {
                             "session",
                             "cookie"));
 
-    private boolean maskingEnabled;
+    private boolean maskingEnabled = true;
     private String maskValue;
     private List<String> sensitiveKeys = new ArrayList<>(DEFAULT_SENSITIVE_KEYS);
 
@@ -48,7 +48,7 @@ public class OptionsParamSensitiveData extends AbstractParam {
             return;
         }
 
-        maskingEnabled = config.getBoolean(MASKING_ENABLED_KEY, false);
+        maskingEnabled = config.getBoolean(MASKING_ENABLED_KEY, true);
         maskValue = config.getString(MASK_VALUE_KEY, DEFAULT_MASK_VALUE);
         sensitiveKeys = readSensitiveKeys(config);
     }
