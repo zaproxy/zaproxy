@@ -66,7 +66,6 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.ext.ExtensionParam;
-import org.zaproxy.zap.extension.sensitive.OptionsParamSensitiveData;
 
 public class OptionsParam extends AbstractParam {
 
@@ -103,7 +102,6 @@ public class OptionsParam extends AbstractParam {
     /** The database configurations. */
     // ZAP: Added the instance variable.
     private DatabaseParam databaseParam = new DatabaseParam();
-    private OptionsParamSensitiveData sensitiveDataParam = new OptionsParamSensitiveData();
 
     private ExtensionParam extensionParam = new ExtensionParam();
 
@@ -201,7 +199,6 @@ public class OptionsParam extends AbstractParam {
         getApiParam().load(getConfig());
         getDatabaseParam().load(getConfig());
         getExtensionParam().load(getConfig());
-        getSensitiveDataParam().load(getConfig());
 
         String userDir = null;
         try {
@@ -309,14 +306,5 @@ public class OptionsParam extends AbstractParam {
      */
     public ExtensionParam getExtensionParam() {
         return extensionParam;
-    }
-
-    /**
-     * Gets the sensitive data configurations.
-     *
-     * @return the sensitive data configurations - $$$666
-     */
-    public OptionsParamSensitiveData getSensitiveDataParam() {
-        return sensitiveDataParam;
     }
 }

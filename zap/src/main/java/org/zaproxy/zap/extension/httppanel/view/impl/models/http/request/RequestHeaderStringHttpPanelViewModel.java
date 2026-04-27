@@ -22,12 +22,14 @@ package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.extension.sensitive.SensitiveDataUtils;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
+import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.sensitive.OptionsParamSensitiveData;
 
 public class RequestHeaderStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
@@ -42,8 +44,10 @@ public class RequestHeaderStringHttpPanelViewModel extends AbstractHttpStringHtt
 
         String header =
                 httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
-        return SensitiveDataUtils.maskHeaderBlockIfSensitive(
-                header, Model.getSingleton().getOptionsParam().getSensitiveDataParam());
+        OptionsParam optionsParam = Model.getSingleton().getOptionsParam();
+        OptionsParamSensitiveData sensitiveDataOptions =
+                optionsParam.getParamSet(OptionsParamSensitiveData.class);
+        return SensitiveDataUtils.maskHeaderBlockIfSensitive(header, sensitiveDataOptions);
     }
 
     @Override
