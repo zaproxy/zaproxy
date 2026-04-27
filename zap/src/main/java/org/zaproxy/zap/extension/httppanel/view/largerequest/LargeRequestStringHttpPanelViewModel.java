@@ -20,8 +20,10 @@
 package org.zaproxy.zap.extension.httppanel.view.largerequest;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.sensitive.SensitiveDataUtils;
 
 /**
  * @deprecated (2.12.0) No longer in use.
@@ -35,7 +37,12 @@ public class LargeRequestStringHttpPanelViewModel extends RequestStringHttpPanel
             return "";
         }
 
-        return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
+        String header =
+                httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
+        String maskedHeader =
+                SensitiveDataUtils.maskHeaderBlockIfSensitive(
+                        header, Model.getSingleton().getOptionsParam().getSensitiveDataParam());
+        return maskedHeader
                 + Constant.messages.getString(
                         "http.panel.view.largerequest.all.warning",
                         httpMessage.getRequestBody().length());

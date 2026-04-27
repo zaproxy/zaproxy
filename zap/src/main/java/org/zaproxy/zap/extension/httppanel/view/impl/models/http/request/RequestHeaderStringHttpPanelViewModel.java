@@ -22,8 +22,10 @@ package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.zaproxy.zap.extension.sensitive.SensitiveDataUtils;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
 
@@ -38,7 +40,10 @@ public class RequestHeaderStringHttpPanelViewModel extends AbstractHttpStringHtt
             return "";
         }
 
-        return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
+        String header =
+                httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
+        return SensitiveDataUtils.maskHeaderBlockIfSensitive(
+                header, Model.getSingleton().getOptionsParam().getSensitiveDataParam());
     }
 
     @Override
