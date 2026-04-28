@@ -48,7 +48,9 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
         OptionsParamSensitiveData sensitiveDataOptions =
                 optionsParam.getParamSet(OptionsParamSensitiveData.class);
         String maskedHeader = SensitiveDataUtils.maskHeaderBlockIfSensitive(header, sensitiveDataOptions);
-        return maskedHeader + httpMessage.getRequestBody().toString();
+        String maskedBody =
+                SensitiveDataUtils.maskBodyIfJson(httpMessage.getRequestBody().toString(), sensitiveDataOptions);
+        return maskedHeader + maskedBody;
     }
 
     @Override
