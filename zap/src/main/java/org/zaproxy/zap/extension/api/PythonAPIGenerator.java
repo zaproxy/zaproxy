@@ -68,6 +68,8 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 
     private static final Map<String, Set<String>> NON_WRAPPED_API_ELEMENTS =
             Map.of(
+                    "alert",
+                    Set.of("alertCountsByRisk"),
                     "automation",
                     Set.of("planProgress"),
                     "stats",
