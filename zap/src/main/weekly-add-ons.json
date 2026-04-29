@@ -67,5 +67,8 @@
   },
   {
     "cloneUrl": "https://github.com/zaproxy/zap-hud.git"
+  },
+  {
+    "cloneUrl": "https://github.com/zaproxy-addons/ptk.git"
   }
 ]
