@@ -32,12 +32,12 @@ and subject to their respective licenses.
 | Library                             | License                   |
 |-------------------------------------|---------------------------|
 | commons-beanutils-1.11.0.jar        | Apache 2.0                |
-| commons-codec-1.21.0.jar            | Apache 2.0                |
+| commons-codec-1.22.0.jar            | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
 | commons-csv-1.14.1.jar              | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
-| commons-io-2.21.0.jar               | Apache 2.0                |
+| commons-io-2.22.0.jar               | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
 | commons-lang3-3.20.0.jar            | Apache 2.0                |
 | commons-logging-1.3.6.jar           | Apache 2.0                |
@@ -60,4 +60,4 @@ and subject to their respective licenses.
 | log4j-jul-2.25.4.jar                | Apache 2.0                |
 | rsyntaxtextarea-3.6.2.jar           | BSD-3 clause              |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
-| xom-1.4.0.jar                       | LGPL                      |
+| xom-1.4.1.jar                       | LGPL                      |
