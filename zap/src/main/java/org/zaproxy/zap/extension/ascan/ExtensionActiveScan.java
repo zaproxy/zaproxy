@@ -736,7 +736,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
 
     @Override
     public void resumeAllScans() {
-        ascanController.removeAllScans();
+        ascanController.resumeAllScans();
         if (hasView()) {
             // Update the UI in case this was initiated from the API
             this.getActiveScanPanel().updateScannerUI();
