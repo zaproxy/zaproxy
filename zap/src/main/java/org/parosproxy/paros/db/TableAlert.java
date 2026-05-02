@@ -56,8 +56,6 @@ public interface TableAlert extends DatabaseListener {
             String nodeName)
             throws DatabaseException;
 
-    Vector<Integer> getAlertListBySession(long sessionId) throws DatabaseException;
-
     void deleteAlert(int alertId) throws DatabaseException;
 
     int deleteAllAlerts() throws DatabaseException;
@@ -81,8 +79,6 @@ public interface TableAlert extends DatabaseListener {
             String inputVector,
             String nodeName)
             throws DatabaseException;
-
-    void updateHistoryIds(int alertId, int historyId, int sourceHistoryId) throws DatabaseException;
 
     List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws DatabaseException;
 

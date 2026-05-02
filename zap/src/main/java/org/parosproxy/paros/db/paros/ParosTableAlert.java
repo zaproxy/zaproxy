@@ -462,32 +462,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
     }
 
     @Override
-    public Vector<Integer> getAlertListBySession(long sessionId) throws DatabaseException {
-        try {
-            try (PreparedStatement psReadSession =
-                    getConnection()
-                            .prepareStatement(
-                                    "SELECT ALERTID FROM "
-                                            + TABLE_NAME
-                                            + " INNER JOIN SCAN ON ALERT.SCANID = SCAN.SCANID WHERE SESSIONID = ?")) {
-
-                Vector<Integer> v = new Vector<>();
-                psReadSession.setLong(1, sessionId);
-                try (ResultSet rs = psReadSession.executeQuery()) {
-                    while (rs.next()) {
-                        int alertId = rs.getInt(ALERTID);
-                        // ZAP: Changed to use the method Integer.valueOf.
-                        v.add(alertId);
-                    }
-                }
-                return v;
-            }
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
     public synchronized void deleteAlert(int alertId) throws DatabaseException {
         try {
             psDeleteAlert.setInt(1, alertId);
@@ -546,20 +520,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             psUpdate.setString(16, nodeName);
             psUpdate.setInt(17, alertId);
             psUpdate.executeUpdate();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public synchronized void updateHistoryIds(int alertId, int historyId, int sourceHistoryId)
-            throws DatabaseException {
-
-        try {
-            psUpdateHistoryIds.setInt(1, historyId);
-            psUpdateHistoryIds.setInt(2, sourceHistoryId);
-            psUpdateHistoryIds.setInt(3, alertId);
-            psUpdateHistoryIds.executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
