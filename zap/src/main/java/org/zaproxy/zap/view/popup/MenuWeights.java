@@ -89,6 +89,7 @@ public class MenuWeights {
     public static final int MENU_SYNTAX_WEIGHT = 60;
     public static final int MENU_VIEW_WEIGHT = 40;
     public static final int MENU_SITE_REFRESH_WEIGHT = 20;
+    public static final int MENU_SITE_GET_INFO_WEIGHT = 25;
 
     // Contexts menu
     public static final int MENU_CONTEXT_ACTIVE_WEIGHT = 11680;
