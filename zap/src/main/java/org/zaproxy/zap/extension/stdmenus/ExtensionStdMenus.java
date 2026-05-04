@@ -71,8 +71,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupContextTreeMenu popupContextTreeMenuDelete = null;
     private PopupContextTreeMenu popupContextTreeMenuExport;
 
-    // Still being developed
-    // private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
     private static final Logger LOGGER = LogManager.getLogger(ExtensionStdMenus.class);
 
     public ExtensionStdMenus() {
