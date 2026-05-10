@@ -280,45 +280,54 @@ public class MainMenuBar extends JMenuBar {
         return menuFile;
     }
 
+    private ZapMenuItem createFileMenuItem(
+            String messageKey, java.awt.event.ActionListener actionListener) {
+        ZapMenuItem menuItem = new ZapMenuItem(messageKey);
+        menuItem.addActionListener(actionListener);
+        return menuItem;
+    }
+
+    private ZapMenuItem createFileMenuItem(
+            String messageKey,
+            javax.swing.KeyStroke accelerator,
+            java.awt.event.ActionListener actionListener) {
+        ZapMenuItem menuItem = new ZapMenuItem(messageKey, accelerator);
+        menuItem.addActionListener(actionListener);
+        return menuItem;
+    }
+
     private JMenuItem getMenuFileNewSession() {
         if (menuFileNewSession == null) {
             menuFileNewSession =
-                    new ZapMenuItem(
+                    createFileMenuItem(
                             "menu.file.newSession",
-                            View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_N, 0, false));
-            menuFileNewSession.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            try {
-                                getMenuFileControl().newSession(true);
-                            } catch (Exception e1) {
-                                View.getSingleton()
-                                        .showWarningDialog(
-                                                Constant.messages.getString(
-                                                        "menu.file.newSession.error")); // ZAP: i18n
-                                LOGGER.error(e1.getMessage(), e1);
-                            }
-                        }
-                    });
+                            View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_N, 0, false),
+                            e -> {
+                                try {
+                                    getMenuFileControl().newSession(true);
+                                } catch (Exception e1) {
+                                    View.getSingleton()
+                                            .showWarningDialog(
+                                                    Constant.messages.getString(
+                                                            "menu.file.newSession.error")); // ZAP:
+                                    // i18n
+                                    LOGGER.error(e1.getMessage(), e1);
+                                }
+                            });
         }
+
         return menuFileNewSession;
     }
 
     private JMenuItem getMenuFileOpen() {
         if (menuFileOpen == null) {
             menuFileOpen =
-                    new ZapMenuItem(
+                    createFileMenuItem(
                             "menu.file.openSession",
-                            View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_O, 0, false));
-            menuFileOpen.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            getMenuFileControl().openSession();
-                        }
-                    });
+                            View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_O, 0, false),
+                            e -> getMenuFileControl().openSession());
         }
+
         return menuFileOpen;
     }
 
@@ -345,81 +354,75 @@ public class MainMenuBar extends JMenuBar {
 
     private JMenuItem getMenuFileSaveAs() {
         if (menuFileSaveAs == null) {
-            menuFileSaveAs = new ZapMenuItem("menu.file.persistSession");
-            menuFileSaveAs.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            if (Model.getSingleton().getSession().isNewState()) {
-                                getMenuFileControl().saveAsSession();
-                            } else {
-                                View.getSingleton()
-                                        .showWarningDialog(
-                                                Constant.messages.getString(
-                                                        "menu.file.sessionExists.error"));
-                            }
-                        }
-                    });
+            menuFileSaveAs =
+                    createFileMenuItem(
+                            "menu.file.persistSession",
+                            e -> {
+                                if (Model.getSingleton().getSession().isNewState()) {
+                                    getMenuFileControl().saveAsSession();
+                                } else {
+                                    View.getSingleton()
+                                            .showWarningDialog(
+                                                    Constant.messages.getString(
+                                                            "menu.file.sessionExists.error"));
+                                }
+                            });
         }
+
         return menuFileSaveAs;
     }
 
     private JMenuItem getMenuFileSnapshot() {
         if (menuFileSnapshot == null) {
-            menuFileSnapshot = new ZapMenuItem("menu.file.snapshotSession");
-            menuFileSnapshot.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            if (!Model.getSingleton().getSession().isNewState()) {
-                                getMenuFileControl().saveSnapshot();
-                            } else {
-                                View.getSingleton()
-                                        .showWarningDialog(
-                                                Constant.messages.getString(
-                                                        "menu.file.snapshotSession.error"));
-                            }
-                        }
-                    });
+            menuFileSnapshot =
+                    createFileMenuItem(
+                            "menu.file.snapshotSession",
+                            e -> {
+                                if (!Model.getSingleton().getSession().isNewState()) {
+                                    getMenuFileControl().saveSnapshot();
+                                } else {
+                                    View.getSingleton()
+                                            .showWarningDialog(
+                                                    Constant.messages.getString(
+                                                            "menu.file.snapshotSession.error"));
+                                }
+                            });
             toggleSnapshotState(false);
         }
+
         return menuFileSnapshot;
     }
 
     private JMenuItem getMenuFileExit() {
         if (menuFileExit == null) {
-            menuFileExit = new ZapMenuItem("menu.file.exit");
-            menuFileExit.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            getMenuFileControl().exit();
-                        }
-                    });
+            menuFileExit = createFileMenuItem("menu.file.exit", e -> getMenuFileControl().exit());
         }
+
         return menuFileExit;
     }
 
     private javax.swing.JMenuItem getMenuFileExitAndDelete() {
         if (menuFileExitAndDelete == null) {
-            menuFileExitAndDelete = new ZapMenuItem("menu.file.exit.delete");
-            menuFileExitAndDelete.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            int ans =
-                                    View.getSingleton()
-                                            .showConfirmDialog(
-                                                    Constant.messages.getString(
-                                                            "menu.file.exit.delete.warning"));
-                            if (ans == JOptionPane.OK_OPTION) {
-                                Control.getSingleton()
-                                        .exitAndDeleteSession(
-                                                Model.getSingleton().getSession().getFileName());
-                            }
-                        }
-                    });
+            menuFileExitAndDelete =
+                    createFileMenuItem(
+                            "menu.file.exit.delete",
+                            e -> {
+                                int ans =
+                                        View.getSingleton()
+                                                .showConfirmDialog(
+                                                        Constant.messages.getString(
+                                                                "menu.file.exit.delete.warning"));
+
+                                if (ans == JOptionPane.OK_OPTION) {
+                                    Control.getSingleton()
+                                            .exitAndDeleteSession(
+                                                    Model.getSingleton()
+                                                            .getSession()
+                                                            .getFileName());
+                                }
+                            });
         }
+
         return menuFileExitAndDelete;
     }
 
@@ -439,49 +442,42 @@ public class MainMenuBar extends JMenuBar {
     private ZapMenuItem getMenuFileProperties() {
         if (menuFileProperties == null) {
             menuFileProperties =
-                    new ZapMenuItem(
+                    createFileMenuItem(
                             "menu.file.properties",
                             View.getSingleton()
                                     .getMenuShortcutKeyStroke(
-                                            KeyEvent.VK_P, KeyEvent.ALT_DOWN_MASK, false));
+                                            KeyEvent.VK_P, KeyEvent.ALT_DOWN_MASK, false),
+                            e -> getMenuFileControl().properties());
             menuFileProperties.setText(
                     Constant.messages.getString("menu.file.properties")); // ZAP: i18n
-            menuFileProperties.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            getMenuFileControl().properties();
-                        }
-                    });
         }
+
         return menuFileProperties;
     }
 
     private ZapMenuItem getMenuContextImport() {
         if (menuFileContextImport == null) {
-            menuFileContextImport = new ZapMenuItem("menu.file.context.import");
-            menuFileContextImport.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            getMenuFileControl().importContext();
-                        }
-                    });
+            menuFileContextImport =
+                    createFileMenuItem(
+                            "menu.file.context.import", e -> getMenuFileControl().importContext());
         }
+
         return menuFileContextImport;
     }
 
     private ZapMenuItem getMenuContextExport() {
         if (menuFileContextExport == null) {
-            menuFileContextExport = new ZapMenuItem("menu.file.context.export");
-            menuFileContextExport.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            getMenuFileControl().exportContext();
-                        }
-                    });
+            menuFileContextExport =
+                    createFileMenuItem(
+                            "menu.file.context.export",
+                            new java.awt.event.ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    getMenuFileControl().exportContext();
+                                }
+                            });
         }
+
         return menuFileContextExport;
     }
 
