@@ -717,76 +717,96 @@ public class SiteMapPanel extends AbstractPanel {
         }
     }
 
-    protected class SitesCustomPopupMenu extends JPopupMenu {
+    protected abstract class SelectionAwareTreePopupMenu extends JPopupMenu {
+
         private static final long serialVersionUID = 1L;
 
         @Override
-        public void show(Component invoker, int x, int y) {
-            // ZAP: Select site list item on right click / menu key
-            TreePath tp = treeSite.getPathForLocation(x, y);
-            if (tp != null) {
-                boolean select = true;
-                // Only select a new item if the current item is not
-                // already selected - this is to allow multiple items
-                // to be selected
-                if (treeSite.getSelectionPaths() != null) {
-                    for (TreePath t : treeSite.getSelectionPaths()) {
-                        if (t.equals(tp)) {
-                            select = false;
-                            break;
-                        }
-                    }
-                }
-                if (select) {
-                    treeSite.getSelectionModel().setSelectionPath(tp);
+        public final void show(Component invoker, int x, int y) {
+            prepareTreeSelection(x, y);
+            showPopup(invoker, x, y);
+        }
+
+        protected abstract JTree getTree();
+
+        protected abstract void showPopup(Component invoker, int x, int y);
+
+        private void prepareTreeSelection(int x, int y) {
+            JTree tree = getTree();
+            TreePath treePath = tree.getPathForLocation(x, y);
+
+            if (treePath == null) {
+                return;
+            }
+
+            if (!isPathAlreadySelected(tree, treePath)) {
+                tree.getSelectionModel().setSelectionPath(treePath);
+            }
+        }
+
+        private boolean isPathAlreadySelected(JTree tree, TreePath treePath) {
+            TreePath[] selectedPaths = tree.getSelectionPaths();
+
+            if (selectedPaths == null) {
+                return false;
+            }
+
+            for (TreePath selectedPath : selectedPaths) {
+                if (selectedPath.equals(treePath)) {
+                    return true;
                 }
             }
 
+            return false;
+        }
+    }
+
+    protected class SitesCustomPopupMenu extends SelectionAwareTreePopupMenu {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected JTree getTree() {
+            return treeSite;
+        }
+
+        @Override
+        protected void showPopup(Component invoker, int x, int y) {
             final int countSelectedNodes = treeSite.getSelectionCount();
             final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedNodes);
+
             if (countSelectedNodes > 0) {
                 for (TreePath path : treeSite.getSelectionPaths()) {
                     final SiteNode node = (SiteNode) path.getLastPathComponent();
                     final HistoryReference historyReference = node.getHistoryReference();
+
                     if (historyReference != null) {
                         historyReferences.add(historyReference);
                     }
                 }
             }
+
             SelectableHistoryReferencesContainer messageContainer =
                     new DefaultSelectableHistoryReferencesContainer(
                             treeSite.getName(),
                             treeSite,
                             Collections.<HistoryReference>emptyList(),
                             historyReferences);
+
             View.getSingleton().getPopupMenu().show(messageContainer, x, y);
         }
     }
 
-    protected class ContextsCustomPopupMenu extends JPopupMenu {
+    protected class ContextsCustomPopupMenu extends SelectionAwareTreePopupMenu {
         private static final long serialVersionUID = 1L;
 
         @Override
-        public void show(Component invoker, int x, int y) {
-            // Select context list item on right click
-            TreePath tp = treeContext.getPathForLocation(x, y);
-            if (tp != null) {
-                boolean select = true;
-                // Only select a new item if the current item is not
-                // already selected - this is to allow multiple items
-                // to be selected
-                if (treeContext.getSelectionPaths() != null) {
-                    for (TreePath t : treeContext.getSelectionPaths()) {
-                        if (t.equals(tp)) {
-                            select = false;
-                            break;
-                        }
-                    }
-                }
-                if (select) {
-                    treeContext.getSelectionModel().setSelectionPath(tp);
-                }
-            }
+        protected JTree getTree() {
+            return treeContext;
+        }
+
+        @Override
+        protected void showPopup(Component invoker, int x, int y) {
             View.getSingleton().getPopupMenu().show(treeContext, x, y);
         }
     }
