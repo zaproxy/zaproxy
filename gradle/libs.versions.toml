@@ -1,7 +1,7 @@
 [versions]
 errorprone = "2.42.0"
 flatlaf = "3.7.1"
-log4j = "2.25.4"
+log4j = "2.26.0"
 
 [libraries]
 bndAnnotation = "biz.aQute.bnd:biz.aQute.bnd.annotation:7.2.3"
@@ -36,7 +36,7 @@ log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4
 log4j-slf4j = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 rsyntaxtextarea = "com.fifesoft:rsyntaxtextarea:3.6.2"
 swingx = "org.swinglabs.swingx:swingx-all:1.6.5-1"
-xom = "xom:xom:1.4.1"
+xom = "xom:xom:1.4.2"
 
 assertj-core = "org.assertj:assertj-core:3.27.7"
 assertj-swing = "org.assertj:assertj-swing:3.17.1"
