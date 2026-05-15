@@ -19,6 +19,11 @@
  */
 package org.parosproxy.paros.db;
 
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class RecordParam {
 
     private long paramId;

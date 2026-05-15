@@ -33,6 +33,7 @@
       ":addOns:onlineMenu",
       ":addOns:openapi",
       ":addOns:postman",
+      ":addOns:params",
       ":addOns:plugnhack",
       ":addOns:pscan",
       ":addOns:pscanrules",

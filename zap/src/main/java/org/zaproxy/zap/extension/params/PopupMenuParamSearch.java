@@ -23,7 +23,11 @@ import java.awt.Component;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-@SuppressWarnings("serial")
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings({"removal", "serial"})
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

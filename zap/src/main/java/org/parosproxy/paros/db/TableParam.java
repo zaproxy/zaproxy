@@ -24,9 +24,12 @@ package org.parosproxy.paros.db;
  * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
  *
  * @author psiinon
+ * @deprecated (2.18.0) Use the Params add-on.
  */
 import java.util.List;
 
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public interface TableParam extends DatabaseListener {
 
     RecordParam read(long urlId) throws DatabaseException;

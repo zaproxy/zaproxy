@@ -26,7 +26,11 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
-@SuppressWarnings("serial")
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings({"removal", "serial"})
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class ParamsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
