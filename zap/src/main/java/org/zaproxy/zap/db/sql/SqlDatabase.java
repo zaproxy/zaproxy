@@ -48,7 +48,10 @@ public class SqlDatabase extends AbstractDatabase {
     private TableScan tableScan = null;
     private TableTag tableTag = null;
     private TableSessionUrl tableSessionUrl = null;
-    private TableParam tableParam = null;
+
+    @SuppressWarnings("removal")
+    private TableParam tableParam;
+
     private TableContext tableContext = null;
     private TableStructure tableStructure = null;
 
@@ -66,7 +69,6 @@ public class SqlDatabase extends AbstractDatabase {
         tableAlertTag = new SqlTableAlertTag();
         tableContext = new SqlTableContext();
         tableHistory = new SqlTableHistory();
-        tableParam = new SqlTableParam();
         tableScan = new SqlTableScan();
         tableSession = new SqlTableSession();
         tableSessionUrl = new SqlTableSessionUrl();
@@ -81,7 +83,6 @@ public class SqlDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableScan);
         internalDatabaseListeners.add(tableTag);
         internalDatabaseListeners.add(tableSessionUrl);
-        internalDatabaseListeners.add(tableParam);
         internalDatabaseListeners.add(tableContext);
         internalDatabaseListeners.add(tableStructure);
     }
@@ -227,8 +228,16 @@ public class SqlDatabase extends AbstractDatabase {
         this.tableSessionUrl = tableSessionUrl;
     }
 
+    /**
+     * @deprecated (2.18.0) Use the Params add-on.
+     */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.18.0", forRemoval = true)
     @Override
     public TableParam getTableParam() {
+        if (tableParam == null) {
+            tableParam = new SqlTableParam();
+        }
         return tableParam;
     }
 

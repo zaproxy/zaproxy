@@ -112,7 +112,6 @@ public final class CoreFunctionality {
                             .ExtensionHttpPanelSyntaxHighlightTextView());
             extensions.add(new org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions());
             extensions.add(new org.zaproxy.zap.extension.keyboard.ExtensionKeyboard());
-            extensions.add(new org.zaproxy.zap.extension.params.ExtensionParams());
             extensions.add(new org.zaproxy.zap.extension.pscan.ExtensionPassiveScan());
             extensions.add(new org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig());
             extensions.add(new org.zaproxy.zap.extension.script.ExtensionScript());

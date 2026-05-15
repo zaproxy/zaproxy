@@ -42,7 +42,11 @@ import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel;
 
-@SuppressWarnings("serial")
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings({"removal", "serial"})
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class ParamsPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;

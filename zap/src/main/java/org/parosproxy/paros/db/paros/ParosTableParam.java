@@ -31,6 +31,11 @@ import org.parosproxy.paros.db.DbUtils;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.db.TableParam;
 
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class ParosTableParam extends ParosAbstractTable implements TableParam {
 
     private static final String TABLE_NAME = "PARAM";
