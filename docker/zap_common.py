@@ -688,3 +688,21 @@ def get_af_alertFilter(alertFilters):
         'type': 'alertFilter',
         'alertFilters': alertFilters
     }
+
+def get_af_mcp_import(server_url, security_key=''):
+    params = {'serverUrl': server_url}
+    if security_key:
+        params['securityKey'] = security_key
+    return {
+        'type': 'mcp-import',
+        'parameters': params
+    }
+
+def get_af_active_scan(policy=''):
+    params = {}
+    if policy:
+        params['policy'] = policy
+    return {
+        'type': 'activeScan',
+        'parameters': params
+    }
