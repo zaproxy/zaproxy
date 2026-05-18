@@ -63,7 +63,6 @@ public class ApiResponseSet<T> extends ApiResponse {
     @Override
     public void toXML(Document doc, Element parent) {
         parent.setAttribute("type", "set");
-
         for (Entry<String, T> val : values.entrySet()) {
             Element el = doc.createElement(val.getKey());
             String textValue = val.getValue() == null ? "" : val.getValue().toString();
