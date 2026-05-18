@@ -317,6 +317,7 @@ Scan rules:
 220001  PTK - SAST - DOM-based Cookie Manipulation
 220002  PTK - SAST - Open Redirection
 220003  PTK - SAST - DOM-based JavaScript Injection
+230000  PTK Scan Rules
 
 322420463 Retire.js (3rd Party)
 
