@@ -32,6 +32,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.utils.ThreadUtils;
 
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class SiteParameters {
     private ExtensionParams extension;
     private String site;

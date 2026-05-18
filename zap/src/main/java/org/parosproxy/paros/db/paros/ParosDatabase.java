@@ -82,8 +82,10 @@ public class ParosDatabase extends AbstractDatabase {
     private TableTag tableTag = null;
     // ZAP: Added TableSessionUrl.
     private TableSessionUrl tableSessionUrl = null;
-    // ZAP: Added TableParam.
-    private TableParam tableParam = null;
+
+    @SuppressWarnings("removal")
+    private TableParam tableParam;
+
     private TableContext tableContext = null;
     private TableStructure tableStructure = null;
 
@@ -107,8 +109,6 @@ public class ParosDatabase extends AbstractDatabase {
         tableTag = new ParosTableTag();
         // ZAP: Added statement.
         tableSessionUrl = new ParosTableSessionUrl();
-        // ZAP: Added statement.
-        tableParam = new ParosTableParam();
         tableContext = new ParosTableContext();
         tableStructure = new ParosTableStructure();
 
@@ -119,7 +119,6 @@ public class ParosDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableScan);
         internalDatabaseListeners.add(tableTag);
         internalDatabaseListeners.add(tableSessionUrl);
-        internalDatabaseListeners.add(tableParam);
         internalDatabaseListeners.add(tableContext);
         internalDatabaseListeners.add(tableStructure);
     }
@@ -268,9 +267,16 @@ public class ParosDatabase extends AbstractDatabase {
         this.tableSessionUrl = tableSessionUrl;
     }
 
-    // ZAP: Added method.
+    /**
+     * @deprecated (2.18.0) Use the Params add-on.
+     */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.18.0", forRemoval = true)
     @Override
     public TableParam getTableParam() {
+        if (tableParam == null) {
+            tableParam = new ParosTableParam();
+        }
         return tableParam;
     }
 

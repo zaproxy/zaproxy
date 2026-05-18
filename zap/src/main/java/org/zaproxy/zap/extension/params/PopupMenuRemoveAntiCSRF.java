@@ -24,7 +24,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.network.HtmlParameter;
 
-@SuppressWarnings("serial")
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings({"removal", "serial"})
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

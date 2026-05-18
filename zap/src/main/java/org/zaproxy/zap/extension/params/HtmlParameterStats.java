@@ -24,6 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 import org.parosproxy.paros.network.HtmlParameter;
 
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class HtmlParameterStats implements Comparable<HtmlParameterStats> {
     private long id = -1;
     private String site;
