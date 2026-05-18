@@ -106,10 +106,12 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/17 Skip rules that reach the maximum number of alerts.
+// ZAP: 2025/12/08 Pause timers when pausing the scan (Issue 3455).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -174,7 +176,7 @@ public class HostProcess implements Runnable {
      */
     private final Map<Integer, PluginStats> mapPluginStats = new HashMap<>();
 
-    private long hostProcessStartTime = 0;
+    private Instant hostProcessStartInstant = null;
 
     // ZAP: progress related
     private int nodeInScopeCount = 0;
@@ -342,8 +344,7 @@ public class HostProcess implements Runnable {
         LOGGER.debug("HostProcess.run");
 
         try {
-            hostProcessStartTime = System.currentTimeMillis();
-
+            hostProcessStartInstant = getNowInstant();
             // Initialise plugin factory to report the state of the plugins ASAP.
             pluginFactory.reset();
             synchronized (mapPluginStats) {
@@ -480,7 +481,8 @@ public class HostProcess implements Runnable {
     }
 
     private void processPlugin(final Plugin plugin) {
-        mapPluginStats.get(plugin.getId()).start();
+        PluginStats ps = mapPluginStats.get(plugin.getId());
+        ps.start(getNowInstant());
 
         if (nodeInScopeCount == 0) {
             pluginSkipped(
@@ -530,6 +532,12 @@ public class HostProcess implements Runnable {
                 pluginCompleted(plugin);
             }
         }
+    }
+
+    private Instant getNowInstant() {
+        return (parentScanner != null && parentScanner.getEffectiveInstant() != null)
+                ? parentScanner.getEffectiveInstant()
+                : Instant.now();
     }
 
     private void traverse(StructuralNode node, boolean incRelatedSiblings, TraverseAction action) {
@@ -680,8 +688,10 @@ public class HostProcess implements Runnable {
             if (this.isStop()) {
                 return false;
             }
+            checkPause();
             thread = threadPool.getFreeThreadAndRun(test);
             if (thread == null) {
+                checkPause();
                 Util.sleep(200);
             }
 
@@ -789,17 +799,25 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * Check if the current host scan has been stopped
+     * Check if the current host scan has been stopped.
+     *
+     * <p>When max scan duration is set, the limit is enforced using active (non-paused) time only;
+     * time spent paused does not count toward the limit.
      *
      * @return true if the process has been stopped
      */
     public boolean isStop() {
         if (this.scannerParam.getMaxScanDurationInMins() > 0) {
-            if (System.currentTimeMillis() - this.hostProcessStartTime
-                    > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxScanDurationInMins())) {
-                this.stopReason =
-                        Constant.messages.getString("ascan.progress.label.skipped.reason.maxScan");
-                this.stop();
+            if (hostProcessStartInstant != null) {
+                long elapsedMs =
+                        getNowInstant().toEpochMilli() - hostProcessStartInstant.toEpochMilli();
+                if (elapsedMs
+                        > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxScanDurationInMins())) {
+                    this.stopReason =
+                            Constant.messages.getString(
+                                    "ascan.progress.label.skipped.reason.maxScan");
+                    this.stop();
+                }
             }
         }
         return (isStop || parentScanner.isStop());
@@ -811,13 +829,37 @@ public class HostProcess implements Runnable {
      * @return true if the process has been paused
      */
     public boolean isPaused() {
-        return parentScanner.isPaused();
+        return parentScanner != null && parentScanner.isPaused();
     }
 
     private void checkPause() {
-        while (parentScanner.isPaused() && !isStop()) {
-            Util.sleep(500);
+        if (parentScanner != null) {
+            parentScanner.waitIfPaused();
         }
+    }
+
+    /**
+     * Delegates to the parent Scanner to block while the global scan is paused. Provides the same
+     * API that plugins/host code expect to call on their parent.
+     */
+    public void waitIfPaused() {
+        if (parentScanner != null) {
+            parentScanner.waitIfPaused();
+        }
+    }
+
+    /**
+     * Returns the parent scanner's effective instant (start plus elapsed active time, excluding
+     * paused periods), or {@link Instant#now()} if there is no parent. Used so that timing in this
+     * host process and its plugins excludes paused time and stays consistent with the scanner.
+     *
+     * @return the effective instant for pause-aware timing
+     */
+    public Instant getEffectiveInstant() {
+        if (parentScanner != null) {
+            return parentScanner.getEffectiveInstant();
+        }
+        return Instant.now();
     }
 
     public int getPercentageComplete() {
@@ -854,7 +896,10 @@ public class HostProcess implements Runnable {
     }
 
     private void notifyHostComplete() {
-        long diffTimeMillis = System.currentTimeMillis() - hostProcessStartTime;
+        long diffTimeMillis =
+                (hostProcessStartInstant != null)
+                        ? getNowInstant().toEpochMilli() - hostProcessStartInstant.toEpochMilli()
+                        : 0L;
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
         LOGGER.info(
                 "completed host {} in {} with {} alert(s) raised.",
@@ -1081,6 +1126,9 @@ public class HostProcess implements Runnable {
      * Tells whether or not the given {@code plugin} was skipped (either programmatically or by the
      * user).
      *
+     * <p>When max rule duration is set, the limit is enforced using active (non-paused) time only;
+     * time spent paused does not count toward the limit.
+     *
      * @param plugin the plugin that will be checked
      * @return {@code true} if plugin was skipped, {@code false} otherwise
      * @since 2.4.0
@@ -1099,9 +1147,11 @@ public class HostProcess implements Runnable {
 
         } else if (this.scannerParam.getMaxRuleDurationInMins() > 0
                 && plugin.getTimeStarted() != null) {
-            long endtime = System.currentTimeMillis();
+            long endtime;
             if (plugin.getTimeFinished() != null) {
                 endtime = plugin.getTimeFinished().getTime();
+            } else {
+                endtime = getNowInstant().toEpochMilli();
             }
             if (endtime - plugin.getTimeStarted().getTime()
                     > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxRuleDurationInMins())) {
@@ -1142,7 +1192,8 @@ public class HostProcess implements Runnable {
             // Plugin was not processed
             return;
         }
-        pluginStats.stopped();
+        // Stop plugin stats with scanner-aligned Instant so totalTime excludes paused time.
+        pluginStats.stopped(getNowInstant());
 
         StringBuilder sb = new StringBuilder();
         if (isStop()) {
@@ -1160,7 +1211,9 @@ public class HostProcess implements Runnable {
         }
 
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
-        String diffTimeString = decimalFormat.format(pluginStats.getTotalTime() / 1000.0);
+        // Use scanner-aligned Instant when reporting total time for running/completed plugin.
+        long totalMs = pluginStats.getTotalTimeMillis(getNowInstant());
+        String diffTimeString = decimalFormat.format(totalMs / 1000.0);
         sb.append(" in ").append(diffTimeString).append('s');
         sb.append(" with ").append(pluginStats.getMessageCount()).append(" message(s) sent");
         sb.append(" and ").append(pluginStats.getAlertCount()).append(" alert(s) raised.");

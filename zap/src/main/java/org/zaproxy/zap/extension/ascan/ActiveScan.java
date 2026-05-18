@@ -61,6 +61,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         FINISHED
     }
 
+    private volatile State state = State.NOT_STARTED;
+
     private String displayName = null;
     private int progress = 0;
     private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
@@ -143,8 +145,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
 
     @Override
     public void pauseScan() {
-        if (this.isRunning()) {
-            super.pause();
+        synchronized (this) {
+            if (State.RUNNING.equals(state)) {
+                super.pause(); // sets Scanner.pause and publishes pause event
+                state = State.PAUSED;
+            }
         }
     }
 
@@ -182,7 +187,12 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         this.progress = 0;
         final int period = 2;
 
-        super.start(target);
+        synchronized (this) {
+            if (State.NOT_STARTED.equals(state)) {
+                super.start(target);
+                state = State.RUNNING;
+            }
+        }
 
         if (View.isInitialised()) {
             scheduler = Executors.newScheduledThreadPool(1);
@@ -212,7 +222,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
 
     @Override
     public void stopScan() {
-        super.stop();
+        synchronized (this) {
+            super.stop();
+            state = State.FINISHED;
+        }
         if (schedHandle != null) {
             schedHandle.cancel(true);
         }
@@ -220,8 +233,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
 
     @Override
     public void resumeScan() {
-        if (this.isPaused()) {
-            super.resume();
+        synchronized (this) {
+            if (State.PAUSED.equals(state)) {
+                super.resume(); // clears Scanner.pause and signals waiters
+                state = State.RUNNING;
+            }
         }
     }
 
@@ -261,6 +277,9 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
 
     @Override
     public void scannerComplete(int id) {
+        synchronized (this) {
+            state = State.FINISHED;
+        }
         this.timeFinished = new Date();
         if (scheduler != null) {
             scheduler.shutdown();
@@ -368,12 +387,42 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         }
     }
 
+    /**
+     * Override to return a virtual start Date such that: (now - getTimeStarted().getTime()) ==
+     * getElapsedMillis()
+     *
+     * <p>This keeps existing callers that compute elapsed as (new Date().getTime() -
+     * getTimeStarted().getTime()) working while excluding paused durations (since
+     * getElapsedMillis() already excludes pauses).
+     */
+    @Override
     public Date getTimeStarted() {
-        return timeStarted;
+        if (this.timeStarted == null) {
+            return null;
+        }
+        long elapsedMillis = getElapsedMillis();
+        if (elapsedMillis <= 0L) {
+            return new Date();
+        }
+        return new Date(System.currentTimeMillis() - elapsedMillis);
     }
 
+    /**
+     * Override to return an effective finish Date (start + active elapsed). For running scans this
+     * preserves prior behaviour and may return null; for finished scans this returns
+     * getTimeStarted() + getElapsedMillis().
+     */
+    @Override
     public Date getTimeFinished() {
-        return timeFinished;
+        if (!this.isStop() && this.timeFinished == null) {
+            return null;
+        }
+        Date started = getTimeStarted();
+        if (started == null) {
+            return null;
+        }
+        long elapsedMillis = getElapsedMillis();
+        return new Date(started.getTime() + elapsedMillis);
     }
 
     /**
