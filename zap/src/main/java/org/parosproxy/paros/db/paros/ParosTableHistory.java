@@ -581,12 +581,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
         return getHistoryIdsOfHistType(sessionId, null);
     }
 
-    @Override
-    public List<Integer> getHistoryIdsStartingAt(long sessionId, int startAtHistoryId)
-            throws DatabaseException {
-        return getHistoryIdsByParams(sessionId, startAtHistoryId, true, null);
-    }
-
     /**
      * Gets all the history record IDs of the given session and with the given history types.
      *
@@ -603,12 +597,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes)
             throws DatabaseException {
         return getHistoryIdsByParams(sessionId, 0, true, histTypes);
-    }
-
-    @Override
-    public List<Integer> getHistoryIdsOfHistTypeStartingAt(
-            long sessionId, int startAtHistoryId, int... histTypes) throws DatabaseException {
-        return getHistoryIdsByParams(sessionId, startAtHistoryId, true, histTypes);
     }
 
     private List<Integer> getHistoryIdsByParams(
@@ -664,101 +652,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                     return ids;
                 }
             }
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    /**
-     * Returns all the history record IDs of the given session except the ones with the given
-     * history types. *
-     *
-     * @param sessionId the ID of session of the history records
-     * @param histTypes the history types of the history records that should be excluded
-     * @return a {@code List} with all the history IDs of the given session and history types, never
-     *     {@code null}
-     * @throws DatabaseException if an error occurred while getting the history IDs
-     * @since 2.3.0
-     * @see #getHistoryIdsOfHistType(long, int...)
-     */
-    @Override
-    public List<Integer> getHistoryIdsExceptOfHistType(long sessionId, int... histTypes)
-            throws DatabaseException {
-        return getHistoryIdsByParams(sessionId, 0, false, histTypes);
-    }
-
-    @Override
-    public List<Integer> getHistoryIdsExceptOfHistTypeStartingAt(
-            long sessionId, int startAtHistoryId, int... histTypes) throws DatabaseException {
-        return getHistoryIdsByParams(sessionId, startAtHistoryId, false, histTypes);
-    }
-
-    @Override
-    public List<Integer> getHistoryList(
-            long sessionId, int histType, String filter, boolean isRequest)
-            throws DatabaseException {
-        try {
-            PreparedStatement psReadSearch =
-                    getConnection()
-                            .prepareStatement(
-                                    "SELECT * FROM HISTORY WHERE "
-                                            + SESSIONID
-                                            + " = ? AND "
-                                            + HISTTYPE
-                                            + " = ? ORDER BY "
-                                            + HISTORYID);
-            ResultSet rs = null;
-            Vector<Integer> v = new Vector<>();
-            try {
-
-                Pattern pattern =
-                        Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-                Matcher matcher = null;
-
-                psReadSearch.setLong(1, sessionId);
-                psReadSearch.setInt(2, histType);
-                rs = psReadSearch.executeQuery();
-                while (rs.next()) {
-                    if (isRequest) {
-                        matcher = pattern.matcher(rs.getString(REQHEADER));
-                        if (matcher.find()) {
-                            // ZAP: Changed to use the method Integer.valueOf.
-                            v.add(rs.getInt(HISTORYID));
-                            continue;
-                        }
-                        matcher = pattern.matcher(rs.getString(REQBODY));
-                        if (matcher.find()) {
-                            // ZAP: Changed to use the method Integer.valueOf.
-                            v.add(rs.getInt(HISTORYID));
-                            continue;
-                        }
-                    } else {
-                        matcher = pattern.matcher(rs.getString(RESHEADER));
-                        if (matcher.find()) {
-                            // ZAP: Changed to use the method Integer.valueOf.
-                            v.add(rs.getInt(HISTORYID));
-                            continue;
-                        }
-                        matcher = pattern.matcher(rs.getString(RESBODY));
-                        if (matcher.find()) {
-                            // ZAP: Changed to use the method Integer.valueOf.
-                            v.add(rs.getInt(HISTORYID));
-                            continue;
-                        }
-                    }
-                }
-            } finally {
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (Exception e) {
-                        // Ignore
-                    }
-                }
-                psReadSearch.close();
-            }
-
-            return v;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
