@@ -28,6 +28,7 @@
 	  ":addOns:httpsInfo",
 	  ":addOns:insights",
       ":addOns:invoke",
+	  ":addOns:mcp",
       ":addOns:network",
       ":addOns:oast",
       ":addOns:onlineMenu",
