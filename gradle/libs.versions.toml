@@ -36,12 +36,12 @@ log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4
 log4j-slf4j = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 rsyntaxtextarea = "com.fifesoft:rsyntaxtextarea:3.6.2"
 swingx = "org.swinglabs.swingx:swingx-all:1.6.5-1"
-xom = "xom:xom:1.4.2"
+xom = "xom:xom:1.4.4"
 
 assertj-core = "org.assertj:assertj-core:3.27.7"
 assertj-swing = "org.assertj:assertj-swing:3.17.1"
 hamcrest-core = "org.hamcrest:hamcrest-core:3.0"
-junit-jupiter = "org.junit.jupiter:junit-jupiter:6.0.3"
+junit-jupiter = "org.junit.jupiter:junit-jupiter:6.1.0"
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
 mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
 
