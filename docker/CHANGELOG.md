@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### Unreleased
+- Fetch packaged scan HttpSender scripts from [community-scripts](https://github.com/zaproxy/community-scripts/tree/main/httpsender) instead of keeping local copies.
+
 ### 2026-05-08
 - Fixed bug in baseline scan which could result in a python error when running the packaged scan without a mapped drive.
 

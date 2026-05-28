@@ -84,7 +84,11 @@ COPY --link --chown=1000:1000 webswing.config /zap/webswing/
 COPY --link --chown=1000:1000 webswing.properties /zap/webswing/
 COPY --link --chown=1000:1000 policies /home/zap/.ZAP_D/policies/
 COPY --link --chown=1000:1000 policies /root/.ZAP_D/policies/
-COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
+RUN mkdir -p /home/zap/.ZAP_D/scripts/scripts/httpsender && \
+	curl -fsSL "https://raw.githubusercontent.com/zaproxy/community-scripts/main/httpsender/AlertOnHttpResponseCodeErrors.js" \
+		-o "/home/zap/.ZAP_D/scripts/scripts/httpsender/AlertOnHttpResponseCodeErrors.js" && \
+	curl -fsSL "https://raw.githubusercontent.com/zaproxy/community-scripts/main/httpsender/AlertOnUnexpectedContentTypes.js" \
+		-o "/home/zap/.ZAP_D/scripts/scripts/httpsender/AlertOnUnexpectedContentTypes.js"
 COPY --link --chown=1000:1000 .xinitrc /home/zap/
 COPY --link --chown=1000:1000 firefox /home/zap/.mozilla/firefox/
 
