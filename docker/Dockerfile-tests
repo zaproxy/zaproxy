@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a ZAP docker image used for integration tests
-FROM --platform=linux/amd64 debian:bookworm-slim AS builder
+FROM --platform=linux/amd64 debian:trixie-slim AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 

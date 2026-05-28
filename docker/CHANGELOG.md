@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2026-05-28
+- Updated stable, bare, and tests images to use `debian:trixie-slim` instead of `bookworm-slim` ahead of Debian bookworm EOL on 2026-06-10 (Issue 9310).
+
 ### 2026-05-08
 - Fixed bug in baseline scan which could result in a python error when running the packaged scan without a mapped drive.
 
