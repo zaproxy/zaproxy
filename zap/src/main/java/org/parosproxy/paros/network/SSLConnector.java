@@ -127,9 +127,7 @@ public class SSLConnector
         SECURITY_PROTOCOL_TLS_V1,
         SECURITY_PROTOCOL_TLS_V1_1,
         SECURITY_PROTOCOL_TLS_V1_2,
-        // Disable TLS 1.3 by default as it currently fails with Java 11
-        // TODO re-enable (or just use DEFAULT_ENABLED_PROTOCOLS) when Java 11 works with TLS 1.3
-        // SECURITY_PROTOCOL_TLS_V1_3
+        SECURITY_PROTOCOL_TLS_V1_3
     };
 
     private static final String[] FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS = {SECURITY_PROTOCOL_TLS_V1};
