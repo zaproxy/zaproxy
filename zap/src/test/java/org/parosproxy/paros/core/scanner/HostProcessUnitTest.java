@@ -224,6 +224,10 @@ class HostProcessUnitTest {
         hostProcess.run();
         // Then
         assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+        assertThat(hostProcess.getStartNodes().size(), is(1));
+        assertThat(
+                hostProcess.getStartNodes().get(0).getURI().toString(),
+                is("http://localhost/file"));
     }
 
     @Test
@@ -237,6 +241,13 @@ class HostProcessUnitTest {
         hostProcess.run();
         // Then
         assertThat(hostProcess.getTestTotalCount(), is(equalTo(2)));
+        assertThat(hostProcess.getStartNodes().size(), is(2));
+        assertThat(
+                hostProcess.getStartNodes().get(0).getURI().toString(),
+                is("http://localhost/file1"));
+        assertThat(
+                hostProcess.getStartNodes().get(1).getURI().toString(),
+                is("http://localhost/file2"));
     }
 
     @Test
