@@ -106,11 +106,14 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/17 Skip rules that reach the maximum number of alerts.
+// ZAP: 2026/05/28 From now on we will not be recording changes here as the files have changed so
+// much.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -328,6 +331,16 @@ public class HostProcess implements Runnable {
      */
     public void addStartNode(StructuralNode startNode) {
         this.startNodes.add(startNode);
+    }
+
+    /**
+     * Gets the start nodes.
+     *
+     * @return the start nodes
+     * @since 2.18.0
+     */
+    public List<StructuralNode> getStartNodes() {
+        return Collections.unmodifiableList(this.startNodes);
     }
 
     /** Stop the current scanning process */
