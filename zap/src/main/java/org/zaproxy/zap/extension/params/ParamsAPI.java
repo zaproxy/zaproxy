@@ -32,6 +32,11 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.utils.ApiUtils;
 
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class ParamsAPI extends ApiImplementor {
 
     private static final String PREFIX = "params";

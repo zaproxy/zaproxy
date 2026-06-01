@@ -33,7 +33,6 @@ import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.brk.BreakAPI;
 import org.zaproxy.zap.extension.forceduser.ForcedUserAPI;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
-import org.zaproxy.zap.extension.params.ParamsAPI;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
@@ -73,8 +72,6 @@ public class ApiGeneratorUtils {
 
         api = new CoreAPI();
         imps.add(api);
-
-        imps.add(new ParamsAPI(null));
 
         api = new ActiveScanAPI(null);
         api.addApiOptions(new ScannerParam());

@@ -130,7 +130,11 @@ public interface Database {
     // ZAP: Added method.
     void setTableSessionUrl(TableSessionUrl tableSessionUrl);
 
-    // ZAP: Added method.
+    /**
+     * @deprecated (2.18.0) Use the Params add-on.
+     */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.18.0", forRemoval = true)
     TableParam getTableParam();
 
     TableContext getTableContext();

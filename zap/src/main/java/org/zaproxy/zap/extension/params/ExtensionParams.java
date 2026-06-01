@@ -61,6 +61,11 @@ import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
+/**
+ * @deprecated (2.18.0) Use the Params add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class ExtensionParams extends ExtensionAdaptor
         implements SessionChangedListener, /*ProxyListener, */ SiteMapListener {
 
