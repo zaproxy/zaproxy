@@ -22,6 +22,7 @@ package org.zaproxy.zap;
 import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.desktop.QuitResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -64,7 +65,7 @@ class OsXGui {
         Desktop desktop = Desktop.getDesktop();
         desktop.setAboutHandler(ae -> showAboutDialog());
         desktop.setPreferencesHandler(pe -> showOptionsDialog());
-        desktop.setQuitHandler((qe, qr) -> exitZap());
+        desktop.setQuitHandler((qe, qr) -> exitZap(qr));
     }
 
     private static Image createIcon() {
@@ -81,7 +82,9 @@ class OsXGui {
         Control.getSingleton().getMenuToolsControl().options();
     }
 
-    private static void exitZap() {
-        Control.getSingleton().getMenuFileControl().exit();
+    private static void exitZap(QuitResponse quitResponse) {
+        if (!Control.getSingleton().getMenuFileControl().exit()) {
+            quitResponse.cancelQuit();
+        }
     }
 }

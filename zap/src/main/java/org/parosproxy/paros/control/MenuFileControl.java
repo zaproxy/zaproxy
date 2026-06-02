@@ -110,8 +110,8 @@ public class MenuFileControl implements SessionListener {
         this.control = control;
     }
 
-    public void exit() {
-        control.exit(false, null);
+    public boolean exit() {
+        return control.exit(false, null);
     }
 
     public void newSession(boolean isPromptNewSession) throws ClassNotFoundException, Exception {
