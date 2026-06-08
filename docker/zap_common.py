@@ -456,6 +456,26 @@ def zap_ajax_spider(zap, target, max_time):
 
 
 @hook(wrap=True)
+def zap_client_spider(zap, target, max_time):
+    if max_time:
+        zap.clientSpider.set_option_max_duration(str(max_time))
+    if scan_user:
+        logging.debug('Client Spider %s as user %s', target, scan_user['name'])
+        spider_scan_id = zap.clientSpider.scan(url=target, contextname=context_name, username=scan_user['name'])
+    else:
+        logging.debug('Client Spider %s', target)
+        spider_scan_id = zap.clientSpider.scan(url=target, contextname=context_name)
+    if not str(spider_scan_id).isdigit():
+        raise_scan_not_started()
+    time.sleep(5)
+
+    while (int(zap.clientSpider.status(spider_scan_id)) < 100):
+        logging.debug('Client Spider progress %: ' + zap.clientSpider.status(spider_scan_id))
+        time.sleep(5)
+    logging.debug('Client Spider complete')
+
+
+@hook(wrap=True)
 def zap_active_scan(zap, target, policy):
     if scan_user:
         logging.debug('Active Scan %s with policy %s as user %s', target, policy, scan_user['name'])
@@ -651,6 +671,14 @@ def get_af_spider(target, mins):
 def get_af_spiderAjax(target, mins):
     return {
         'type': 'spiderAjax',
+        'parameters': {
+            'url': target,
+            'maxDuration': mins}
+        }
+
+def get_af_spiderClient(target, mins):
+    return {
+        'type': 'spiderClient',
         'parameters': {
             'url': target,
             'maxDuration': mins}
