@@ -232,7 +232,10 @@ public class Control extends AbstractControl implements SessionListener {
         }
     }
 
-    public void exit(boolean noPrompt, final File openOnExit) {
+    /**
+     * @return {@code true} if shutdown was started, {@code false} if the user cancelled a prompt
+     */
+    public boolean exit(boolean noPrompt, final File openOnExit) {
         boolean isNewState = model.getSession().isNewState();
         int rootCount = 0;
         if (!Constant.isLowMemoryOptionSet()) {
@@ -282,7 +285,7 @@ public class Control extends AbstractControl implements SessionListener {
 
             if (message != null
                     && view.showConfirmDialog(new ZapHtmlLabel(message)) != JOptionPane.OK_OPTION) {
-                return;
+                return false;
             }
         }
 
@@ -335,6 +338,7 @@ public class Control extends AbstractControl implements SessionListener {
         } else {
             t.start();
         }
+        return true;
     }
 
     /**
