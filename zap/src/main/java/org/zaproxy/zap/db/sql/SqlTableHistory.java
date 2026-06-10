@@ -859,6 +859,26 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     }
 
     @Override
+    public String readNote(int historyId) throws DatabaseException {
+        SqlPreparedStatementWrapper psReadNote = null;
+        try {
+            psReadNote = DbSQL.getSingleton().getPreparedStatement("history.ps.readnote");
+            psReadNote.getPs().setInt(1, historyId);
+            try (ResultSet rs = psReadNote.getPs().executeQuery()) {
+                if (rs.next()) {
+                    String note = rs.getString(1);
+                    return note != null ? note : "";
+                }
+            }
+            return "";
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psReadNote);
+        }
+    }
+
+    @Override
     public int lastIndex() {
         return lastInsertedIndex;
     }
