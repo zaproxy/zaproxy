@@ -493,10 +493,9 @@ public class AlertAPI extends ApiImplementor {
         try {
             TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
             TableAlertTag tableAlertTag = Model.getSingleton().getDb().getTableAlertTag();
-            // TODO this doesn't work, but should be used when its fixed :/
-            // Vector<Integer> v =
-            // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
-            Vector<Integer> v = tableAlert.getAlertList();
+            Vector<Integer> v =
+                    tableAlert.getAlertListBySession(
+                            Model.getSingleton().getSession().getSessionId());
 
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
             for (int alertId : v) {
