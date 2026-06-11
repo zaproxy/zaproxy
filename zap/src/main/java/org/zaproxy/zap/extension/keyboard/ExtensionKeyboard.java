@@ -249,12 +249,18 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     private KeyboardShortcut menuToShortcut(ZapMenuItem menuItem, boolean reset) {
         if (reset) {
             return new KeyboardShortcut(
-                    menuItem.getIdentifier(), menuItem.getText(), getDefaultAccelerator(menuItem));
+                    menuItem.getIdentifier(),
+                    menuItem.getText(),
+                    getDefaultAccelerator(menuItem),
+                    Constant.messages.getString("keyboard.scope.menu"));
         }
 
         setConfiguredAccelerator(menuItem);
         return new KeyboardShortcut(
-                menuItem.getIdentifier(), menuItem.getText(), menuItem.getAccelerator());
+                menuItem.getIdentifier(),
+                menuItem.getText(),
+                menuItem.getAccelerator(),
+                Constant.messages.getString("keyboard.scope.menu"));
     }
 
     /**
