@@ -21,64 +21,100 @@ package org.zaproxy.zap.extension.keyboard;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.view.ZapAction;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 class KeyboardMapping {
 
     private ZapMenuItem menuItem;
-    private String i18nKey;
+    private ZapAction zapAction;
+    private JComponent targetComponent;
+    private int inputMapCondition = JComponent.WHEN_FOCUSED;
 
     public KeyboardMapping() {}
-
-    public KeyboardMapping(String i18nKey) {
-        this.i18nKey = i18nKey;
-    }
 
     public KeyboardMapping(ZapMenuItem menuItem) {
         this.menuItem = menuItem;
     }
 
+    public KeyboardMapping(ZapAction zapAction, JComponent targetComponent, int inputMapCondition) {
+        this.zapAction = zapAction;
+        this.targetComponent = targetComponent;
+        this.inputMapCondition = inputMapCondition;
+    }
+
+    public boolean isAction() {
+        return zapAction != null;
+    }
+
+    public ZapAction getZapAction() {
+        return zapAction;
+    }
+
+    public JComponent getTargetComponent() {
+        return targetComponent;
+    }
+
+    public int getInputMapCondition() {
+        return inputMapCondition;
+    }
+
     public String getName() {
-        if (this.menuItem != null) {
-            return this.menuItem.getText();
+        if (menuItem != null) {
+            return menuItem.getText();
+        }
+        if (zapAction != null) {
+            return (String) zapAction.getValue(Action.NAME);
         }
         return null;
     }
 
     public String getIdentifier() {
-        if (this.menuItem != null) {
-            return this.menuItem.getIdentifier();
+        if (menuItem != null) {
+            return menuItem.getIdentifier();
         }
-        return this.i18nKey;
+        if (zapAction != null) {
+            return zapAction.getIdentifier();
+        }
+        return null;
     }
 
     public KeyStroke getKeyStroke() {
-        if (this.menuItem != null) {
-            return this.menuItem.getAccelerator();
+        if (menuItem != null) {
+            return menuItem.getAccelerator();
+        }
+        if (zapAction != null) {
+            return zapAction.getAccelerator();
         }
         return null;
     }
 
     /**
-     * Gets the default accelerator of the menu item.
+     * Gets the default accelerator of the mapping.
      *
      * @return the default accelerator.
      * @since 2.8.0
      */
     public KeyStroke getDefaultKeyStroke() {
-        if (this.menuItem != null) {
-            return this.menuItem.getDefaultAccelerator();
+        if (menuItem != null) {
+            return menuItem.getDefaultAccelerator();
+        }
+        if (zapAction != null) {
+            return zapAction.getDefaultAccelerator();
         }
         return null;
     }
 
     public String getKeyStrokeKeyCodeString() {
-        if (this.menuItem == null || this.menuItem.getAccelerator() == null) {
+        KeyStroke keyStroke = getKeyStroke();
+        if (keyStroke == null) {
             return "";
         }
-        return keyString(this.menuItem.getAccelerator().getKeyCode());
+        return keyString(keyStroke.getKeyCode());
     }
 
     public static String keyString(int keyCode) {
@@ -125,15 +161,20 @@ class KeyboardMapping {
     }
 
     public String getKeyStrokeModifiersString() {
-        if (this.menuItem == null || this.menuItem.getAccelerator() == null) {
+        KeyStroke keyStroke = getKeyStroke();
+        if (keyStroke == null) {
             return "";
         }
-        return modifiersString(this.menuItem.getAccelerator().getModifiers());
+        return modifiersString(keyStroke.getModifiers());
     }
 
     public static String modifiersString(int modifiers) {
         StringBuilder sb = new StringBuilder();
 
+        if ((modifiers & InputEvent.META_DOWN_MASK) > 0) {
+            sb.append(Constant.messages.getString("keyboard.key.command"));
+            sb.append(" ");
+        }
         if ((modifiers & InputEvent.CTRL_DOWN_MASK) > 0) {
             sb.append(Constant.messages.getString("keyboard.key.control"));
             sb.append(" ");
@@ -150,21 +191,27 @@ class KeyboardMapping {
     }
 
     public String getKeyStrokeString() {
-        if (this.menuItem == null || this.menuItem.getAccelerator() == null) {
+        if (getKeyStroke() == null) {
             return "";
         }
         return getKeyStrokeModifiersString() + " " + getKeyStrokeKeyCodeString();
     }
 
     public void setKeyStroke(KeyStroke keyStroke) {
-        if (this.menuItem != null) {
-            this.menuItem.setAccelerator(keyStroke);
+        if (menuItem != null) {
+            menuItem.setAccelerator(keyStroke);
+        } else if (zapAction != null) {
+            zapAction.setAccelerator(keyStroke);
         }
     }
 
     @Override
     public int hashCode() {
-        return 31 * super.hashCode() + ((menuItem == null) ? 0 : menuItem.hashCode());
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((menuItem == null) ? 0 : menuItem.hashCode());
+        result = prime * result + ((zapAction == null) ? 0 : zapAction.hashCode());
+        return result;
     }
 
     @Override
@@ -175,9 +222,6 @@ class KeyboardMapping {
         if (this == obj) {
             return true;
         }
-        if (!super.equals(obj)) {
-            return false;
-        }
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -187,6 +231,13 @@ class KeyboardMapping {
                 return false;
             }
         } else if (!menuItem.equals(other.menuItem)) {
+            return false;
+        }
+        if (zapAction == null) {
+            if (other.zapAction != null) {
+                return false;
+            }
+        } else if (!zapAction.equals(other.zapAction)) {
             return false;
         }
         return true;
