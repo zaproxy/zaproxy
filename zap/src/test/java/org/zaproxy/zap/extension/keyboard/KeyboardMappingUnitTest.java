@@ -28,11 +28,14 @@ import static org.hamcrest.Matchers.nullValue;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Locale;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.view.ZapAction;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /** Unit test for {@link KeyboardMapping}. */
@@ -47,10 +50,11 @@ class KeyboardMappingUnitTest {
     }
 
     @Test
-    void shouldUseI18nKeyAsIdentifierAndHaveNoMenuBackedState() {
-        KeyboardMapping mapping = new KeyboardMapping("some.i18n.key");
+    void shouldHaveNoStateForDefaultConstructor() {
+        KeyboardMapping mapping = new KeyboardMapping();
 
-        assertThat(mapping.getIdentifier(), is(equalTo("some.i18n.key")));
+        assertThat(mapping.isAction(), is(false));
+        assertThat(mapping.getIdentifier(), is(nullValue()));
         assertThat(mapping.getName(), is(nullValue()));
         assertThat(mapping.getKeyStroke(), is(nullValue()));
         assertThat(mapping.getDefaultKeyStroke(), is(nullValue()));
@@ -62,8 +66,27 @@ class KeyboardMappingUnitTest {
         ZapMenuItem menuItem = new ZapMenuItem("menu.id", "Menu Text", DEFAULT_ACCELERATOR);
         KeyboardMapping mapping = new KeyboardMapping(menuItem);
 
+        assertThat(mapping.isAction(), is(false));
         assertThat(mapping.getIdentifier(), is(equalTo("menu.id")));
         assertThat(mapping.getName(), is(equalTo("Menu Text")));
+        assertThat(mapping.getKeyStroke(), is(equalTo(DEFAULT_ACCELERATOR)));
+        assertThat(mapping.getDefaultKeyStroke(), is(equalTo(DEFAULT_ACCELERATOR)));
+    }
+
+    @Test
+    void shouldDelegateToZapActionWhenConstructedWithOne() {
+        ZapAction action = new ZapAction("action.id", "Action Text", DEFAULT_ACCELERATOR);
+        JComponent targetComponent = new JPanel();
+
+        KeyboardMapping mapping =
+                new KeyboardMapping(action, targetComponent, JComponent.WHEN_FOCUSED);
+
+        assertThat(mapping.isAction(), is(true));
+        assertThat(mapping.getZapAction(), is(equalTo(action)));
+        assertThat(mapping.getTargetComponent(), is(equalTo(targetComponent)));
+        assertThat(mapping.getInputMapCondition(), is(equalTo(JComponent.WHEN_FOCUSED)));
+        assertThat(mapping.getIdentifier(), is(equalTo("action.id")));
+        assertThat(mapping.getName(), is(equalTo("Action Text")));
         assertThat(mapping.getKeyStroke(), is(equalTo(DEFAULT_ACCELERATOR)));
         assertThat(mapping.getDefaultKeyStroke(), is(equalTo(DEFAULT_ACCELERATOR)));
     }
@@ -81,8 +104,21 @@ class KeyboardMappingUnitTest {
     }
 
     @Test
-    void shouldNotFailToSetKeyStrokeWithoutMenuItem() {
-        KeyboardMapping mapping = new KeyboardMapping("some.i18n.key");
+    void shouldSetKeyStrokeOnZapAction() {
+        ZapAction action = new ZapAction("action.id", "Action Text", null);
+        KeyboardMapping mapping =
+                new KeyboardMapping(action, new JPanel(), JComponent.WHEN_FOCUSED);
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.ALT_DOWN_MASK);
+
+        mapping.setKeyStroke(keyStroke);
+
+        assertThat(mapping.getKeyStroke(), is(equalTo(keyStroke)));
+        assertThat(action.getAccelerator(), is(equalTo(keyStroke)));
+    }
+
+    @Test
+    void shouldNotFailToSetKeyStrokeWithoutMenuItemOrAction() {
+        KeyboardMapping mapping = new KeyboardMapping();
 
         mapping.setKeyStroke(DEFAULT_ACCELERATOR);
 
@@ -180,15 +216,20 @@ class KeyboardMappingUnitTest {
     }
 
     @Test
-    void shouldFormatModifiersString() {
+    void shouldFormatModifiersStringIncludingCommand() {
         int modifiers =
-                InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK;
+                InputEvent.META_DOWN_MASK
+                        | InputEvent.CTRL_DOWN_MASK
+                        | InputEvent.ALT_DOWN_MASK
+                        | InputEvent.SHIFT_DOWN_MASK;
 
         assertThat(
                 KeyboardMapping.modifiersString(modifiers),
                 is(
                         equalTo(
-                                Constant.messages.getString("keyboard.key.control")
+                                Constant.messages.getString("keyboard.key.command")
+                                        + " "
+                                        + Constant.messages.getString("keyboard.key.control")
                                         + " "
                                         + Constant.messages.getString("keyboard.key.alt")
                                         + " "
@@ -197,19 +238,33 @@ class KeyboardMappingUnitTest {
     }
 
     @Test
-    void shouldBeEqualToItself() {
-        KeyboardMapping mapping =
-                new KeyboardMapping(new ZapMenuItem("menu.id", "Menu Text", null));
-
-        assertThat(mapping, is(equalTo(mapping)));
-    }
-
-    @Test
-    void shouldNotBeEqualForDifferentInstancesEvenWithSameMenuItem() {
+    void shouldBeEqualForSameMenuItem() {
         ZapMenuItem menuItem = new ZapMenuItem("menu.id", "Menu Text", DEFAULT_ACCELERATOR);
         KeyboardMapping mapping1 = new KeyboardMapping(menuItem);
         KeyboardMapping mapping2 = new KeyboardMapping(menuItem);
 
+        assertThat(mapping1, is(equalTo(mapping2)));
+        assertThat(mapping1.hashCode(), is(equalTo(mapping2.hashCode())));
+    }
+
+    @Test
+    void shouldNotBeEqualForDifferentMenuItems() {
+        KeyboardMapping mapping1 =
+                new KeyboardMapping(new ZapMenuItem("menu.id1", "Menu Text", DEFAULT_ACCELERATOR));
+        KeyboardMapping mapping2 =
+                new KeyboardMapping(new ZapMenuItem("menu.id2", "Menu Text", DEFAULT_ACCELERATOR));
+
         assertThat(mapping1, is(not(equalTo(mapping2))));
+    }
+
+    @Test
+    void shouldNotBeEqualForMenuItemAndZapActionMappings() {
+        ZapMenuItem menuItem = new ZapMenuItem("menu.id", "Menu Text", DEFAULT_ACCELERATOR);
+        ZapAction action = new ZapAction("menu.id", "Menu Text", DEFAULT_ACCELERATOR);
+        KeyboardMapping menuMapping = new KeyboardMapping(menuItem);
+        KeyboardMapping actionMapping =
+                new KeyboardMapping(action, new JPanel(), JComponent.WHEN_FOCUSED);
+
+        assertThat(menuMapping, is(not(equalTo(actionMapping))));
     }
 }
