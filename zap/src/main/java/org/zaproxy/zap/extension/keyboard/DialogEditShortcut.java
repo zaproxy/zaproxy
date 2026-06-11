@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.keyboard;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -30,15 +29,19 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.KeyStroke;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
 @SuppressWarnings("serial")
 public class DialogEditShortcut extends StandardFieldsDialog {
 
     private static final String FIELD_ACTION = "keyboard.dialog.label.action";
+    private static final String FIELD_PREVIEW = "keyboard.dialog.label.preview";
     private static final String FIELD_KEY = "keyboard.dialog.label.key";
+    private static final String FIELD_COMMAND = "keyboard.dialog.label.command";
     private static final String FIELD_CONTROL = "keyboard.dialog.label.control";
     private static final String FIELD_ALT = "keyboard.dialog.label.alt";
+    private static final String FIELD_OPTION = "keyboard.dialog.label.option";
     private static final String FIELD_SHIFT = "keyboard.dialog.label.shift";
     private static final String FIELD_INFO = "keyboard.dialog.label.info";
 
@@ -54,11 +57,11 @@ public class DialogEditShortcut extends StandardFieldsDialog {
      * @since 2.5.0
      */
     public DialogEditShortcut(Window owner) {
-        super(owner, "keyboard.dialog.title", new Dimension(300, 200), true);
+        super(owner, "keyboard.dialog.title", DisplayUtils.getScaledDimension(300, 200), true);
     }
 
     public DialogEditShortcut(Frame owner) {
-        super(owner, "keyboard.dialog.title", new Dimension(300, 200));
+        super(owner, "keyboard.dialog.title", DisplayUtils.getScaledDimension(300, 200));
     }
 
     public void init(KeyboardShortcut shortcut, KeyboardShortcutTableModel model) {
@@ -71,19 +74,31 @@ public class DialogEditShortcut extends StandardFieldsDialog {
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        updatePreview();
                         checkDuplicate();
                     }
                 };
 
         this.addReadOnlyField(FIELD_ACTION, shortcut.getName(), false);
+        this.addReadOnlyField(
+                FIELD_PREVIEW,
+                KeyStrokeDisplay.formatPlain(shortcut.getKeyStroke(), model.isShowSymbols()),
+                false);
         this.addComboField(FIELD_KEY, getKeyList(), getKey(shortcut.getKeyStroke()));
         this.addFieldListener(FIELD_KEY, listener);
+        if (Constant.isMacOsX()) {
+            this.addCheckBoxField(
+                    FIELD_COMMAND,
+                    this.isModifier(shortcut.getKeyStroke(), InputEvent.META_DOWN_MASK));
+            this.addFieldListener(FIELD_COMMAND, listener);
+        }
         this.addCheckBoxField(
                 FIELD_CONTROL, this.isModifier(shortcut.getKeyStroke(), InputEvent.CTRL_DOWN_MASK));
         this.addFieldListener(FIELD_CONTROL, listener);
         this.addCheckBoxField(
-                FIELD_ALT, this.isModifier(shortcut.getKeyStroke(), InputEvent.ALT_DOWN_MASK));
-        this.addFieldListener(FIELD_ALT, listener);
+                getAltFieldKey(),
+                this.isModifier(shortcut.getKeyStroke(), InputEvent.ALT_DOWN_MASK));
+        this.addFieldListener(getAltFieldKey(), listener);
         this.addCheckBoxField(
                 FIELD_SHIFT, this.isModifier(shortcut.getKeyStroke(), InputEvent.SHIFT_DOWN_MASK));
         this.addFieldListener(FIELD_SHIFT, listener);
@@ -96,6 +111,11 @@ public class DialogEditShortcut extends StandardFieldsDialog {
     public String getSaveButtonText() {
         // Not really saving, just setting here..
         return Constant.messages.getString("keyboard.dialog.button.save");
+    }
+
+    private void updatePreview() {
+        this.setFieldValue(
+                FIELD_PREVIEW, KeyStrokeDisplay.formatPlain(getKeyStroke(), model.isShowSymbols()));
     }
 
     /**
@@ -182,16 +202,26 @@ public class DialogEditShortcut extends StandardFieldsDialog {
         return false;
     }
 
+    private static String getAltFieldKey() {
+        if (Constant.isMacOsX()) {
+            return FIELD_OPTION;
+        }
+        return FIELD_ALT;
+    }
+
     public KeyStroke getKeyStroke() {
         KeyStroke ks = null;
         int keyCode = selectedKey();
         int modifiers = 0;
 
         if (keyCode != 0) {
+            if (Constant.isMacOsX() && this.getBoolValue(FIELD_COMMAND)) {
+                modifiers |= InputEvent.META_DOWN_MASK;
+            }
             if (this.getBoolValue(FIELD_CONTROL)) {
                 modifiers |= InputEvent.CTRL_DOWN_MASK;
             }
-            if (this.getBoolValue(FIELD_ALT)) {
+            if (this.getBoolValue(getAltFieldKey())) {
                 modifiers |= InputEvent.ALT_DOWN_MASK;
             }
             if (this.getBoolValue(FIELD_SHIFT)) {
@@ -206,7 +236,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
     public void save() {
         KeyboardShortcut ksDup = this.getDuplicate();
         if (ksDup != null) {
-            // used for another menu item, so remove it from that
+            // used for another shortcut, so remove it from that
             ksDup.setKeyStroke(null);
         }
         KeyStroke ks = getKeyStroke();

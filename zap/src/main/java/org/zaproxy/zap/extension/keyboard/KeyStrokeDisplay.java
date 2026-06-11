@@ -34,6 +34,25 @@ public final class KeyStrokeDisplay {
 
     private KeyStrokeDisplay() {}
 
+    public static boolean isDefaultShowSymbols() {
+        return Constant.isMacOsX();
+    }
+
+    public static String formatPlain(KeyStroke keyStroke, boolean symbols) {
+        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
+            return "";
+        }
+        return symbols ? formatSymbols(keyStroke) : formatNames(keyStroke);
+    }
+
+    public static String formatNames(KeyStroke keyStroke) {
+        return String.join(KBD_SEPARATOR, getNameParts(keyStroke));
+    }
+
+    public static String formatSymbols(KeyStroke keyStroke) {
+        return String.join("", getSymbolParts(keyStroke));
+    }
+
     public static String formatHtmlNames(KeyStroke keyStroke) {
         return wrapPartsHtml(getNameParts(keyStroke), true);
     }
