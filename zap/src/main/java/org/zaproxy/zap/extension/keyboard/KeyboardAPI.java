@@ -19,12 +19,15 @@
  */
 package org.zaproxy.zap.extension.keyboard;
 
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.swing.KeyStroke;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.text.StringEscapeUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -42,6 +45,17 @@ public class KeyboardAPI extends ApiImplementor {
 
     private static final String PARAM_INC_UNSET = "incUnset";
 
+    // style-src needs 'unsafe-inline' for the cheatsheet's embedded <style> block.
+    private static final String CHEATSHEET_CONTENT_SECURITY_POLICY =
+            "default-src 'none'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'";
+
+    private static final String CHEATSHEET_CSS =
+            "body { font-family: sans-serif; }\n"
+                    + "table { border-collapse: collapse; }\n"
+                    + "th, td { padding: 4px 12px; text-align: left; vertical-align: top; }\n"
+                    + "th { border-bottom: 1px solid #ccc; }\n"
+                    + "kbd { font-family: system-ui, \"Apple Symbols\", \"Segoe UI Symbol\", sans-serif; padding: .1em .4em; border: 1px solid #ccc; border-radius: 3px; background: #f7f7f7; }\n";
+
     private ExtensionKeyboard extension;
 
     public KeyboardAPI(ExtensionKeyboard extension) {
@@ -58,27 +72,32 @@ public class KeyboardAPI extends ApiImplementor {
     }
 
     public URI getCheatSheetActionURI() throws URIException, NullPointerException {
-        return new URI(
-                API.getInstance()
-                        .getBaseURL(
-                                API.Format.OTHER,
-                                PREFIX,
-                                API.RequestType.other,
-                                OTHER_CHEETSHEET_ACTION_ORDER,
-                                false),
-                true);
+        return getCheatsheetURI(OTHER_CHEETSHEET_ACTION_ORDER);
     }
 
     public URI getCheatSheetKeyURI() throws URIException, NullPointerException {
-        return new URI(
-                API.getInstance()
-                        .getBaseURL(
-                                API.Format.OTHER,
-                                PREFIX,
-                                API.RequestType.other,
-                                OTHER_CHEETSHEET_KEY_ORDER,
-                                false),
-                true);
+        return getCheatsheetURI(OTHER_CHEETSHEET_KEY_ORDER);
+    }
+
+    private static URI getCheatsheetURI(String endpointName) throws URIException {
+        API api = API.getInstance();
+        String apiPath =
+                API.Format.OTHER.name()
+                        + "/"
+                        + PREFIX
+                        + "/"
+                        + API.RequestType.other.name()
+                        + "/"
+                        + endpointName
+                        + "/";
+        String url =
+                api.getBaseURL(false)
+                        + apiPath
+                        + "?"
+                        + API.API_NONCE_PARAM
+                        + "="
+                        + api.getLongLivedNonce("/" + apiPath);
+        return new URI(url, true);
     }
 
     @Override
@@ -86,57 +105,114 @@ public class KeyboardAPI extends ApiImplementor {
             throws ApiException {
         if (OTHER_CHEETSHEET_ACTION_ORDER.equals(name) || OTHER_CHEETSHEET_KEY_ORDER.equals(name)) {
 
-            List<KeyboardShortcut> shortcuts = this.extension.getShortcuts();
+            List<KeyboardShortcut> shortcuts = new ArrayList<>(this.extension.getShortcuts());
+            boolean sortByKey = OTHER_CHEETSHEET_KEY_ORDER.equals(name);
 
-            if (OTHER_CHEETSHEET_ACTION_ORDER.equals(name)) {
-                Collections.sort(
-                        shortcuts,
-                        new Comparator<KeyboardShortcut>() {
-                            @Override
-                            public int compare(KeyboardShortcut o1, KeyboardShortcut o2) {
-                                return o1.getName().compareTo(o2.getName());
-                            }
-                        });
+            if (sortByKey) {
+                shortcuts.sort(
+                        Comparator.comparing(
+                                KeyboardShortcut::getKeyStroke, KeyStrokeDisplay::compare));
             } else {
-                Collections.sort(
-                        shortcuts,
-                        new Comparator<KeyboardShortcut>() {
-                            @Override
-                            public int compare(KeyboardShortcut o1, KeyboardShortcut o2) {
-                                return o1.getKeyStrokeKeyCodeString()
-                                        .compareTo(o2.getKeyStrokeKeyCodeString());
-                            }
-                        });
+                shortcuts.sort(Comparator.comparing(KeyboardShortcut::getName));
             }
 
-            StringBuilder response = new StringBuilder();
-            response.append(Constant.messages.getString("keyboard.api.cheatsheet.header"));
             boolean incUnset = this.getParam(params, PARAM_INC_UNSET, false);
-
-            for (KeyboardShortcut shortcut : shortcuts) {
-                if (incUnset || shortcut.getKeyStrokeKeyCodeString().length() > 0) {
-                    // Only show actions with actual shortcuts
-                    response.append(
-                            Constant.messages.getString(
-                                    "keyboard.api.cheatsheet.tablerow",
-                                    shortcut.getName(),
-                                    shortcut.getKeyStrokeModifiersString(),
-                                    shortcut.getKeyStrokeKeyCodeString()));
-                }
-            }
-            response.append(Constant.messages.getString("keyboard.api.cheatsheet.footer"));
-
+            byte[] responseBody =
+                    buildCheatsheetResponse(shortcuts, sortByKey, incUnset)
+                            .getBytes(StandardCharsets.UTF_8);
+            msg.setResponseBody(responseBody);
             try {
-                msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
+                msg.setResponseHeader(
+                        API.getDefaultResponseHeader(
+                                "text/html; charset=UTF-8", responseBody.length));
+                msg.getResponseHeader()
+                        .setHeader("Content-Security-Policy", CHEATSHEET_CONTENT_SECURITY_POLICY);
             } catch (HttpMalformedHeaderException e) {
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, name, e);
             }
-            msg.setResponseBody(response.toString());
 
             return msg;
 
         } else {
             throw new ApiException(ApiException.Type.BAD_OTHER, name);
         }
+    }
+
+    private static String buildCheatsheetResponse(
+            List<KeyboardShortcut> shortcuts, boolean sortByKey, boolean incUnset) {
+        StringBuilder sb = new StringBuilder();
+        String title = Constant.messages.getString("keyboard.api.cheatsheet.title");
+        String escapedTitle = StringEscapeUtils.escapeHtml4(title);
+        String subtitleKey =
+                sortByKey
+                        ? "keyboard.api.cheatsheet.subtitle.key"
+                        : "keyboard.api.cheatsheet.subtitle.action";
+
+        appendLine(sb, "<!DOCTYPE html>");
+        appendLine(sb, "<html>");
+        appendLine(sb, "<head>");
+        appendLine(sb, "<meta charset=\"UTF-8\">");
+        appendLine(sb, "<title>" + escapedTitle + "</title>");
+        appendLine(sb, "<style>");
+        sb.append(CHEATSHEET_CSS);
+        appendLine(sb, "</style>");
+        appendLine(sb, "</head>");
+        appendLine(sb, "<body>");
+        appendLine(sb, "<h1>" + escapedTitle + "</h1>");
+        appendLine(
+                sb,
+                "<h2>"
+                        + StringEscapeUtils.escapeHtml4(Constant.messages.getString(subtitleKey))
+                        + "</h2>");
+        appendLine(sb, "<table>");
+        appendLine(sb, buildTableHeaderRow());
+        for (KeyboardShortcut shortcut : shortcuts) {
+            KeyStroke keyStroke = shortcut.getKeyStroke();
+            if (incUnset || (keyStroke != null && keyStroke.getKeyCode() != 0)) {
+                appendLine(sb, buildCheatsheetRow(shortcut));
+            }
+        }
+        appendLine(sb, "</table>");
+        appendLine(sb, "<br>");
+        appendLine(
+                sb,
+                StringEscapeUtils.escapeHtml4(
+                        Constant.messages.getString("keyboard.api.cheatsheet.generatedBy")));
+        appendLine(sb, "</body>");
+        appendLine(sb, "</html>");
+        return sb.toString();
+    }
+
+    private static String buildTableHeaderRow() {
+        return "<tr><th>"
+                + escapeMessage("keyboard.options.table.header.action")
+                + "</th><th>"
+                + escapeMessage("keyboard.options.table.header.scope")
+                + "</th><th>"
+                + escapeMessage("keyboard.api.cheatsheet.table.header.keys")
+                + "</th><th>"
+                + escapeMessage("keyboard.api.cheatsheet.table.header.symbols")
+                + "</th></tr>";
+    }
+
+    private static String buildCheatsheetRow(KeyboardShortcut shortcut) {
+        KeyStroke keyStroke = shortcut.getKeyStroke();
+        return "<tr><td>"
+                + StringEscapeUtils.escapeHtml4(shortcut.getName())
+                + "</td><td>"
+                + StringEscapeUtils.escapeHtml4(shortcut.getScope())
+                + "</td><td>"
+                + KeyStrokeDisplay.formatHtmlNames(keyStroke)
+                + "</td><td>"
+                + KeyStrokeDisplay.formatHtmlSymbols(keyStroke)
+                + "</td></tr>";
+    }
+
+    private static String escapeMessage(String key) {
+        return StringEscapeUtils.escapeHtml4(Constant.messages.getString(key));
+    }
+
+    private static void appendLine(StringBuilder sb, String line) {
+        sb.append(line).append('\n');
     }
 }
