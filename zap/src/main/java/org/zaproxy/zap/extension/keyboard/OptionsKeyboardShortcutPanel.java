@@ -24,7 +24,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
@@ -50,6 +52,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
     private JButton resetButton = null;
     private JButton cheatsheetAction = null;
     private JButton cheatsheetKey = null;
+    private JCheckBox showSymbolsCheckBox = null;
     private boolean reset = false;
 
     private KeyboardShortcutTableModel keyboardModel = null;
@@ -68,7 +71,11 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 5;
+        // REMAINDER rather than a fixed column count: the button row below may span more
+        // columns than expected (e.g. the cheatsheet buttons are only added conditionally), and
+        // this row must always span the same full width or it won't get its share of extra space
+        // when the dialog is resized.
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -87,6 +94,9 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
 
+        this.add(getShowSymbolsCheckBox(), gbc);
+
+        gbc.gridx++;
         gbc.weightx = 1.0;
         this.add(new JLabel(), gbc); // Spacer
         gbc.weightx = 0.0;
@@ -109,6 +119,9 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         this.setShortcuts(extension.getShortcuts());
+        boolean showSymbols = extension.getKeyboardParam().isDisplaySymbols();
+        getShowSymbolsCheckBox().setSelected(showSymbols);
+        getShortcutModel().setShowSymbols(showSymbols);
         // The API might have been enabled or disabled
         this.getCheatsheetAction().setEnabled(API.getInstance().isEnabled());
         this.getCheatsheetKey().setEnabled(API.getInstance().isEnabled());
@@ -126,6 +139,20 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
     public void addShortcut(KeyboardShortcut shortcut) {
         getShortcutModel().addShortcut(shortcut);
+    }
+
+    private JCheckBox getShowSymbolsCheckBox() {
+        if (showSymbolsCheckBox == null) {
+            showSymbolsCheckBox =
+                    new JCheckBox(Constant.messages.getString("keyboard.options.showSymbols"));
+            showSymbolsCheckBox.setSelected(KeyStrokeDisplay.isDefaultShowSymbols());
+            showSymbolsCheckBox.addActionListener(
+                    e -> {
+                        getShortcutModel().setShowSymbols(showSymbolsCheckBox.isSelected());
+                        tkeyboardOptionsPanel.packAll();
+                    });
+        }
+        return showSymbolsCheckBox;
     }
 
     private JButton getResetButton() {
@@ -185,12 +212,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         for (KeyboardShortcut ks : getShortcutModel().getElements()) {
             boolean setShortcut = ks.isChanged();
             if (reset) {
-                // check to see if it is the same as the defaults
-                KeyboardShortcut tmpKs =
-                        new KeyboardShortcut(
-                                "temp", "temp", extension.getShortcut(ks.getIdentifier()));
-                if (!ks.getKeyStrokeString().equals(tmpKs.getKeyStrokeString())) {
-                    // Its different to the default
+                if (!Objects.equals(ks.getKeyStroke(), extension.getShortcut(ks.getIdentifier()))) {
                     setShortcut = true;
                 }
             }
@@ -202,6 +224,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
                 extension.setShortcut(ks.getIdentifier(), ks.getKeyStroke());
             }
         }
+        extension.getKeyboardParam().setDisplaySymbols(getShowSymbolsCheckBox().isSelected());
         // Save the configs
         extension.getKeyboardParam().setConfigs();
     }
@@ -272,9 +295,9 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         public void showModifyDialogue(KeyboardShortcut shortcut) {
             if (modifyDialog == null) {
                 modifyDialog = new DialogEditShortcut(View.getSingleton().getOptionsDialog(null));
-                modifyDialog.pack();
             }
             modifyDialog.init(shortcut, model);
+            modifyDialog.pack();
             modifyDialog.setVisible(true);
         }
     }

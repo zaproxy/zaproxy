@@ -59,6 +59,67 @@ public final class KeyStrokeDisplay {
         return Integer.compare(ks1.getModifiers(), ks2.getModifiers());
     }
 
+    public static boolean isDefaultShowSymbols() {
+        return true;
+    }
+
+    public static String formatPlain(KeyStroke keyStroke, boolean showSymbols) {
+        return String.join("+", showSymbols ? getSymbolParts(keyStroke) : getNameParts(keyStroke));
+    }
+
+    private static List<String> getNameParts(KeyStroke keyStroke) {
+        List<String> parts = new ArrayList<>();
+        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
+            return parts;
+        }
+        if (isMetaSet(keyStroke.getModifiers())) {
+            parts.add(getMetaName());
+        }
+        if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
+            parts.add(Constant.messages.getString("keyboard.key.control"));
+        }
+        if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
+            parts.add(getAltName());
+        }
+        if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+            parts.add(Constant.messages.getString("keyboard.key.shift"));
+        }
+        parts.add(getKeyName(keyStroke.getKeyCode()));
+        return parts;
+    }
+
+    private static String getMetaName() {
+        if (Constant.isMacOsX()) {
+            return Constant.messages.getString("keyboard.key.command");
+        }
+        if (Constant.isWindows()) {
+            return Constant.messages.getString("keyboard.key.win");
+        }
+        return Constant.messages.getString("keyboard.key.super");
+    }
+
+    private static String getAltName() {
+        return Constant.isMacOsX()
+                ? Constant.messages.getString("keyboard.key.option")
+                : Constant.messages.getString("keyboard.key.alt");
+    }
+
+    private static String getKeyName(int keyCode) {
+        if (isFunctionKey(keyCode)) {
+            return formatFunctionKey(keyCode);
+        }
+        if (isCharacterCollision(keyCode)) {
+            return String.valueOf((char) keyCode);
+        }
+        return switch (keyCode) {
+            case KeyEvent.VK_UP -> Constant.messages.getString("keyboard.key.up");
+            case KeyEvent.VK_DOWN -> Constant.messages.getString("keyboard.key.down");
+            case KeyEvent.VK_LEFT -> Constant.messages.getString("keyboard.key.left");
+            case KeyEvent.VK_RIGHT -> Constant.messages.getString("keyboard.key.right");
+            default -> String.valueOf((char) keyCode);
+        };
+    }
+
     private static List<String> getSymbolParts(KeyStroke keyStroke) {
         List<String> parts = new ArrayList<>();
         if (keyStroke == null || keyStroke.getKeyCode() == 0) {
