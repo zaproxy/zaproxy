@@ -51,6 +51,20 @@ class KeyStrokeDisplayUnitTest {
     }
 
     @Test
+    void shouldFormatSymbolShortcut() {
+        assertThat(
+                KeyStrokeDisplay.formatSymbols(CTRL_ALT_J), is(equalTo("⌃" + altSymbol() + "J")));
+    }
+
+    @Test
+    void shouldFormatNamesWithI18nModifierNames() {
+        assertThat(
+                KeyStrokeDisplay.formatNames(CTRL_ALT_J),
+                is(equalTo("Control " + altKeyName() + " J")));
+        assertThat(KeyStrokeDisplay.formatNames(CTRL_ALT_J), not(containsString("⌃")));
+    }
+
+    @Test
     void shouldReturnEmptyHtmlNamesForNullKeyStroke() {
         assertThat(KeyStrokeDisplay.formatHtmlNames(null), is(equalTo("")));
     }
@@ -72,20 +86,26 @@ class KeyStrokeDisplayUnitTest {
             boolean isMacOsX, boolean isWindows, String expectedName, String expectedSymbol) {
         KeyStroke metaF = KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.META_DOWN_MASK);
 
-        String names;
-        String symbols;
+        String plainNames;
+        String plainSymbols;
+        String htmlNames;
+        String htmlSymbols;
         try (MockedStatic<Constant> constant = mockStatic(Constant.class)) {
             constant.when(Constant::isMacOsX).thenReturn(isMacOsX);
             constant.when(Constant::isWindows).thenReturn(isWindows);
 
-            names = KeyStrokeDisplay.formatHtmlNames(metaF);
-            symbols = KeyStrokeDisplay.formatHtmlSymbols(metaF);
+            plainNames = KeyStrokeDisplay.formatNames(metaF);
+            plainSymbols = KeyStrokeDisplay.formatSymbols(metaF);
+            htmlNames = KeyStrokeDisplay.formatHtmlNames(metaF);
+            htmlSymbols = KeyStrokeDisplay.formatHtmlSymbols(metaF);
         }
 
-        assertThat(names, containsString("<kbd>" + expectedName + "</kbd>"));
-        assertThat(names, containsString("<kbd>F</kbd>"));
-        assertThat(symbols, containsString("<kbd>" + expectedSymbol + "</kbd>"));
-        assertThat(symbols, containsString("<kbd>F</kbd>"));
+        assertThat(plainNames, is(equalTo(expectedName + " F")));
+        assertThat(plainSymbols, is(equalTo(expectedSymbol + "F")));
+        assertThat(htmlNames, containsString("<kbd>" + expectedName + "</kbd>"));
+        assertThat(htmlNames, containsString("<kbd>F</kbd>"));
+        assertThat(htmlSymbols, containsString("<kbd>" + expectedSymbol + "</kbd>"));
+        assertThat(htmlSymbols, containsString("<kbd>F</kbd>"));
     }
 
     @Test
@@ -154,5 +174,9 @@ class KeyStrokeDisplayUnitTest {
         return Constant.isMacOsX()
                 ? Constant.messages.getString("keyboard.key.option")
                 : Constant.messages.getString("keyboard.key.alt");
+    }
+
+    private static String altSymbol() {
+        return Constant.isMacOsX() ? "⌥" : altKeyName();
     }
 }
