@@ -151,6 +151,7 @@ import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
+import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
@@ -275,6 +276,23 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
+        }
+    }
+
+    @Override
+    public void postInit() {
+        super.postInit();
+        if (!hasView()) {
+            return;
+        }
+        ExtensionKeyboard extensionKeyboard =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.class);
+        if (extensionKeyboard != null) {
+            PopupMenuJumpTo jumpTo = getPopupMenuJumpTo();
+            extensionKeyboard.registerGlobalAction(jumpTo.getJumpAction());
+            extensionKeyboard.registerAcceleratorChangeListener(
+                    PopupMenuJumpTo.IDENTIFIER, jumpTo::updateAccelerator);
+            jumpTo.updateAccelerator(jumpTo.getJumpAction().getAccelerator());
         }
     }
 
