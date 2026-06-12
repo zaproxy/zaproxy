@@ -34,11 +34,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.swing.ImageIcon;
@@ -78,6 +81,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.control.ZapRelease;
 import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.AddOnChangesResult;
 import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.UninstallationResult;
+import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnOperationPlan;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnUninstallListener;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressEvent;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressHandler;
@@ -534,18 +538,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     }
 
     private void downloadFile(URL url, File targetFile, long size, String hash) {
-        if (hasView()) {
-            // Report info to the Output tab
-            getView()
-                    .getOutputPanel()
-                    .append(
-                            Constant.messages.getString(
-                                            "cfu.output.downloading",
-                                            url.toString(),
-                                            targetFile.getAbsolutePath())
-                                    + "\n");
-        }
-        this.downloadFiles.add(this.downloadManager.downloadFile(url, targetFile, size, hash));
+        queueDownloadFile(url, targetFile, size, hash);
 
         if (this.downloadProgressThread != null && !this.downloadProgressThread.isAlive()) {
             this.downloadProgressThread = null;
@@ -580,6 +573,23 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
     }
 
+    private Downloader queueDownloadFile(URL url, File targetFile, long size, String hash) {
+        if (hasView()) {
+            // Report info to the Output tab
+            getView()
+                    .getOutputPanel()
+                    .append(
+                            Constant.messages.getString(
+                                            "cfu.output.downloading",
+                                            url.toString(),
+                                            targetFile.getAbsolutePath())
+                                    + "\n");
+        }
+        Downloader dl = this.downloadManager.downloadFile(url, targetFile, size, hash);
+        this.downloadFiles.add(dl);
+        return dl;
+    }
+
     private void updateScanCount(int count) {
         if (hasView()) {
             getScanStatus().setScanCount(count);
@@ -587,12 +597,20 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     }
 
     public void installNewExtensions() {
+        installFromDownloaders(downloadFiles, false, null);
+        this.installsCompleted = true;
+    }
+
+    private void installFromDownloaders(
+            List<Downloader> toInstall,
+            boolean skipUninstall,
+            Consumer<UninstallationProgressEvent> progressPublisher) {
         final OptionsParamCheckForUpdates options =
                 getModel().getOptionsParam().getCheckForUpdatesParam();
         List<Downloader> handledFiles = new ArrayList<>();
 
         MutableBoolean allInstalled = new MutableBoolean(true);
-        for (Downloader dl : downloadFiles) {
+        for (Downloader dl : toInstall) {
             if (dl.getFinished() == null) {
                 continue;
             }
@@ -655,8 +673,19 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             .ifPresent(
                                     ao -> {
                                         if (ao.canLoadInCurrentVersion()) {
+                                            if (progressPublisher != null) {
+                                                progressPublisher.accept(
+                                                        UninstallationProgressEvent.installAddOn(
+                                                                ao));
+                                            }
+                                            boolean installed = install(ao, skipUninstall);
+                                            if (progressPublisher != null) {
+                                                progressPublisher.accept(
+                                                        UninstallationProgressEvent.finishedInstall(
+                                                                ao, installed));
+                                            }
                                             allInstalled.setValue(
-                                                    allInstalled.booleanValue() & install(ao));
+                                                    allInstalled.booleanValue() & installed);
                                         } else {
                                             LOGGER.info(
                                                     "Can't load add-on: {} Not before={} Not from={} Version={}",
@@ -676,7 +705,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             // Can't remove in loop above as we're iterating through the list
             this.downloadFiles.remove(dl);
         }
-        this.installsCompleted = true;
         this.installsOk = allInstalled.booleanValue();
     }
 
@@ -1213,6 +1241,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     }
 
     private boolean install(AddOn ao) {
+        return install(ao, false);
+    }
+
+    private boolean install(AddOn ao, boolean skipUninstall) {
         if (!ao.canLoadInCurrentVersion()) {
             throw new IllegalArgumentException(
                     "Can't load add-on "
@@ -1226,7 +1258,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
-        if (installedAddOn != null && !uninstallAddOn(null, installedAddOn, true)) {
+        if (!skipUninstall
+                && installedAddOn != null
+                && !uninstallAddOn(null, installedAddOn, true)) {
             // Can't uninstall the old version, so dont try to install the new one
             return false;
         }
@@ -1465,17 +1499,19 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             if (!warnUnsavedResourcesOrActiveActions(caller, addOns, extensions, true)) {
                 return;
             }
+
+            runAddOnChangesWithView(
+                    caller, AddOnOperationPlan.fromChanges(changes), new HashSet<>());
+            return;
         }
 
         uninstallAddOns(caller, changes.getUninstalls(), false);
+        uninstallAddOns(caller, changes.getOldVersions(), true);
 
         Set<AddOn> allAddons = new HashSet<>(changes.getNewVersions());
         allAddons.addAll(changes.getInstalls());
 
         for (AddOn addOn : allAddons) {
-            if (addonsDialog != null) {
-                addonsDialog.notifyAddOnDownloading(addOn);
-            }
             downloadAddOn(addOn);
         }
     }
@@ -1673,14 +1709,20 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             return true;
         }
 
+        return runAddOnChangesWithView(
+                caller, AddOnOperationPlan.forUninstall(addOns, updates), failedUninstallations);
+    }
+
+    private boolean runAddOnChangesWithView(
+            final Window caller,
+            final AddOnOperationPlan plan,
+            final Set<AddOn> failedUninstallations) {
         if (!EventQueue.isDispatchThread()) {
             try {
                 EventQueue.invokeAndWait(
-                        () ->
-                                uninstallAddOnsWithView(
-                                        caller, addOns, updates, failedUninstallations));
+                        () -> runAddOnChangesWithView(caller, plan, failedUninstallations));
             } catch (InvocationTargetException | InterruptedException e) {
-                LOGGER.error("Failed to uninstall add-ons:", e);
+                LOGGER.error("Failed to process add-on changes:", e);
                 return false;
             }
             return failedUninstallations.isEmpty();
@@ -1689,64 +1731,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         final Window parent = getWindowParent(caller);
 
         final UninstallationProgressDialogue waitDialogue =
-                new UninstallationProgressDialogue(parent, addOns);
-        waitDialogue.addAddOnUninstallListener(
-                new AddOnUninstallListener() {
+                new UninstallationProgressDialogue(parent, plan);
+        waitDialogue.addAddOnUninstallListener(createAddOnUninstallListener());
 
-                    @Override
-                    public void uninstallingAddOn(AddOn addOn, boolean updating) {
-                        if (updating) {
-                            getView()
-                                    .getOutputPanel()
-                                    .append(
-                                            Constant.messages.getString(
-                                                            "cfu.output.replacing",
-                                                            addOn.getName(),
-                                                            addOn.getVersion())
-                                                    + "\n");
-                        }
-                    }
-
-                    @Override
-                    public void addOnUninstalled(AddOn addOn, boolean update, boolean uninstalled) {
-                        if (uninstalled) {
-                            if (!update && addonsDialog != null) {
-                                addonsDialog.notifyAddOnUninstalled(addOn);
-                            }
-
-                            getView()
-                                    .getOutputPanel()
-                                    .append(
-                                            Constant.messages.getString(
-                                                            "cfu.output.uninstalled",
-                                                            addOn.getName(),
-                                                            addOn.getVersion())
-                                                    + "\n");
-                        } else {
-                            if (addonsDialog != null) {
-                                addonsDialog.notifyAddOnFailedUninstallation(addOn);
-                            }
-
-                            String message;
-                            if (update) {
-                                message =
-                                        Constant.messages.getString(
-                                                "cfu.output.replace.failed",
-                                                addOn.getName(),
-                                                addOn.getVersion());
-                            } else {
-                                message =
-                                        Constant.messages.getString(
-                                                "cfu.output.uninstall.failed",
-                                                addOn.getName(),
-                                                addOn.getVersion());
-                            }
-                            getView().getOutputPanel().append(message + "\n");
-                        }
-                    }
-                });
-
-        SwingWorker<Void, UninstallationProgressEvent> a =
+        SwingWorker<Void, UninstallationProgressEvent> worker =
                 new SwingWorker<>() {
 
                     @Override
@@ -1765,10 +1753,74 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                     }
                                 };
 
-                        for (AddOn addOn : addOns) {
-                            if (!uninstall(addOn, updates, progressHandler)) {
+                        for (AddOn addOn : plan.getUninstalls()) {
+                            if (!uninstall(addOn, false, progressHandler)) {
                                 failedUninstallations.add(addOn);
                             }
+                        }
+
+                        for (AddOn addOn : plan.getOldVersions()) {
+                            if (!uninstall(addOn, true, progressHandler)) {
+                                failedUninstallations.add(addOn);
+                            }
+                        }
+
+                        if (!plan.getToDownload().isEmpty()) {
+                            publish(
+                                    UninstallationProgressEvent.phase(
+                                            UninstallationProgressEvent.Phase.DOWNLOAD));
+
+                            List<Downloader> batchDownloads = new ArrayList<>();
+                            Map<AddOn, Integer> lastPercent = new HashMap<>();
+
+                            for (AddOn addOn : plan.getToDownload()) {
+                                if (AddOn.InstallationStatus.DOWNLOADING
+                                        == addOn.getInstallationStatus()) {
+                                    continue;
+                                }
+                                addOn.setInstallationStatus(AddOn.InstallationStatus.DOWNLOADING);
+                                if (addonsDialog != null) {
+                                    EventQueue.invokeLater(
+                                            () -> addonsDialog.notifyAddOnDownloading(addOn));
+                                }
+                                batchDownloads.add(
+                                        queueDownloadFile(
+                                                addOn.getUrl(),
+                                                addOn.getFile(),
+                                                addOn.getSize(),
+                                                addOn.getHash()));
+                                lastPercent.put(addOn, 0);
+                            }
+
+                            while (downloadManager.getCurrentDownloadCount() > 0) {
+                                for (AddOn addOn : plan.getToDownload()) {
+                                    try {
+                                        int progress = getDownloadProgressPercent(addOn.getUrl());
+                                        if (progress > 0) {
+                                            int previous = lastPercent.get(addOn);
+                                            if (progress > previous) {
+                                                publish(
+                                                        UninstallationProgressEvent
+                                                                .downloadProgress(
+                                                                        addOn, previous, progress));
+                                                lastPercent.put(addOn, progress);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        LOGGER.debug("Error on {}", addOn.getUrl(), e);
+                                    }
+                                }
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    // Ignore
+                                }
+                            }
+
+                            publish(
+                                    UninstallationProgressEvent.phase(
+                                            UninstallationProgressEvent.Phase.INSTALL));
+                            installFromDownloaders(batchDownloads, true, this::publish);
                         }
 
                         if (!failedUninstallations.isEmpty()) {
@@ -1781,12 +1833,70 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     }
                 };
 
-        waitDialogue.bind(a);
-        a.execute();
-        waitDialogue.setSynchronous(updates);
+        waitDialogue.bind(worker);
+        worker.execute();
+        waitDialogue.setSynchronous(
+                plan.getKind() != AddOnOperationPlan.Kind.UNINSTALL || plan.hasDownloadOrInstall());
         waitDialogue.setVisible(true);
 
         return failedUninstallations.isEmpty();
+    }
+
+    private AddOnUninstallListener createAddOnUninstallListener() {
+        return new AddOnUninstallListener() {
+
+            @Override
+            public void uninstallingAddOn(AddOn addOn, boolean updating) {
+                if (updating) {
+                    getView()
+                            .getOutputPanel()
+                            .append(
+                                    Constant.messages.getString(
+                                                    "cfu.output.replacing",
+                                                    addOn.getName(),
+                                                    addOn.getVersion())
+                                            + "\n");
+                }
+            }
+
+            @Override
+            public void addOnUninstalled(AddOn addOn, boolean update, boolean uninstalled) {
+                if (uninstalled) {
+                    if (!update && addonsDialog != null) {
+                        addonsDialog.notifyAddOnUninstalled(addOn);
+                    }
+
+                    getView()
+                            .getOutputPanel()
+                            .append(
+                                    Constant.messages.getString(
+                                                    "cfu.output.uninstalled",
+                                                    addOn.getName(),
+                                                    addOn.getVersion())
+                                            + "\n");
+                } else {
+                    if (addonsDialog != null) {
+                        addonsDialog.notifyAddOnFailedUninstallation(addOn);
+                    }
+
+                    String message;
+                    if (update) {
+                        message =
+                                Constant.messages.getString(
+                                        "cfu.output.replace.failed",
+                                        addOn.getName(),
+                                        addOn.getVersion());
+                    } else {
+                        message =
+                                Constant.messages.getString(
+                                        "cfu.output.uninstall.failed",
+                                        addOn.getName(),
+                                        addOn.getVersion());
+                    }
+                    getView().getOutputPanel().append(message + "\n");
+                }
+            }
+        };
     }
 
     /** No database tables used, so all supported */
