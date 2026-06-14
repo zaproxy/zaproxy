@@ -77,6 +77,8 @@ class UninstallationProgressDialogue extends AbstractDialog {
 
     private boolean synchronous;
 
+    private boolean disposeOnWorkerDone = true;
+
     public UninstallationProgressDialogue(Window parent, Set<AddOn> addOns) {
         super(parent, true);
 
@@ -86,19 +88,7 @@ class UninstallationProgressDialogue extends AbstractDialog {
         setTitle(Constant.messages.getString("cfu.uninstallation.progress.dialogue.title"));
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
-        int max = 0;
-        for (AddOn addOn : addOns) {
-            max += addOn.getFiles().size();
-            max += addOn.getAscanrules().size();
-            max += addOn.getPscanrules().size();
-            max += addOn.getLoadedExtensions().size() * EXTENSION_UNINSTALL_WEIGHT;
-        }
-
-        getProgressBar().setValue(0);
-        getProgressBar().setMaximum(max);
-
-        getStatusLabel().setText(" ");
-        getCustomLabel().setText(" ");
+        resetForAddOns(addOns);
 
         JPanel panel = new JPanel();
         GroupLayout layout = new GroupLayout(panel);
@@ -207,6 +197,37 @@ class UninstallationProgressDialogue extends AbstractDialog {
         this.synchronous = synchronous;
     }
 
+    void setDisposeOnWorkerDone(boolean disposeOnWorkerDone) {
+        this.disposeOnWorkerDone = disposeOnWorkerDone;
+    }
+
+    void resetForAddOns(Set<AddOn> addOns) {
+        currentType = null;
+        keyBaseStatusMessage = "";
+        currentAddOn = null;
+        update = false;
+        failedUninstallations = false;
+        done = false;
+        setVisibleInvoked = false;
+        startTime = System.currentTimeMillis();
+
+        getProgressBar().setValue(0);
+        getProgressBar().setMaximum(calculateUninstallMax(addOns));
+        getStatusLabel().setText(" ");
+        getCustomLabel().setText(" ");
+    }
+
+    private static int calculateUninstallMax(Set<AddOn> addOns) {
+        int max = 0;
+        for (AddOn addOn : addOns) {
+            max += addOn.getFiles().size();
+            max += addOn.getAscanrules().size();
+            max += addOn.getPscanrules().size();
+            max += addOn.getLoadedExtensions().size() * EXTENSION_UNINSTALL_WEIGHT;
+        }
+        return max;
+    }
+
     @Override
     public void setVisible(boolean show) {
         if (show && !synchronous) {
@@ -225,84 +246,76 @@ class UninstallationProgressDialogue extends AbstractDialog {
      * @param events the events generated during uninstallation
      */
     public void update(List<UninstallationProgressEvent> events) {
-        if (!isVisible()) {
-            if ((System.currentTimeMillis() - startTime) >= MS_TO_WAIT_BEFORE_SHOW) {
-                if (!done && !setVisibleInvoked) {
-                    setVisibleInvoked = true;
-                    EventQueue.invokeLater(
-                            new Runnable() {
+        for (UninstallationProgressEvent event : events) {
+            if (!isVisible()) {
+                if ((System.currentTimeMillis() - startTime) >= MS_TO_WAIT_BEFORE_SHOW) {
+                    if (!done && !setVisibleInvoked) {
+                        setVisibleInvoked = true;
+                        EventQueue.invokeLater(
+                                new Runnable() {
 
-                                @Override
-                                public void run() {
-                                    if (!done) {
-                                        UninstallationProgressDialogue.super.setVisible(true);
+                                    @Override
+                                    public void run() {
+                                        if (!done) {
+                                            UninstallationProgressDialogue.super.setVisible(true);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                    }
                 }
             }
-        }
 
-        int totalAmount = 0;
-        AddOn addOn = null;
+            if (UninstallationProgressEvent.Type.ADD_ON == event.getType()) {
+                currentAddOn = event.getAddOn();
+                update = event.isUpdate();
+                setCurrentAddOn(currentAddOn);
 
-        for (UninstallationProgressEvent event : events) {
-            totalAmount += event.getAmount();
-            if (UninstallationProgressEvent.Type.FINISHED_ADD_ON == event.getType()) {
+                for (AddOnUninstallListener listener : listeners) {
+                    listener.uninstallingAddOn(currentAddOn, update);
+                }
+            } else if (UninstallationProgressEvent.Type.FINISHED_ADD_ON == event.getType()) {
                 for (AddOnUninstallListener listener : listeners) {
                     failedUninstallations = !event.isUninstalled();
                     listener.addOnUninstalled(currentAddOn, update, event.isUninstalled());
                 }
-            } else if (UninstallationProgressEvent.Type.ADD_ON == event.getType()) {
-                addOn = event.getAddOn();
-                currentAddOn = addOn;
-                update = event.isUpdate();
+            }
 
-                for (AddOnUninstallListener listener : listeners) {
-                    listener.uninstallingAddOn(addOn, update);
+            if (event.getAmount() != 0) {
+                incrementProgress(event.getAmount());
+            }
+
+            if (currentType != event.getType()) {
+                String keyMessage;
+                switch (event.getType()) {
+                    case FILE:
+                        keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingFile";
+                        break;
+                    case ACTIVE_RULE:
+                        keyMessage =
+                                "cfu.uninstallation.progress.dialogue.uninstallingActiveScanner";
+                        break;
+                    case PASSIVE_RULE:
+                        keyMessage =
+                                "cfu.uninstallation.progress.dialogue.uninstallingPassiveScanner";
+                        break;
+                    case EXTENSION:
+                        keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingExtension";
+                        break;
+                    default:
+                        keyMessage = "";
+                        break;
                 }
+                currentType = event.getType();
+                keyBaseStatusMessage = keyMessage;
             }
-        }
 
-        UninstallationProgressEvent last = events.get(events.size() - 1);
-
-        if (addOn != null) {
-            setCurrentAddOn(addOn);
-        }
-
-        if (totalAmount != 0) {
-            incrementProgress(totalAmount);
-        }
-
-        if (currentType != last.getType()) {
-            String keyMessage;
-            switch (last.getType()) {
-                case FILE:
-                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingFile";
-                    break;
-                case ACTIVE_RULE:
-                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingActiveScanner";
-                    break;
-                case PASSIVE_RULE:
-                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingPassiveScanner";
-                    break;
-                case EXTENSION:
-                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingExtension";
-                    break;
-                default:
-                    keyMessage = "";
-                    break;
+            if (keyBaseStatusMessage.isEmpty()) {
+                setCustomMessage("");
+            } else {
+                setCustomMessage(
+                        Constant.messages.getString(
+                                keyBaseStatusMessage, event.getValue(), event.getMax()));
             }
-            currentType = last.getType();
-            keyBaseStatusMessage = keyMessage;
-        }
-
-        if (keyBaseStatusMessage.isEmpty()) {
-            setCustomMessage("");
-        } else {
-            setCustomMessage(
-                    Constant.messages.getString(
-                            keyBaseStatusMessage, last.getValue(), last.getMax()));
         }
     }
 
@@ -471,14 +484,17 @@ class UninstallationProgressDialogue extends AbstractDialog {
             if ("state".equals(event.getPropertyName())
                     && SwingWorker.StateValue.DONE == event.getNewValue()) {
                 setVisible(false);
-                dispose();
                 done = true;
 
-                if (failedUninstallations) {
-                    View.getSingleton()
-                            .showWarningDialog(
-                                    getOwner(),
-                                    Constant.messages.getString("cfu.uninstall.failed"));
+                if (disposeOnWorkerDone) {
+                    dispose();
+
+                    if (failedUninstallations) {
+                        View.getSingleton()
+                                .showWarningDialog(
+                                        getOwner(),
+                                        Constant.messages.getString("cfu.uninstall.failed"));
+                    }
                 }
             }
         }

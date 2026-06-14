@@ -125,6 +125,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     // Files currently being downloaded
     private List<Downloader> downloadFiles = new ArrayList<>();
 
+    private boolean batchUpgradeSessionActive;
+    private UninstallationProgressDialogue sharedUninstallDialogue;
+    private int remainingUpgradeUninstalls;
+    private boolean batchUninstallHadFailures;
+
     private static final int ARG_CFU_INSTALL_IDX = 0;
     private static final int ARG_CFU_INSTALL_ALL_IDX = 1;
     private static final int ARG_CFU_UNINSTALL_IDX = 2;
@@ -591,93 +596,128 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 getModel().getOptionsParam().getCheckForUpdatesParam();
         List<Downloader> handledFiles = new ArrayList<>();
 
+        if (hasView()) {
+            int upgradeCount = countUpgradeInstallsInBatch();
+            if (upgradeCount > 1) {
+                beginBatchUpgradeSession();
+                remainingUpgradeUninstalls = upgradeCount;
+            }
+        }
+
         MutableBoolean allInstalled = new MutableBoolean(true);
+        try {
+            for (Downloader dl : downloadFiles) {
+                if (dl.getFinished() == null) {
+                    continue;
+                }
+                handledFiles.add(dl);
+                try {
+                    if (!dl.isValidated()) {
+                        LOGGER.debug("Ignoring unvalidated download: {}", dl.getUrl());
+                        allInstalled.setFalse();
+                        if (addonsDialog != null) {
+                            addonsDialog.notifyAddOnDownloadFailed(dl.getUrl().toString());
+                        } else {
+                            String url = dl.getUrl().toString();
+                            for (AddOn addOn : latestVersionInfo.getAddOns()) {
+                                if (url.equals(addOn.getUrl().toString())) {
+                                    addOn.setInstallationStatus(AddOn.InstallationStatus.AVAILABLE);
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (AddOn.isAddOnFileName(dl.getTargetFile().getName())) {
+                        File f = dl.getTargetFile();
+                        if (!options.getDownloadDirectory()
+                                .equals(dl.getTargetFile().getParentFile())) {
+                            // Move the file to the specified directory - we do this after its been
+                            // downloaded
+                            // as these directories can be shared, and other ZAP instances could get
+                            // incomplete
+                            // add-ons
+                            try {
+                                f =
+                                        new File(
+                                                options.getDownloadDirectory(),
+                                                dl.getTargetFile().getName());
+                                LOGGER.info(
+                                        "Moving downloaded add-on from {} to {}",
+                                        dl.getTargetFile().getAbsolutePath(),
+                                        f.getAbsolutePath());
+                                FileUtils.moveFile(dl.getTargetFile(), f);
+                            } catch (Exception e) {
+                                if (!f.exists() && dl.getTargetFile().exists()) {
+                                    LOGGER.error(
+                                            "Failed to move downloaded add-on from {} to {} - left at original location",
+                                            dl.getTargetFile().getAbsolutePath(),
+                                            f.getAbsolutePath(),
+                                            e);
+                                    f = dl.getTargetFile();
+                                } else {
+                                    LOGGER.error(
+                                            "Failed to move downloaded add-on from {} to {} - skipping",
+                                            dl.getTargetFile().getAbsolutePath(),
+                                            f.getAbsolutePath(),
+                                            e);
+                                    allInstalled.setFalse();
+                                    continue;
+                                }
+                            }
+                        }
+
+                        AddOn.createAddOn(f.toPath())
+                                .ifPresent(
+                                        ao -> {
+                                            if (ao.canLoadInCurrentVersion()) {
+                                                allInstalled.setValue(
+                                                        allInstalled.booleanValue() & install(ao));
+                                            } else {
+                                                LOGGER.info(
+                                                        "Can't load add-on: {} Not before={} Not from={} Version={}",
+                                                        ao.getName(),
+                                                        ao.getNotBeforeVersion(),
+                                                        ao.getNotFromVersion(),
+                                                        Constant.PROGRAM_VERSION);
+                                            }
+                                        });
+                    }
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
+
+            for (Downloader dl : handledFiles) {
+                // Can't remove in loop above as we're iterating through the list
+                this.downloadFiles.remove(dl);
+            }
+            this.installsCompleted = true;
+            this.installsOk = allInstalled.booleanValue();
+        } finally {
+            endBatchUpgradeSession();
+        }
+    }
+
+    private int countUpgradeInstallsInBatch() {
+        int count = 0;
         for (Downloader dl : downloadFiles) {
-            if (dl.getFinished() == null) {
+            if (dl.getFinished() == null || !dl.isValidated()) {
                 continue;
             }
-            handledFiles.add(dl);
-            try {
-                if (!dl.isValidated()) {
-                    LOGGER.debug("Ignoring unvalidated download: {}", dl.getUrl());
-                    allInstalled.setFalse();
-                    if (addonsDialog != null) {
-                        addonsDialog.notifyAddOnDownloadFailed(dl.getUrl().toString());
-                    } else {
-                        String url = dl.getUrl().toString();
-                        for (AddOn addOn : latestVersionInfo.getAddOns()) {
-                            if (url.equals(addOn.getUrl().toString())) {
-                                addOn.setInstallationStatus(AddOn.InstallationStatus.AVAILABLE);
-                                break;
-                            }
-                        }
-                    }
-                } else if (AddOn.isAddOnFileName(dl.getTargetFile().getName())) {
-                    File f = dl.getTargetFile();
-                    if (!options.getDownloadDirectory()
-                            .equals(dl.getTargetFile().getParentFile())) {
-                        // Move the file to the specified directory - we do this after its been
-                        // downloaded
-                        // as these directories can be shared, and other ZAP instances could get
-                        // incomplete
-                        // add-ons
-                        try {
-                            f =
-                                    new File(
-                                            options.getDownloadDirectory(),
-                                            dl.getTargetFile().getName());
-                            LOGGER.info(
-                                    "Moving downloaded add-on from {} to {}",
-                                    dl.getTargetFile().getAbsolutePath(),
-                                    f.getAbsolutePath());
-                            FileUtils.moveFile(dl.getTargetFile(), f);
-                        } catch (Exception e) {
-                            if (!f.exists() && dl.getTargetFile().exists()) {
-                                LOGGER.error(
-                                        "Failed to move downloaded add-on from {} to {} - left at original location",
-                                        dl.getTargetFile().getAbsolutePath(),
-                                        f.getAbsolutePath(),
-                                        e);
-                                f = dl.getTargetFile();
-                            } else {
-                                LOGGER.error(
-                                        "Failed to move downloaded add-on from {} to {} - skipping",
-                                        dl.getTargetFile().getAbsolutePath(),
-                                        f.getAbsolutePath(),
-                                        e);
-                                allInstalled.setFalse();
-                                continue;
-                            }
-                        }
-                    }
-
-                    AddOn.createAddOn(f.toPath())
-                            .ifPresent(
-                                    ao -> {
-                                        if (ao.canLoadInCurrentVersion()) {
-                                            allInstalled.setValue(
-                                                    allInstalled.booleanValue() & install(ao));
-                                        } else {
-                                            LOGGER.info(
-                                                    "Can't load add-on: {} Not before={} Not from={} Version={}",
-                                                    ao.getName(),
-                                                    ao.getNotBeforeVersion(),
-                                                    ao.getNotFromVersion(),
-                                                    Constant.PROGRAM_VERSION);
-                                        }
-                                    });
-                }
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+            if (!AddOn.isAddOnFileName(dl.getTargetFile().getName())) {
+                continue;
+            }
+            File f = dl.getTargetFile();
+            if (!f.isFile()) {
+                continue;
+            }
+            if (AddOn.createAddOn(f.toPath())
+                    .filter(AddOn::canLoadInCurrentVersion)
+                    .filter(ao -> getLocalVersionInfo().getAddOn(ao.getId()) != null)
+                    .isPresent()) {
+                count++;
             }
         }
-
-        for (Downloader dl : handledFiles) {
-            // Can't remove in loop above as we're iterating through the list
-            this.downloadFiles.remove(dl);
-        }
-        this.installsCompleted = true;
-        this.installsOk = allInstalled.booleanValue();
+        return count;
     }
 
     public int getDownloadProgressPercent(URL url) throws Exception {
@@ -1265,7 +1305,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         if (addonsDialog != null) {
-            addonsDialog.notifyAddOnInstalled(ao);
+            AddOn installed = getLocalVersionInfo().getAddOn(ao.getId());
+            if (installed != null) {
+                addonsDialog.notifyAddOnInstalled(installed);
+            }
         }
         return true;
     }
@@ -1688,63 +1731,23 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         final Window parent = getWindowParent(caller);
 
-        final UninstallationProgressDialogue waitDialogue =
-                new UninstallationProgressDialogue(parent, addOns);
-        waitDialogue.addAddOnUninstallListener(
-                new AddOnUninstallListener() {
+        final boolean reuseSharedDialogue =
+                batchUpgradeSessionActive && updates && addOns.size() == 1;
 
-                    @Override
-                    public void uninstallingAddOn(AddOn addOn, boolean updating) {
-                        if (updating) {
-                            getView()
-                                    .getOutputPanel()
-                                    .append(
-                                            Constant.messages.getString(
-                                                            "cfu.output.replacing",
-                                                            addOn.getName(),
-                                                            addOn.getVersion())
-                                                    + "\n");
-                        }
-                    }
+        final UninstallationProgressDialogue waitDialogue;
+        if (reuseSharedDialogue && sharedUninstallDialogue != null) {
+            waitDialogue = sharedUninstallDialogue;
+            waitDialogue.resetForAddOns(addOns);
+        } else {
+            waitDialogue = new UninstallationProgressDialogue(parent, addOns);
+            waitDialogue.addAddOnUninstallListener(createAddOnUninstallListener());
+            if (reuseSharedDialogue) {
+                sharedUninstallDialogue = waitDialogue;
+            }
+        }
 
-                    @Override
-                    public void addOnUninstalled(AddOn addOn, boolean update, boolean uninstalled) {
-                        if (uninstalled) {
-                            if (!update && addonsDialog != null) {
-                                addonsDialog.notifyAddOnUninstalled(addOn);
-                            }
-
-                            getView()
-                                    .getOutputPanel()
-                                    .append(
-                                            Constant.messages.getString(
-                                                            "cfu.output.uninstalled",
-                                                            addOn.getName(),
-                                                            addOn.getVersion())
-                                                    + "\n");
-                        } else {
-                            if (addonsDialog != null) {
-                                addonsDialog.notifyAddOnFailedUninstallation(addOn);
-                            }
-
-                            String message;
-                            if (update) {
-                                message =
-                                        Constant.messages.getString(
-                                                "cfu.output.replace.failed",
-                                                addOn.getName(),
-                                                addOn.getVersion());
-                            } else {
-                                message =
-                                        Constant.messages.getString(
-                                                "cfu.output.uninstall.failed",
-                                                addOn.getName(),
-                                                addOn.getVersion());
-                            }
-                            getView().getOutputPanel().append(message + "\n");
-                        }
-                    }
-                });
+        final boolean disposeWhenDone = !reuseSharedDialogue || remainingUpgradeUninstalls <= 1;
+        waitDialogue.setDisposeOnWorkerDone(disposeWhenDone);
 
         SwingWorker<Void, UninstallationProgressEvent> a =
                 new SwingWorker<>() {
@@ -1786,7 +1789,94 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         waitDialogue.setSynchronous(updates);
         waitDialogue.setVisible(true);
 
+        if (reuseSharedDialogue) {
+            if (failedUninstallations.isEmpty()) {
+                remainingUpgradeUninstalls--;
+            } else if (!disposeWhenDone) {
+                batchUninstallHadFailures = true;
+            }
+        }
+
         return failedUninstallations.isEmpty();
+    }
+
+    private void beginBatchUpgradeSession() {
+        batchUpgradeSessionActive = true;
+        batchUninstallHadFailures = false;
+        remainingUpgradeUninstalls = 0;
+    }
+
+    private void endBatchUpgradeSession() {
+        if (sharedUninstallDialogue != null) {
+            sharedUninstallDialogue.dispose();
+            sharedUninstallDialogue = null;
+        }
+        if (batchUninstallHadFailures && getView() != null) {
+            View.getSingleton()
+                    .showWarningDialog(
+                            getView().getMainFrame(),
+                            Constant.messages.getString("cfu.uninstall.failed"));
+        }
+        batchUpgradeSessionActive = false;
+        batchUninstallHadFailures = false;
+        remainingUpgradeUninstalls = 0;
+    }
+
+    private AddOnUninstallListener createAddOnUninstallListener() {
+        return new AddOnUninstallListener() {
+
+            @Override
+            public void uninstallingAddOn(AddOn addOn, boolean updating) {
+                if (updating) {
+                    getView()
+                            .getOutputPanel()
+                            .append(
+                                    Constant.messages.getString(
+                                                    "cfu.output.replacing",
+                                                    addOn.getName(),
+                                                    addOn.getVersion())
+                                            + "\n");
+                }
+            }
+
+            @Override
+            public void addOnUninstalled(AddOn addOn, boolean update, boolean uninstalled) {
+                if (uninstalled) {
+                    if (!update && addonsDialog != null) {
+                        addonsDialog.notifyAddOnUninstalled(addOn);
+                    }
+
+                    getView()
+                            .getOutputPanel()
+                            .append(
+                                    Constant.messages.getString(
+                                                    "cfu.output.uninstalled",
+                                                    addOn.getName(),
+                                                    addOn.getVersion())
+                                            + "\n");
+                } else {
+                    if (addonsDialog != null) {
+                        addonsDialog.notifyAddOnFailedUninstallation(addOn);
+                    }
+
+                    String message;
+                    if (update) {
+                        message =
+                                Constant.messages.getString(
+                                        "cfu.output.replace.failed",
+                                        addOn.getName(),
+                                        addOn.getVersion());
+                    } else {
+                        message =
+                                Constant.messages.getString(
+                                        "cfu.output.uninstall.failed",
+                                        addOn.getName(),
+                                        addOn.getVersion());
+                    }
+                    getView().getOutputPanel().append(message + "\n");
+                }
+            }
+        };
     }
 
     /** No database tables used, so all supported */
