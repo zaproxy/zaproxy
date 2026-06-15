@@ -49,6 +49,7 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -78,12 +79,16 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.AlertAPI;
 import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.extension.api.ApiException.Type;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.ZapSupportUtils;
 
@@ -187,6 +192,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String OTHER_FILE_UPLOAD = "fileUpload";
 
     private static final String PARAM_BASE_URL = "baseurl";
+    private static final String PARAM_CONTEXT_NAME = "contextName";
     private static final String PARAM_COUNT = "count";
     private static final String PARAM_DIR = "dir";
     private static final String PARAM_SESSION = "name";
@@ -216,6 +222,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String PARAM_CONTENTS = "fileContents";
     private static final String PARAM_NAME = "name";
     private static final String PARAM_LEVEL = "logLevel";
+    private static final String PARAM_USER_NAME = "userName";
 
     private static final List<String> PARAMS_STRING = Collections.singletonList("String");
     private static final List<String> PARAMS_BOOLEAN = Collections.singletonList("Boolean");
@@ -269,7 +276,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 new ApiAction(
                         ACTION_ACCESS_URL,
                         new String[] {PARAM_URL},
-                        new String[] {PARAM_FOLLOW_REDIRECTS}));
+                        new String[] {
+                            PARAM_FOLLOW_REDIRECTS, PARAM_CONTEXT_NAME, PARAM_USER_NAME
+                        }));
         this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
         this.addApiAction(
                 new ApiAction(
@@ -296,7 +305,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 new ApiAction(
                         ACTION_SEND_REQUEST,
                         new String[] {PARAM_REQUEST},
-                        new String[] {PARAM_FOLLOW_REDIRECTS}));
+                        new String[] {
+                            PARAM_FOLLOW_REDIRECTS, PARAM_CONTEXT_NAME, PARAM_USER_NAME
+                        }));
         this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
         this.addApiAction(
                 new ApiAction(
@@ -431,7 +442,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         new ApiOther(
                                 OTHER_SEND_HAR_REQUEST,
                                 new String[] {PARAM_REQUEST},
-                                new String[] {PARAM_FOLLOW_REDIRECTS})));
+                                new String[] {
+                                    PARAM_FOLLOW_REDIRECTS, PARAM_CONTEXT_NAME, PARAM_USER_NAME
+                                })));
         this.addApiOthers(new ApiOther(OTHER_FILE_DOWNLOAD, new String[] {PARAM_FILENAME}));
         this.addApiOthers(
                 new ApiOther(
@@ -545,7 +558,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             } catch (HttpMalformedHeaderException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
             }
-            return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
+            return sendHttpMessage(
+                    request,
+                    getParam(params, PARAM_FOLLOW_REDIRECTS, false),
+                    getUser(params),
+                    name);
         } else if (ACTION_SHUTDOWN.equals(name)) {
             Thread thread =
                     new Thread("ZAP-Shutdown") {
@@ -771,7 +788,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
             }
             validateForCurrentMode(request);
-            return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
+            return sendHttpMessage(
+                    request,
+                    getParam(params, PARAM_FOLLOW_REDIRECTS, false),
+                    getUser(params),
+                    name);
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
             return API.getInstance()
                     .getImplementors()
@@ -931,6 +952,36 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         return ApiResponseElement.OK;
     }
 
+    private static User getUser(JSONObject params) throws ApiException {
+        String userName = params.optString(PARAM_USER_NAME, "");
+        if (StringUtils.isBlank(userName)) {
+            return null;
+        }
+
+        ExtensionUserManagement usersExtension =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionUserManagement.class);
+        if (usersExtension == null) {
+            throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
+        }
+
+        String contextName = params.optString(PARAM_CONTEXT_NAME, "");
+        if (StringUtils.isBlank(contextName)) {
+            throw new ApiException(Type.MISSING_PARAMETER, PARAM_CONTEXT_NAME);
+        }
+
+        Context context = ApiUtils.getContextByName(contextName);
+        List<User> users = usersExtension.getContextUserAuthManager(context.getId()).getUsers();
+        for (User user : users) {
+            if (userName.equals(user.getName())) {
+                return user;
+            }
+        }
+
+        throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_NAME);
+    }
+
     /**
      * Returns a Path for the child file underneath the specified parent directory. Detects and
      * throws an exception if a path traversal attack is used.
@@ -1029,13 +1080,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private ApiResponse sendHttpMessage(
-            HttpMessage request, boolean followRedirects, String apiResponseName)
+            HttpMessage request, boolean followRedirects, User user, String apiResponseName)
             throws ApiException {
         final ApiResponseList resultList = new ApiResponseList(apiResponseName);
         try {
             sendRequest(
                     request,
                     followRedirects,
+                    user,
                     new Processor<HttpMessage>() {
 
                         @Override
@@ -1086,9 +1138,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private static void sendRequest(
-            HttpMessage request, boolean followRedirects, Processor<HttpMessage> processor)
+            HttpMessage request,
+            boolean followRedirects,
+            User user,
+            Processor<HttpMessage> processor)
             throws IOException, ApiException {
         HttpSender sender = new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
+        sender.setUser(user);
 
         if (followRedirects) {
             ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
@@ -1508,6 +1564,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         sendRequest(
                                 request,
                                 followRedirects,
+                                getUser(params),
                                 httpMessage -> {
                                     HistoryReference hRef = httpMessage.getHistoryRef();
                                     entries.addEntry(
