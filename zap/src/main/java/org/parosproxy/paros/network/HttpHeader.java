@@ -114,6 +114,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String REFRESH = "refresh";
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
+    private static final Pattern patternHeaderLF = Pattern.compile("(?<!\\r)\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks
     private static final Pattern patternCharset =
             Pattern.compile(
@@ -430,7 +431,7 @@ public abstract class HttpHeader implements java.io.Serializable {
         }
 
         // ZAP: Replace all "\n" with "\r\n" to parse correctly
-        String newData = data.replaceAll("(?<!\r)\n", CRLF);
+        String newData = patternHeaderLF.matcher(data).replaceAll(CRLF);
         // ZAP: always use CRLF to comply with HTTP specification
         // even if the data it's not directly used.
         mLineDelimiter = CRLF;
