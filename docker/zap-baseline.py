@@ -92,7 +92,7 @@ def usage():
     print('    -D secs           delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
     print('    -I                do not return failure on warning')
-    print('    -j                use the Ajax spider in addition to the traditional one')
+    print('    -j                use the modern spider in addition to the traditional one (default: Ajax spider)')
     print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print('    -n context_file   context file which will be loaded prior to spidering the target')
     print('    -p progress_file  progress file which specifies issues that are being addressed')
@@ -104,6 +104,8 @@ def usage():
     print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
     print('    --plan-only       generate an automation framework plan but do not run it')
+    print('    --ajax-spider     use the Ajax spider when -j is specified (default)')
+    print('    --client-spider   use the client spider instead of the Ajax spider when -j is specified')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
@@ -153,7 +155,7 @@ def usage():
 
     '''
 
-def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout, delay,
+def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, ajax_spider, timeout, delay,
                      detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
                      report_json, base_dir):
     with open(yaml_file, 'w') as yf:
@@ -185,7 +187,10 @@ def generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, 
         jobs.append(get_af_spider(target, mins))
 
         if ajax:
-            jobs.append(get_af_spiderAjax(target, mins))
+            if ajax_spider:
+                jobs.append(get_af_spiderAjax(target, mins))
+            else:
+                jobs.append(get_af_spiderClient(target, mins))
 
         if delay:
             jobs.append(get_af_delay(delay))
@@ -244,6 +249,7 @@ def main(argv):
     zap_alpha = False
     info_unspecified = False
     ajax = False
+    ajax_spider = True
     base_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
@@ -270,7 +276,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff", "plan-only"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff", "plan-only", "ajax-spider", "client-spider"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -350,6 +356,10 @@ def main(argv):
             af_supported, no_af_reason = add_af_unsupported(af_supported, no_af_reason, af_unsupported_opts, '--autooff', 'optout')
         elif opt == '--plan-only':
             plan_only = True
+        elif opt == '--ajax-spider':
+            ajax_spider = True
+        elif opt == '--client-spider':
+            ajax_spider = False
 
     check_zap_client_version()
 
@@ -421,6 +431,13 @@ def main(argv):
                 if issue["state"] == "inprogress":
                     in_progress_issues[issue["id"]] = issue
 
+    install_options = []
+    if "-silent" not in zap_options:
+        # In case we're running in the stable container
+        install_options = ['-addonupdate', '-addoninstall', 'pscanrulesBeta']
+        if zap_alpha:
+            install_options.extend(['-addoninstall', 'pscanrulesAlpha'])
+
     if plan_only:
         use_af = True
         if not af_supported:
@@ -434,7 +451,7 @@ def main(argv):
 
         print('Generating the Automation Framework plan only: zap.yaml')
 
-        generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout, delay,
+        generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, ajax_spider, timeout, delay,
                          detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
                          report_json, base_dir)
 
@@ -448,18 +465,14 @@ def main(argv):
             home_dir = str(Path.home())
             yaml_file = os.path.join(home_dir, 'zap.yaml')
             summary_file = os.path.join(home_dir, 'zap_out.json')
-            generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, timeout, delay,
+            generate_af_plan(yaml_file, summary_file, target, out_of_scope_dict, debug, mins, ajax, ajax_spider, timeout, delay,
                              detailed_output, config_dict, config_msg, report_html, report_md, report_xml,
                              report_json, base_dir)
 
             try:
-                if "-silent" not in zap_options:
+                if install_options:
                     # Run ZAP inline to update the add-ons
-                    install_opts = ['-addonupdate', '-addoninstall', 'pscanrulesBeta']
-                    if zap_alpha:
-                        install_opts.extend(['-addoninstall', 'pscanrulesAlpha'])
-
-                    run_zap_inline(port, install_opts)
+                    run_zap_inline(port, install_options)
 
                 # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file, '-config', 'stats.pkg.baseline-af=1']
@@ -505,18 +518,9 @@ def main(argv):
         else:
             try:
                 params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.baseline-api=1']
-                
                 if len(no_af_reason) > 0:
                     params.extend(['-config', 'stats.pkg.xbaseline-' + no_af_reason + '=1'])
-
-                if "-silent" not in zap_options:
-                    params.append('-addonupdate')
-                    # In case we're running in the stable container
-                    params.extend(['-addoninstall', 'pscanrulesBeta'])
-
-                    if zap_alpha:
-                        params.extend(['-addoninstall', 'pscanrulesAlpha'])
-
+                params.extend(install_options)
                 add_zap_options(params, zap_options)
 
                 start_zap(port, params)
@@ -531,15 +535,8 @@ def main(argv):
         if context_file:
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
-
         params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.baseline-api=1']
-
-        if "-silent" not in zap_options:
-            params.append('-addonupdate')
-
-            if (zap_alpha):
-                params.extend(['-addoninstall', 'pscanrulesAlpha'])
-
+        params.extend(install_options)
         add_zap_options(params, zap_options)
 
         try:
@@ -578,7 +575,10 @@ def main(argv):
         zap_spider(zap, target)
 
         if (ajax):
-            zap_ajax_spider(zap, target, mins)
+            if ajax_spider:
+                zap_ajax_spider(zap, target, mins)
+            else:
+                zap_client_spider(zap, target, mins)
 
         if (delay):
             start_scan = datetime.now()

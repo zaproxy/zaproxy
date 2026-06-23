@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2026-06-23
+- Added options to select the modern spider.
+
 ### 2026-06-19
 - Fetch packaged scan HTTP Sender scripts from [community-scripts](https://github.com/zaproxy/community-scripts/tree/main/httpsender) instead of keeping local copies. NOTE: The names of the script files have changed.
 

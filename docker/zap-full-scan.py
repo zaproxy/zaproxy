@@ -91,7 +91,7 @@ def usage():
     print('    -D                delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
     print('    -I                do not return failure on warning')
-    print('    -j                use the Ajax spider in addition to the traditional one')
+    print('    -j                use the modern spider in addition to the traditional one (default: Ajax spider)')
     print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print('    -n context_file   context file which will be loaded prior to scanning the target')
     print('    -p progress_file  progress file which specifies issues that are being addressed')
@@ -100,6 +100,8 @@ def usage():
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
+    print('    --ajax-spider     use the Ajax spider when -j is specified (default)')
+    print('    --client-spider   use the client spider instead of the Ajax spider when -j is specified')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/full-scan/')
 
@@ -125,6 +127,7 @@ def main(argv):
     zap_alpha = False
     info_unspecified = False
     ajax = False
+    ajax_spider = True
     base_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
@@ -144,7 +147,7 @@ def main(argv):
     exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "ajax-spider", "client-spider"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -208,6 +211,10 @@ def main(argv):
             user = arg
         elif opt == '--hook':
             hook_file = arg
+        elif opt == '--ajax-spider':
+            ajax_spider = True
+        elif opt == '--client-spider':
+            ajax_spider = False
 
     check_zap_client_version()
 
@@ -279,20 +286,17 @@ def main(argv):
                 if issue["state"] == "inprogress":
                     in_progress_issues[issue["id"]] = issue
 
+    install_options = []
+    if "-silent" not in zap_options:
+        # In case we're running in the stable container
+        install_options = ['-addonupdate', '-addoninstall', 'pscanrulesBeta', '-addoninstall', 'ascanrulesBeta']
+        if zap_alpha:
+            install_options.extend(['-addoninstall', 'pscanrulesAlpha', '-addoninstall', 'ascanrulesAlpha'])
+
     if running_in_docker():
         try:
             params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.fullscan-api=1']
-            
-            if "-silent" not in zap_options:
-                params.append('-addonupdate')
-                # In case we're running in the stable container
-                params.extend(['-addoninstall', 'pscanrulesBeta'])
-                params.extend(['-addoninstall', 'ascanrulesBeta'])
-                      
-                if zap_alpha:
-                    params.extend(['-addoninstall', 'pscanrulesAlpha'])
-                    params.extend(['-addoninstall', 'ascanrulesAlpha'])
-
+            params.extend(install_options)
             add_zap_options(params, zap_options)
 
             start_zap(port, params)
@@ -308,17 +312,7 @@ def main(argv):
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
         params = ['-config', 'spider.maxDuration=' + str(mins), '-config', 'stats.pkg.fullscan-api=1']
-
-        if "-silent" not in zap_options:
-            params.append('-addonupdate')
-            # In case we're running in the stable container
-            params.extend(['-addoninstall', 'pscanrulesBeta'])
-            params.extend(['-addoninstall', 'ascanrulesBeta'])
-
-            if (zap_alpha):
-                params.extend(['-addoninstall', 'pscanrulesAlpha'])
-                params.extend(['-addoninstall', 'ascanrulesAlpha'])
-
+        params.extend(install_options)
         add_zap_options(params, zap_options)
 
         try:
@@ -357,7 +351,10 @@ def main(argv):
         zap_spider(zap, target)
 
         if (ajax):
-            zap_ajax_spider(zap, target, mins)
+            if ajax_spider:
+                zap_ajax_spider(zap, target, mins)
+            else:
+                zap_client_spider(zap, target, mins)
 
         if (delay):
             start_scan = datetime.now()
