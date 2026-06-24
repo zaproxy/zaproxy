@@ -56,4 +56,4 @@ fun setupTest(name: String, addToCheck: Boolean = true): TaskProvider<Test> {
     return testTask
 }
 
-setupTest("Gui", false)
+setupTest("Gui", true)
