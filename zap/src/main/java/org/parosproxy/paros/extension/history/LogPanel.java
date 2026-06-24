@@ -86,6 +86,7 @@ import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel;
+import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 @SuppressWarnings("serial")
 public class LogPanel extends AbstractPanel {
@@ -368,15 +369,33 @@ public class LogPanel extends AbstractPanel {
     protected HistoryReferencesTable getHistoryReferenceTable() {
         if (historyReferencesTable == null) {
             historyReferencesTable = new HistoryTable();
+            historyReferencesTable.setAdvNotesDialogOpener(
+                    href -> {
+                        if (extension != null) {
+                            extension.showNotesAddDialog(href, href.getNote());
+                        }
+                    });
             historyReferencesTable.addMouseListener(
                     new java.awt.event.MouseAdapter() {
 
                         @Override
                         public void mouseClicked(java.awt.event.MouseEvent e) {
-                            if (SwingUtilities.isLeftMouseButton(e)
-                                    && e.getClickCount() > 1) { // double click
+                            if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1) {
+                                int col = historyReferencesTable.columnAtPoint(e.getPoint());
+                                if (col >= 0) {
+                                    int modelCol =
+                                            historyReferencesTable.convertColumnIndexToModel(col);
+                                    if (modelCol >= 0
+                                            && modelCol
+                                                    < historyReferencesTable
+                                                            .getModel()
+                                                            .getColumnCount()
+                                            && historyReferencesTable.getModel().getColumn(modelCol)
+                                                    == Column.ADV_NOTES) {
+                                        return;
+                                    }
+                                }
                                 view.getRequestPanel().setTabFocus();
-                                return;
                             }
                         }
                     });
