@@ -29,6 +29,8 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
@@ -113,6 +115,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     private static final String RETRIEVE_PANEL = "RetrievePanel";
     private static final String MARKETPLACE_PANEL = "MarketplacePanel";
     private static final double ADD_ON_DETAILS_RESIZE_WEIGHT = 0.7D;
+    private static final int CHECKBOX_COLUMN = 5;
 
     private static final String ADD_ON_MANDATORY =
             Constant.messages.getString("cfu.table.mandatory.value.yes");
@@ -586,6 +589,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     .addHighlighter(
                             new DisableSelectionHighlighter(
                                     AddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
+
+            addDoubleClickToggleCheckboxListener(installedAddOnsTable, installedAddOnsModel);
         }
 
         return installedAddOnsTable;
@@ -696,8 +701,44 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     .addHighlighter(
                             new DisableSelectionHighlighter(
                                     UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
+
+            addDoubleClickToggleCheckboxListener(uninstalledAddOnsTable, uninstalledAddOnsModel);
         }
         return uninstalledAddOnsTable;
+    }
+
+    private static void addDoubleClickToggleCheckboxListener(
+            ZapTable table, AddOnsTableModel model) {
+        table.addMouseListener(
+                new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() < 2) {
+                            return;
+                        }
+
+                        int row = table.rowAtPoint(e.getPoint());
+                        if (row == -1) {
+                            return;
+                        }
+
+                        int viewColumn = table.columnAtPoint(e.getPoint());
+                        if (viewColumn != -1
+                                && table.convertColumnIndexToModel(viewColumn) == CHECKBOX_COLUMN) {
+                            // Checkbox column handles single clicks.
+                            return;
+                        }
+
+                        int modelRow = table.convertRowIndexToModel(row);
+                        if (!model.isCellEditable(modelRow, CHECKBOX_COLUMN)) {
+                            return;
+                        }
+
+                        boolean selected =
+                                Boolean.TRUE.equals(model.getValueAt(modelRow, CHECKBOX_COLUMN));
+                        model.setValueAt(!selected, modelRow, CHECKBOX_COLUMN);
+                    }
+                });
     }
 
     private JLabel getUpdatesMessage() {
