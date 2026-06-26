@@ -114,12 +114,13 @@ public class HttpRequestHeader extends HttpHeader {
     public static final String PATCH = "PATCH";
     public static final String POST = "POST";
     public static final String PUT = "PUT";
+    public static final String QUERY = "QUERY";
     public static final String TRACE = "TRACE";
     public static final String TRACK = "TRACK";
 
     // ZAP: Added method array
     public static final String[] METHODS = {
-        CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE, TRACK
+        CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, QUERY, TRACE, TRACK
     };
     public static final String HOST = "host";
     private static final Pattern patternRequestLine =
@@ -595,7 +596,9 @@ public class HttpRequestHeader extends HttpHeader {
      *
      * @param data the data to be checked
      * @return {@code true} if the data contains a request line, {@code false} otherwise.
+     * @deprecated
      */
+    @Deprecated(forRemoval = true)
     public static boolean isRequestLine(String data) {
         return patternPartialRequestLine.matcher(data).find();
     }
