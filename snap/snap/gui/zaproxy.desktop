@@ -7,3 +7,5 @@ Terminal=false
 Type=Application
 Comment=ZAP is an open-source web application security scanner
 Keywords=network;scan;scanner;web;security;zed;attack;proxy;
+Categories=Network;Security;
+StartupWMClass=org-zaproxy-zap-ZAP
