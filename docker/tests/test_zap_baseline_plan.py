@@ -133,6 +133,10 @@ class TestZapBaselinePlan(unittest.TestCase):
         args = ["--plan-only", "-t", self.target, "-j"]
         self.assert_plan_matches_fixture(args, "baseline_plan_param_lc_j.yaml")
 
+    def test_param_ajax_spider(self):
+        args = ["--plan-only", "-t", self.target, "-j", "--ajax-spider"]
+        self.assert_plan_matches_fixture(args, "baseline_plan_param_ajax_spider.yaml")
+
     def test_param_s(self):
         args = ["--plan-only", "-t", self.target, "-s"]
         self.assert_plan_matches_fixture(args, "baseline_plan_param_lc_s.yaml")

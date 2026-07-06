@@ -19,7 +19,7 @@ jobs:
 - parameters:
     maxDuration: 1
     url: https://example.com/
-  type: spiderClient
+  type: spiderAjax
 - parameters:
     maxDuration: 0
   type: passiveScan-wait

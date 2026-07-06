@@ -104,8 +104,8 @@ def usage():
     print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
     print('    --plan-only       generate an automation framework plan but do not run it')
-    print('    --ajax-spider     use the Ajax spider when -j is specified (default)')
-    print('    --client-spider   use the client spider instead of the Ajax spider when -j is specified')
+    print('    --ajax-spider     use the Ajax spider instead of the Client spider when -j is specified')
+    print('    --client-spider   use the Client spider when -j is specified (default)')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
@@ -249,7 +249,7 @@ def main(argv):
     zap_alpha = False
     info_unspecified = False
     ajax = False
-    ajax_spider = True
+    ajax_spider = False
     base_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
