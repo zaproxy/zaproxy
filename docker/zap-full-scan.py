@@ -100,8 +100,8 @@ def usage():
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
-    print('    --ajax-spider     use the Ajax spider when -j is specified (default)')
-    print('    --client-spider   use the client spider instead of the Ajax spider when -j is specified')
+    print('    --ajax-spider     use the Ajax spider instead of the Client spider when -j is specified')
+    print('    --client-spider   use the Client spider when -j is specified (default)')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/full-scan/')
 
@@ -127,7 +127,7 @@ def main(argv):
     zap_alpha = False
     info_unspecified = False
     ajax = False
-    ajax_spider = True
+    ajax_spider = False
     base_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
