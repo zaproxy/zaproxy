@@ -53,6 +53,7 @@
       ":addOns:soap",
       ":addOns:spider",
       ":addOns:spiderAjax",
+	  ":addOns:sse",
       ":addOns:tips",
       ":addOns:webdrivers:webdriverlinux",
       ":addOns:webdrivers:webdrivermacos",
