@@ -371,8 +371,7 @@ public class AlertAPI extends ApiImplementor {
                     getRiskId(params),
                     counter,
                     true,
-                    (alerts, alert) -> false
-                );
+                    (alerts, alert) -> false);
             return new ApiResponseElement(ACTION_DELETE_ALERTS, String.valueOf(count[0]));
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
@@ -482,7 +481,14 @@ public class AlertAPI extends ApiImplementor {
     private static void processAlerts(
             String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
             throws ApiException {
-        processAlerts(baseUrl, start, count, riskId, processor, false, (alerts, alert) -> alerts.contains(alert));
+        processAlerts(
+                baseUrl,
+                start,
+                count,
+                riskId,
+                processor,
+                false,
+                (alerts, alert) -> alerts.contains(alert));
     }
 
     private static void processAlerts(
@@ -501,7 +507,7 @@ public class AlertAPI extends ApiImplementor {
                 processor,
                 falsePositive,
                 (alerts, alert) -> alerts.contains(alert));
-        }
+    }
 
     private static void processAlerts(
             String baseUrl,
