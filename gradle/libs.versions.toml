@@ -1,11 +1,11 @@
 [versions]
 errorprone = "2.42.0"
 flatlaf = "3.7.1"
-log4j = "2.26.0"
+log4j = "2.26.1"
 
 [libraries]
 bndAnnotation = "biz.aQute.bnd:biz.aQute.bnd.annotation:7.3.0"
-bytebuddy = "net.bytebuddy:byte-buddy:1.18.10"
+bytebuddy = "net.bytebuddy:byte-buddy:1.18.11"
 commons-beanutils = "commons-beanutils:commons-beanutils:1.11.0"
 commons-codec = "commons-codec:commons-codec:1.22.0"
 commons-collections = "commons-collections:commons-collections:3.2.2"
