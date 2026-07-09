@@ -35,10 +35,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
@@ -126,7 +126,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     private ScriptTreeModel treeModel = null;
     private List<ScriptEngineWrapper> engineWrappers = new ArrayList<>();
-    private Map<String, ScriptType> typeMap = new HashMap<>();
+    private Map<String, ScriptType> typeMap = new ConcurrentHashMap<>();
     private ProxyListenerScript proxyListener = null;
     private HttpSenderScriptListener httpSenderScriptListener;
 
