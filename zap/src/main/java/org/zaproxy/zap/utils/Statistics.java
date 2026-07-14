@@ -34,6 +34,10 @@ public class Statistics {
     }
 
     public void incCounter(String key, long inc) {
+        if (key == null) {
+            return;
+        }
+
         stats.compute(key, (k, v) -> (v != null ? v : 0) + inc);
     }
 
@@ -42,10 +46,18 @@ public class Statistics {
     }
 
     public void decCounter(String key, long dec) {
+        if (key == null) {
+            return;
+        }
+
         stats.compute(key, (k, v) -> (v != null ? v : 0) - dec);
     }
 
     public void setHighwaterMark(String key, long value) {
+        if (key == null) {
+            return;
+        }
+
         Long curValue = stats.get(key);
         if (curValue == null || value > curValue) {
             stats.put(key, value + 1);
@@ -53,6 +65,10 @@ public class Statistics {
     }
 
     public void setLowwaterMark(String key, long value) {
+        if (key == null) {
+            return;
+        }
+
         Long curValue = stats.get(key);
         if (curValue == null || value < curValue) {
             stats.put(key, value + 1);
@@ -60,11 +76,19 @@ public class Statistics {
     }
 
     public Long getStat(String key) {
+        if (key == null) {
+            return null;
+        }
+
         return stats.get(key);
     }
 
     public Map<String, Long> getStats(String keyPrefix) {
         Map<String, Long> map = new HashMap<>();
+        if (keyPrefix == null) {
+            return map;
+        }
+
         for (Entry<String, Long> stat : stats.entrySet()) {
             if (stat.getKey().startsWith(keyPrefix)) {
                 map.put(stat.getKey(), stat.getValue());
@@ -78,6 +102,10 @@ public class Statistics {
     }
 
     public void clear(String keyPrefix) {
+        if (keyPrefix == null) {
+            return;
+        }
+
         Iterator<Entry<String, Long>> iter = stats.entrySet().iterator();
         while (iter.hasNext()) {
             Entry<String, Long> entry = iter.next();

@@ -56,6 +56,16 @@ class StatisticsUnitTest {
     }
 
     @Test
+    void shouldIgnoreIncreaseCounterForNullKey() {
+        // Given
+        Statistics statistics = new Statistics();
+        // When
+        statistics.incCounter(null);
+        // Then
+        assertThat(statistics.getStat(null), is(nullValue()));
+    }
+
+    @Test
     void shouldIncreaseExistingCounter() throws Exception {
         // Given
         Statistics statistics = new Statistics();
@@ -74,6 +84,16 @@ class StatisticsUnitTest {
         statistics.incCounter(STAT_KEY, 5);
         // Then
         assertThat(statistics.getStat(STAT_KEY), is(equalTo(5L)));
+    }
+
+    @Test
+    void shouldIgnoreIncreaseCounterWithGivenValueForNullKey() {
+        // Given
+        Statistics statistics = new Statistics();
+        // When
+        statistics.incCounter(null, 5);
+        // Then
+        assertThat(statistics.getStat(null), is(nullValue()));
     }
 
     @Test
@@ -108,6 +128,16 @@ class StatisticsUnitTest {
     }
 
     @Test
+    void shouldIgnoreDecreaseCounterForNullKey() {
+        // Given
+        Statistics statistics = new Statistics();
+        // When
+        statistics.decCounter(null);
+        // Then
+        assertThat(statistics.getStat(null), is(nullValue()));
+    }
+
+    @Test
     void shouldDecreaseExistingCounter() throws Exception {
         // Given
         Statistics statistics = new Statistics();
@@ -126,6 +156,16 @@ class StatisticsUnitTest {
         statistics.decCounter(STAT_KEY, 5);
         // Then
         assertThat(statistics.getStat(STAT_KEY), is(equalTo(-5L)));
+    }
+
+    @Test
+    void shouldIgnoreDecreaseCounterWithGivenValueForNullKey() {
+        // Given
+        Statistics statistics = new Statistics();
+        // When
+        statistics.decCounter(null, 5);
+        // Then
+        assertThat(statistics.getStat(null), is(nullValue()));
     }
 
     @Test
@@ -183,6 +223,19 @@ class StatisticsUnitTest {
     }
 
     @Test
+    void shouldReturnNoStatsWithNullPrefix() {
+        // Given
+        Statistics statistics = new Statistics();
+        statistics.incCounter("other.stats.a");
+        statistics.incCounter("other.stats.b");
+        statistics.incCounter("other.stats.c");
+        // When
+        Map<String, Long> stats = statistics.getStats(null);
+        // Then
+        assertThat(stats.size(), is(equalTo(0)));
+    }
+
+    @Test
     void shouldClearAllStats() throws Exception {
         // Given
         Statistics statistics = new Statistics();
@@ -212,5 +265,44 @@ class StatisticsUnitTest {
         assertThat(statistics.getStat("stats.b"), is(nullValue()));
         assertThat(statistics.getStat("other.stats.a"), is(not(nullValue())));
         assertThat(statistics.getStat("other.stats.b"), is(not(nullValue())));
+    }
+
+    @Test
+    void shouldIgnoreClearStatsWithNullPrefix() {
+        // Given
+        Statistics statistics = new Statistics();
+        statistics.incCounter("stats");
+        statistics.incCounter("stats.a");
+        statistics.incCounter("stats.b");
+        statistics.incCounter("other.stats.a");
+        statistics.incCounter("other.stats.b");
+        // When
+        statistics.clear(null);
+        // Then
+        assertThat(statistics.getStat("stats"), is(equalTo(1L)));
+        assertThat(statistics.getStat("stats.a"), is(equalTo(1L)));
+        assertThat(statistics.getStat("stats.b"), is(equalTo(1L)));
+        assertThat(statistics.getStat("other.stats.a"), is(equalTo(1L)));
+        assertThat(statistics.getStat("other.stats.b"), is(equalTo(1L)));
+    }
+
+    @Test
+    void shouldIgnoreSetHighwaterMarkForNullKey() {
+        // Given
+        Statistics statistics = new Statistics();
+        // When
+        statistics.setHighwaterMark(null, 10);
+        // Then
+        assertThat(statistics.getStat(null), is(nullValue()));
+    }
+
+    @Test
+    void shouldIgnoreSetLowwaterMarkForNullKey() {
+        // Given
+        Statistics statistics = new Statistics();
+        // When
+        statistics.setLowwaterMark(null, 10);
+        // Then
+        assertThat(statistics.getStat(null), is(nullValue()));
     }
 }
