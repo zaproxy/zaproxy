@@ -65,6 +65,59 @@ class ExtensionScriptUnitTest {
     }
 
     @Test
+    void shouldHandleRegistrationOfNullScriptType() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptType scriptType = null;
+
+        // When / Then
+        assertDoesNotThrow(() -> extensionScript.registerScriptType(scriptType));
+    }
+
+    @Test
+    void shouldHandleRegistrationOfScriptTypeWithNullName() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptType scriptType = new ScriptType(null, "i18n.type", null, false);
+
+        // When / Then
+        assertDoesNotThrow(() -> extensionScript.registerScriptType(scriptType));
+    }
+
+    @Test
+    void shouldHandleRemovalOfNullScriptType() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptType scriptType = null;
+
+        // When / Then
+        assertDoesNotThrow(() -> extensionScript.removeScriptType(scriptType));
+    }
+
+    @Test
+    void shouldHandleRemovalOfScriptTypeWithNullName() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        ScriptType scriptType = new ScriptType(null, "i18n.type", null, false);
+
+        // When / Then
+        assertDoesNotThrow(() -> extensionScript.removeScriptType(scriptType));
+    }
+
+    @Test
+    void shouldGetNullScriptTypeFromNullName() {
+        // Given
+        ExtensionScript extensionScript = new ExtensionScript();
+        String scriptTypeName = null;
+
+        // When
+        ScriptType type = extensionScript.getScriptType(scriptTypeName);
+
+        // Then
+        assertThat(type, is(nullValue()));
+    }
+
+    @Test
     void shouldCreateScriptsCache() {
         // Given
         ExtensionScript extensionScript = new ExtensionScript();

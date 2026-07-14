@@ -546,11 +546,17 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      *
      * <p>The script is added to the tree of scripts and its scripts/templates loaded, if any.
      *
+     * <p>The call to this method has no effect if the given type or its name is null.
+     *
      * @param type the new type of script
      * @throws InvalidParameterException if a script type with same name is already registered
      * @see #removeScriptType(ScriptType)
      */
     public void registerScriptType(ScriptType type) {
+        if (type == null || type.getName() == null) {
+            return;
+        }
+
         if (typeMap.containsKey(type.getName())) {
             throw new InvalidParameterException("ScriptType already registered: " + type.getName());
         }
@@ -623,6 +629,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see #registerScriptType(ScriptType)
      */
     public void removeScriptType(ScriptType type) {
+        if (type == null || type.getName() == null) {
+            return;
+        }
+
         ScriptType scriptType = typeMap.remove(type.getName());
         if (scriptType != null) {
             getTreeModel().removeType(scriptType);
@@ -630,6 +640,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     }
 
     public ScriptType getScriptType(String name) {
+        if (name == null) {
+            return null;
+        }
         return this.typeMap.get(name);
     }
 
