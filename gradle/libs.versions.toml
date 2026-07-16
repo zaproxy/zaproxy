@@ -1,6 +1,6 @@
 [versions]
 errorprone = "2.42.0"
-flatlaf = "3.7.1"
+flatlaf = "3.7.2"
 log4j = "2.26.1"
 
 [libraries]
@@ -41,7 +41,7 @@ xom = "xom:xom:1.4.6"
 assertj-core = "org.assertj:assertj-core:3.27.7"
 assertj-swing = "org.assertj:assertj-swing:3.17.1"
 hamcrest-core = "org.hamcrest:hamcrest-core:3.0"
-junit-jupiter = "org.junit.jupiter:junit-jupiter:6.1.1"
+junit-jupiter = "org.junit.jupiter:junit-jupiter:6.1.2"
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
 mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
 
