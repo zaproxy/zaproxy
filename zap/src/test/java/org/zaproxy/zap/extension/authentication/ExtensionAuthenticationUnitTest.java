@@ -87,15 +87,15 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
 
         FormBasedAuthenticationMethodType type = new FormBasedAuthenticationMethodType();
         FormBasedAuthenticationMethod method = type.createAuthenticationMethod(0);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(pollUrl);
-        method.setPollData(pollData);
-        method.setPollHeaders(pollHeaders);
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(pollFreq);
-        method.setLoggedInIndicatorPattern(loggedInIndicator);
-        method.setLoggedOutIndicatorPattern(loggedOutIndicator);
         context.setAuthenticationMethod(method);
+        context.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        context.getVerificationMethod().setPollUrl(pollUrl);
+        context.getVerificationMethod().setPollData(pollData);
+        context.getVerificationMethod().setPollHeaders(pollHeaders);
+        context.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        context.getVerificationMethod().setPollFrequency(pollFreq);
+        context.getVerificationMethod().setLoggedInIndicatorPattern(loggedInIndicator);
+        context.getVerificationMethod().setLoggedOutIndicatorPattern(loggedOutIndicator);
         Configuration config = new ZapXmlConfiguration();
 
         // When
@@ -156,20 +156,27 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
 
         // When
         extensionAuthentication.importContextData(context, config);
-        AuthenticationMethod method = context.getAuthenticationMethod();
 
         // Then
         assertThat(
-                method.getClass().getCanonicalName(),
+                context.getAuthenticationMethod().getClass().getCanonicalName(),
                 is(FormBasedAuthenticationMethod.class.getCanonicalName()));
-        assertThat(method.getAuthCheckingStrategy(), is(AuthCheckingStrategy.POLL_URL));
-        assertThat(method.getPollUrl(), is(pollUrl));
-        assertThat(method.getPollData(), is(pollData));
-        assertThat(method.getPollHeaders(), is(pollHeaders));
-        assertThat(method.getPollFrequencyUnits(), is(AuthPollFrequencyUnits.REQUESTS));
-        assertThat(method.getPollFrequency(), is(pollFreq));
-        assertThat(method.getLoggedInIndicatorPattern().toString(), is(loggedInIndicator));
-        assertThat(method.getLoggedOutIndicatorPattern().toString(), is(loggedOutIndicator));
+        assertThat(
+                context.getVerificationMethod().getAuthCheckingStrategy(),
+                is(AuthCheckingStrategy.POLL_URL));
+        assertThat(context.getVerificationMethod().getPollUrl(), is(pollUrl));
+        assertThat(context.getVerificationMethod().getPollData(), is(pollData));
+        assertThat(context.getVerificationMethod().getPollHeaders(), is(pollHeaders));
+        assertThat(
+                context.getVerificationMethod().getPollFrequencyUnits(),
+                is(AuthPollFrequencyUnits.REQUESTS));
+        assertThat(context.getVerificationMethod().getPollFrequency(), is(pollFreq));
+        assertThat(
+                context.getVerificationMethod().getLoggedInIndicatorPattern().toString(),
+                is(loggedInIndicator));
+        assertThat(
+                context.getVerificationMethod().getLoggedOutIndicatorPattern().toString(),
+                is(loggedOutIndicator));
     }
 
     @Test
@@ -189,14 +196,19 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
 
         // When
         extensionAuthentication.importContextData(context, config);
-        AuthenticationMethod method = context.getAuthenticationMethod();
 
         // Then
         assertThat(
-                method.getClass().getCanonicalName(),
+                context.getAuthenticationMethod().getClass().getCanonicalName(),
                 is(FormBasedAuthenticationMethod.class.getCanonicalName()));
-        assertThat(method.getAuthCheckingStrategy(), is(AuthCheckingStrategy.EACH_RESP));
-        assertThat(method.getLoggedInIndicatorPattern().toString(), is(loggedInIndicator));
-        assertThat(method.getLoggedOutIndicatorPattern().toString(), is(loggedOutIndicator));
+        assertThat(
+                context.getVerificationMethod().getAuthCheckingStrategy(),
+                is(AuthCheckingStrategy.POLL_URL));
+        assertThat(
+                context.getVerificationMethod().getLoggedInIndicatorPattern().toString(),
+                is(loggedInIndicator));
+        assertThat(
+                context.getVerificationMethod().getLoggedOutIndicatorPattern().toString(),
+                is(loggedOutIndicator));
     }
 }

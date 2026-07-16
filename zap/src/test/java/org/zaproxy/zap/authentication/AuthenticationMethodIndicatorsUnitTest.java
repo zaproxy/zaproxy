@@ -30,11 +30,13 @@ import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.session.SessionManagementMethod;
+import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
@@ -68,186 +70,190 @@ class AuthenticationMethodIndicatorsUnitTest {
         HttpRequestHeader header = new HttpRequestHeader();
         header.setURI(new URI("http://www.example.com", true));
         loginMessage.setRequestHeader(header);
-        method = Mockito.mock(AuthenticationMethod.class, Mockito.CALLS_REAL_METHODS);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
+        method = new TestAuthenticationMethod();
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
     }
 
     @Test
     void shouldStoreSetLoggedInIndicator() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertEquals(LOGGED_IN_INDICATOR, method.getLoggedInIndicatorPattern().pattern());
+        assertEquals(
+                LOGGED_IN_INDICATOR,
+                method.getVerificationMethod().getLoggedInIndicatorPattern().pattern());
     }
 
     @Test
     void shouldStoreSetLoggedOutIndicator() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
 
         // When/Then
-        assertEquals(LOGGED_OUT_INDICATOR, method.getLoggedOutIndicatorPattern().pattern());
+        assertEquals(
+                LOGGED_OUT_INDICATOR,
+                method.getVerificationMethod().getLoggedOutIndicatorPattern().pattern());
     }
 
     @Test
     void shouldNotStoreNullOrEmptyLoggedInIndicator() {
         // Given
-        method.setLoggedInIndicatorPattern(null);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(null);
 
         // When/Then
-        assertNull(method.getLoggedInIndicatorPattern());
+        assertNull(method.getVerificationMethod().getLoggedInIndicatorPattern());
 
         // Given
-        method.setLoggedInIndicatorPattern("  ");
+        method.getVerificationMethod().setLoggedInIndicatorPattern("  ");
 
         // When/Then
-        assertNull(method.getLoggedInIndicatorPattern());
+        assertNull(method.getVerificationMethod().getLoggedInIndicatorPattern());
     }
 
     @Test
     void shouldNotStoreNullOrEmptyLoggedOutIndicator() {
         // Given
-        method.setLoggedOutIndicatorPattern(null);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(null);
 
         // When/Then
-        assertNull(method.getLoggedOutIndicatorPattern());
+        assertNull(method.getVerificationMethod().getLoggedOutIndicatorPattern());
 
         // Given
-        method.setLoggedOutIndicatorPattern("  ");
+        method.getVerificationMethod().setLoggedOutIndicatorPattern("  ");
 
         // When/Then
-        assertNull(method.getLoggedOutIndicatorPattern());
+        assertNull(method.getVerificationMethod().getLoggedOutIndicatorPattern());
     }
 
     @Test
     void shouldIdentifyLoggedInResponseBodyWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.setResponseBody(LOGGED_IN_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutResponseBodyWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInResponseHeaderWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutResponseHeaderWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedOutResponseBodyWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInResponseBodyWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.setResponseBody(LOGGED_IN_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutResponseHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInResponseHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutResponseWithComplexRegex() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_COMPLEX_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInResponseWithComplexRegex() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -259,159 +265,199 @@ class AuthenticationMethodIndicatorsUnitTest {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedInRequestBodyWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_IN_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutRequestBodyWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInRequestHeaderWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutRequestHeaderWhenLoggedInIndicatorIsSet() {
         // Given
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedOutRequestBodyWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInRequestBodyWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_IN_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutRequestHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInRequestHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyLoggedOutRequestWithComplexRegex() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_COMPLEX_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
     void shouldIdentifyLoggedInRequestWithComplexRegex() {
         // Given
-        method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
     void shouldIdentifyRequestAsLoggedInWhenNoIndicatorIsSet() {
         // Given
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(loginMessage, user), is(true));
+    }
+
+    private static class TestAuthenticationMethod extends AuthenticationMethod {
+
+        @Override
+        public boolean isConfigured() {
+            return false;
+        }
+
+        @Override
+        protected AuthenticationMethod duplicate() {
+            return null;
+        }
+
+        @Override
+        public AuthenticationCredentials createAuthenticationCredentials() {
+            return null;
+        }
+
+        @Override
+        public AuthenticationMethodType getType() {
+            return null;
+        }
+
+        @Override
+        public WebSession authenticate(
+                SessionManagementMethod sessionManagementMethod,
+                AuthenticationCredentials credentials,
+                User user)
+                throws UnsupportedAuthenticationCredentialsException {
+            return null;
+        }
+
+        @Override
+        public ApiResponse getApiResponseRepresentation() {
+            return null;
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {}
     }
 }

@@ -81,23 +81,44 @@ public class AuthenticationAPI extends ApiImplementor {
         this.addApiView(
                 new ApiView(VIEW_GET_METHOD_CONFIG_PARAMETERS, new String[] {PARAM_METHOD_NAME}));
         this.addApiView(new ApiView(VIEW_GET_AUTHENTICATION, new String[] {PARAM_CONTEXT_ID}));
-        this.addApiView(new ApiView(VIEW_GET_LOGGED_IN_INDICATOR, new String[] {PARAM_CONTEXT_ID}));
-        this.addApiView(
-                new ApiView(VIEW_GET_LOGGED_OUT_INDICATOR, new String[] {PARAM_CONTEXT_ID}));
+
+        ApiView getLoggedInView =
+                new ApiView(VIEW_GET_LOGGED_IN_INDICATOR, new String[] {PARAM_CONTEXT_ID});
+        getLoggedInView.setDeprecated(true);
+        getLoggedInView.setDeprecatedDescription(
+                "Use verification/" + VIEW_GET_LOGGED_IN_INDICATOR + " instead.");
+        this.addApiView(getLoggedInView);
+
+        ApiView getLoggedOutView =
+                new ApiView(VIEW_GET_LOGGED_OUT_INDICATOR, new String[] {PARAM_CONTEXT_ID});
+        getLoggedOutView.setDeprecated(true);
+        getLoggedOutView.setDeprecatedDescription(
+                "Use verification/" + VIEW_GET_LOGGED_OUT_INDICATOR + " instead.");
+        this.addApiView(getLoggedOutView);
 
         this.addApiAction(
                 new ApiAction(
                         ACTION_SET_METHOD,
                         new String[] {PARAM_CONTEXT_ID, PARAM_METHOD_NAME},
                         new String[] {PARAM_METHOD_CONFIG_PARAMS}));
-        this.addApiAction(
+
+        ApiAction setLoggedInAction =
                 new ApiAction(
                         ACTION_SET_LOGGED_IN_INDICATOR,
-                        new String[] {PARAM_CONTEXT_ID, PARAM_LOGGED_IN_INDICATOR}));
-        this.addApiAction(
+                        new String[] {PARAM_CONTEXT_ID, PARAM_LOGGED_IN_INDICATOR});
+        setLoggedInAction.setDeprecated(true);
+        setLoggedInAction.setDeprecatedDescription(
+                "Use verification/" + ACTION_SET_LOGGED_IN_INDICATOR + " instead.");
+        this.addApiAction(setLoggedInAction);
+
+        ApiAction setLoggedOutAction =
                 new ApiAction(
                         ACTION_SET_LOGGED_OUT_INDICATOR,
-                        new String[] {PARAM_CONTEXT_ID, PARAM_LOGGED_OUT_INDICATOR}));
+                        new String[] {PARAM_CONTEXT_ID, PARAM_LOGGED_OUT_INDICATOR});
+        setLoggedOutAction.setDeprecated(true);
+        setLoggedOutAction.setDeprecatedDescription(
+                "Use verification/" + ACTION_SET_LOGGED_OUT_INDICATOR + " instead.");
+        this.addApiAction(setLoggedOutAction);
     }
 
     @Override
@@ -114,13 +135,13 @@ public class AuthenticationAPI extends ApiImplementor {
                 return getContext(params).getAuthenticationMethod().getApiResponseRepresentation();
             case VIEW_GET_LOGGED_IN_INDICATOR:
                 Pattern loggedInPattern =
-                        getContext(params).getAuthenticationMethod().getLoggedInIndicatorPattern();
+                        getContext(params).getVerificationMethod().getLoggedInIndicatorPattern();
                 if (loggedInPattern != null)
                     return new ApiResponseElement("logged_in_regex", loggedInPattern.toString());
                 else return new ApiResponseElement("logged_in_regex", "");
             case VIEW_GET_LOGGED_OUT_INDICATOR:
                 Pattern loggedOutPattern =
-                        getContext(params).getAuthenticationMethod().getLoggedOutIndicatorPattern();
+                        getContext(params).getVerificationMethod().getLoggedOutIndicatorPattern();
                 if (loggedOutPattern != null)
                     return new ApiResponseElement("logged_out_regex", loggedOutPattern.toString());
                 else return new ApiResponseElement("logged_out_regex", "");
@@ -149,7 +170,7 @@ public class AuthenticationAPI extends ApiImplementor {
                 if (loggedInIndicator == null || loggedInIndicator.isEmpty())
                     throw new ApiException(Type.MISSING_PARAMETER, PARAM_LOGGED_IN_INDICATOR);
                 context = getContext(params);
-                context.getAuthenticationMethod().setLoggedInIndicatorPattern(loggedInIndicator);
+                context.getVerificationMethod().setLoggedInIndicatorPattern(loggedInIndicator);
                 context.save();
                 return ApiResponseElement.OK;
 
@@ -158,7 +179,7 @@ public class AuthenticationAPI extends ApiImplementor {
                 if (loggedOutIndicator == null || loggedOutIndicator.isEmpty())
                     throw new ApiException(Type.MISSING_PARAMETER, PARAM_LOGGED_OUT_INDICATOR);
                 context = getContext(params);
-                context.getAuthenticationMethod().setLoggedOutIndicatorPattern(loggedOutIndicator);
+                context.getVerificationMethod().setLoggedOutIndicatorPattern(loggedOutIndicator);
                 context.save();
                 return ApiResponseElement.OK;
 

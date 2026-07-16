@@ -392,7 +392,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             WebSession session = sessionManagementMethod.extractWebSession(msg);
             user.setAuthenticatedSession(session);
 
-            if (this.isAuthenticated(msg, user, true)) {
+            if (this.getVerificationMethod().isAuthenticated(msg, user, true)) {
                 // Let the user know it worked
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
                 user.getAuthenticationState().setLastAuthFailure("");

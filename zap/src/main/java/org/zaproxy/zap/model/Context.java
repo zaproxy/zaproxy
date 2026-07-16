@@ -41,6 +41,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
+import org.zaproxy.zap.authentication.VerificationMethod;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
@@ -87,6 +88,9 @@ public class Context {
     /** The authentication method. */
     private AuthenticationMethod authenticationMethod = null;
 
+    /** The verification method. */
+    private VerificationMethod verificationMethod = null;
+
     /** The session management method. */
     private SessionManagementMethod sessionManagementMethod;
 
@@ -106,6 +110,7 @@ public class Context {
         this.name = String.valueOf(id);
         this.sessionManagementMethod = new CookieBasedSessionManagementMethod(id);
         this.authenticationMethod = new ManualAuthenticationMethod(id);
+        this.verificationMethod = this.authenticationMethod.getVerificationMethod();
         this.authorizationDetectionMethod =
                 new BasicAuthorizationDetectionMethod(null, null, null, LogicalOperator.AND);
         this.urlParamParser.setContext(this);
@@ -526,10 +531,39 @@ public class Context {
     /**
      * Sets the authentication method corresponding to this context.
      *
+     * <p>Setting a new authentication method also links this context's verification method to the
+     * one owned by the new authentication method. To use an independent verification method, call
+     * {@link #setVerificationMethod(VerificationMethod)} afterwards.
+     *
      * @param authenticationMethod the new authentication method
      */
     public void setAuthenticationMethod(AuthenticationMethod authenticationMethod) {
         this.authenticationMethod = authenticationMethod;
+        this.verificationMethod = authenticationMethod.getVerificationMethod();
+    }
+
+    /**
+     * Gets the verification method corresponding to this context.
+     *
+     * @return the verification method
+     * @since 2.18.0
+     */
+    public VerificationMethod getVerificationMethod() {
+        return verificationMethod;
+    }
+
+    /**
+     * Sets the verification method corresponding to this context, independently of the
+     * authentication method.
+     *
+     * @param verificationMethod the new verification method
+     * @since 2.18.0
+     */
+    public void setVerificationMethod(VerificationMethod verificationMethod) {
+        this.verificationMethod = verificationMethod;
+        if (this.authenticationMethod != null) {
+            this.authenticationMethod.setVerificationMethod(verificationMethod);
+        }
     }
 
     /**
@@ -889,6 +923,7 @@ public class Context {
         newContext.inScope = this.inScope;
         newContext.techSet = new TechSet(this.techSet);
         newContext.authenticationMethod = this.authenticationMethod.clone();
+        newContext.verificationMethod = this.verificationMethod.clone();
         newContext.sessionManagementMethod = this.sessionManagementMethod.clone();
         newContext.urlParamParser = this.urlParamParser.clone();
         newContext.postParamParser = this.postParamParser.clone();
