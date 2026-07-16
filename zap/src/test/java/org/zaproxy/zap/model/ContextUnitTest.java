@@ -22,6 +22,8 @@ package org.zaproxy.zap.model;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
@@ -38,6 +40,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link Context}. */
@@ -177,5 +180,31 @@ class ContextUnitTest {
         // When / Then
         assertThat(context.isExcluded(endNode), is(true));
         assertThat(context.isInContext(endNode), is(false));
+    }
+
+    @Test
+    void shouldKeepAuthenticationAndVerificationMethodsLinkedWhenDuplicated() {
+        // Given
+        context.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
+        context.getVerificationMethod().setLoggedInIndicatorPattern("loggedin");
+        context.getVerificationMethod().setPollUrl("http://example.com/poll");
+
+        // When
+        Context duplicate = context.duplicate();
+
+        // Then
+        assertThat(
+                duplicate.getVerificationMethod(),
+                is(sameInstance(duplicate.getAuthenticationMethod().getVerificationMethod())));
+        assertThat(
+                duplicate.getVerificationMethod(),
+                is(not(sameInstance(context.getVerificationMethod()))));
+        assertThat(
+                duplicate.getVerificationMethod().getAuthCheckingStrategy(),
+                is(AuthCheckingStrategy.EACH_RESP));
+        assertThat(
+                duplicate.getVerificationMethod().getLoggedInIndicatorPattern().pattern(),
+                is("loggedin"));
+        assertThat(duplicate.getVerificationMethod().getPollUrl(), is("http://example.com/poll"));
     }
 }

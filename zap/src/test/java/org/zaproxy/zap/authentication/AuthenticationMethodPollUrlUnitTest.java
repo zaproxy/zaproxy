@@ -31,11 +31,13 @@ import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.session.SessionManagementMethod;
+import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
@@ -58,8 +60,8 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         HttpRequestHeader header = new HttpRequestHeader();
         header.setURI(new URI("http://www.example.com", true));
         loginMessage.setRequestHeader(header);
-        method = Mockito.mock(AuthenticationMethod.class, Mockito.CALLS_REAL_METHODS);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
+        method = new TestAuthenticationMethod();
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
     }
 
     @Test
@@ -80,17 +82,17 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(5);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.getVerificationMethod().setPollFrequency(5);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
         assertThat(orderedReqs.get(0), is(pollUrl));
     }
@@ -113,25 +115,25 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(5);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.getVerificationMethod().setPollFrequency(5);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(2));
         assertThat(orderedReqs.get(0), is(pollUrl));
         assertThat(orderedReqs.get(1), is(pollUrl));
@@ -154,23 +156,23 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(5);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.getVerificationMethod().setPollFrequency(5);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, user), is(false));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(4));
     }
 
@@ -195,24 +197,24 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(500);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.getVerificationMethod().setPollFrequency(500);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
         user.getAuthenticationState().setLastPollResult(false);
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(2));
         assertThat(orderedReqs.get(0), is(pollUrl));
         assertThat(orderedReqs.get(1), is(pollUrl));
@@ -236,11 +238,12 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString() + "?");
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(5);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod()
+                .setPollUrl(pollMsg.getRequestHeader().getURI().toString() + "?");
+        method.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.getVerificationMethod().setPollFrequency(5);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         User user1 = mock(User.class);
         given(user1.getAuthenticationState()).willReturn(new AuthenticationState());
@@ -248,35 +251,35 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         given(user2.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
         // First poll for user1
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
 
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
         // First poll for user2
         assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
 
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
         // Should not have changed yet
         assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
         // Second poll for user1
         assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user1), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
         // Should not have changed yet
         assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user2), is(true));
         // Second poll for user2
         assertThat(orderedReqs.size(), is(4));
     }
@@ -292,12 +295,14 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
 
         HttpMessage testMsg = this.getHttpMessage(test);
 
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod()
+                .setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
-        method.setPollHeaders(
-                """
+        method.getVerificationMethod()
+                .setPollHeaders(
+                        """
                 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature
                 X-Custom-Time: 2025-07-19T10:30:45.123Z
                 Content-Type: application/json
@@ -307,7 +312,7 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         // When
-        method.isAuthenticated(testMsg, user);
+        method.getVerificationMethod().isAuthenticated(testMsg, user);
 
         // Then
         assertThat(pollMessages, hasSize(1));
@@ -317,5 +322,45 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
                 is("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature"));
         assertThat(requestHeader.getHeader("X-Custom-Time"), is("2025-07-19T10:30:45.123Z"));
         assertThat(requestHeader.getHeader("Content-Type"), is("application/json"));
+    }
+
+    private static class TestAuthenticationMethod extends AuthenticationMethod {
+
+        @Override
+        public boolean isConfigured() {
+            return false;
+        }
+
+        @Override
+        protected AuthenticationMethod duplicate() {
+            return null;
+        }
+
+        @Override
+        public AuthenticationCredentials createAuthenticationCredentials() {
+            return null;
+        }
+
+        @Override
+        public AuthenticationMethodType getType() {
+            return null;
+        }
+
+        @Override
+        public WebSession authenticate(
+                SessionManagementMethod sessionManagementMethod,
+                AuthenticationCredentials credentials,
+                User user)
+                throws UnsupportedAuthenticationCredentialsException {
+            return null;
+        }
+
+        @Override
+        public ApiResponse getApiResponseRepresentation() {
+            return null;
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {}
     }
 }

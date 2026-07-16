@@ -46,6 +46,7 @@ import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.authentication.VerificationMethod;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
@@ -113,7 +114,7 @@ public class ContextAPI extends ApiImplementor {
                 new ApiAction(
                         ACTION_SET_CONTEXT_REGEXS,
                         new String[] {CONTEXT_NAME, INC_REGEXS_PARAM, EXC_REGEXS_PARAM}));
-        this.addApiAction(
+        ApiAction setCheckingStrategyAction =
                 new ApiAction(
                         ACTION_SET_CONTEXT_CHECKING_STRATEGY,
                         new String[] {CONTEXT_NAME, PARAM_CHECKING_STRATEGRY},
@@ -123,7 +124,11 @@ public class ContextAPI extends ApiImplementor {
                             PARAM_POLL_HEADERS,
                             PARAM_POLL_FREQ,
                             PARAM_POLL_FREQ_UNITS
-                        }));
+                        });
+        setCheckingStrategyAction.setDeprecated(true);
+        setCheckingStrategyAction.setDeprecatedDescription(
+                "Use verification/setVerificationMethod instead.");
+        this.addApiAction(setCheckingStrategyAction);
         this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
         this.addApiAction(
@@ -244,13 +249,13 @@ public class ContextAPI extends ApiImplementor {
                         throw new ApiException(
                                 ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ);
                     }
-                    context.getAuthenticationMethod().setPollUrl(pollUrl);
-                    context.getAuthenticationMethod().setPollData(pollData);
-                    context.getAuthenticationMethod().setPollHeaders(pollHeaders);
-                    context.getAuthenticationMethod().setPollFrequency(freq);
-                    context.getAuthenticationMethod().setPollFrequencyUnits(units);
+                    context.getVerificationMethod().setPollUrl(pollUrl);
+                    context.getVerificationMethod().setPollData(pollData);
+                    context.getVerificationMethod().setPollHeaders(pollHeaders);
+                    context.getVerificationMethod().setPollFrequency(freq);
+                    context.getVerificationMethod().setPollFrequencyUnits(units);
                 }
-                context.getAuthenticationMethod().setAuthCheckingStrategy(checkingStrategy);
+                context.getVerificationMethod().setAuthCheckingStrategy(checkingStrategy);
                 Model.getSingleton().getSession().saveContext(context);
                 break;
             case ACTION_NEW_CONTEXT:
@@ -487,22 +492,22 @@ public class ContextAPI extends ApiImplementor {
 
         AuthenticationMethod authenticationMethod = c.getAuthenticationMethod();
         if (authenticationMethod != null) {
-            Pattern pattern = authenticationMethod.getLoggedInIndicatorPattern();
+            VerificationMethod vm = c.getVerificationMethod();
+            Pattern pattern = vm.getLoggedInIndicatorPattern();
             fields.put("loggedInPattern", pattern == null ? "" : pattern.toString());
-            pattern = authenticationMethod.getLoggedOutIndicatorPattern();
+            pattern = vm.getLoggedOutIndicatorPattern();
             fields.put("loggedOutPattern", pattern == null ? "" : pattern.toString());
             AuthenticationMethodType type = authenticationMethod.getType();
             fields.put("authType", type == null ? "" : type.getName());
 
-            AuthCheckingStrategy strategy = authenticationMethod.getAuthCheckingStrategy();
+            AuthCheckingStrategy strategy = vm.getAuthCheckingStrategy();
             fields.put(PARAM_CHECKING_STRATEGRY, strategy == null ? "" : strategy.name());
             if (AuthCheckingStrategy.POLL_URL.equals(strategy)) {
-                fields.put(PARAM_POLL_URL, authenticationMethod.getPollUrl());
-                fields.put(PARAM_POLL_DATA, authenticationMethod.getPollData());
-                fields.put(PARAM_POLL_HEADERS, authenticationMethod.getPollHeaders());
-                fields.put(
-                        PARAM_POLL_FREQ, Integer.toString(authenticationMethod.getPollFrequency()));
-                AuthPollFrequencyUnits units = authenticationMethod.getPollFrequencyUnits();
+                fields.put(PARAM_POLL_URL, vm.getPollUrl());
+                fields.put(PARAM_POLL_DATA, vm.getPollData());
+                fields.put(PARAM_POLL_HEADERS, vm.getPollHeaders());
+                fields.put(PARAM_POLL_FREQ, Integer.toString(vm.getPollFrequency()));
+                AuthPollFrequencyUnits units = vm.getPollFrequencyUnits();
                 fields.put(PARAM_POLL_FREQ_UNITS, units == null ? "" : units.name());
             }
         }
