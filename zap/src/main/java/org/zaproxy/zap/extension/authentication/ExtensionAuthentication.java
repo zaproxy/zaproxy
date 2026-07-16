@@ -47,6 +47,7 @@ import org.zaproxy.zap.authentication.HttpAuthenticationMethodType;
 import org.zaproxy.zap.authentication.JsonBasedAuthenticationMethodType;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType;
 import org.zaproxy.zap.authentication.ScriptBasedAuthenticationMethodType;
+import org.zaproxy.zap.authentication.VerificationMethod;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -73,6 +74,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     /** The context panels map. */
     private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
+
+    private Map<Integer, ContextVerificationPanel> verificationPanelsMap = new HashMap<>();
 
     private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory;
 
@@ -113,8 +116,29 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
 
-            // Factory for generating Session Context UserAuth panels
+            // Factory for generating Session Context Authentication panels
             extensionHook.getHookView().addContextPanelFactory(this);
+            // Factory for generating Session Context Verification panels
+            extensionHook
+                    .getHookView()
+                    .addContextPanelFactory(
+                            new ContextPanelFactory() {
+                                @Override
+                                public AbstractContextPropertiesPanel getContextPanel(
+                                        Context context) {
+                                    return getVerificationPanel(context);
+                                }
+
+                                @Override
+                                public void discardContext(Context ctx) {
+                                    verificationPanelsMap.remove(ctx.getId());
+                                }
+
+                                @Override
+                                public void discardContexts() {
+                                    verificationPanelsMap.clear();
+                                }
+                            });
         }
 
         // Load the Authentication and Session Management methods
@@ -123,6 +147,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         // Register the api
         this.api = new AuthenticationAPI(this);
         extensionHook.addApiImplementor(api);
+        extensionHook.addApiImplementor(new VerificationAPI());
 
         extensionHook.addHttpSenderListener(getHttpSenderAuthHeaderListener());
     }
@@ -131,8 +156,18 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     public AbstractContextPropertiesPanel getContextPanel(Context context) {
         ContextAuthenticationPanel panel = this.contextPanelsMap.get(context.getId());
         if (panel == null) {
-            panel = new ContextAuthenticationPanel(this, context);
+            ContextVerificationPanel verifPanel = getVerificationPanel(context);
+            panel = new ContextAuthenticationPanel(this, context, verifPanel);
             this.contextPanelsMap.put(context.getId(), panel);
+        }
+        return panel;
+    }
+
+    private ContextVerificationPanel getVerificationPanel(Context context) {
+        ContextVerificationPanel panel = this.verificationPanelsMap.get(context.getId());
+        if (panel == null) {
+            panel = new ContextVerificationPanel(context);
+            this.verificationPanelsMap.put(context.getId(), panel);
         }
         return panel;
     }
@@ -260,71 +295,57 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                     context.setAuthenticationMethod(
                             t.loadMethodFromSession(session, context.getId()));
 
+                    VerificationMethod vm = context.getVerificationMethod();
+
                     String strategy =
                             session.getContextDataString(
                                     context.getId(), RecordContext.TYPE_AUTH_VERIF_STRATEGY, null);
                     if (strategy != null) {
                         try {
-                            context.getAuthenticationMethod()
-                                    .setAuthCheckingStrategy(
-                                            AuthCheckingStrategy.valueOf(strategy));
+                            vm.setAuthCheckingStrategy(AuthCheckingStrategy.valueOf(strategy));
                         } catch (Exception e) {
                             LOGGER.error("Failed to parse auth checking strategy {}", strategy, e);
                         }
                     }
 
-                    context.getAuthenticationMethod()
-                            .setPollUrl(
-                                    session.getContextDataString(
-                                            context.getId(),
-                                            RecordContext.TYPE_AUTH_POLL_URL,
-                                            null));
+                    vm.setPollUrl(
+                            session.getContextDataString(
+                                    context.getId(), RecordContext.TYPE_AUTH_POLL_URL, null));
 
-                    context.getAuthenticationMethod()
-                            .setPollData(
-                                    session.getContextDataString(
-                                            context.getId(),
-                                            RecordContext.TYPE_AUTH_POLL_DATA,
-                                            null));
+                    vm.setPollData(
+                            session.getContextDataString(
+                                    context.getId(), RecordContext.TYPE_AUTH_POLL_DATA, null));
 
-                    context.getAuthenticationMethod()
-                            .setPollHeaders(
-                                    session.getContextDataString(
-                                            context.getId(),
-                                            RecordContext.TYPE_AUTH_POLL_HEADERS,
-                                            null));
+                    vm.setPollHeaders(
+                            session.getContextDataString(
+                                    context.getId(), RecordContext.TYPE_AUTH_POLL_HEADERS, null));
 
-                    context.getAuthenticationMethod()
-                            .setPollFrequency(
-                                    session.getContextDataInteger(
-                                            context.getId(), RecordContext.TYPE_AUTH_POLL_FREQ, 0));
+                    vm.setPollFrequency(
+                            session.getContextDataInteger(
+                                    context.getId(), RecordContext.TYPE_AUTH_POLL_FREQ, 0));
 
                     String freqUnits =
                             session.getContextDataString(
                                     context.getId(), RecordContext.TYPE_AUTH_POLL_FREQ_UNITS, null);
                     if (freqUnits != null) {
                         try {
-                            context.getAuthenticationMethod()
-                                    .setPollFrequencyUnits(
-                                            AuthPollFrequencyUnits.valueOf(freqUnits));
+                            vm.setPollFrequencyUnits(AuthPollFrequencyUnits.valueOf(freqUnits));
                         } catch (Exception e) {
                             LOGGER.error("Failed to parse auth frequency units {}", freqUnits, e);
                         }
                     }
 
-                    context.getAuthenticationMethod()
-                            .setLoggedInIndicatorPattern(
-                                    session.getContextDataString(
-                                            context.getId(),
-                                            RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
-                                            null));
+                    vm.setLoggedInIndicatorPattern(
+                            session.getContextDataString(
+                                    context.getId(),
+                                    RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
+                                    null));
 
-                    context.getAuthenticationMethod()
-                            .setLoggedOutIndicatorPattern(
-                                    session.getContextDataString(
-                                            context.getId(),
-                                            RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR,
-                                            null));
+                    vm.setLoggedOutIndicatorPattern(
+                            session.getContextDataString(
+                                    context.getId(),
+                                    RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR,
+                                    null));
                 }
             }
 
@@ -343,64 +364,61 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                     RecordContext.TYPE_AUTH_METHOD_TYPE,
                     Integer.toString(t.getUniqueIdentifier()));
 
-            if (context.getAuthenticationMethod().getAuthCheckingStrategy() != null) {
+            VerificationMethod vm = context.getVerificationMethod();
+
+            if (vm.getAuthCheckingStrategy() != null) {
                 session.setContextData(
                         contextIdx,
                         RecordContext.TYPE_AUTH_VERIF_STRATEGY,
-                        context.getAuthenticationMethod().getAuthCheckingStrategy().name());
+                        vm.getAuthCheckingStrategy().name());
             } else {
                 session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_VERIF_STRATEGY);
             }
 
-            if (context.getAuthenticationMethod().getPollUrl() != null) {
+            if (vm.getPollUrl() != null) {
                 session.setContextData(
-                        contextIdx,
-                        RecordContext.TYPE_AUTH_POLL_URL,
-                        context.getAuthenticationMethod().getPollUrl());
+                        contextIdx, RecordContext.TYPE_AUTH_POLL_URL, vm.getPollUrl());
             } else {
                 session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_URL);
             }
-            if (context.getAuthenticationMethod().getPollData() != null) {
+            if (vm.getPollData() != null) {
                 session.setContextData(
-                        contextIdx,
-                        RecordContext.TYPE_AUTH_POLL_DATA,
-                        context.getAuthenticationMethod().getPollData());
+                        contextIdx, RecordContext.TYPE_AUTH_POLL_DATA, vm.getPollData());
             } else {
                 session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_DATA);
             }
-            if (context.getAuthenticationMethod().getPollHeaders() != null) {
+            if (vm.getPollHeaders() != null) {
                 session.setContextData(
-                        contextIdx,
-                        RecordContext.TYPE_AUTH_POLL_HEADERS,
-                        context.getAuthenticationMethod().getPollHeaders());
+                        contextIdx, RecordContext.TYPE_AUTH_POLL_HEADERS, vm.getPollHeaders());
             } else {
                 session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_HEADERS);
             }
             session.setContextData(
                     contextIdx,
                     RecordContext.TYPE_AUTH_POLL_FREQ,
-                    Integer.toString(context.getAuthenticationMethod().getPollFrequency()));
+                    Integer.toString(vm.getPollFrequency()));
 
-            if (context.getAuthenticationMethod().getPollFrequencyUnits() != null) {
+            if (vm.getPollFrequencyUnits() != null) {
                 session.setContextData(
                         contextIdx,
                         RecordContext.TYPE_AUTH_POLL_FREQ_UNITS,
-                        context.getAuthenticationMethod().getPollFrequencyUnits().name());
+                        vm.getPollFrequencyUnits().name());
             } else {
-                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_VERIF_STRATEGY);
+                session.clearContextDataForType(
+                        contextIdx, RecordContext.TYPE_AUTH_POLL_FREQ_UNITS);
             }
 
             persistLoggedIndicator(
                     session,
                     contextIdx,
                     RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
-                    context.getAuthenticationMethod().getLoggedInIndicatorPattern());
+                    vm.getLoggedInIndicatorPattern());
 
             persistLoggedIndicator(
                     session,
                     contextIdx,
                     RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR,
-                    context.getAuthenticationMethod().getLoggedOutIndicatorPattern());
+                    vm.getLoggedOutIndicatorPattern());
 
             t.persistMethodToSession(session, contextIdx, context.getAuthenticationMethod());
         } catch (DatabaseException e) {
@@ -421,11 +439,13 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     @Override
     public void discardContexts() {
         contextPanelsMap.clear();
+        verificationPanelsMap.clear();
     }
 
     @Override
     public void discardContext(Context ctx) {
         contextPanelsMap.remove(ctx.getId());
+        verificationPanelsMap.remove(ctx.getId());
     }
 
     @Override
@@ -433,37 +453,33 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         config.setProperty(
                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE,
                 ctx.getAuthenticationMethod().getType().getUniqueIdentifier());
-        if (ctx.getAuthenticationMethod().getAuthCheckingStrategy() != null) {
+
+        VerificationMethod vm = ctx.getVerificationMethod();
+        if (vm.getAuthCheckingStrategy() != null) {
             config.setProperty(
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY,
-                    ctx.getAuthenticationMethod().getAuthCheckingStrategy().name());
+                    vm.getAuthCheckingStrategy().name());
         }
+        config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, vm.getPollUrl());
+        config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, vm.getPollData());
         config.setProperty(
-                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL,
-                ctx.getAuthenticationMethod().getPollUrl());
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS, vm.getPollHeaders());
         config.setProperty(
-                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA,
-                ctx.getAuthenticationMethod().getPollData());
-        config.setProperty(
-                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS,
-                ctx.getAuthenticationMethod().getPollHeaders());
-        config.setProperty(
-                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ,
-                ctx.getAuthenticationMethod().getPollFrequency());
-        if (ctx.getAuthenticationMethod().getPollFrequencyUnits() != null) {
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ, vm.getPollFrequency());
+        if (vm.getPollFrequencyUnits() != null) {
             config.setProperty(
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS,
-                    ctx.getAuthenticationMethod().getPollFrequencyUnits().name());
+                    vm.getPollFrequencyUnits().name());
         }
-        if (ctx.getAuthenticationMethod().getLoggedInIndicatorPattern() != null) {
+        if (vm.getLoggedInIndicatorPattern() != null) {
             config.setProperty(
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN,
-                    ctx.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
+                    vm.getLoggedInIndicatorPattern().toString());
         }
-        if (ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null) {
+        if (vm.getLoggedOutIndicatorPattern() != null) {
             config.setProperty(
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT,
-                    ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern().toString());
+                    vm.getLoggedOutIndicatorPattern().toString());
         }
         ctx.getAuthenticationMethod().getType().exportData(config, ctx.getAuthenticationMethod());
     }
@@ -481,37 +497,37 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             return;
         }
         ctx.setAuthenticationMethod(authMethodType.createAuthenticationMethod(ctx.getId()));
-        AuthenticationMethod method = ctx.getAuthenticationMethod();
+
+        VerificationMethod vm = ctx.getVerificationMethod();
 
         AuthCheckingStrategy strategy =
                 AuthCheckingStrategy.valueOf(
                         config.getString(
                                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY,
-                                AuthCheckingStrategy.EACH_RESP.name()));
-        method.setAuthCheckingStrategy(strategy);
+                                AuthCheckingStrategy.POLL_URL.name()));
+        vm.setAuthCheckingStrategy(strategy);
 
-        method.setPollUrl(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, ""));
-        method.setPollData(
-                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, ""));
-        method.setPollHeaders(
+        vm.setPollUrl(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, ""));
+        vm.setPollData(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, ""));
+        vm.setPollHeaders(
                 config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS, ""));
-        method.setPollFrequency(
+        vm.setPollFrequency(
                 config.getInt(
                         AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ,
-                        AuthenticationMethod.DEFAULT_POLL_FREQUENCY));
+                        VerificationMethod.DEFAULT_POLL_FREQUENCY));
 
         AuthPollFrequencyUnits units =
                 AuthPollFrequencyUnits.valueOf(
                         config.getString(
                                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS,
-                                AuthPollFrequencyUnits.REQUESTS.name()));
-        method.setPollFrequencyUnits(units);
+                                AuthPollFrequencyUnits.SECONDS.name()));
+        vm.setPollFrequencyUnits(units);
 
-        method.setLoggedInIndicatorPattern(
+        vm.setLoggedInIndicatorPattern(
                 config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, ""));
-        method.setLoggedOutIndicatorPattern(
+        vm.setLoggedOutIndicatorPattern(
                 config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, ""));
-        method.getType().importData(config, method);
+        ctx.getAuthenticationMethod().getType().importData(config, ctx.getAuthenticationMethod());
     }
 
     private HttpSenderAuthHeaderListener getHttpSenderAuthHeaderListener() {

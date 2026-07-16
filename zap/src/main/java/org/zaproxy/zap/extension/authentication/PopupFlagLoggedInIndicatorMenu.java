@@ -63,7 +63,7 @@ public class PopupFlagLoggedInIndicatorMenu extends ExtensionPopupMenuItem {
         Context uiSharedContext = sessionDialog.getUISharedContext(this.contextId);
 
         uiSharedContext
-                .getAuthenticationMethod()
+                .getVerificationMethod()
                 .setLoggedInIndicatorPattern(Pattern.quote(getSelectedText()));
 
         // Show the session dialog without recreating UI Shared contexts
