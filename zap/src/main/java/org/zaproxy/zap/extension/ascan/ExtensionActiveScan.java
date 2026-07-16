@@ -109,6 +109,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor
 
     private ActiveScanAPI activeScanApi;
 
+    private PluggableScanPolicyManager pluggableScanPolicyManager;
+    private boolean postInitCalled;
+
     public ExtensionActiveScan() {
         super(NAME);
         this.setOrder(28);
@@ -124,6 +127,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor
     @Override
     public void postInit() {
         policyManager.init();
+        postInitCalled = true;
+        if (pluggableScanPolicyManager != null) {
+            pluggableScanPolicyManager.register(policyManager);
+        }
 
         if (Control.getSingleton().getMode().equals(Mode.attack)) {
             if (hasView() && !this.getScannerParam().isAllowAttackOnStart()) {
@@ -133,6 +140,36 @@ public class ExtensionActiveScan extends ExtensionAdaptor
                 // Needed to make sure the attackModeScanner starts up
                 this.attackModeScanner.sessionModeChanged(Control.getSingleton().getMode());
             }
+        }
+    }
+
+    /**
+     * Registers a {@link PluggableScanPolicyManager}. If active scan rules are already available,
+     * {@link PluggableScanPolicyManager#register(PolicyManager)} is called immediately. This is for
+     * internal ZAP use and is not part of the public API.
+     *
+     * @param manager the manager to register; replaces any previously registered manager
+     * @since 2.18.0
+     */
+    public void registerPluggableScanPolicyManager(PluggableScanPolicyManager manager) {
+        this.pluggableScanPolicyManager = manager;
+        if (postInitCalled) {
+            manager.register(policyManager);
+        }
+    }
+
+    /**
+     * Unregisters the given {@link PluggableScanPolicyManager}, calling {@link
+     * PluggableScanPolicyManager#unregister()} if it is currently registered. This is for internal
+     * ZAP use and is not part of the public API.
+     *
+     * @param manager the manager to unregister
+     * @since 2.18.0
+     */
+    public void unregisterPluggableScanPolicyManager(PluggableScanPolicyManager manager) {
+        if (manager == this.pluggableScanPolicyManager) {
+            manager.unregister();
+            this.pluggableScanPolicyManager = null;
         }
     }
 
