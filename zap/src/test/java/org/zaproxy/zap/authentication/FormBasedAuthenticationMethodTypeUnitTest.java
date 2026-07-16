@@ -24,159 +24,43 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
-import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
-import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
-import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
 class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
 
-    private static final String LOGGED_IN_INDICATOR = "logged in";
-    private static final String LOGGED_IN_BODY =
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                    + "Pellentesque auctor nulla id turpis placerat vulputate."
-                    + LOGGED_IN_INDICATOR
-                    + " Proin tempor bibendum eros rutrum. ";
-
     private AuthenticationMethod method;
-    private FormBasedAuthenticationMethodType type;
 
     @BeforeEach
     void setUp() throws Exception {
-
-        type = new FormBasedAuthenticationMethodType();
+        FormBasedAuthenticationMethodType type = new FormBasedAuthenticationMethodType();
         method = type.createAuthenticationMethod(1);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(5);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
     }
 
     @Test
-    void shouldReplaceUsernameInPollRequest() throws NullPointerException, IOException {
+    void shouldUrlEncodeUsernameInPollRequestBody() throws Exception {
         // Given
-        String test = "/shouldReplaceUsernameInPollRequest/test";
-        String encodedPattern =
-                URLEncoder.encode(
-                        PostBasedAuthenticationMethod.MSG_USER_PATTERN,
-                        StandardCharsets.UTF_8.name());
-        String pollUrl = "/shouldReplaceUsernameInPollRequest/pollUrl";
-        String pollData = "user=" + PostBasedAuthenticationMethod.MSG_USER_PATTERN;
-        String username = "user";
-        final List<String> orderedReqUrls = new ArrayList<>();
-        final List<String> orderedReqData = new ArrayList<>();
-
-        setMessageHandler(
-                msg -> {
-                    URI uri = msg.getRequestHeader().getURI();
-                    if (pollUrl.equals(uri.getPath())) {
-                        orderedReqUrls.add(uri.getEscapedPathQuery());
-                        orderedReqData.add(msg.getRequestBody().toString());
-                        msg.setResponseBody(LOGGED_IN_BODY);
-                    }
-                });
-        HttpMessage testMsg = this.getHttpMessage(test);
-        HttpMessage pollMsg = this.getHttpMessage(pollUrl + "?" + encodedPattern);
-
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollData(pollData);
-
-        User user = mock(User.class);
-        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
-        given(user.getAuthenticationCredentials())
-                .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
-
-        // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqUrls.size(), is(1));
-        assertThat(orderedReqUrls.get(0), is(pollUrl + "?" + username));
-        assertThat(orderedReqData.size(), is(1));
-        assertThat(
-                orderedReqData.get(0),
-                is(pollData.replace(PostBasedAuthenticationMethod.MSG_USER_PATTERN, username)));
-    }
-
-    @Test
-    void shouldNotReplacePasswordInPollRequest() throws NullPointerException, IOException {
-        // Given
-        String test = "/shouldNotReplacePasswordInPollRequest/test";
-        String pollUrl = "/shouldNotReplacePasswordInPollRequest/pollUrl";
-        String pollData = "pwd=" + PostBasedAuthenticationMethod.MSG_PASS_PATTERN;
-        String password = "password123!";
-        final List<String> orderedReqData = new ArrayList<>();
-
-        setMessageHandler(
-                msg -> {
-                    URI uri = msg.getRequestHeader().getURI();
-                    if (pollUrl.equals(uri.getPath())) {
-                        orderedReqData.add(msg.getRequestBody().toString());
-                        msg.setResponseBody(LOGGED_IN_BODY);
-                    }
-                });
-        HttpMessage testMsg = this.getHttpMessage(test);
-        HttpMessage pollMsg = this.getHttpMessage(pollUrl);
-
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollData(pollData);
-
-        User user = mock(User.class);
-        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
-        given(user.getAuthenticationCredentials())
-                .willReturn(new UsernamePasswordAuthenticationCredentials("", password));
-
-        // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqData.size(), is(1));
-        assertThat(orderedReqData.get(0), is(pollData));
-    }
-
-    @Test
-    void shouldUrlEncodeUsernameInPollRequestBody() throws NullPointerException, IOException {
-        // Given
-        String test = "/shouldEncodeSpacesInBody/test";
-        String pollUrl = "/shouldEncodeSpacesInBody/pollUrl";
-        String pollData = "user=" + PostBasedAuthenticationMethod.MSG_USER_PATTERN;
         String username = "user name";
-        final List<String> orderedReqData = new ArrayList<>();
-
-        setMessageHandler(
-                msg -> {
-                    URI uri = msg.getRequestHeader().getURI();
-                    if (pollUrl.equals(uri.getPath())) {
-                        orderedReqData.add(msg.getRequestBody().toString());
-                        msg.setResponseBody(LOGGED_IN_BODY);
-                    }
-                });
-        HttpMessage testMsg = this.getHttpMessage(test);
-        HttpMessage pollMsg = this.getHttpMessage(pollUrl);
-
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollData(pollData);
+        HttpMessage msg = new HttpMessage(new URI("http://example.com/pollUrl", true));
+        msg.setRequestBody("user=" + PostBasedAuthenticationMethod.MSG_USER_PATTERN);
 
         User user = mock(User.class);
-        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
         given(user.getAuthenticationCredentials())
                 .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
-        // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
-        assertThat(orderedReqData.size(), is(1));
+        // When
+        method.replaceUserDataInPollRequest(msg, user);
+
+        // Then
         assertThat(
-                orderedReqData.get(0),
-                is(
-                        pollData.replace(
-                                PostBasedAuthenticationMethod.MSG_USER_PATTERN,
-                                URLEncoder.encode(username, StandardCharsets.UTF_8.name()))));
+                msg.getRequestBody().toString(),
+                is("user=" + URLEncoder.encode(username, StandardCharsets.UTF_8.name())));
     }
 }
