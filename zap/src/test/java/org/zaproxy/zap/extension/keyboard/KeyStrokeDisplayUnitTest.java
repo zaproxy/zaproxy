@@ -47,6 +47,28 @@ class KeyStrokeDisplayUnitTest {
     }
 
     @Test
+    void shouldFormatSymbolShortcut() {
+        assertThat(
+                KeyStrokeDisplay.formatSymbols(CTRL_ALT_J), is(equalTo("⌃" + altSymbol() + "J")));
+    }
+
+    @Test
+    void shouldFormatNamesWithI18nModifierNames() {
+        assertThat(
+                KeyStrokeDisplay.formatNames(CTRL_ALT_J),
+                is(equalTo("Control+" + altKeyName() + "+J")));
+        assertThat(KeyStrokeDisplay.formatNames(CTRL_ALT_J), not(containsString("⌃")));
+    }
+
+    @Test
+    void shouldFormatMetaKeyNamesForPlatform() {
+        KeyStroke metaF = KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.META_DOWN_MASK);
+
+        assertThat(KeyStrokeDisplay.formatNames(metaF), containsString("F"));
+        assertThat(KeyStrokeDisplay.formatNames(metaF), not(containsString("⌘")));
+    }
+
+    @Test
     void shouldReturnEmptyHtmlNamesForNullKeyStroke() {
         assertThat(KeyStrokeDisplay.formatHtmlNames(null), is(equalTo("")));
     }
@@ -108,5 +130,9 @@ class KeyStrokeDisplayUnitTest {
         return Constant.isMacOsX()
                 ? Constant.messages.getString("keyboard.key.option")
                 : Constant.messages.getString("keyboard.key.alt");
+    }
+
+    private static String altSymbol() {
+        return Constant.isMacOsX() ? "⌥" : altKeyName();
     }
 }
