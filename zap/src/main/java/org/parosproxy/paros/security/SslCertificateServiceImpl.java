@@ -35,7 +35,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Random;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -78,11 +78,10 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
     private static final SslCertificateService singleton = new SslCertificateServiceImpl();
 
     private SslCertificateServiceImpl() {
-        final Random rnd = new Random();
-        rnd.setSeed(System.currentTimeMillis());
         // prevent browser certificate caches, cause of doubled serial numbers
-        // using 48bit random number
-        long sl = ((long) rnd.nextInt()) << 32 | (rnd.nextInt() & 0xFFFFFFFFL);
+        // using 48bit random number from a cryptographically strong PRNG
+        final SecureRandom rnd = new SecureRandom();
+        long sl = rnd.nextLong();
         // let reserve of 16 bit for increasing, serials have to be positive
         sl = sl & 0x0000FFFFFFFFFFFFL;
         this.serial = new AtomicLong(sl);

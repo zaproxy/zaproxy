@@ -36,6 +36,7 @@ import java.util.Random;
 import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -59,6 +60,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.utils.JsonUtil;
 import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.XmlUtils;
 
 public class API {
     public enum Format {
@@ -832,7 +834,7 @@ public class API {
      */
     static String responseToXml(String endpointName, ApiResponse response) throws ApiException {
         try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory docFactory = XmlUtils.newXxeDisabledDocumentBuilderFactory();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
             Document doc = docBuilder.newDocument();
