@@ -25,6 +25,11 @@ import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 import org.zaproxy.zap.network.HttpSenderListener;
 
+/**
+ * @deprecated (2.18.0) Replaced by scripts add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 class HttpSenderScriptListener implements HttpSenderListener {
 
     private final ScriptsCache<HttpSenderScript> scriptsCache;

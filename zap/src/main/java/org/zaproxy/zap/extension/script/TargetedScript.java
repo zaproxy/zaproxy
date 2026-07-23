@@ -26,7 +26,9 @@ import org.parosproxy.paros.network.HttpMessage;
  * A script that is executed on demand by the user for selected {@link HttpMessage HTTP message}(s).
  *
  * @since 2.2.0
+ * @deprecated (2.18.0) Replaced by scripts add-on.
  */
+@Deprecated(since = "2.18.0", forRemoval = true)
 public interface TargetedScript {
 
     /**
