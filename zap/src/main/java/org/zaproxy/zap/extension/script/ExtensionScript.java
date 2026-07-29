@@ -115,9 +115,24 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     protected static final String SCRIPT_NAME_ATT = "zap.script.name";
 
+    /**
+     * @deprecated (2.18.0) Replaced by scripts add-on.
+     */
+    @Deprecated(since = "2.18.0", forRemoval = true)
     public static final String TYPE_HTTP_SENDER = "httpsender";
+
+    /**
+     * @deprecated (2.18.0) Replaced by scripts add-on.
+     */
+    @Deprecated(since = "2.18.0", forRemoval = true)
     public static final String TYPE_PROXY = "proxy";
+
     public static final String TYPE_STANDALONE = "standalone";
+
+    /**
+     * @deprecated (2.18.0) Replaced by scripts add-on.
+     */
+    @Deprecated(since = "2.18.0", forRemoval = true)
     public static final String TYPE_TARGETED = "targeted";
 
     private ScriptEngineManager mgr = new ScriptEngineManager();
@@ -127,8 +142,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private ScriptTreeModel treeModel = null;
     private List<ScriptEngineWrapper> engineWrappers = new ArrayList<>();
     private Map<String, ScriptType> typeMap = new ConcurrentHashMap<>();
-    private ProxyListenerScript proxyListener = null;
-    private HttpSenderScriptListener httpSenderScriptListener;
 
     private List<ScriptEventListener> listeners = new ArrayList<>();
     private MultipleWriters writers = new MultipleWriters();
@@ -191,34 +204,14 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         this.registerScriptType(
                 new ScriptType(
-                        TYPE_PROXY,
-                        "script.type.proxy",
-                        createIcon("/resource/icon/16/script-proxy.png"),
-                        true));
-        this.registerScriptType(
-                new ScriptType(
                         TYPE_STANDALONE,
                         "script.type.standalone",
                         createIcon("/resource/icon/16/script-standalone.png"),
                         false,
                         new String[] {ScriptType.CAPABILITY_APPEND}));
-        this.registerScriptType(
-                new ScriptType(
-                        TYPE_TARGETED,
-                        "script.type.targeted",
-                        createIcon("/resource/icon/16/script-targeted.png"),
-                        false));
-        this.registerScriptType(
-                new ScriptType(
-                        TYPE_HTTP_SENDER,
-                        "script.type.httpsender",
-                        createIcon("/resource/icon/16/script-httpsender.png"),
-                        true));
 
         extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
 
-        extensionHook.addProxyListener(this.getProxyListener());
-        extensionHook.addHttpSenderListener(getHttpSenderScriptListener());
         extensionHook.addOptionsParamSet(getScriptParam());
 
         extensionHook.addCommandLine(getCommandLineArguments());
@@ -249,20 +242,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             optionsScriptPanel = new OptionsScriptPanel(this);
         }
         return optionsScriptPanel;
-    }
-
-    private ProxyListenerScript getProxyListener() {
-        if (this.proxyListener == null) {
-            this.proxyListener = new ProxyListenerScript(this);
-        }
-        return this.proxyListener;
-    }
-
-    private HttpSenderScriptListener getHttpSenderScriptListener() {
-        if (this.httpSenderScriptListener == null) {
-            this.httpSenderScriptListener = new HttpSenderScriptListener(this);
-        }
-        return this.httpSenderScriptListener;
     }
 
     public List<String> getScriptingEngines() {
@@ -1651,8 +1630,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param script the script to invoke.
      * @param msg the HTTP message to process.
      * @since 2.2.0
+     * @deprecated (2.18.0) Replaced by scripts add-on.
      * @see #getInterface(ScriptWrapper, Class)
      */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.18.0", forRemoval = true)
     public void invokeTargetedScript(ScriptWrapper script, HttpMessage msg) {
         validateScriptType(script, TYPE_TARGETED);
 
@@ -1754,8 +1736,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param request {@code true} if processing the request, {@code false} otherwise.
      * @return {@code true} if the request should be forward to the server, {@code false} otherwise.
      * @since 2.2.0
+     * @deprecated (2.18.0) Replaced by scripts add-on.
      * @see #getInterface(ScriptWrapper, Class)
      */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.18.0", forRemoval = true)
     public boolean invokeProxyScript(ScriptWrapper script, HttpMessage msg, boolean request) {
         validateScriptType(script, TYPE_PROXY);
 
@@ -1800,8 +1785,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param sender the sender of the given {@code HttpMessage}.
      * @param request {@code true} if processing the request, {@code false} otherwise.
      * @since 2.4.1
+     * @deprecated (2.18.0) Replaced by scripts add-on.
      * @see #getInterface(ScriptWrapper, Class)
      */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.18.0", forRemoval = true)
     public void invokeSenderScript(
             ScriptWrapper script,
             HttpMessage msg,

@@ -45,6 +45,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceErrorMessageProvid
 import org.zaproxy.zap.extension.script.ScriptsCache.ScriptAction;
 
 /** Unit test for {@link HttpSenderScriptListener}. */
+@SuppressWarnings("removal")
 class HttpSenderScriptListenerUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionScript.TYPE_HTTP_SENDER;

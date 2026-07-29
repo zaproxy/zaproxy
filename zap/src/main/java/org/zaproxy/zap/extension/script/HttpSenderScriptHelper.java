@@ -21,6 +21,10 @@ package org.zaproxy.zap.extension.script;
 
 import org.parosproxy.paros.network.HttpSender;
 
+/**
+ * @deprecated (2.18.0) Replaced by scripts add-on.
+ */
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class HttpSenderScriptHelper {
 
     private HttpSender httpSender;

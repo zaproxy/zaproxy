@@ -48,6 +48,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceErrorMessageProvider;
 
 /** Unit test for {@link ProxyListenerScript}. */
+@SuppressWarnings("removal")
 class ProxyListenerScriptUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionScript.TYPE_PROXY;

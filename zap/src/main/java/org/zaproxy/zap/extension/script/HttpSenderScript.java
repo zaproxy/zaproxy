@@ -35,7 +35,10 @@ import org.parosproxy.paros.network.HttpMessage;
  * following scripts/listeners may modify it.
  *
  * @since 2.4.1
+ * @deprecated (2.18.0) Replaced by scripts add-on.
  */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public interface HttpSenderScript {
 
     /**

@@ -34,7 +34,9 @@ import org.parosproxy.paros.network.HttpMessage;
  * modify it or drop it.
  *
  * @since 2.2.0
+ * @deprecated (2.18.0) Replaced by scripts add-on.
  */
+@Deprecated(since = "2.18.0", forRemoval = true)
 public interface ProxyScript {
 
     /**

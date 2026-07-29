@@ -26,6 +26,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ScriptsCache.CachedScript;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
+/**
+ * @deprecated (2.18.0) Replaced by scripts add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class ProxyListenerScript implements ProxyListener {
 
     // Should be the last one but one before the listener that saves the HttpMessage to the db
