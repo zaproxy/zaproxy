@@ -433,9 +433,11 @@ public class ExtensionAlert extends ExtensionAdaptor
         map.put(AlertEventPublisher.URI, alert.getUri().toString());
         map.put(AlertEventPublisher.PARAM, alert.getParam());
         map.put(AlertEventPublisher.RISK, Integer.toString(alert.getRisk()));
-        map.put(AlertEventPublisher.RISK_STRING, Alert.MSG_RISK[alert.getRisk()]);
+        map.put(AlertEventPublisher.RISK_STRING, Alert.getRiskLabel(alert.getRisk()));
         map.put(AlertEventPublisher.CONFIDENCE, Integer.toString(alert.getConfidence()));
-        map.put(AlertEventPublisher.CONFIDENCE_STRING, Alert.MSG_CONFIDENCE[alert.getConfidence()]);
+        map.put(
+                AlertEventPublisher.CONFIDENCE_STRING,
+                Alert.getConfidenceLabel(alert.getConfidence()));
         map.put(AlertEventPublisher.SOURCE, Integer.toString(alert.getSource().getId()));
         ZAP.getEventBus()
                 .publishSyncEvent(
