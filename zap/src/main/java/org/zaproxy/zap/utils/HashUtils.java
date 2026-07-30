@@ -51,11 +51,8 @@ public class HashUtils {
 
     public static String getHash(File file, String algorithm)
             throws NoSuchAlgorithmException, IOException {
-        FileInputStream fis = new FileInputStream(file);
-        try {
+        try (FileInputStream fis = new FileInputStream(file)) {
             return getHash(fis, algorithm);
-        } finally {
-            fis.close();
         }
     }
 }
