@@ -20,11 +20,10 @@
 package org.zaproxy.zap.extension.history;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import org.apache.logging.log4j.LogManager;
@@ -32,12 +31,14 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
+import org.zaproxy.zap.view.ZapAction;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 @SuppressWarnings("serial")
 public class PopupMenuJumpTo extends PopupMenuItemHistoryReferenceContainer {
+
+    public static final String IDENTIFIER = "zap.history.jumpto";
 
     private static final Logger LOGGER = LogManager.getLogger(PopupMenuJumpTo.class);
     private static final List<Integer> DISPLAYED_HISTORY_TYPES =
@@ -45,41 +46,32 @@ public class PopupMenuJumpTo extends PopupMenuItemHistoryReferenceContainer {
                     HistoryReference.TYPE_PROXIED,
                     HistoryReference.TYPE_ZAP_USER,
                     HistoryReference.TYPE_PROXY_CONNECT);
-    private static final KeyStroke JUMP_KEY_STROKE =
-            KeyStroke.getKeyStroke(KeyEvent.VK_J, KeyEvent.ALT_DOWN_MASK | KeyEvent.CTRL_DOWN_MASK);
     private static ZapNumberSpinner idSpinner = new ZapNumberSpinner(1, 1, Integer.MAX_VALUE);
 
     private final ExtensionHistory extension;
+    private final JumpToAction jumpAction;
 
     public PopupMenuJumpTo(ExtensionHistory extension) {
         super(Constant.messages.getString("history.jumpto.popup.label"));
 
         this.extension = extension;
+        this.jumpAction = new JumpToAction();
+        updateAccelerator(jumpAction.getAccelerator());
+    }
 
-        String jumpTo = "zap.history.jumpto";
+    public ZapAction getJumpAction() {
+        return jumpAction;
+    }
 
-        View.getSingleton()
-                .getWorkbench()
-                .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-                .put(JUMP_KEY_STROKE, jumpTo);
-        View.getSingleton()
-                .getWorkbench()
-                .getActionMap()
-                .put(
-                        jumpTo,
-                        new AbstractAction() {
+    public void updateAccelerator(KeyStroke keyStroke) {
+        if (keyStroke != null) {
+            setAccelerator(keyStroke);
+        }
+    }
 
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                jump();
-                            }
-                        });
-        this.setAccelerator(
-                View.getSingleton()
-                        .getMenuShortcutKeyStroke(
-                                JUMP_KEY_STROKE.getKeyCode(),
-                                JUMP_KEY_STROKE.getModifiers(),
-                                false));
+    public static KeyStroke getDefaultAccelerator() {
+        return KeyStroke.getKeyStroke(
+                KeyEvent.VK_J, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK);
     }
 
     @Override
@@ -132,5 +124,20 @@ public class PopupMenuJumpTo extends PopupMenuItemHistoryReferenceContainer {
     @Override
     public boolean isSafe() {
         return true;
+    }
+
+    private class JumpToAction extends ZapAction {
+
+        JumpToAction() {
+            super(
+                    IDENTIFIER,
+                    Constant.messages.getString("history.jumpto.popup.label"),
+                    PopupMenuJumpTo.getDefaultAccelerator());
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            jump();
+        }
     }
 }
