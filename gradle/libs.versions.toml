@@ -34,7 +34,7 @@ log4j-api12 = { module = "org.apache.logging.log4j:log4j-1.2-api", version.ref =
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4j" }
 log4j-slf4j = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
-rsyntaxtextarea = "com.fifesoft:rsyntaxtextarea:4.0.0"
+rsyntaxtextarea = "com.fifesoft:rsyntaxtextarea:4.0.1"
 swingx = "org.swinglabs.swingx:swingx-all:1.6.5-1"
 xom = "xom:xom:1.4.6"
 
@@ -48,7 +48,6 @@ mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
 [plugins]
 crowdin = "org.zaproxy.crowdin:0.6.0"
 cyclonedx.id = "org.cyclonedx.bom"
-dependencyUpdates = "com.github.ben-manes.versions:0.54.0"
 errorprone = "net.ltgt.errorprone:5.1.0"
 japicmp.id = "me.champeau.gradle.japicmp"
 sonarqube = "org.sonarqube:7.3.1.8318"
