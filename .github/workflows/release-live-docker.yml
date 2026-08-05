@@ -57,7 +57,7 @@ jobs:
             index:org.opencontainers.image.description=The nightly Docker image for the world’s most widely used web app scanner.
             index:org.opencontainers.image.licenses=Apache-2.0
       - name: "Publicise the release"
-        uses: myConsciousness/bluesky-post@00ba09c01fa9e5a7c64c086773e3bfc18a12995c # v6
+        uses: myConsciousness/bluesky-post@2d132869a6a51dea18183a26984a09f67744417e # v6.0.1
         if: ${{ ! cancelled() }}
         with:
           text: "The 'Nightly' @zaproxy.org #Docker image has just been updated https://hub.docker.com/r/zaproxy/zap-nightly"  
