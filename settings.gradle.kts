@@ -1,5 +1,5 @@
 plugins {
-    id("io.github.ben-manes.versions.settings") version "0.57.0"
+    id("io.github.ben-manes.versions.settings") version "0.59.0"
     id("org.zaproxy.common.settings") version "0.5.0"
     id("com.diffplug.spotless") version "6.25.0" apply false
 }
