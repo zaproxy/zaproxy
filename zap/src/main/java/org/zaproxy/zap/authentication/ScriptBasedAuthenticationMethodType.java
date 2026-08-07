@@ -192,8 +192,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             try {
                 if (script instanceof AuthenticationScriptV2) {
                     AuthenticationScriptV2 scriptV2 = (AuthenticationScriptV2) script;
-                    setLoggedInIndicatorPattern(scriptV2.getLoggedInIndicator());
-                    setLoggedOutIndicatorPattern(scriptV2.getLoggedOutIndicator());
+                    getVerificationMethod()
+                            .setLoggedInIndicatorPattern(scriptV2.getLoggedInIndicator());
+                    getVerificationMethod()
+                            .setLoggedOutIndicatorPattern(scriptV2.getLoggedOutIndicator());
                 }
                 String[] requiredParams = script.getRequiredParamsNames();
                 String[] optionalParams = script.getOptionalParamsNames();
@@ -322,8 +324,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             try {
                 if (script instanceof AuthenticationScriptV2) {
                     AuthenticationScriptV2 scriptV2 = (AuthenticationScriptV2) script;
-                    setLoggedInIndicatorPattern(scriptV2.getLoggedInIndicator());
-                    setLoggedOutIndicatorPattern(scriptV2.getLoggedOutIndicator());
+                    getVerificationMethod()
+                            .setLoggedInIndicatorPattern(scriptV2.getLoggedInIndicator());
+                    getVerificationMethod()
+                            .setLoggedOutIndicatorPattern(scriptV2.getLoggedOutIndicator());
                 }
                 msg =
                         script.authenticate(
@@ -362,7 +366,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 return null;
             }
 
-            if (this.isAuthenticated(msg, user, true)) {
+            if (this.getVerificationMethod().isAuthenticated(msg, user, true)) {
                 // Let the user know it worked
                 user.getAuthenticationState().setLastAuthFailure("");
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
@@ -577,25 +581,15 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             try {
                 if (script instanceof AuthenticationScriptV2) {
                     AuthenticationScriptV2 scriptV2 = (AuthenticationScriptV2) script;
-                    String toolTip =
-                            Constant.messages.getString(
-                                    "authentication.method.script.dialog.loggedInOutIndicatorsInScript.toolTip");
                     String loggedInIndicator = scriptV2.getLoggedInIndicator();
-                    this.method.setLoggedInIndicatorPattern(loggedInIndicator);
-                    this.indicatorsPanel.setLoggedInIndicatorPattern(loggedInIndicator);
-                    this.indicatorsPanel.setLoggedInIndicatorEnabled(false);
-                    this.indicatorsPanel.setLoggedInIndicatorToolTip(toolTip);
+                    this.method
+                            .getVerificationMethod()
+                            .setLoggedInIndicatorPattern(loggedInIndicator);
 
                     String loggedOutIndicator = scriptV2.getLoggedOutIndicator();
-                    this.method.setLoggedOutIndicatorPattern(loggedOutIndicator);
-                    this.indicatorsPanel.setLoggedOutIndicatorPattern(loggedOutIndicator);
-                    this.indicatorsPanel.setLoggedOutIndicatorEnabled(false);
-                    this.indicatorsPanel.setLoggedOutIndicatorToolTip(toolTip);
-                } else {
-                    this.indicatorsPanel.setLoggedInIndicatorEnabled(true);
-                    this.indicatorsPanel.setLoggedInIndicatorToolTip(null);
-                    this.indicatorsPanel.setLoggedOutIndicatorEnabled(true);
-                    this.indicatorsPanel.setLoggedOutIndicatorToolTip(null);
+                    this.method
+                            .getVerificationMethod()
+                            .setLoggedOutIndicatorPattern(loggedOutIndicator);
                 }
                 String[] requiredParams = script.getRequiredParamsNames();
                 String[] optionalParams = script.getOptionalParamsNames();
@@ -764,8 +758,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             try {
                 if (s instanceof AuthenticationScriptV2) {
                     AuthenticationScriptV2 sV2 = (AuthenticationScriptV2) s;
-                    method.setLoggedInIndicatorPattern(sV2.getLoggedInIndicator());
-                    method.setLoggedOutIndicatorPattern(sV2.getLoggedOutIndicator());
+                    method.getVerificationMethod()
+                            .setLoggedInIndicatorPattern(sV2.getLoggedInIndicator());
+                    method.getVerificationMethod()
+                            .setLoggedOutIndicatorPattern(sV2.getLoggedOutIndicator());
                 }
                 method.credentialsParamNames = s.getCredentialsParamsNames();
             } catch (Exception e) {
@@ -986,8 +982,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 try {
                     if (s instanceof AuthenticationScriptV2) {
                         AuthenticationScriptV2 sV2 = (AuthenticationScriptV2) s;
-                        method.setLoggedInIndicatorPattern(sV2.getLoggedInIndicator());
-                        method.setLoggedOutIndicatorPattern(sV2.getLoggedOutIndicator());
+                        method.getVerificationMethod()
+                                .setLoggedInIndicatorPattern(sV2.getLoggedInIndicator());
+                        method.getVerificationMethod()
+                                .setLoggedOutIndicatorPattern(sV2.getLoggedOutIndicator());
                     }
                     method.credentialsParamNames = s.getCredentialsParamsNames();
 

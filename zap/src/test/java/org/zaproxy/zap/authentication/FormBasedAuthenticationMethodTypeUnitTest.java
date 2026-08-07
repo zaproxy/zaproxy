@@ -57,10 +57,10 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
 
         type = new FormBasedAuthenticationMethodType();
         method = type.createAuthenticationMethod(1);
-        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
-        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
-        method.setPollFrequency(5);
-        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.getVerificationMethod().setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.getVerificationMethod().setPollFrequency(5);
+        method.getVerificationMethod().setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
     }
 
     @Test
@@ -89,8 +89,8 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl + "?" + encodedPattern);
 
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollData(pollData);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollData(pollData);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
@@ -98,7 +98,7 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqUrls.size(), is(1));
         assertThat(orderedReqUrls.get(0), is(pollUrl + "?" + username));
         assertThat(orderedReqData.size(), is(1));
@@ -127,8 +127,8 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollData(pollData);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollData(pollData);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
@@ -136,7 +136,7 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 .willReturn(new UsernamePasswordAuthenticationCredentials("", password));
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqData.size(), is(1));
         assertThat(orderedReqData.get(0), is(pollData));
     }
@@ -161,8 +161,8 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         HttpMessage testMsg = this.getHttpMessage(test);
         HttpMessage pollMsg = this.getHttpMessage(pollUrl);
 
-        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
-        method.setPollData(pollData);
+        method.getVerificationMethod().setPollUrl(pollMsg.getRequestHeader().getURI().toString());
+        method.getVerificationMethod().setPollData(pollData);
 
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
@@ -170,7 +170,7 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.getVerificationMethod().isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqData.size(), is(1));
         assertThat(
                 orderedReqData.get(0),

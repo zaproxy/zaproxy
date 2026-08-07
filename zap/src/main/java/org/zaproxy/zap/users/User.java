@@ -250,7 +250,7 @@ public class User extends Enableable {
      * @return true, if is authenticated
      */
     public boolean isAuthenticated(HttpMessage msg) {
-        return getContext().getAuthenticationMethod().isAuthenticated(msg, this);
+        return getContext().getVerificationMethod().isAuthenticated(msg, this);
     }
 
     /**

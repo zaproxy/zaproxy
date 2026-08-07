@@ -141,8 +141,11 @@ public class UsersAPI extends ApiImplementor {
                 new ApiAction(
                         ACTION_AUTHENTICATE_AS_USER,
                         new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
-        this.addApiAction(
-                new ApiAction(ACTION_POLL_AS_USER, new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
+        ApiAction pollAsUserAction =
+                new ApiAction(ACTION_POLL_AS_USER, new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID});
+        pollAsUserAction.setDeprecated(true);
+        pollAsUserAction.setDeprecatedDescription("Use verification/pollAsUser instead.");
+        this.addApiAction(pollAsUserAction);
         this.addApiAction(
                 new ApiAction(
                         ACTION_SET_AUTH_STATE,
@@ -326,7 +329,7 @@ public class UsersAPI extends ApiImplementor {
                                     "authSuccessful",
                                     Boolean.toString(
                                             user.getContext()
-                                                    .getAuthenticationMethod()
+                                                    .getVerificationMethod()
                                                     .evaluateAuthRequest(
                                                             authMsg,
                                                             user.getAuthenticationState())));
@@ -343,7 +346,7 @@ public class UsersAPI extends ApiImplementor {
             case ACTION_POLL_AS_USER:
                 user = getUser(params);
                 try {
-                    HttpMessage msg = user.getContext().getAuthenticationMethod().pollAsUser(user);
+                    HttpMessage msg = user.getContext().getVerificationMethod().pollAsUser(user);
                     int href = -1;
                     if (msg.getHistoryRef() != null) {
                         href = msg.getHistoryRef().getHistoryId();
@@ -354,7 +357,7 @@ public class UsersAPI extends ApiImplementor {
                             "pollSuccessful",
                             Boolean.toString(
                                     user.getContext()
-                                            .getAuthenticationMethod()
+                                            .getVerificationMethod()
                                             .evaluateAuthRequest(
                                                     msg, user.getAuthenticationState())));
 
