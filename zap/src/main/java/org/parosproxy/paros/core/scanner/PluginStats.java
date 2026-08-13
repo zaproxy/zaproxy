@@ -19,6 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import java.time.Instant;
 import org.zaproxy.zap.utils.Stats;
 
 /**
@@ -101,14 +102,39 @@ public class PluginStats {
         return skippedReason;
     }
 
-    /** Starts the plugin stats. */
+    /** Starts the plugin stats (wall-clock fallback). */
     void start() {
-        startTime = System.currentTimeMillis();
+        start(null);
+    }
+
+    /**
+     * Starts the plugin stats using a scanner-aligned Instant.
+     *
+     * <p>Use this when the caller has an Instant from Scanner.getEffectiveInstant() to ensure
+     * paused time is excluded.
+     */
+    void start(Instant now) {
+        startTime = getNowMilliseconds(now);
         Stats.incCounter(Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.STARTED_POSTFIX);
     }
 
+    private long getNowMilliseconds(Instant now) {
+        return (now != null) ? now.toEpochMilli() : System.currentTimeMillis();
+    }
+
+    /** Stops the plugin stats (wall-clock fallback). */
     void stopped() {
-        totalTime = System.currentTimeMillis() - startTime;
+        stopped(null);
+    }
+
+    /**
+     * Stops the plugin stats using a scanner-aligned Instant.
+     *
+     * <p>Use this when the caller has an Instant from Scanner.getEffectiveInstant() to ensure
+     * paused time is excluded.
+     */
+    void stopped(Instant now) {
+        totalTime = getNowMilliseconds(now) - startTime;
         Stats.incCounter(
                 Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.TIME_POSTFIX, totalTime);
     }
@@ -123,11 +149,29 @@ public class PluginStats {
         return startTime;
     }
 
-    public long getTotalTime() {
-        if (totalTime == 0 && startTime > 0) {
-            return System.currentTimeMillis() - startTime;
+    /**
+     * Returns the total elapsed time in milliseconds for this plugin.
+     *
+     * <p>If the plugin has finished, returns (finished - started). If the plugin is still running
+     * and {@code now} is provided, returns (now - started). If the plugin is still running and
+     * {@code now} is null, uses Instant.now() as fallback.
+     *
+     * <p>Callers should pass the scanner-aligned Instant (Scanner.getEffectiveInstant()) when
+     * available so paused time is excluded.
+     */
+    public long getTotalTimeMillis(Instant now) {
+        if (startTime <= 0) {
+            return 0L;
         }
-        return totalTime;
+        if (totalTime != 0L) {
+            return totalTime;
+        }
+        return getNowMilliseconds(now) - startTime;
+    }
+
+    /** Backwards-compatible API: returns total milliseconds using wall-clock fallback. */
+    public long getTotalTime() {
+        return getTotalTimeMillis(null);
     }
 
     /**
