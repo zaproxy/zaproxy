@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -99,14 +100,18 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         // private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER =
         // "text/http-request-header";
 
+        private static final String HTTP_REQUEST_HEADER =
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.httpRequestHeader");
+
+        private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER = "text/http-request-header";
+
         private static RequestHeaderTokenMakerFactory tokenMakerFactory = null;
 
         private CaretVisibilityEnforcerOnFocusGain caretVisibilityEnforcer;
 
         public HttpRequestHeaderPanelSyntaxHighlightTextArea() {
-            // addSyntaxStyle(HTTP_REQUEST_HEADER, SYNTAX_STYLE_HTTP_REQUEST_HEADER);
-
-            // setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_REQUEST_HEADER);
+            addSyntaxStyle(HTTP_REQUEST_HEADER, SYNTAX_STYLE_HTTP_REQUEST_HEADER);
+            setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_REQUEST_HEADER);
 
             caretVisibilityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
         }
@@ -221,10 +226,8 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         private static class RequestHeaderTokenMakerFactory extends CustomTokenMakerFactory {
 
             public RequestHeaderTokenMakerFactory() {
-                // String pkg = "org.zaproxy.zap.extension.httppanel.view.text.lexers.";
-
-                // putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER, pkg +
-                // "HttpRequestHeaderTokenMaker");
+                String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER, pkg + "HttpRequestHeaderTokenMaker");
             }
         }
     }
