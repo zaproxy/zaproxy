@@ -276,6 +276,98 @@ class VerificationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @Test
+    void shouldUseGetWhenPollMethodNullAndDataEmpty() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        assertThat(pollMessages.get(0).getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
+    }
+
+    @Test
+    void shouldUsePostWhenPollMethodNullAndDataNonEmpty() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        vm.setPollData("param=value");
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        assertThat(pollMessages.get(0).getRequestHeader().getMethod(), is(HttpRequestHeader.POST));
+    }
+
+    @Test
+    void shouldUseConfiguredMethodWhenPollMethodSet() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        vm.setPollData("param=value");
+        vm.setPollMethod(HttpRequestHeader.GET);
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        assertThat(pollMessages.get(0).getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
+    }
+
+    @Test
+    void shouldUseConfiguredPostMethodWhenPollMethodSetAndDataEmpty() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        vm.setPollMethod(HttpRequestHeader.POST);
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        assertThat(pollMessages.get(0).getRequestHeader().getMethod(), is(HttpRequestHeader.POST));
+    }
+
+    @Test
     void shouldHandlePollHeadersWithColonsInValues() throws Exception {
         // Given
         String test = "/test";

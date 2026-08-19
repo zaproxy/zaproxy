@@ -335,6 +335,10 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                         }
                     }
 
+                    vm.setPollMethod(
+                            session.getContextDataString(
+                                    context.getId(), RecordContext.TYPE_AUTH_POLL_METHOD, null));
+
                     vm.setLoggedInIndicatorPattern(
                             session.getContextDataString(
                                     context.getId(),
@@ -407,6 +411,12 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                 session.clearContextDataForType(
                         contextIdx, RecordContext.TYPE_AUTH_POLL_FREQ_UNITS);
             }
+            if (vm.getPollMethod() != null) {
+                session.setContextData(
+                        contextIdx, RecordContext.TYPE_AUTH_POLL_METHOD, vm.getPollMethod());
+            } else {
+                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_METHOD);
+            }
 
             persistLoggedIndicator(
                     session,
@@ -471,6 +481,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS,
                     vm.getPollFrequencyUnits().name());
         }
+        config.setProperty(
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_METHOD, vm.getPollMethod());
         if (vm.getLoggedInIndicatorPattern() != null) {
             config.setProperty(
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN,
@@ -516,6 +528,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         }
         vm.setAuthCheckingStrategy(strategy);
 
+        vm.setPollMethod(
+                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_METHOD, null));
         vm.setPollUrl(pollUrl);
         vm.setPollData(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, ""));
         vm.setPollHeaders(

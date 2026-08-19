@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -80,6 +81,8 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
             Constant.messages.getString("authentication.panel.label.loggedIn");
     private static final String FIELD_LABEL_LOGGED_OUT_INDICATOR =
             Constant.messages.getString("authentication.panel.label.loggedOut");
+    private static final String LABEL_POLL_METHOD =
+            Constant.messages.getString("authentication.panel.label.pollmethod");
     private static final String LABEL_POLL_URL =
             Constant.messages.getString("authentication.panel.label.pollurl");
     private static final String LABEL_POLL_DATA =
@@ -97,6 +100,7 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
     private JComboBox<AuthPollFrequencyUnitsType> authFrequencyUnitsComboBox;
 
     private JButton pollUrlSelectButton = null;
+    private JComboBox<String> pollMethodComboBox;
     private ZapTextField pollUrlField = null;
     private ZapTextField pollDataField = null;
     private ZapTextArea pollHeadersField = null;
@@ -151,6 +155,8 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
         panel.add(getPollFrequencySpinner(), LayoutHelper.getGBC(1, y, 1, 0.33D));
         panel.add(getAuthFrequencyUnitsComboBox(), LayoutHelper.getGBC(2, y++, 1, 0.33D));
 
+        panel.add(new JLabel(LABEL_POLL_METHOD), LayoutHelper.getGBC(0, y, 1, 0.25D));
+        panel.add(getPollMethodComboBox(), LayoutHelper.getGBC(1, y++, 2, 0.75D));
         panel.add(new JLabel(LABEL_POLL_URL), LayoutHelper.getGBC(0, y++, fullWidth, 1.0D));
         JPanel urlPanel = new JPanel(new GridBagLayout());
         urlPanel.add(this.getPollUrlField(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
@@ -189,6 +195,7 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
         getAuthFrequencyUnitsComboBox().setEnabled(isPoll);
         getPollFrequencySpinner().setEnabled(isPoll);
         getPollUrlSelectButton().setEnabled(isPoll);
+        getPollMethodComboBox().setEnabled(isPoll);
         getPollUrlField().setEnabled(isPoll);
         getPollDataField().setEnabled(isPoll);
         getPollHeadersField().setEnabled(isPoll);
@@ -280,6 +287,17 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
         return pollUrlSelectButton;
     }
 
+    private JComboBox<String> getPollMethodComboBox() {
+        if (pollMethodComboBox == null) {
+            pollMethodComboBox = new JComboBox<>();
+            pollMethodComboBox.setEditable(true);
+            Stream.of(HttpRequestHeader.GET, HttpRequestHeader.POST)
+                    .sorted()
+                    .forEach(pollMethodComboBox::addItem);
+        }
+        return pollMethodComboBox;
+    }
+
     private ZapTextField getPollUrlField() {
         if (pollUrlField == null) {
             pollUrlField = new ZapTextField();
@@ -357,6 +375,7 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
         vm.setAuthCheckingStrategy(
                 ((AuthCheckingStrategyType) getAuthenticationVerifComboBox().getSelectedItem())
                         .getStrategy());
+        vm.setPollMethod((String) getPollMethodComboBox().getSelectedItem());
         vm.setPollUrl(getPollUrlField().getText());
         vm.setPollData(getPollDataField().getText());
         vm.setPollHeaders(getPollHeadersField().getText());
@@ -378,6 +397,8 @@ public class ContextVerificationPanel extends AbstractContextPropertiesPanel
         setPollFieldStatuses(
                 (AuthCheckingStrategyType) getAuthenticationVerifComboBox().getSelectedItem());
 
+        String pollMethod = vm.getPollMethod();
+        getPollMethodComboBox().setSelectedItem(pollMethod != null ? pollMethod : "");
         getPollUrlField().setText(vm.getPollUrl());
         getPollDataField().setText(vm.getPollData());
         getPollHeadersField().setText(vm.getPollHeaders());

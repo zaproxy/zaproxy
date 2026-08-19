@@ -80,6 +80,7 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         Context context = new Context(null, 0);
         String loggedInIndicator = "logged in";
         String loggedOutIndicator = "logged out";
+        String pollMethod = "Method";
         String pollUrl = "https://www.example.com/poll";
         String pollData = "example-poll-data";
         String pollHeaders = "aaa : bbb\\Nccc : ddd";
@@ -89,6 +90,7 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         FormBasedAuthenticationMethod method = type.createAuthenticationMethod(0);
         context.setAuthenticationMethod(method);
         context.getVerificationMethod().setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        context.getVerificationMethod().setPollMethod(pollMethod);
         context.getVerificationMethod().setPollUrl(pollUrl);
         context.getVerificationMethod().setPollData(pollData);
         context.getVerificationMethod().setPollHeaders(pollHeaders);
@@ -106,6 +108,9 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         assertThat(
                 config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY),
                 is(AuthCheckingStrategy.POLL_URL.name()));
+        assertThat(
+                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_METHOD),
+                is(pollMethod));
         assertThat(
                 config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL), is(pollUrl));
         assertThat(
@@ -131,6 +136,7 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         Context context = new Context(null, 0);
         String loggedInIndicator = "logged in";
         String loggedOutIndicator = "logged out";
+        String pollMethod = "Method";
         String pollUrl = "https://www.example.com/poll";
         String pollData = "example-poll-data";
         String pollHeaders = "aaa : bbb\\Nccc : ddd";
@@ -141,6 +147,7 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         config.setProperty(
                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY,
                 AuthCheckingStrategy.POLL_URL.name());
+        config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_METHOD, pollMethod);
         config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, pollUrl);
         config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, pollData);
         config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS, pollHeaders);
@@ -164,6 +171,7 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         assertThat(
                 context.getVerificationMethod().getAuthCheckingStrategy(),
                 is(AuthCheckingStrategy.POLL_URL));
+        assertThat(context.getVerificationMethod().getPollMethod(), is(pollMethod));
         assertThat(context.getVerificationMethod().getPollUrl(), is(pollUrl));
         assertThat(context.getVerificationMethod().getPollData(), is(pollData));
         assertThat(context.getVerificationMethod().getPollHeaders(), is(pollHeaders));

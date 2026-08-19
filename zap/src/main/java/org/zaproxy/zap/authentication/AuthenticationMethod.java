@@ -46,6 +46,8 @@ public abstract class AuthenticationMethod {
     public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authentication";
     public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
     public static final String CONTEXT_CONFIG_AUTH_STRATEGY = CONTEXT_CONFIG_AUTH + ".strategy";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_METHOD =
+            CONTEXT_CONFIG_AUTH + ".pollmethod";
     public static final String CONTEXT_CONFIG_AUTH_POLL_URL = CONTEXT_CONFIG_AUTH + ".pollurl";
     public static final String CONTEXT_CONFIG_AUTH_POLL_DATA = CONTEXT_CONFIG_AUTH + ".polldata";
     public static final String CONTEXT_CONFIG_AUTH_POLL_HEADERS =
