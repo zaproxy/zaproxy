@@ -27,9 +27,11 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
@@ -63,6 +65,7 @@ public class VerificationMethod {
 
     private AuthCheckingStrategy authCheckingStrategy = AuthCheckingStrategy.POLL_URL;
 
+    private String pollMethod;
     private String pollUrl;
     private String pollData;
     private String pollHeaders;
@@ -273,10 +276,10 @@ public class VerificationMethod {
             throw new IllegalArgumentException("Poll URL is not set");
         }
         HttpMessage pollMsg = new HttpMessage(new URI(this.getPollUrl(), true));
-        if (this.getPollData() != null && this.getPollData().length() > 0) {
-            pollMsg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-            pollMsg.getRequestBody().setBody(this.getPollData());
-            pollMsg.getRequestHeader().setContentLength(pollMsg.getRequestBody().length());
+        if (!StringUtils.isBlank(pollMethod)) {
+            setRequestBody(pollMsg, pollMethod, getPollData());
+        } else if (this.getPollData() != null && this.getPollData().length() > 0) {
+            setRequestBody(pollMsg, HttpRequestHeader.POST, getPollData());
         }
         if (this.getPollHeaders() != null && this.getPollHeaders().length() > 0) {
             for (String header : this.getPollHeaders().split("\n")) {
@@ -306,6 +309,20 @@ public class VerificationMethod {
         authState.setRequestsSincePoll(0);
 
         return pollMsg;
+    }
+
+    private static void setRequestBody(HttpMessage msg, String method, String data) {
+        msg.getRequestHeader().setMethod(method);
+        msg.getRequestBody().setBody(data);
+
+        int bodyLength = msg.getRequestBody().length();
+        if (bodyLength == 0
+                && (HttpRequestHeader.GET.equalsIgnoreCase(method)
+                        || HttpRequestHeader.HEAD.equalsIgnoreCase(method))) {
+            msg.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
+        } else {
+            msg.getRequestHeader().setContentLength(bodyLength);
+        }
     }
 
     private static boolean patternMatchesAny(Pattern pattern, List<String> content) {
@@ -370,6 +387,14 @@ public class VerificationMethod {
     public void setAuthCheckingStrategy(AuthCheckingStrategy authCheckingStrategy) {
         Objects.requireNonNull(authCheckingStrategy);
         this.authCheckingStrategy = authCheckingStrategy;
+    }
+
+    public String getPollMethod() {
+        return pollMethod;
+    }
+
+    public void setPollMethod(String pollMethod) {
+        this.pollMethod = StringUtils.isBlank(pollMethod) ? null : pollMethod;
     }
 
     public String getPollUrl() {
@@ -439,6 +464,7 @@ public class VerificationMethod {
     public VerificationMethod copy(BiConsumer<HttpMessage, User> userDataReplacer) {
         VerificationMethod clone = new VerificationMethod();
         clone.authCheckingStrategy = this.authCheckingStrategy;
+        clone.pollUrl = this.pollMethod;
         clone.pollUrl = this.pollUrl;
         clone.pollData = this.pollData;
         clone.pollHeaders = this.pollHeaders;
@@ -456,6 +482,7 @@ public class VerificationMethod {
                 loggedInIndicatorPattern == null ? null : loggedInIndicatorPattern.pattern(),
                 loggedOutIndicatorPattern == null ? null : loggedOutIndicatorPattern.pattern(),
                 authCheckingStrategy,
+                pollMethod,
                 pollUrl,
                 pollData,
                 pollHeaders,
@@ -476,6 +503,9 @@ public class VerificationMethod {
             return false;
         }
         if (!this.authCheckingStrategy.equals(other.authCheckingStrategy)) {
+            return false;
+        }
+        if (!Objects.equals(pollMethod, other.pollMethod)) {
             return false;
         }
         if (!Objects.equals(this.pollUrl, other.pollUrl)) {
