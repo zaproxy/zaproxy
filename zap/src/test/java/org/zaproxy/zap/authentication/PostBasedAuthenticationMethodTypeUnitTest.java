@@ -33,6 +33,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 import static org.zaproxy.zap.authentication.PostBasedAuthenticationMethodTypeUnitTest.ReplaceAntiCsrfTokenValueIfRequired.token;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +49,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
-import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
@@ -292,10 +293,107 @@ class PostBasedAuthenticationMethodTypeUnitTest {
         }
     }
 
-    static class FormBasedAuthenticationMethodTest extends WithConfigsTest {
+    /**
+     * Test {@link
+     * PostBasedAuthenticationMethodType#replaceUserCredentialsDataInPollRequest(HttpMessage, User,
+     * UnaryOperator)}.
+     */
+    static class ReplaceUserCredentialsDataInPollRequest {
 
-        private AuthenticationMethod method;
-        private FormBasedAuthenticationMethodType type;
+        private static final String USER_PATTERN = PostBasedAuthenticationMethod.MSG_USER_PATTERN;
+        private static final String PASS_PATTERN = PostBasedAuthenticationMethod.MSG_PASS_PATTERN;
+
+        private User user;
+
+        @BeforeEach
+        void setup() {
+            user = mock(User.class);
+        }
+
+        @Test
+        void shouldReplaceUsernameInUrlAndBody() throws Exception {
+            // Given
+            given(user.getAuthenticationCredentials())
+                    .willReturn(new UsernamePasswordAuthenticationCredentials("alice", "secret"));
+            String encodedPattern = URLEncoder.encode(USER_PATTERN, StandardCharsets.UTF_8.name());
+            HttpMessage msg =
+                    new HttpMessage(
+                            new URI("http://example.com/poll?user=" + encodedPattern, true));
+            msg.setRequestBody("user=" + USER_PATTERN);
+            // When
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, UnaryOperator.identity());
+            // Then
+            assertThat(msg.getRequestHeader().getURI().getEscapedQuery(), is("user=alice"));
+            assertThat(msg.getRequestBody().toString(), is("user=alice"));
+        }
+
+        @Test
+        void shouldNotReplacePasswordInBody() throws Exception {
+            // Given
+            given(user.getAuthenticationCredentials())
+                    .willReturn(new UsernamePasswordAuthenticationCredentials("alice", "secret"));
+            HttpMessage msg = new HttpMessage(new URI("http://example.com/poll", true));
+            msg.setRequestBody("pwd=" + PASS_PATTERN);
+            // When
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, UnaryOperator.identity());
+            // Then
+            assertThat(msg.getRequestBody().toString(), is("pwd=" + PASS_PATTERN));
+        }
+
+        @Test
+        void shouldEncodeUsernameInBodyUsingProvidedEncoder() throws Exception {
+            // Given
+            given(user.getAuthenticationCredentials())
+                    .willReturn(new UsernamePasswordAuthenticationCredentials("user name", ""));
+            HttpMessage msg = new HttpMessage(new URI("http://example.com/poll", true));
+            msg.setRequestBody("user=" + USER_PATTERN);
+            // When
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, value -> value.replace(" ", "+"));
+            // Then
+            assertThat(msg.getRequestBody().toString(), is("user=user+name"));
+        }
+
+        @Test
+        void shouldNotReplaceAnythingWhenUserIsNull() throws Exception {
+            // Given
+            HttpMessage msg = new HttpMessage(new URI("http://example.com/poll", true));
+            msg.setRequestBody("user=" + USER_PATTERN);
+            String originalBody = msg.getRequestBody().toString();
+            // When
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, null, UnaryOperator.identity());
+            // Then
+            assertThat(msg.getRequestBody().toString(), is(originalBody));
+        }
+
+        @Test
+        void shouldNotReplaceAnythingWhenCredentialsAreNotUsernamePassword() throws Exception {
+            // Given
+            given(user.getAuthenticationCredentials())
+                    .willReturn(mock(AuthenticationCredentials.class));
+            HttpMessage msg = new HttpMessage(new URI("http://example.com/poll", true));
+            msg.setRequestBody("user=" + USER_PATTERN);
+            String originalBody = msg.getRequestBody().toString();
+            // When
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, UnaryOperator.identity());
+            // Then
+            assertThat(msg.getRequestBody().toString(), is(originalBody));
+        }
+    }
+
+    /**
+     * Test the shared {@code authenticate} behaviour of {@link PostBasedAuthenticationMethod},
+     * using a minimal concrete implementation since the behaviour under test does not depend on the
+     * POST content format (form vs JSON).
+     */
+    static class Authenticate extends WithConfigsTest {
+
+        private PostBasedAuthenticationMethod method;
+        private TestPostBasedAuthenticationMethodType type;
         private Context context;
         private ExtensionAntiCSRF extAntiCsrf;
 
@@ -307,10 +405,9 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             Control.initSingletonForTesting();
             extAntiCsrf = mock(ExtensionAntiCSRF.class);
 
-            type = spy(new FormBasedAuthenticationMethodType());
+            type = spy(new TestPostBasedAuthenticationMethodType());
             method = type.createAuthenticationMethod(1);
-            given(type.createAuthenticationMethod(anyInt()))
-                    .willReturn((FormBasedAuthenticationMethod) method);
+            given(type.createAuthenticationMethod(anyInt())).willReturn(method);
 
             context = Model.getSingleton().getSession().getNewContext("test");
         }
@@ -376,6 +473,54 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             // Then
             assertThat(orderedReqData.size(), is(2));
             assertThat(expectedRequestBody, is(orderedReqData.get(1)));
+        }
+    }
+
+    /**
+     * Minimal concrete {@link PostBasedAuthenticationMethodType}, used to exercise the behaviour
+     * shared by all post-based authentication methods without depending on a specific POST content
+     * format (form vs JSON).
+     */
+    private static class TestPostBasedAuthenticationMethodType
+            extends PostBasedAuthenticationMethodType {
+
+        TestPostBasedAuthenticationMethodType() {
+            super("Test Based Authentication", 100, "testBasedAuthentication", "test.popup", false);
+        }
+
+        @Override
+        public PostBasedAuthenticationMethod createAuthenticationMethod(int contextId) {
+            return new TestPostBasedAuthenticationMethod(null);
+        }
+
+        @Override
+        public AbstractAuthenticationMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
+            return null;
+        }
+
+        @Override
+        public boolean isTypeForMethod(AuthenticationMethod method) {
+            return method instanceof TestPostBasedAuthenticationMethod;
+        }
+
+        class TestPostBasedAuthenticationMethod extends PostBasedAuthenticationMethod {
+
+            TestPostBasedAuthenticationMethod(TestPostBasedAuthenticationMethod copy) {
+                super("test/content-type", UnaryOperator.identity(), copy);
+            }
+
+            @Override
+            public AuthenticationMethodType getType() {
+                return TestPostBasedAuthenticationMethodType.this;
+            }
+
+            @Override
+            public AuthenticationMethod duplicate() {
+                return new TestPostBasedAuthenticationMethod(this);
+            }
+
+            @Override
+            public void replaceUserDataInPollRequest(HttpMessage msg, User user) {}
         }
     }
 }
