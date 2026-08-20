@@ -712,10 +712,8 @@ public class ExtensionAlert extends ExtensionAdaptor
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
-        // TODO this doesn't work, but should be used when its fixed :/
-        // Vector<Integer> v =
-        // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
-        Vector<Integer> v = tableAlert.getAlertList();
+        Vector<Integer> v =
+                tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
         final ExtensionHistory extensionHistory =
                 Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
@@ -982,10 +980,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
         Vector<Integer> v;
         try {
-            // TODO this doesn't work, but should be used when its fixed :/
-            // v =
-            // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
-            v = tableAlert.getAlertList();
+            v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
             for (int i = 0; i < v.size(); i++) {
                 int alertId = v.get(i);
