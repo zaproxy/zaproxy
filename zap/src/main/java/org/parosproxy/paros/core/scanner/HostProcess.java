@@ -937,7 +937,7 @@ public class HostProcess implements Runnable {
 
         PluginStats pluginStats = mapPluginStats.get(alert.getPluginId());
         if (pluginStats != null) {
-            pluginStats.incAlertCount();
+            pluginStats.incAlertCount(alert.getAlertRef());
 
             int maxAlertsPerRule = scannerParam.getMaxAlertsPerRule();
             if (maxAlertsPerRule > 0 && pluginStats.getAlertCount() >= maxAlertsPerRule) {
