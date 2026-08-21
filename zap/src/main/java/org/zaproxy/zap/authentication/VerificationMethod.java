@@ -21,8 +21,11 @@ package org.zaproxy.zap.authentication;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
@@ -282,11 +285,17 @@ public class VerificationMethod {
             setRequestBody(pollMsg, HttpRequestHeader.POST, getPollData());
         }
         if (this.getPollHeaders() != null && this.getPollHeaders().length() > 0) {
+            Set<String> seenHeaders = new HashSet<>();
             for (String header : this.getPollHeaders().split("\n")) {
                 String[] headerValue = header.split(":", 2);
                 if (headerValue.length == 2) {
-                    pollMsg.getRequestHeader()
-                            .addHeader(headerValue[0].trim(), headerValue[1].trim());
+                    String name = headerValue[0].trim();
+                    String value = headerValue[1].trim();
+                    if (seenHeaders.add(name.toLowerCase(Locale.ROOT))) {
+                        pollMsg.getRequestHeader().setHeader(name, value);
+                    } else {
+                        pollMsg.getRequestHeader().addHeader(name, value);
+                    }
                 } else {
                     LOGGER.error(
                             "Invalid header '{}' for poll request to {}",
