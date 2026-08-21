@@ -52,6 +52,8 @@ class VerificationMethodPollUrlUnitTest extends TestUtils {
 
     @BeforeEach
     void setUp() throws Exception {
+        HttpRequestHeader.setDefaultUserAgent("not-custom-value");
+
         vm = new VerificationMethod();
         vm.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
     }
@@ -403,6 +405,81 @@ class VerificationMethodPollUrlUnitTest extends TestUtils {
                 is("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0:signature"));
         assertThat(requestHeader.getHeader("X-Custom-Time"), is("2025-07-19T10:30:45.123Z"));
         assertThat(requestHeader.getHeader("Content-Type"), is("application/json"));
+    }
+
+    @Test
+    void shouldOverrideExistingHeaderWithFirstPollHeaderOccurrence() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        vm.setPollHeaders("user-agent: custom-value");
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        assertThat(
+                pollMessages.get(0).getRequestHeader().getHeaderValues("user-agent"),
+                is(List.of("custom-value")));
+    }
+
+    @Test
+    void shouldPreserveDuplicatePollHeaders() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        vm.setPollHeaders("X-Token: value1\nX-Token: value2");
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        assertThat(
+                pollMessages.get(0).getRequestHeader().getHeaderValues("X-Token"),
+                is(List.of("value1", "value2")));
+    }
+
+    @Test
+    void shouldNotAffectHeadersNotInPollHeaders() throws Exception {
+        // Given
+        String pollUrl = "/pollUrl";
+        List<HttpMessage> pollMessages = new ArrayList<>();
+        setMessageHandler(pollMessages::add);
+
+        vm.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        vm.setPollUrl(getHttpMessage(pollUrl).getRequestHeader().getURI().toString());
+        vm.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        vm.setPollHeaders("Authorization: Bearer token");
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When
+        vm.pollAsUser(user);
+
+        // Then
+        assertThat(pollMessages, hasSize(1));
+        HttpRequestHeader requestHeader = pollMessages.get(0).getRequestHeader();
+        assertThat(requestHeader.getHeader("Authorization"), is("Bearer token"));
+        assertThat(requestHeader.getHeader("user-agent"), is("not-custom-value"));
     }
 
     @Test
