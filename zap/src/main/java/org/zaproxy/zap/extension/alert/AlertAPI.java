@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
@@ -368,7 +369,9 @@ public class AlertAPI extends ApiImplementor {
                     -1,
                     -1,
                     getRiskId(params),
-                    counter);
+                    counter,
+                    true,
+                    (alerts, alert) -> false);
             return new ApiResponseElement(ACTION_DELETE_ALERTS, String.valueOf(count[0]));
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
@@ -478,7 +481,14 @@ public class AlertAPI extends ApiImplementor {
     private static void processAlerts(
             String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
             throws ApiException {
-        processAlerts(baseUrl, start, count, riskId, processor, false);
+        processAlerts(
+                baseUrl,
+                start,
+                count,
+                riskId,
+                processor,
+                false,
+                (alerts, alert) -> alerts.contains(alert));
     }
 
     private static void processAlerts(
@@ -488,6 +498,25 @@ public class AlertAPI extends ApiImplementor {
             int riskId,
             Processor<Alert> processor,
             boolean falsePositive)
+            throws ApiException {
+        processAlerts(
+                baseUrl,
+                start,
+                count,
+                riskId,
+                processor,
+                falsePositive,
+                (alerts, alert) -> alerts.contains(alert));
+    }
+
+    private static void processAlerts(
+            String baseUrl,
+            int start,
+            int count,
+            int riskId,
+            Processor<Alert> processor,
+            boolean falsePositive,
+            BiPredicate<List<Alert>, Alert> isDuplicate)
             throws ApiException {
         List<Alert> alerts = new ArrayList<>();
         try {
@@ -504,7 +533,7 @@ public class AlertAPI extends ApiImplementor {
                 Alert alert = new Alert(recAlert);
 
                 if ((falsePositive || alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE)
-                        && !alerts.contains(alert)) {
+                        && !isDuplicate.test(alerts, alert)) {
                     if (baseUrl != null && !alert.getUri().startsWith(baseUrl)) {
                         // Not subordinate to the specified URL
                         continue;
