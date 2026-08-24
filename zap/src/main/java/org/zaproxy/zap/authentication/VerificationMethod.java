@@ -473,7 +473,7 @@ public class VerificationMethod {
     public VerificationMethod copy(BiConsumer<HttpMessage, User> userDataReplacer) {
         VerificationMethod clone = new VerificationMethod();
         clone.authCheckingStrategy = this.authCheckingStrategy;
-        clone.pollUrl = this.pollMethod;
+        clone.pollMethod = this.pollMethod;
         clone.pollUrl = this.pollUrl;
         clone.pollData = this.pollData;
         clone.pollHeaders = this.pollHeaders;

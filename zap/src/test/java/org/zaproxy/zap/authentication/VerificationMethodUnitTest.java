@@ -321,6 +321,7 @@ class VerificationMethodUnitTest {
         @Test
         void shouldCopyAllFields() {
             vm.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+            vm.setPollMethod("Method");
             vm.setPollUrl("http://example.com/poll");
             vm.setPollData("data=value");
             vm.setPollHeaders("X-Header: value");
@@ -333,6 +334,7 @@ class VerificationMethodUnitTest {
 
             assertThat(copy, is(not(sameInstance(vm))));
             assertThat(copy.getAuthCheckingStrategy(), is(AuthCheckingStrategy.EACH_REQ));
+            assertThat(copy.getPollMethod(), is("Method"));
             assertThat(copy.getPollUrl(), is("http://example.com/poll"));
             assertThat(copy.getPollData(), is("data=value"));
             assertThat(copy.getPollHeaders(), is("X-Header: value"));
