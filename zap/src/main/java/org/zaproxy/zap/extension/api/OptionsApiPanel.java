@@ -32,6 +32,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SortOrder;
 import org.parosproxy.paros.Constant;
@@ -42,7 +43,6 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
-import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -60,7 +60,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
     private JCheckBox autofillKey = null;
     private JCheckBox enableJSONP = null;
     private JCheckBox noKeyForSafeOps = null;
-    private ZapTextField keyField = null;
+    private JPasswordField keyField = null;
     private JTextField transferDirectory = null;
     private JButton generateKeyButton = null;
     private JButton transferDirectoryButton = null;
@@ -261,9 +261,9 @@ public class OptionsApiPanel extends AbstractParamPanel {
         return autofillKey;
     }
 
-    private ZapTextField getKeyField() {
+    private JPasswordField getKeyField() {
         if (keyField == null) {
-            keyField = new ZapTextField();
+            keyField = new JPasswordField();
         }
         return keyField;
     }
@@ -336,7 +336,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 
     @Override
     public void validateParam(Object obj) throws Exception {
-        if (!getDisableKey().isSelected() && getKeyField().getText().length() == 0) {
+        if (!getDisableKey().isSelected() && getKeyField().getPassword().length == 0) {
             getKeyField().requestFocusInWindow();
             throw new Exception(Constant.messages.getString("api.options.nokey.error"));
         }
@@ -368,7 +368,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 
         if (!getDisableKey().isSelected()) {
             // Dont loose the old value on disabling
-            options.getApiParam().setKey(getKeyField().getText());
+            options.getApiParam().setKey(new String(getKeyField().getPassword()));
         }
 
         options.getApiParam()

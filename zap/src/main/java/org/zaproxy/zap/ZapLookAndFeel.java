@@ -21,12 +21,14 @@ package org.zaproxy.zap;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.LookAndFeel;
 import javax.swing.UIDefaults;
 import javax.swing.plaf.ComponentUI;
 
 /**
- * A LookAndFeel which disables HTML in JLabels by default.
+ * A LookAndFeel which disables HTML in JLabels by default and allows the contents of
+ * JPasswordFields to be cut/copied.
  *
  * @since 2.12.0
  */
@@ -72,6 +74,8 @@ class ZapLookAndFeel extends LookAndFeel {
         public ComponentUI getUI(JComponent target) {
             if (target instanceof JLabel) {
                 target.putClientProperty("html.disable", Boolean.TRUE);
+            } else if (target instanceof JPasswordField) {
+                target.putClientProperty("JPasswordField.cutCopyAllowed", Boolean.TRUE);
             }
             return null;
         }
