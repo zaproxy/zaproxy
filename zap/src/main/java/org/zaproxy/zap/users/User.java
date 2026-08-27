@@ -163,10 +163,17 @@ public class User extends Enableable {
      * @param message the message
      */
     public void processMessageToMatchUser(HttpMessage message) {
+        if (interrupted()) {
+            return;
+        }
+
         // If the user is not yet authenticated, authenticate now
         // Make sure there are no simultaneous authentications for the same user
         synchronized (this) {
             if (this.requiresAuthentication()) {
+                if (interrupted()) {
+                    return;
+                }
                 this.authenticate();
                 if (this.requiresAuthentication()) {
                     LOGGER.info("Authentication failed for user: {}", name);
@@ -175,6 +182,14 @@ public class User extends Enableable {
             }
         }
         processMessageToMatchAuthenticatedSession(message);
+    }
+
+    private boolean interrupted() {
+        if (Thread.currentThread().isInterrupted()) {
+            LOGGER.debug("Skipping {} authentication due to interruption.", this.name);
+            return true;
+        }
+        return false;
     }
 
     /**
