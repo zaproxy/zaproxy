@@ -32,11 +32,13 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.concurrent.CountDownLatch;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -218,6 +220,58 @@ class UserUnitTest {
         // When
         doReturn(false).when(user).requiresAuthentication();
         user.processMessageToMatchUser(Mockito.mock(HttpMessage.class));
+        // Then
+        verify(user, never()).authenticate();
+    }
+
+    @Test
+    void shouldNotAuthenticateWhenInterruptedBeforeCall() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        Thread.currentThread().interrupt();
+        // When
+        try {
+            user.processMessageToMatchUser(mock());
+        } finally {
+            Thread.interrupted();
+        }
+        // Then
+        verify(user, never()).authenticate();
+    }
+
+    @Test
+    void shouldNotAuthenticateWhenInterruptedWhileWaitingForLock() throws Exception {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(true).when(user).requiresAuthentication();
+
+        CountDownLatch lockAcquired = new CountDownLatch(1);
+        CountDownLatch releaseLock = new CountDownLatch(1);
+
+        Thread lockHolder =
+                new Thread(
+                        () -> {
+                            synchronized (user) {
+                                lockAcquired.countDown();
+                                try {
+                                    releaseLock.await();
+                                } catch (InterruptedException e) {
+                                    Thread.currentThread().interrupt();
+                                }
+                            }
+                        });
+        lockHolder.start();
+        lockAcquired.await();
+
+        Thread caller = new Thread(() -> user.processMessageToMatchUser(mock()));
+        caller.start();
+        while (caller.getState() != Thread.State.BLOCKED) {
+            Thread.sleep(50);
+        }
+        caller.interrupt();
+        releaseLock.countDown();
+        caller.join();
+
         // Then
         verify(user, never()).authenticate();
     }
