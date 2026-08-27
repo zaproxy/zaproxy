@@ -4,7 +4,7 @@ flatlaf = "3.7.2"
 log4j = "2.26.1"
 
 [libraries]
-bndAnnotation = "biz.aQute.bnd:biz.aQute.bnd.annotation:7.3.0"
+bndAnnotation = "biz.aQute.bnd:biz.aQute.bnd.annotation:7.4.0"
 bytebuddy = "net.bytebuddy:byte-buddy:1.18.12"
 commons-beanutils = "commons-beanutils:commons-beanutils:1.11.0"
 commons-codec = "commons-codec:commons-codec:1.22.1"
