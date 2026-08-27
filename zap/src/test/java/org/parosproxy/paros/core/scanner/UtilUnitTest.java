@@ -28,6 +28,16 @@ import org.junit.jupiter.api.Test;
 class UtilUnitTest {
 
     @Test
+    void shouldRestoreInterruptedStateWhenSleepIsInterrupted() {
+        // Given
+        Thread.currentThread().interrupt();
+        // When
+        Util.sleep(10);
+        // Then
+        assertThat(Thread.interrupted(), is(true));
+    }
+
+    @Test
     void shouldPauseForGivenDuration() {
         // Given
         int intendedPause = 500;

@@ -24,10 +24,14 @@
 // ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.common;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 public class ThreadPool {
 
     private Thread[] pool = null;
     private final String threadsBaseName;
+    private boolean interrupted;
 
     public ThreadPool(int maxThreadCount) {
         this(maxThreadCount, null);
@@ -46,6 +50,9 @@ public class ThreadPool {
      *     if none available.
      */
     public synchronized Thread getFreeThreadAndRun(Runnable runnable) {
+        if (interrupted) {
+            return null;
+        }
 
         for (int i = 0; i < pool.length; i++) {
             if (pool[i] == null || !pool[i].isAlive()) {
@@ -69,13 +76,18 @@ public class ThreadPool {
      * @param waitInMillis the number of milliseconds to wait for the threads
      */
     public void waitAllThreadComplete(int waitInMillis) {
+        boolean waitInterrupted = false;
         for (int i = 0; i < pool.length; i++) {
             if (pool[i] != null && pool[i].isAlive()) {
                 try {
                     pool[i].join(waitInMillis);
                 } catch (InterruptedException e) {
+                    waitInterrupted = true;
                 }
             }
+        }
+        if (waitInterrupted) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -86,5 +98,11 @@ public class ThreadPool {
             }
         }
         return true;
+    }
+
+    public synchronized void interrupt() {
+        interrupted = true;
+
+        Stream.of(pool).filter(Objects::nonNull).forEach(Thread::interrupt);
     }
 }

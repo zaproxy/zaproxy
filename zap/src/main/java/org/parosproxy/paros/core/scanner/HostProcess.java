@@ -347,6 +347,8 @@ public class HostProcess implements Runnable {
     public void stop() {
         isStop = true;
         getAnalyser().stop();
+
+        threadPool.interrupt();
     }
 
     /** Main execution method */
@@ -715,6 +717,10 @@ public class HostProcess implements Runnable {
     }
 
     private boolean obtainResponse(HistoryReference hRef, HttpMessage message) {
+        if (isStop()) {
+            return false;
+        }
+
         try {
             getHttpSender().sendAndReceive(message);
             notifyNewMessage(message);
