@@ -20,12 +20,10 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.all.response;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
@@ -90,18 +88,26 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
         private final ContentSplitter contentSplitter;
 
+        private static final String HTTP_RESPONSE_HEADER_AND_BODY =
+                Constant.messages.getString(
+                        "http.panel.view.syntaxtext.syntax.httpResponseHeaderAndBody");
+
+        private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY =
+                "text/http-response-header-body";
+
         private static ResponseAllTokenMakerFactory tokenMakerFactory = null;
 
         public HttpResponseAllPanelSyntaxHighlightTextArea(ContentSplitter contentSplitter) {
             this.contentSplitter = contentSplitter;
 
-            // addSyntaxStyle(HTTP_RESPONSE_HEADER_AND_BODY,
-            // SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
+            addSyntaxStyle(
+                    HTTP_RESPONSE_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
             addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
             addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
             addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
             addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
             addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
+            setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
         }
 
         @Override
@@ -162,30 +168,11 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
         @Override
         protected String detectSyntax(HttpMessage httpMessage) {
-            String syntax = null;
-            if (httpMessage != null) {
-                String contentType =
-                        httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
-                if (contentType != null && !contentType.isEmpty()) {
-                    contentType = contentType.toLowerCase(Locale.ENGLISH);
-                    final int pos = contentType.indexOf(';');
-                    if (pos != -1) {
-                        contentType = contentType.substring(0, pos).trim();
-                    }
-                    if (contentType.contains("javascript")) {
-                        syntax = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
-                    } else if (contentType.contains("json")) {
-                        syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
-                    } else if (contentType.contains("xhtml")) {
-                        syntax = SyntaxConstants.SYNTAX_STYLE_HTML;
-                    } else if (contentType.contains("xml")) {
-                        syntax = SyntaxConstants.SYNTAX_STYLE_XML;
-                    } else {
-                        syntax = contentType;
-                    }
-                }
-            }
-            return syntax;
+            // Always use the full response style so that the status line and headers
+            // are highlighted. HttpResponseTokenMaker handles body auto-detection
+            // internally via Content-Type. Per-body styles (HTML, JS, JSON, XML, CSS)
+            // remain available via the Syntax menu for manual selection.
+            return SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY;
         }
 
         @Override
@@ -199,8 +186,12 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
         private static class ResponseAllTokenMakerFactory extends CustomTokenMakerFactory {
 
             public ResponseAllTokenMakerFactory() {
-                String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
+                String zapPkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                putMapping(
+                        SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY,
+                        zapPkg + "HttpResponseTokenMaker");
 
+                String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
                 putMapping(SYNTAX_STYLE_CSS, pkg + "CSSTokenMaker");
                 putMapping(SYNTAX_STYLE_HTML, pkg + "HTMLTokenMaker");
                 putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
