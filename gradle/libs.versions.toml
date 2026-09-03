@@ -48,7 +48,7 @@ mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
 [plugins]
 crowdin = "org.zaproxy.crowdin:0.6.0"
 cyclonedx.id = "org.cyclonedx.bom"
-errorprone = "net.ltgt.errorprone:5.1.0"
+errorprone = "net.ltgt.errorprone:5.1.1"
 japicmp.id = "me.champeau.gradle.japicmp"
 sonarqube = "org.sonarqube:7.4.0.8496"
 spotless.id = "com.diffplug.spotless"
