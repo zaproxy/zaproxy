@@ -22,11 +22,37 @@ package org.parosproxy.paros.network;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class HttpHeaderUnitTest {
+
+    @Test
+    void shouldReportMalformedHeaderFieldLine() {
+        // Given
+        HttpHeader header = new HttpRequestHeader();
+        String value = "GET / HTTP/1.1\r\nValid: value\r\nMalformed";
+        // When
+        HttpMalformedHeaderException exception =
+                assertThrows(HttpMalformedHeaderException.class, () -> header.setMessage(value));
+        // Then
+        assertThat(exception.getLineNumber(), is(equalTo(3)));
+    }
+
+    @Test
+    void shouldReportMalformedHeaderFieldLineWithLfLineEndings() {
+        // Given
+        HttpHeader header = new HttpRequestHeader();
+        String value = "GET / HTTP/1.1\nValid: value\nAnother: value\nMalformed";
+        // When
+        HttpMalformedHeaderException exception =
+                assertThrows(HttpMalformedHeaderException.class, () -> header.setMessage(value));
+        // Then
+        assertThat(exception.getLineNumber(), is(equalTo(4)));
+    }
 
     @ParameterizedTest
     @ValueSource(
