@@ -101,6 +101,7 @@ public class LocaleDialog extends AbstractDialog {
             gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
             jPanel.add(getViewPanel(), gridBagConstraints5);
             jPanel.add(getBtnOK(), gridBagConstraints6);
+            this.setDefaultButton(getBtnOK());
         }
         return jPanel;
     }

@@ -172,6 +172,7 @@ public class ManageTagsDialog extends AbstractDialog {
             jPanel.add(getBtnDelete(), gridBagConstraints31);
             jPanel.add(getBtnCancel(), gridBagConstraints40);
             jPanel.add(getBtnSave(), gridBagConstraints41);
+            this.setDefaultButton(getBtnSave());
         }
         return jPanel;
     }

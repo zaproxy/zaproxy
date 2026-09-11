@@ -125,7 +125,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
             this.setSize(600, 300);
         }
         centreDialog();
-        this.getRootPane().setDefaultButton(btnApply);
+        this.setDefaultButton(getBtnApply());
         this.pack();
     }
 

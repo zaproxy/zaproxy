@@ -100,6 +100,8 @@ public class NotesAddDialog extends AbstractDialog {
 
         setContentPane(panel);
 
+        this.setDefaultButton(getBtnOk());
+
         this.addWindowListener(
                 new java.awt.event.WindowAdapter() {
 

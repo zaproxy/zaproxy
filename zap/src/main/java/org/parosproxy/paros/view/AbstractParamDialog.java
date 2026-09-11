@@ -177,6 +177,7 @@ public class AbstractParamDialog extends AbstractDialog {
                             GridBagConstraints.NONE,
                             GridBagConstraints.EAST,
                             new Insets(2, 2, 2, 2)));
+            this.setDefaultButton(getBtnOK());
 
             jContentPane.add(footerPane, LayoutHelper.getGBC(0, 1, 1, 1.0, 0.0));
         }

@@ -887,7 +887,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                                 REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
                                 REMOVE_DIALOG_CANCEL_BUTTON_LABEL
                             },
-                            null);
+                            REMOVE_DIALOG_CONFIRM_BUTTON_LABEL);
 
             return (option == JOptionPane.OK_OPTION);
         }

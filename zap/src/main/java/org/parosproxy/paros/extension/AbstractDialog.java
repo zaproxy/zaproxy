@@ -36,9 +36,11 @@ import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
@@ -53,6 +55,8 @@ public abstract class AbstractDialog extends JDialog {
     private static final long serialVersionUID = -3951504408180103696L;
 
     protected AbstractDialog thisDialog = null;
+
+    private JButton defaultButton;
 
     /**
      * Constructs an {@code AbstractDialog} with no owner and not modal.
@@ -114,6 +118,39 @@ public abstract class AbstractDialog extends JDialog {
                 };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
         getRootPane().getActionMap().put("ESCAPE", escapeAction);
+
+        //  Handle ctrl+enter to trigger the dialog's default button, regardless of which
+        //  component (e.g. a text area or table) currently has focus.
+        KeyStroke ctrlEnter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK);
+        AbstractAction ctrlEnterAction =
+                new AbstractAction() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JButton button = getRootPane().getDefaultButton();
+                        if (button != null && button.isEnabled()) {
+                            button.doClick();
+                        }
+                    }
+                };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrlEnter, "CTRL_ENTER");
+        getRootPane().getActionMap().put("CTRL_ENTER", ctrlEnterAction);
+    }
+
+    /**
+     * Sets the button to use as this dialog's main action (e.g. OK, Apply, Save), giving it the
+     * current look and feel's "default button" highlight and binding it to Ctrl+Enter.
+     *
+     * <p>Disposing a dialog clears its root pane's default button (see {@link
+     * JButton#removeNotify()}), so this is re-applied every time the dialog is shown, which matters
+     * for dialogs that are constructed once and reused across multiple show/dispose cycles.
+     *
+     * @param button the button to use as this dialog's main action, or {@code null} for none.
+     */
+    protected void setDefaultButton(JButton button) {
+        this.defaultButton = button;
+        getRootPane().setDefaultButton(button);
     }
 
     /**
@@ -132,6 +169,7 @@ public abstract class AbstractDialog extends JDialog {
                     == 0) {
                 centreDialog();
             }
+            getRootPane().setDefaultButton(defaultButton);
         }
         super.setVisible(show);
     }

@@ -942,6 +942,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     " ",
                     removeWithoutConfirmationCheckBox
                 };
+                String confirmButtonLabel = Constant.messages.getString("history.purge.confirm");
                 int result =
                         JOptionPane.showOptionDialog(
                                 View.getSingleton().getMainFrame(),
@@ -951,10 +952,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                                 JOptionPane.QUESTION_MESSAGE,
                                 null,
                                 new String[] {
-                                    Constant.messages.getString("history.purge.confirm"),
+                                    confirmButtonLabel,
                                     Constant.messages.getString("history.purge.cancel")
                                 },
-                                null);
+                                confirmButtonLabel);
                 if (result != JOptionPane.YES_OPTION) {
                     return;
                 }

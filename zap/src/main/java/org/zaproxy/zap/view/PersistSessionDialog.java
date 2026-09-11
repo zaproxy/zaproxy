@@ -126,6 +126,7 @@ public class PersistSessionDialog extends AbstractDialog implements ActionListen
             buttonPanel.add(
                     getStartSessionButton(),
                     LayoutHelper.getGBC(2, 0, 1, 0.0D, new Insets(4, 4, 4, 4)));
+            this.setDefaultButton(getStartSessionButton());
 
             jPanel.add(buttonPanel, LayoutHelper.getGBC(0, 20, 2, 1.0D, new Insets(4, 4, 4, 4)));
         }

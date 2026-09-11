@@ -115,7 +115,7 @@ public class ExtensionAPI extends ExtensionAdaptor {
                                                 new String[] {
                                                     confirmButtonLabel, cancelButtonLabel
                                                 },
-                                                null);
+                                                confirmButtonLabel);
 
                                 if (option != JOptionPane.YES_OPTION) {
                                     return;

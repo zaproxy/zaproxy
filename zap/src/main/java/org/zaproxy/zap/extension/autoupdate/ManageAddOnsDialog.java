@@ -205,6 +205,17 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         getRootPane().getActionMap().put("ESCAPE", escapeAction);
     }
 
+    @Override
+    public void setVisible(boolean visible) {
+        if (visible) {
+            // This dialog is created once and reused, and disposing it (as the close buttons do)
+            // clears the root pane's default button (see JButton#removeNotify()), so it must be
+            // re-applied every time the dialog is shown.
+            getRootPane().setDefaultButton(getCheckForUpdatesButton());
+        }
+        super.setVisible(visible);
+    }
+
     private JPanel getTopPanel() {
         if (topPanel == null) {
             topPanel = new JPanel();
@@ -266,6 +277,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                 corePanel.add(new JLabel(this.currentVersion), LayoutHelper.getGBC(0, 0, 1, 0.0D));
                 corePanel.add(new JLabel(""), LayoutHelper.getGBC(1, 0, 1, 1.0D));
                 corePanel.add(this.getCheckForUpdatesButton(), LayoutHelper.getGBC(2, 0, 1, 0.0D));
+                getRootPane().setDefaultButton(this.getCheckForUpdatesButton());
                 refresh = false;
             }
         } else if (latestInfo != null && this.latestInfo.getZapRelease() != null) {
