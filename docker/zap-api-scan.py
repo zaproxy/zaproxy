@@ -499,7 +499,8 @@ def main(argv):
             scan_policy = 'Default Policy'
             zap.ascan.enable_all_scanners(scanpolicyname=scan_policy)
             for scanner, state in config_dict.items():
-                if state == 'IGNORE':
+                # A sub-rule cannot be disabled independently, filter its alerts instead.
+                if state == 'IGNORE' and not is_sub_rule_id(scanner):
                     # Dont bother checking the result - this will fail for pscan rules
                     zap.ascan.set_scanner_alert_threshold(id=scanner, alertthreshold='OFF', scanpolicyname=scan_policy)
 
@@ -517,6 +518,7 @@ def main(argv):
                 print('Total of ' + str(num_urls) + ' URLs')
 
             alert_dict = zap_get_alerts(zap, target, ignore_scan_rules, out_of_scope_dict)
+            alert_dict = group_alerts_by_rule(alert_dict, config_dict)
 
             all_ascan_rules = zap.ascan.scanners('Default Policy')
             all_pscan_rules = zap.pscan.scanners
@@ -549,13 +551,14 @@ def main(argv):
                 plugin_id = rule.get('id')
                 if plugin_id in ignore_scan_rules:
                     continue
-                if plugin_id not in alert_dict:
+                if not has_rule_alerts(alert_dict, plugin_id):
                     pass_dict[plugin_id] = rule.get('name')
             for rule in all_ascan_rules:
                 plugin_id = rule.get('id')
                 if plugin_id in ignore_scan_rules:
                     continue
-                if plugin_id not in alert_dict and not(plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE'):
+                if not has_rule_alerts(alert_dict, plugin_id) and not(
+                        plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE'):
                     pass_dict[plugin_id] = rule.get('name')
 
             if min_level == zap_conf_lvls.index("PASS") and detailed_output:
