@@ -19,6 +19,10 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -27,15 +31,37 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.StringHttpPanelViewModelTest;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 /** Unit test for {@link RequestStringHttpPanelViewModel}. */
 class RequestStringHttpPanelViewModelUnitTest
         extends StringHttpPanelViewModelTest<HttpRequestHeader, HttpRequestBody> {
+
+    @Test
+    void shouldReportMalformedHeaderLine() throws HttpMalformedHeaderException {
+        // Given
+        model.setMessage(message);
+        String expectedMessage = "Failed to parse the header at line 3.";
+        given(Constant.messages.getString("http.panel.model.header.warn.malformed.line", 3))
+                .willReturn(expectedMessage);
+        willThrow(new HttpMalformedHeaderException("Malformed header field.", 3))
+                .given(message)
+                .setRequestHeader(anyString());
+        // When
+        InvalidMessageDataException exception =
+                assertThrows(
+                        InvalidMessageDataException.class,
+                        () -> model.setData("GET / HTTP/1.1\nValid: value\nMalformed\n\n"));
+        // Then
+        assertThat(exception.getMessage(), is(equalTo(expectedMessage)));
+    }
 
     @Override
     protected RequestStringHttpPanelViewModel createModel() {
