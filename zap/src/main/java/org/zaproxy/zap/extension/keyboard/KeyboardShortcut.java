@@ -26,14 +26,20 @@ public class KeyboardShortcut {
     private String name;
     private String identifier;
     private KeyStroke keyStroke;
+    private String scope;
     private boolean changed = false;
 
     public KeyboardShortcut() {}
 
     public KeyboardShortcut(String identifier, String name, KeyStroke keyStroke) {
+        this(identifier, name, keyStroke, null);
+    }
+
+    public KeyboardShortcut(String identifier, String name, KeyStroke keyStroke, String scope) {
         this.identifier = identifier;
         this.name = name;
         this.keyStroke = keyStroke;
+        this.scope = scope;
     }
 
     public String getName() {
@@ -42,6 +48,10 @@ public class KeyboardShortcut {
 
     public String getIdentifier() {
         return this.identifier;
+    }
+
+    public String getScope() {
+        return scope == null ? "" : scope;
     }
 
     public KeyStroke getKeyStroke() {

@@ -54,6 +54,13 @@ class KeyboardMapping {
         return this.i18nKey;
     }
 
+    public String getScope() {
+        if (this.menuItem != null) {
+            return Constant.messages.getString("keyboard.scope.menu");
+        }
+        return "";
+    }
+
     public KeyStroke getKeyStroke() {
         if (this.menuItem != null) {
             return this.menuItem.getAccelerator();
