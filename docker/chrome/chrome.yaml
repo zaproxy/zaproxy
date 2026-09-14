@@ -16,10 +16,10 @@ jobs:
   tests:
   - name: "At least one URL found"
     onFail: "WARN"
-    statistic: "spiderAjax.urls.added"
+    statistic: "stats.client.spider.urls"
     site: ""
     operator: ">="
     value: 1
     type: "stats"
-  name: "spiderAjax"
-  type: "spiderAjax"
+  name: "spiderClient"
+  type: "spiderClient"
