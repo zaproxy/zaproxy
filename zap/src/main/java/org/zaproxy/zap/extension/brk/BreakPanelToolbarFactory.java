@@ -254,7 +254,7 @@ public class BreakPanelToolbarFactory {
                         JOptionPane.QUESTION_MESSAGE,
                         null,
                         new String[] {confirmButtonLabel, cancelButtonLabel},
-                        null);
+                        confirmButtonLabel);
 
         if (checkBox.isSelected()) {
             breakpointsParams.setConfirmDropMessage(false);

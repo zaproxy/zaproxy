@@ -28,6 +28,7 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -114,6 +115,25 @@ public abstract class AbstractFormDialog extends JDialog {
                 };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
         getRootPane().getActionMap().put("ESCAPE", escapeAction);
+
+        // Handle ctrl+enter to trigger the dialog's default button, regardless of which
+        // component (e.g. a text area or table) currently has focus.
+        KeyStroke ctrlEnter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK);
+        AbstractAction ctrlEnterAction =
+                new AbstractAction() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JButton button = getRootPane().getDefaultButton();
+                        if (button != null && button.isEnabled()) {
+                            button.doClick();
+                        }
+                    }
+                };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ctrlEnter, "CTRL_ENTER");
+        getRootPane().getActionMap().put("CTRL_ENTER", ctrlEnterAction);
     }
 
     protected void initView() {
@@ -204,6 +224,14 @@ public abstract class AbstractFormDialog extends JDialog {
         if (firstTime) {
             centreOnOwner();
             firstTime = false;
+        }
+
+        if (b) {
+            // Disposing the dialog clears the root pane's default button (see
+            // JButton#removeNotify()), so it must be re-applied every time the dialog is shown,
+            // which matters for dialogs that are constructed once and reused across multiple
+            // show/dispose cycles.
+            getRootPane().setDefaultButton(getConfirmButton());
         }
 
         super.setVisible(b);

@@ -468,6 +468,9 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
         }
 
         if (pattern.matcher("").find()) {
+            String searchButtonLabel =
+                    Constant.messages.getString(
+                            "search.toolbar.warn.regex.match.empty.string.button.search");
             int option =
                     JOptionPane.showOptionDialog(
                             View.getSingleton().getMainFrame(),
@@ -479,12 +482,11 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
                             JOptionPane.QUESTION_MESSAGE,
                             null,
                             new String[] {
-                                Constant.messages.getString(
-                                        "search.toolbar.warn.regex.match.empty.string.button.search"),
+                                searchButtonLabel,
                                 Constant.messages.getString(
                                         "search.toolbar.warn.regex.match.empty.string.button.cancel")
                             },
-                            null);
+                            searchButtonLabel);
             if (option != JOptionPane.OK_OPTION) {
                 regEx.requestFocusInWindow();
                 return;

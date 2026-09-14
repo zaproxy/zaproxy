@@ -355,6 +355,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                 contentPanel.add(getCancelButton(), LayoutHelper.getGBC(x, 1, 1, 0.0D));
             }
         }
+        setDefaultButton(getSaveButton());
     }
 
     /*

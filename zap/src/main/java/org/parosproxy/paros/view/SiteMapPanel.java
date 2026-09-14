@@ -471,6 +471,8 @@ public class SiteMapPanel extends AbstractPanel {
                                             " ",
                                             removeWithoutConfirmationCheckBox
                                         };
+                                        String confirmButtonLabel =
+                                                Constant.messages.getString("sites.purge.confirm");
                                         int result =
                                                 JOptionPane.showOptionDialog(
                                                         View.getSingleton().getMainFrame(),
@@ -481,12 +483,11 @@ public class SiteMapPanel extends AbstractPanel {
                                                         JOptionPane.QUESTION_MESSAGE,
                                                         null,
                                                         new String[] {
-                                                            Constant.messages.getString(
-                                                                    "sites.purge.confirm"),
+                                                            confirmButtonLabel,
                                                             Constant.messages.getString(
                                                                     "sites.purge.cancel")
                                                         },
-                                                        null);
+                                                        confirmButtonLabel);
                                         if (result != JOptionPane.YES_OPTION) {
                                             return;
                                         }

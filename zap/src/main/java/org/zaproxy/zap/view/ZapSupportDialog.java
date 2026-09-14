@@ -129,7 +129,7 @@ public class ZapSupportDialog extends AbstractDialog {
             mainPanel.add(getBtnOpen(), gbcOpenButton);
             mainPanel.add(getBtnSaveSbom(), gbcSaveSbomButton);
             mainPanel.add(getBtnCopy(), gbcCopyButton);
-            this.getRootPane().setDefaultButton(getBtnCopy());
+            this.setDefaultButton(getBtnCopy());
             mainPanel.add(getBtnOK(), gbcOkButton);
         }
         return mainPanel;

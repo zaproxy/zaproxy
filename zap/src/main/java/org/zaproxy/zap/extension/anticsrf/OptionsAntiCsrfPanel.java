@@ -197,7 +197,7 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
                                 REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
                                 REMOVE_DIALOG_CANCEL_BUTTON_LABEL
                             },
-                            null);
+                            REMOVE_DIALOG_CONFIRM_BUTTON_LABEL);
 
             if (option == JOptionPane.OK_OPTION) {
                 setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());

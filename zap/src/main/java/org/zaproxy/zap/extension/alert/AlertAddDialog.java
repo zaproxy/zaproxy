@@ -167,6 +167,7 @@ public class AlertAddDialog extends AbstractDialog {
             jPanel.add(jLabel2, gridBagConstraints13);
             jPanel.add(getBtnCancel(), gridBagConstraints2);
             jPanel.add(getBtnOk(), gridBagConstraints3);
+            this.setDefaultButton(getBtnOk());
         }
         return jPanel;
     }

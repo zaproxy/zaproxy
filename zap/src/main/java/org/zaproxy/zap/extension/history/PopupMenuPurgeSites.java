@@ -77,6 +77,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                 " ",
                 removeWithoutConfirmationCheckBox
             };
+            String confirmButtonLabel = Constant.messages.getString("sites.purge.confirm");
             int result =
                     JOptionPane.showOptionDialog(
                             View.getSingleton().getMainFrame(),
@@ -86,10 +87,10 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                             JOptionPane.QUESTION_MESSAGE,
                             null,
                             new String[] {
-                                Constant.messages.getString("sites.purge.confirm"),
+                                confirmButtonLabel,
                                 Constant.messages.getString("sites.purge.cancel")
                             },
-                            null);
+                            confirmButtonLabel);
             if (result != JOptionPane.YES_OPTION) {
                 return;
             }

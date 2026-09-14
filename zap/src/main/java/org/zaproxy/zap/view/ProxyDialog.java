@@ -113,6 +113,7 @@ public class ProxyDialog extends AbstractDialog {
             jPanel.add(getConnPanel(), gridBagConstraints5);
             // jPanel.add(getBtnCancel(), gridBagConstraints7);
             jPanel.add(getBtnOK(), gridBagConstraints6);
+            this.setDefaultButton(getBtnOK());
         }
         return jPanel;
     }
