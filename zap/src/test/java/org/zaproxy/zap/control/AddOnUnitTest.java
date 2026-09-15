@@ -1019,6 +1019,78 @@ class AddOnUnitTest extends AddOnTestUtils {
         assertThat(sbom, is(bom));
     }
 
+    @Test
+    void shouldHaveAliasesWhenLoadedFromZapVersionsEntry() throws Exception {
+        // Given
+        ZapXmlConfiguration zapVersions = new ZapXmlConfiguration();
+        zapVersions.setDelimiterParsingDisabled(true);
+        zapVersions.load(
+                new java.io.StringReader(
+                        "<ZAP>"
+                                + "<addon>newid</addon>"
+                                + "<addon_newid>"
+                                + "<name>New Addon</name>"
+                                + "<version>2</version>"
+                                + "<file>newid-release-2.zap</file>"
+                                + "<status>release</status>"
+                                + "<description>desc</description>"
+                                + "<changes>changes</changes>"
+                                + "<url>https://example.com/newid-release-2.zap</url>"
+                                + "<size>12345</size>"
+                                + "<not-before-version>2.14.0</not-before-version>"
+                                + "<aliases><alias>oldid</alias><alias>veryoldid</alias></aliases>"
+                                + "</addon_newid>"
+                                + "</ZAP>"));
+        // When
+        AddOn addOn = createAddOn("newid", zapVersions);
+        // Then
+        assertThat(addOn.getAliases(), contains("oldid", "veryoldid"));
+    }
+
+    @Test
+    void shouldHaveAliasesWhenLoadedFromManifest() throws Exception {
+        // Given
+        Path addOnPath =
+                createAddOnFile(
+                        "newid-release-2.zap",
+                        "release",
+                        "2.0.0",
+                        manifest -> manifest.append("<aliases><alias>oldid</alias></aliases>"));
+        // When
+        AddOn addOn = new AddOn(addOnPath);
+        // Then
+        assertThat(addOn.getAliases(), contains("oldid"));
+    }
+
+    @Test
+    void shouldBeSameAddOnWhenAliasMatchesNewId() throws Exception {
+        // Given
+        ZapXmlConfiguration zapVersions = new ZapXmlConfiguration();
+        zapVersions.setDelimiterParsingDisabled(true);
+        zapVersions.load(
+                new java.io.StringReader(
+                        "<ZAP>"
+                                + "<addon>newid</addon>"
+                                + "<addon_newid>"
+                                + "<name>New Addon</name>"
+                                + "<version>2</version>"
+                                + "<file>newid-release-2.zap</file>"
+                                + "<status>release</status>"
+                                + "<description>desc</description>"
+                                + "<changes>changes</changes>"
+                                + "<url>https://example.com/newid-release-2.zap</url>"
+                                + "<size>12345</size>"
+                                + "<not-before-version>2.14.0</not-before-version>"
+                                + "<aliases><alias>oldid</alias></aliases>"
+                                + "</addon_newid>"
+                                + "</ZAP>"));
+        AddOn newAddOn = createAddOn("newid", zapVersions);
+        AddOn oldAddOn = new AddOn(createAddOnFile("oldid-release-1.zap", "release", "1.0.0"));
+        // When / Then
+        assertTrue(newAddOn.isSameAddOn(oldAddOn));
+        assertTrue(oldAddOn.isSameAddOn(newAddOn));
+    }
+
     private static ZapXmlConfiguration createZapVersionsXml() throws Exception {
         ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
         return zapVersionsXml;

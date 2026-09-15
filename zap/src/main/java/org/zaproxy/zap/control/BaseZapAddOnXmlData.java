@@ -87,6 +87,10 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  *                   </ul>
  *             </ul>
  *       </ul>
+ *   <li>aliases:
+ *       <ul>
+ *         <li>alias;
+ *       </ul>
  * </ul>
  *
  * @since 2.4.0
@@ -137,6 +141,9 @@ public abstract class BaseZapAddOnXmlData {
     private static final String CLASSNAMES_RESTRICTED_ALL_ELEMENTS =
             "classnames." + CLASSNAMES_RESTRICTED_ELEMENT;
 
+    private static final String ALIAS_ELEMENT = "alias";
+    private static final String ALIASES_ALL_ELEMENTS = "aliases." + ALIAS_ELEMENT;
+
     private String name;
     private String status;
     private Version version;
@@ -154,6 +161,7 @@ public abstract class BaseZapAddOnXmlData {
     private String notBeforeVersion;
     private String notFromVersion;
 
+    private List<String> aliases;
     private List<String> extensions;
     private List<ExtensionWithDeps> extensionsWithDeps;
 
@@ -231,6 +239,8 @@ public abstract class BaseZapAddOnXmlData {
         extensionsWithDeps = readExtensionsWithDeps(zapAddOnXml);
 
         addOnClassnames = readAddOnClassnames(zapAddOnXml);
+
+        aliases = getStrings(zapAddOnXml, ALIASES_ALL_ELEMENTS, ALIAS_ELEMENT);
 
         readAdditionalData(zapAddOnXml);
     }
@@ -332,6 +342,16 @@ public abstract class BaseZapAddOnXmlData {
 
     public List<ExtensionWithDeps> getExtensionsWithDeps() {
         return extensionsWithDeps;
+    }
+
+    /**
+     * Gets the aliases (former IDs) of this add-on.
+     *
+     * @return the aliases, never {@code null}.
+     * @since 2.18.0
+     */
+    public List<String> getAliases() {
+        return aliases;
     }
 
     protected List<String> getStrings(
