@@ -51,6 +51,12 @@
 		<key>WorkingDirectory</key>
 		<string>$JAVAROOT/</string>
 	</dict>
+	<key>LSArchitecturePriority</key>
+	<array>
+		<string>@LS_ARCHITECTURE@</string>
+	</array>
+	<key>LSRequiresNativeExecution</key>
+	<@LS_REQUIRES_NATIVE_EXECUTION@/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
