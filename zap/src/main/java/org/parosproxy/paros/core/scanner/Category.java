@@ -45,12 +45,22 @@ public class Category {
         Constant.messages.getString("scanner.category.inject")
     };
 
+    private static final String[] keys = {"info", "browser", "server", "misc", "inject"};
+
     public static String getName(int category) {
         String result = Constant.messages.getString("scanner.category.undef");
         if (category < names.length) {
             result = names[category];
         }
         return result;
+    }
+
+    /** Returns the stable, non-i18n key for the given category, e.g. {@code "server"}. */
+    public static String getKey(int category) {
+        if (category >= 0 && category < keys.length) {
+            return keys[category];
+        }
+        return "undefined";
     }
 
     public static int getCategory(String name) {
