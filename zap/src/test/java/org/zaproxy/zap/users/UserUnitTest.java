@@ -38,7 +38,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,6 +103,19 @@ class UserUnitTest {
         mockedExtension = Mockito.mock(ExtensionAuthentication.class);
         when(mockedExtension.getAuthenticationMethodTypeForIdentifier(anyInt()))
                 .thenReturn(mockedType);
+    }
+
+    private final List<AuthenticationListener> registeredListeners = new ArrayList<>();
+
+    private void registerListener(AuthenticationListener listener) {
+        registeredListeners.add(listener);
+        User.addAuthenticationListener(listener);
+    }
+
+    @AfterEach
+    void tearDown() {
+        registeredListeners.forEach(User::removeAuthenticationListener);
+        registeredListeners.clear();
     }
 
     @Test
@@ -285,5 +301,132 @@ class UserUnitTest {
         user.authenticate();
         // Then
         assertFalse(user.requiresAuthentication());
+    }
+
+    @Test
+    void shouldNotifyListenerOnAuthenticationFailure() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(true).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        AuthenticationListener listener = mock(AuthenticationListener.class);
+        registerListener(listener);
+        HttpMessage message = mock(HttpMessage.class);
+        // When
+        user.processMessageToMatchUser(message);
+        // Then
+        verify(listener).onAuthenticationRequestStart(user, message);
+        verify(listener).onAuthenticationRequestFailure(user, message);
+        verify(listener, never()).onAuthenticationRequestSuccess(user, message);
+    }
+
+    @Test
+    void shouldSetLastAuthFailureOnAuthenticationFailure() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(true).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        // When
+        user.processMessageToMatchUser(mock(HttpMessage.class));
+        // Then
+        assertThat(user.getAuthenticationState().getLastAuthFailure(), is(not((String) null)));
+    }
+
+    @Test
+    void shouldNotifyListenerOnAuthenticationSuccess() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        doReturn(true, false).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        AuthenticationListener listener = mock(AuthenticationListener.class);
+        registerListener(listener);
+        HttpMessage message = mock(HttpMessage.class);
+        // When
+        user.processMessageToMatchUser(message);
+        // Then
+        verify(listener).onAuthenticationRequestStart(user, message);
+        verify(listener).onAuthenticationRequestSuccess(user, message);
+        verify(listener, never()).onAuthenticationRequestFailure(user, message);
+    }
+
+    @Test
+    void shouldNotNotifyListenersWhenAuthenticationNotRequired() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        doReturn(false).when(user).requiresAuthentication();
+        AuthenticationListener listener = mock(AuthenticationListener.class);
+        registerListener(listener);
+        // When
+        user.processMessageToMatchUser(mock(HttpMessage.class));
+        // Then
+        verify(listener, never()).onAuthenticationRequestStart(any(), any());
+        verify(listener, never()).onAuthenticationRequestSuccess(any(), any());
+        verify(listener, never()).onAuthenticationRequestFailure(any(), any());
+    }
+
+    @Test
+    void shouldNotifyAllRegisteredListenersOnAuthenticationFailure() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(true).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        AuthenticationListener listenerA = mock(AuthenticationListener.class);
+        AuthenticationListener listenerB = mock(AuthenticationListener.class);
+        registerListener(listenerA);
+        registerListener(listenerB);
+        HttpMessage message = mock(HttpMessage.class);
+        // When
+        user.processMessageToMatchUser(message);
+        // Then
+        verify(listenerA).onAuthenticationRequestFailure(user, message);
+        verify(listenerB).onAuthenticationRequestFailure(user, message);
+    }
+
+    @Test
+    void shouldContinueNotifyingListenersWhenOneListenerThrows() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(true).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        AuthenticationListener throwingListener =
+                new AuthenticationListener() {
+                    @Override
+                    public void onAuthenticationRequestSuccess(User user, HttpMessage trigger) {}
+
+                    @Override
+                    public void onAuthenticationRequestFailure(User user, HttpMessage trigger) {
+                        throw new RuntimeException("boom");
+                    }
+                };
+        RecordingAuthenticationListener listener = new RecordingAuthenticationListener();
+        registerListener(throwingListener);
+        registerListener(listener);
+        HttpMessage message = mock(HttpMessage.class);
+        // When
+        user.processMessageToMatchUser(message);
+        // Then
+        assertEquals(List.of(user), listener.failures);
+    }
+
+    /**
+     * An {@link AuthenticationListener} that records the users it was notified about, so tests can
+     * assert what a listener actually observed without relying on Mockito verification.
+     */
+    private static class RecordingAuthenticationListener implements AuthenticationListener {
+
+        final List<User> successes = new ArrayList<>();
+        final List<User> failures = new ArrayList<>();
+
+        @Override
+        public void onAuthenticationRequestSuccess(User user, HttpMessage trigger) {
+            successes.add(user);
+        }
+
+        @Override
+        public void onAuthenticationRequestFailure(User user, HttpMessage trigger) {
+            failures.add(user);
+        }
     }
 }
