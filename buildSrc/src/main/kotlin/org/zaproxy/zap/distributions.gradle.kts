@@ -195,17 +195,17 @@ listOf(
 
     val volumeName = "ZAP"
     val appName = "$volumeName.app"
-    val macOsJreDir = layout.buildDirectory.dir("macOsJre${it.suffix}").get().asFile
-    val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
-    val macOsJreVersion = "17.0.17+10"
+    val macOsJdkDir = layout.buildDirectory.dir("macOsJdk${it.suffix}").get().asFile
+    val macOsJdkUnpackDir = File(macOsJdkDir, "unpacked")
+    val macOsJdkVersion = "17.0.17+10"
     // JDK (not JRE): javafx.swing needs jdk.unsupported.desktop, which Temurin JRE omits.
-    val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion.tar.gz")
+    val macOsJdkFile = File(macOsJdkDir, "jdk$macOsJdkVersion.tar.gz")
     val macOsOpenJfxVersion = "17.0.17"
-    val macOsOpenJfxFile = File(macOsJreDir, "openjfx-$macOsOpenJfxVersion-osx-${it.arch}-sdk.zip")
+    val macOsOpenJfxFile = File(macOsJdkDir, "openjfx-$macOsOpenJfxVersion-osx-${it.arch}-sdk.zip")
 
-    val downloadMacOsJre = tasks.register<Download>("downloadMacOsJre${it.suffix}") {
-        src("https://api.adoptium.net/v3/binary/version/jdk-$macOsJreVersion/mac/${it.arch}/jdk/hotspot/normal/eclipse?project=jdk")
-        dest(macOsJreFile)
+    val downloadMacOsJdk = tasks.register<Download>("downloadMacOsJdk${it.suffix}") {
+        src("https://api.adoptium.net/v3/binary/version/jdk-$macOsJdkVersion/mac/${it.arch}/jdk/hotspot/normal/eclipse?project=jdk")
+        dest(macOsJdkFile)
         connectTimeout(60_000)
         readTimeout(60_000)
         onlyIfModified(true)
@@ -216,9 +216,9 @@ listOf(
         }
     }
 
-    val verifyMacOsJre = tasks.register<Verify>("verifyMacOsJre${it.suffix}") {
-        dependsOn(downloadMacOsJre)
-        src(macOsJreFile)
+    val verifyMacOsJdk = tasks.register<Verify>("verifyMacOsJdk${it.suffix}") {
+        dependsOn(downloadMacOsJdk)
+        src(macOsJdkFile)
         algorithm("SHA-256")
         checksum(it.checksum)
     }
@@ -238,24 +238,24 @@ listOf(
         checksum(it.openJfxChecksum)
     }
 
-    val unpackMacOSJre = tasks.register<Copy>("unpackMacOSJre${it.suffix}") {
-        dependsOn(verifyMacOsJre)
-        from(tarTree(macOsJreFile))
-        into(macOsJreUnpackDir)
+    val unpackMacOSJdk = tasks.register<Copy>("unpackMacOSJdk${it.suffix}") {
+        dependsOn(verifyMacOsJdk)
+        from(tarTree(macOsJdkFile))
+        into(macOsJdkUnpackDir)
         doFirst {
-            delete(macOsJreUnpackDir)
+            delete(macOsJdkUnpackDir)
         }
         doLast {
-            // Rename top level dir to start with "jre" to match the
+            // Rename top level dir to start with "jdk" to match the
             // expectations of zap.sh script.
-            val dirName = macOsJreUnpackDir.listFiles()[0].name
+            val dirName = macOsJdkUnpackDir.listFiles()[0].name
             ant.withGroovyBuilder {
-                "move"(mapOf("file" to "$macOsJreUnpackDir/$dirName", "tofile" to "$macOsJreUnpackDir/jre-$dirName"))
+                "move"(mapOf("file" to "$macOsJdkUnpackDir/$dirName", "tofile" to "$macOsJdkUnpackDir/jdk-$dirName"))
             }
         }
     }
 
-    val macOsOpenJfxUnpackDir = File(macOsJreDir, "openjfxUnpacked")
+    val macOsOpenJfxUnpackDir = File(macOsJdkDir, "openjfxUnpacked")
     val unpackMacOsOpenJfx = tasks.register<Copy>("unpackMacOsOpenJfx${it.suffix}") {
         dependsOn(verifyMacOsOpenJfx)
         from(zipTree(macOsOpenJfxFile)) {
@@ -285,14 +285,14 @@ listOf(
     val macOsDistDataDir = layout.buildDirectory.dir("macOsDistData${it.suffix}").get().asFile
     val prepareDistMac = tasks.register<Copy>("prepareDistMac${it.suffix}") {
         destinationDir = macOsDistDataDir
-        from(unpackMacOSJre) {
+        from(unpackMacOSJdk) {
             into("$appName/Contents/PlugIns/")
         }
         from("src/main/macOS/") {
             filesMatching("**/Info.plist") {
                 filter<ReplaceTokens>(
                     "tokens" to mapOf(
-                        "JREDIR" to macOsJreUnpackDir.listFiles()[0].name,
+                        "JDKDIR" to macOsJdkUnpackDir.listFiles()[0].name,
                         "SHORT_VERSION_STRING" to "$version",
                         "VERSION_STRING" to "2",
                         "ZAPJAR" to jarWithBom.get().archiveFileName.get(),

@@ -26,8 +26,8 @@
 	<true/>
 	<key>JVMInfo</key>
 	<dict>
-		<key>JRE</key>
-		<string>@JREDIR@</string>
+		<key>JDK</key>
+		<string>@JDKDIR@</string>
 		<key>MainClass</key>
 		<string>org.zaproxy.zap.ZAP</string>
 		<key>ClassPath</key>
