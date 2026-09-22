@@ -145,7 +145,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         if (showSymbolsCheckBox == null) {
             showSymbolsCheckBox =
                     new JCheckBox(Constant.messages.getString("keyboard.options.showSymbols"));
-            showSymbolsCheckBox.setSelected(KeyStrokeDisplay.isDefaultShowSymbols());
+            showSymbolsCheckBox.setSelected(true);
             showSymbolsCheckBox.addActionListener(
                     e -> {
                         getShortcutModel().setShowSymbols(showSymbolsCheckBox.isSelected());

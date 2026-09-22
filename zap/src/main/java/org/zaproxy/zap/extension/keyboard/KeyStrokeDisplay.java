@@ -39,7 +39,7 @@ public final class KeyStrokeDisplay {
      * @param keyStroke the key stroke to format, might be {@code null}.
      */
     public static void appendHtmlSymbols(StringBuilder sb, KeyStroke keyStroke) {
-        wrapPartsHtml(sb, getSymbolParts(keyStroke), false);
+        wrapPartsHtml(sb, getSymbolParts(keyStroke));
     }
 
     public static int compare(KeyStroke ks1, KeyStroke ks2) {
@@ -59,12 +59,9 @@ public final class KeyStrokeDisplay {
         return Integer.compare(ks1.getModifiers(), ks2.getModifiers());
     }
 
-    public static boolean isDefaultShowSymbols() {
-        return true;
-    }
-
     public static String formatPlain(KeyStroke keyStroke, boolean showSymbols) {
-        return String.join("+", showSymbols ? getSymbolParts(keyStroke) : getNameParts(keyStroke));
+        // Space delimited, to match the format used elsewhere for shortcuts (e.g. in menus).
+        return String.join(" ", showSymbols ? getSymbolParts(keyStroke) : getNameParts(keyStroke));
     }
 
     private static List<String> getNameParts(KeyStroke keyStroke) {
@@ -104,19 +101,142 @@ public final class KeyStrokeDisplay {
                 : Constant.messages.getString("keyboard.key.alt");
     }
 
+    /**
+     * Gets the name of the given key code, as shown in the UI.
+     *
+     * @param keyCode the key code.
+     * @return the name of the key.
+     */
     private static String getKeyName(int keyCode) {
-        if (isFunctionKey(keyCode)) {
-            return formatFunctionKey(keyCode);
+        String name = getNamedKey(keyCode);
+        if (name != null) {
+            return name;
         }
-        if (isCharacterCollision(keyCode)) {
-            return String.valueOf((char) keyCode);
+        // Not a key with a name of its own, so it's the character code of a character key of a
+        // shortcut configured with an older version of ZAP. Note some punctuation key codes
+        // (e.g. VK_BACK_QUOTE 192) don't match their character in Latin-1, map them explicitly.
+        return switch (keyCode) {
+            case KeyEvent.VK_BACK_QUOTE -> "`";
+            case KeyEvent.VK_QUOTE -> "'";
+            case KeyEvent.VK_MINUS -> "-";
+            case KeyEvent.VK_EQUALS -> "=";
+            case KeyEvent.VK_OPEN_BRACKET -> "[";
+            case KeyEvent.VK_CLOSE_BRACKET -> "]";
+            case KeyEvent.VK_BACK_SLASH -> "\\";
+            case KeyEvent.VK_SEMICOLON -> ";";
+            case KeyEvent.VK_COMMA -> ",";
+            case KeyEvent.VK_PERIOD -> ".";
+            case KeyEvent.VK_SLASH -> "/";
+            default -> String.valueOf((char) keyCode);
+        };
+    }
+
+    /**
+     * Gets the symbol of the given key code, as shown in the UI when symbols are enabled.
+     *
+     * @param keyCode the key code.
+     * @return the symbol of the key.
+     */
+    private static String getKeySymbol(int keyCode) {
+        return switch (keyCode) {
+            case KeyEvent.VK_UP -> "↑";
+            case KeyEvent.VK_DOWN -> "↓";
+            case KeyEvent.VK_LEFT -> "←";
+            case KeyEvent.VK_RIGHT -> "→";
+            default -> getKeyName(keyCode);
+        };
+    }
+
+    /**
+     * Gets the name of the given key code, if it's a key named in the UI, that is, a virtual-key
+     * constant which has no character of its own (e.g. End, Page Up, function keys).
+     *
+     * <p>Character keys, e.g. letters, digits, and punctuation, are not named, they are shown as
+     * the character itself.
+     *
+     * @param keyCode the key code.
+     * @return the name of the key, or {@code null} if the key code has no name.
+     */
+    private static String getNamedKey(int keyCode) {
+        int functionKeyNumber = getFunctionKeyNumber(keyCode);
+        if (functionKeyNumber > 0) {
+            return "F" + functionKeyNumber;
+        }
+        if (keyCode >= KeyEvent.VK_NUMPAD0 && keyCode <= KeyEvent.VK_NUMPAD9) {
+            return String.valueOf(keyCode - KeyEvent.VK_NUMPAD0);
         }
         return switch (keyCode) {
+            case KeyEvent.VK_ADD -> "+";
+            case KeyEvent.VK_SUBTRACT -> "-";
+            case KeyEvent.VK_MULTIPLY -> "*";
+            case KeyEvent.VK_DIVIDE -> "/";
+            case KeyEvent.VK_SEPARATOR -> Constant.messages.getString("keyboard.key.enter");
+            case KeyEvent.VK_DECIMAL -> ".";
+            case KeyEvent.VK_BACK_SPACE -> Constant.messages.getString("keyboard.key.backspace");
+            case KeyEvent.VK_TAB -> Constant.messages.getString("keyboard.key.tab");
+            case KeyEvent.VK_ENTER -> Constant.messages.getString("keyboard.key.enter");
+            case KeyEvent.VK_ESCAPE -> Constant.messages.getString("keyboard.key.escape");
+            case KeyEvent.VK_SPACE -> Constant.messages.getString("keyboard.key.space");
+            case KeyEvent.VK_PAGE_UP -> Constant.messages.getString("keyboard.key.pageUp");
+            case KeyEvent.VK_PAGE_DOWN -> Constant.messages.getString("keyboard.key.pageDown");
+            case KeyEvent.VK_END -> Constant.messages.getString("keyboard.key.end");
+            case KeyEvent.VK_HOME -> Constant.messages.getString("keyboard.key.home");
+            case KeyEvent.VK_INSERT -> Constant.messages.getString("keyboard.key.insert");
+            case KeyEvent.VK_DELETE -> Constant.messages.getString("keyboard.key.delete");
+            case KeyEvent.VK_PRINTSCREEN -> Constant.messages.getString("keyboard.key.printScreen");
+            case KeyEvent.VK_SCROLL_LOCK -> Constant.messages.getString("keyboard.key.scrollLock");
+            case KeyEvent.VK_PAUSE -> Constant.messages.getString("keyboard.key.pause");
+            case KeyEvent.VK_CAPS_LOCK -> Constant.messages.getString("keyboard.key.capsLock");
+            case KeyEvent.VK_NUM_LOCK -> Constant.messages.getString("keyboard.key.numLock");
             case KeyEvent.VK_UP -> Constant.messages.getString("keyboard.key.up");
             case KeyEvent.VK_DOWN -> Constant.messages.getString("keyboard.key.down");
             case KeyEvent.VK_LEFT -> Constant.messages.getString("keyboard.key.left");
             case KeyEvent.VK_RIGHT -> Constant.messages.getString("keyboard.key.right");
-            default -> String.valueOf((char) keyCode);
+            default -> null;
+        };
+    }
+
+    /**
+     * Tells whether the given key code has no meaningful display, that is, it's neither a key named
+     * in the UI, nor a character key (whose character is shown), e.g. media, browser, or IME keys.
+     *
+     * <p>Such key codes are not captured as key strokes.
+     *
+     * @param keyCode the key code.
+     * @return {@code true} if the key code has no meaningful display.
+     */
+    static boolean isUnnamedKey(int keyCode) {
+        return getNamedKey(keyCode) == null && !isCharacterKey(keyCode);
+    }
+
+    /**
+     * Tells whether the given key code is that of a character key, which {@link #getKeyName(int)}
+     * displays as its character.
+     *
+     * <p>Note the key codes of the shifted symbols (e.g. {@code @} or {@code %}) either collide
+     * with the codes of the named keys, checked first, or are not reported for physical keys.
+     *
+     * @param keyCode the key code.
+     * @return {@code true} if the key code is that of a character key.
+     */
+    private static boolean isCharacterKey(int keyCode) {
+        if ((keyCode >= KeyEvent.VK_A && keyCode <= KeyEvent.VK_Z)
+                || (keyCode >= KeyEvent.VK_0 && keyCode <= KeyEvent.VK_9)) {
+            return true;
+        }
+        return switch (keyCode) {
+            case KeyEvent.VK_BACK_QUOTE,
+                    KeyEvent.VK_MINUS,
+                    KeyEvent.VK_EQUALS,
+                    KeyEvent.VK_OPEN_BRACKET,
+                    KeyEvent.VK_CLOSE_BRACKET,
+                    KeyEvent.VK_BACK_SLASH,
+                    KeyEvent.VK_SEMICOLON,
+                    KeyEvent.VK_QUOTE,
+                    KeyEvent.VK_COMMA,
+                    KeyEvent.VK_PERIOD,
+                    KeyEvent.VK_SLASH -> true;
+            default -> false;
         };
     }
 
@@ -167,27 +287,9 @@ public final class KeyStrokeDisplay {
         return "⇧";
     }
 
-    private static String getKeySymbol(int keyCode) {
-        int functionKeyNumber = getFunctionKeyNumber(keyCode);
-        if (functionKeyNumber > 0) {
-            return "F" + functionKeyNumber;
-        }
-        return switch (keyCode) {
-            case KeyEvent.VK_UP -> "↑";
-            case KeyEvent.VK_DOWN -> "↓";
-            case KeyEvent.VK_LEFT -> "←";
-            case KeyEvent.VK_RIGHT -> "→";
-                // Any other code is one of ZAP's own symbol/letter/digit keys (see
-                // DialogEditShortcut#getKeyList), not a real AWT virtual-key constant, so it must
-                // be treated as a plain character rather than passed to KeyEvent.getKeyText, which
-                // would misinterpret coincidental matches.
-            default -> String.valueOf((char) keyCode);
-        };
-    }
-
     private static int getFunctionKeyNumber(int keyCode) {
         // F13-F24 are not contiguous with F1-F12
-        if (keyCode >= KeyEvent.VK_F13) {
+        if (keyCode >= KeyEvent.VK_F13 && keyCode <= KeyEvent.VK_F24) {
             return keyCode - KeyEvent.VK_F13 + 13;
         }
         if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F12) {
@@ -196,22 +298,9 @@ public final class KeyStrokeDisplay {
         return 0;
     }
 
-    private static void wrapPartsHtml(StringBuilder sb, List<String> parts, boolean fullEscape) {
-        for (int i = 0; i < parts.size(); i++) {
-            String part = parts.get(i);
-            sb.append("<kbd>")
-                    .append(
-                            fullEscape
-                                    ? StringEscapeUtils.escapeHtml4(part)
-                                    : escapeHtmlMinimal(part))
-                    .append("</kbd>");
+    private static void wrapPartsHtml(StringBuilder sb, List<String> parts) {
+        for (String part : parts) {
+            sb.append("<kbd>").append(StringEscapeUtils.escapeHtml4(part)).append("</kbd>");
         }
-    }
-
-    private static String escapeHtmlMinimal(String text) {
-        return text.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;");
     }
 }

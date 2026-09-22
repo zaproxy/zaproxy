@@ -45,7 +45,7 @@ public class KeyboardParam extends AbstractParam {
     private static final String DISPLAY_SYMBOLS_KEY = KEYBOARD_BASE_KEY + ".displaySymbols";
 
     private Map<String, KeyStroke> map = null;
-    private boolean displaySymbols = KeyStrokeDisplay.isDefaultShowSymbols();
+    private boolean displaySymbols = true;
 
     public KeyboardParam() {}
 
@@ -66,8 +66,7 @@ public class KeyboardParam extends AbstractParam {
                                     false));
                 }
             }
-            displaySymbols =
-                    getBoolean(DISPLAY_SYMBOLS_KEY, KeyStrokeDisplay.isDefaultShowSymbols());
+            displaySymbols = getBoolean(DISPLAY_SYMBOLS_KEY, true);
         } catch (ConversionException e) {
             logger.error("Error while loading keyboard shortcuts {}", e.getMessage(), e);
         }

@@ -37,7 +37,7 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
     private List<KeyboardShortcut> shortcuts = new ArrayList<>(0);
-    private boolean showSymbols = KeyStrokeDisplay.isDefaultShowSymbols();
+    private boolean showSymbols = true;
 
     public KeyboardShortcutTableModel() {
         super();
