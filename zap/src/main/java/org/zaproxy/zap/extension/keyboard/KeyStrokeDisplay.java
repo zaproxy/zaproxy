@@ -59,12 +59,9 @@ public final class KeyStrokeDisplay {
         return Integer.compare(ks1.getModifiers(), ks2.getModifiers());
     }
 
-    public static boolean isDefaultShowSymbols() {
-        return true;
-    }
-
     public static String formatPlain(KeyStroke keyStroke, boolean showSymbols) {
-        return String.join("+", showSymbols ? getSymbolParts(keyStroke) : getNameParts(keyStroke));
+        // Space delimited, to match the format used elsewhere for shortcuts (e.g. in menus).
+        return String.join(" ", showSymbols ? getSymbolParts(keyStroke) : getNameParts(keyStroke));
     }
 
     private static List<String> getNameParts(KeyStroke keyStroke) {
@@ -104,91 +101,8 @@ public final class KeyStrokeDisplay {
                 : Constant.messages.getString("keyboard.key.alt");
     }
 
-    private static String getKeyName(int keyCode) {
-        if (isFunctionKey(keyCode)) {
-            return formatFunctionKey(keyCode);
-        }
-        if (isCharacterCollision(keyCode)) {
-            return String.valueOf((char) keyCode);
-        }
-        return switch (keyCode) {
-            case KeyEvent.VK_UP -> Constant.messages.getString("keyboard.key.up");
-            case KeyEvent.VK_DOWN -> Constant.messages.getString("keyboard.key.down");
-            case KeyEvent.VK_LEFT -> Constant.messages.getString("keyboard.key.left");
-            case KeyEvent.VK_RIGHT -> Constant.messages.getString("keyboard.key.right");
-            default -> String.valueOf((char) keyCode);
-        };
-    }
-
-    private static List<String> getSymbolParts(KeyStroke keyStroke) {
-        List<String> parts = new ArrayList<>();
-        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
-            return parts;
-        }
-        if (isMetaSet(keyStroke.getModifiers())) {
-            parts.add(getMetaSymbol());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
-            parts.add(getControlSymbol());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
-            parts.add(getAltSymbol());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
-            parts.add(getShiftSymbol());
-        }
-        parts.add(getKeySymbol(keyStroke.getKeyCode()));
-        return parts;
-    }
-
-    private static boolean isMetaSet(int modifiers) {
-        return (modifiers & InputEvent.META_DOWN_MASK) != 0;
-    }
-
-    private static String getMetaSymbol() {
-        if (Constant.isMacOsX()) {
-            return "⌘";
-        }
-        if (Constant.isWindows()) {
-            return Constant.messages.getString("keyboard.key.win");
-        }
-        return Constant.messages.getString("keyboard.key.super");
-    }
-
-    private static String getAltSymbol() {
-        return Constant.isMacOsX() ? "⌥" : Constant.messages.getString("keyboard.key.alt");
-    }
-
-    private static String getControlSymbol() {
-        return "⌃";
-    }
-
-    private static String getShiftSymbol() {
-        return "⇧";
-    }
-
-    /**
-     * Gets the symbol of the given key code, as shown in the UI.
-     *
-     * @param keyCode the key code.
-     * @return the symbol of the key.
-     */
-    private static String getKeySymbol(int keyCode) {
-        return switch (keyCode) {
-            case KeyEvent.VK_UP -> "↑";
-            case KeyEvent.VK_DOWN -> "↓";
-            case KeyEvent.VK_LEFT -> "←";
-            case KeyEvent.VK_RIGHT -> "→";
-            default -> getKeyName(keyCode);
-        };
-    }
-
     /**
      * Gets the name of the given key code, as shown in the UI.
-     *
-     * <p>This is a best-effort, US-QWERTY based guess used for already-saved shortcuts, where
-     * there's no live {@code KeyEvent} to consult for the character actually produced by the user's
-     * keyboard layout.
      *
      * @param keyCode the key code.
      * @return the name of the key.
@@ -214,6 +128,22 @@ public final class KeyStrokeDisplay {
             case KeyEvent.VK_PERIOD -> ".";
             case KeyEvent.VK_SLASH -> "/";
             default -> String.valueOf((char) keyCode);
+        };
+    }
+
+    /**
+     * Gets the symbol of the given key code, as shown in the UI when symbols are enabled.
+     *
+     * @param keyCode the key code.
+     * @return the symbol of the key.
+     */
+    private static String getKeySymbol(int keyCode) {
+        return switch (keyCode) {
+            case KeyEvent.VK_UP -> "↑";
+            case KeyEvent.VK_DOWN -> "↓";
+            case KeyEvent.VK_LEFT -> "←";
+            case KeyEvent.VK_RIGHT -> "→";
+            default -> getKeyName(keyCode);
         };
     }
 
@@ -264,6 +194,97 @@ public final class KeyStrokeDisplay {
             case KeyEvent.VK_RIGHT -> Constant.messages.getString("keyboard.key.right");
             default -> null;
         };
+    }
+
+    /**
+     * Tells whether the given key code has no meaningful display, that is, it's neither a key named
+     * in the UI, nor a character key (whose character is shown), e.g. media, browser, or IME keys.
+     *
+     * <p>Such key codes are not captured as key strokes.
+     *
+     * @param keyCode the key code.
+     * @return {@code true} if the key code has no meaningful display.
+     */
+    static boolean isUnnamedKey(int keyCode) {
+        return getNamedKey(keyCode) == null && !isCharacterKey(keyCode);
+    }
+
+    /**
+     * Tells whether the given key code is that of a character key, which {@link #getKeyName(int)}
+     * displays as its character.
+     *
+     * <p>Note the key codes of the shifted symbols (e.g. {@code @} or {@code %}) either collide
+     * with the codes of the named keys, checked first, or are not reported for physical keys.
+     *
+     * @param keyCode the key code.
+     * @return {@code true} if the key code is that of a character key.
+     */
+    private static boolean isCharacterKey(int keyCode) {
+        if ((keyCode >= KeyEvent.VK_A && keyCode <= KeyEvent.VK_Z)
+                || (keyCode >= KeyEvent.VK_0 && keyCode <= KeyEvent.VK_9)) {
+            return true;
+        }
+        return switch (keyCode) {
+            case KeyEvent.VK_BACK_QUOTE,
+                    KeyEvent.VK_MINUS,
+                    KeyEvent.VK_EQUALS,
+                    KeyEvent.VK_OPEN_BRACKET,
+                    KeyEvent.VK_CLOSE_BRACKET,
+                    KeyEvent.VK_BACK_SLASH,
+                    KeyEvent.VK_SEMICOLON,
+                    KeyEvent.VK_QUOTE,
+                    KeyEvent.VK_COMMA,
+                    KeyEvent.VK_PERIOD,
+                    KeyEvent.VK_SLASH -> true;
+            default -> false;
+        };
+    }
+
+    private static List<String> getSymbolParts(KeyStroke keyStroke) {
+        List<String> parts = new ArrayList<>();
+        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
+            return parts;
+        }
+        if (isMetaSet(keyStroke.getModifiers())) {
+            parts.add(getMetaSymbol());
+        }
+        if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
+            parts.add(getControlSymbol());
+        }
+        if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
+            parts.add(getAltSymbol());
+        }
+        if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+            parts.add(getShiftSymbol());
+        }
+        parts.add(getKeySymbol(keyStroke.getKeyCode()));
+        return parts;
+    }
+
+    private static boolean isMetaSet(int modifiers) {
+        return (modifiers & InputEvent.META_DOWN_MASK) != 0;
+    }
+
+    private static String getMetaSymbol() {
+        if (Constant.isMacOsX()) {
+            return "⌘";
+        }
+        if (Constant.isWindows()) {
+            return Constant.messages.getString("keyboard.key.win");
+        }
+        return Constant.messages.getString("keyboard.key.super");
+    }
+
+    private static String getAltSymbol() {
+        return Constant.isMacOsX() ? "⌥" : Constant.messages.getString("keyboard.key.alt");
+    }
+
+    private static String getControlSymbol() {
+        return "⌃";
+    }
+
+    private static String getShiftSymbol() {
+        return "⇧";
     }
 
     private static int getFunctionKeyNumber(int keyCode) {

@@ -24,9 +24,6 @@ import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.KeyStroke;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -38,11 +35,6 @@ public class DialogEditShortcut extends StandardFieldsDialog {
     private static final String FIELD_ACTION = "keyboard.dialog.label.action";
     private static final String FIELD_PREVIEW = "keyboard.dialog.label.preview";
     private static final String FIELD_KEY = "keyboard.dialog.label.key";
-    private static final String FIELD_COMMAND = "keyboard.dialog.label.command";
-    private static final String FIELD_CONTROL = "keyboard.dialog.label.control";
-    private static final String FIELD_ALT = "keyboard.dialog.label.alt";
-    private static final String FIELD_OPTION = "keyboard.dialog.label.option";
-    private static final String FIELD_SHIFT = "keyboard.dialog.label.shift";
     private static final String FIELD_INFO = "keyboard.dialog.label.info";
 
     private static final long serialVersionUID = 1L;
@@ -84,24 +76,10 @@ public class DialogEditShortcut extends StandardFieldsDialog {
                 FIELD_PREVIEW,
                 KeyStrokeDisplay.formatPlain(shortcut.getKeyStroke(), model.isShowSymbols()),
                 false);
-        this.addComboField(FIELD_KEY, getKeyList(), getKey(shortcut.getKeyStroke()));
+        this.addCustomComponent(
+                FIELD_KEY,
+                new KeyStrokeCaptureField(shortcut.getKeyStroke(), model.isShowSymbols()));
         this.addFieldListener(FIELD_KEY, listener);
-        if (Constant.isMacOsX()) {
-            this.addCheckBoxField(
-                    FIELD_COMMAND,
-                    this.isModifier(shortcut.getKeyStroke(), InputEvent.META_DOWN_MASK));
-            this.addFieldListener(FIELD_COMMAND, listener);
-        }
-        this.addCheckBoxField(
-                FIELD_CONTROL, this.isModifier(shortcut.getKeyStroke(), InputEvent.CTRL_DOWN_MASK));
-        this.addFieldListener(FIELD_CONTROL, listener);
-        this.addCheckBoxField(
-                getAltFieldKey(),
-                this.isModifier(shortcut.getKeyStroke(), InputEvent.ALT_DOWN_MASK));
-        this.addFieldListener(getAltFieldKey(), listener);
-        this.addCheckBoxField(
-                FIELD_SHIFT, this.isModifier(shortcut.getKeyStroke(), InputEvent.SHIFT_DOWN_MASK));
-        this.addFieldListener(FIELD_SHIFT, listener);
         this.addReadOnlyField(FIELD_INFO, "", true);
 
         this.getField(FIELD_INFO).setForeground(Color.RED);
@@ -154,86 +132,8 @@ public class DialogEditShortcut extends StandardFieldsDialog {
         return null;
     }
 
-    private List<String> getKeyList() {
-        List<String> list = new ArrayList<>();
-        list.add(""); // Always start with a blank option - means no key set
-        for (char c = 'A'; c <= 'Z'; c++) {
-            list.add(String.valueOf(c));
-        }
-        // Numbers
-        for (int i = 0; i <= 9; i++) {
-            list.add(String.valueOf(i));
-        }
-        // Non Alphnumeric keys
-        list.add("-");
-        list.add("=");
-        list.add("[");
-        list.add("]");
-        list.add(";");
-        list.add("'");
-        list.add("#");
-        list.add(",");
-        list.add(".");
-        list.add("/");
-        // Function keys
-        for (int i = 1; i <= 24; i++) {
-            list.add("F" + i);
-        }
-        // Arrow keys
-        list.add(Constant.messages.getString("keyboard.key.up"));
-        list.add(Constant.messages.getString("keyboard.key.down"));
-        list.add(Constant.messages.getString("keyboard.key.left"));
-        list.add(Constant.messages.getString("keyboard.key.right"));
-
-        return list;
-    }
-
-    private String getKey(KeyStroke ks) {
-        if (ks != null) {
-            return KeyboardMapping.keyString(ks.getKeyCode());
-        }
-        return "";
-    }
-
-    private char selectedKey() {
-        return KeyboardMapping.keyCode(this.getStringValue(FIELD_KEY));
-    }
-
-    private boolean isModifier(KeyStroke ks, int modifier) {
-        if (ks != null) {
-            return (ks.getModifiers() & modifier) != 0;
-        }
-        return false;
-    }
-
-    private static String getAltFieldKey() {
-        if (Constant.isMacOsX()) {
-            return FIELD_OPTION;
-        }
-        return FIELD_ALT;
-    }
-
     public KeyStroke getKeyStroke() {
-        KeyStroke ks = null;
-        int keyCode = selectedKey();
-        int modifiers = 0;
-
-        if (keyCode != 0) {
-            if (Constant.isMacOsX() && this.getBoolValue(FIELD_COMMAND)) {
-                modifiers |= InputEvent.META_DOWN_MASK;
-            }
-            if (this.getBoolValue(FIELD_CONTROL)) {
-                modifiers |= InputEvent.CTRL_DOWN_MASK;
-            }
-            if (this.getBoolValue(getAltFieldKey())) {
-                modifiers |= InputEvent.ALT_DOWN_MASK;
-            }
-            if (this.getBoolValue(FIELD_SHIFT)) {
-                modifiers |= InputEvent.SHIFT_DOWN_MASK;
-            }
-            ks = KeyStroke.getKeyStroke(keyCode, modifiers, false);
-        }
-        return ks;
+        return ((KeyStrokeCaptureField) this.getField(FIELD_KEY)).getKeyStroke();
     }
 
     @Override

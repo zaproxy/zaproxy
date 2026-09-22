@@ -48,27 +48,6 @@ public class KeyboardShortcut {
         return keyStroke;
     }
 
-    public String getKeyStrokeKeyCodeString() {
-        if (this.keyStroke == null) {
-            return "";
-        }
-        return KeyboardMapping.keyString(this.keyStroke.getKeyCode());
-    }
-
-    public String getKeyStrokeModifiersString() {
-        if (this.keyStroke == null) {
-            return "";
-        }
-        return KeyboardMapping.modifiersString(this.keyStroke.getModifiers());
-    }
-
-    public String getKeyStrokeString() {
-        if (this.keyStroke == null) {
-            return "";
-        }
-        return getKeyStrokeModifiersString() + " " + getKeyStrokeKeyCodeString();
-    }
-
     public void setKeyStroke(KeyStroke keyStroke) {
         this.keyStroke = keyStroke;
         this.changed = true;
