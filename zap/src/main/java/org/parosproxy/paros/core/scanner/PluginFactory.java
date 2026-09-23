@@ -61,6 +61,8 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2025/11/17 Support locked policy.
+// ZAP: 2026/09/22 From now on we will not be recording changes here as the files have changed so
+// much.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -86,6 +89,7 @@ public class PluginFactory {
     private static final Logger LOGGER = LogManager.getLogger(PluginFactory.class);
     private static List<AbstractPlugin> loadedPlugins = null;
     private static Map<Integer, Plugin> mapLoadedPlugins;
+    private static final List<PluginLoaderListener> LOADER_LISTENERS = new CopyOnWriteArrayList<>();
 
     private List<Plugin> listAllPlugin = new ArrayList<>();
     private LinkedHashMap<Integer, Plugin> mapAllPlugin =
@@ -219,6 +223,7 @@ public class PluginFactory {
             getLoadedPlugins().add(plugin);
             mapLoadedPlugins.put(plugin.getId(), plugin);
             Collections.sort(loadedPlugins, riskComparator);
+            notifyPluginLoaded(plugin);
         }
     }
 
@@ -230,9 +235,75 @@ public class PluginFactory {
             if (it.next() == plugin) {
                 it.remove();
                 mapLoadedPlugins.remove(plugin.getId());
+                notifyPluginUnloaded(plugin);
                 return;
             }
         }
+    }
+
+    /**
+     * Adds a listener notified whenever a plugin is loaded or unloaded via {@link
+     * #loadedPlugin(AbstractPlugin)} / {@link #unloadedPlugin(AbstractPlugin)}. This is not part of
+     * the public API.
+     *
+     * @param listener the listener to add.
+     * @since 2.18.0
+     */
+    public static void addPluginLoaderListener(PluginLoaderListener listener) {
+        LOADER_LISTENERS.add(listener);
+    }
+
+    /**
+     * Removes a previously added {@link PluginLoaderListener}. This is not part of the public API.
+     *
+     * @param listener the listener to remove.
+     * @since 2.18.0
+     */
+    public static void removePluginLoaderListener(PluginLoaderListener listener) {
+        LOADER_LISTENERS.remove(listener);
+    }
+
+    private static void notifyPluginLoaded(AbstractPlugin plugin) {
+        for (PluginLoaderListener listener : LOADER_LISTENERS) {
+            try {
+                listener.pluginLoaded(plugin);
+            } catch (Exception e) {
+                LOGGER.error("Failed to notify listener of loaded plugin {}", plugin.getId(), e);
+            }
+        }
+    }
+
+    private static void notifyPluginUnloaded(AbstractPlugin plugin) {
+        for (PluginLoaderListener listener : LOADER_LISTENERS) {
+            try {
+                listener.pluginUnloaded(plugin);
+            } catch (Exception e) {
+                LOGGER.error("Failed to notify listener of unloaded plugin {}", plugin.getId(), e);
+            }
+        }
+    }
+
+    /**
+     * Notified when a plugin is loaded or unloaded. This is not part of the public API.
+     *
+     * @see PluginFactory#addPluginLoaderListener(PluginLoaderListener)
+     * @since 2.18.0
+     */
+    public interface PluginLoaderListener {
+
+        /**
+         * Called after a plugin has been loaded.
+         *
+         * @param plugin the plugin that was loaded.
+         */
+        void pluginLoaded(AbstractPlugin plugin);
+
+        /**
+         * Called after a plugin has been unloaded.
+         *
+         * @param plugin the plugin that was unloaded.
+         */
+        void pluginUnloaded(AbstractPlugin plugin);
     }
 
     // now order the list by the highest risk thrown, in descending order (to execute the more
