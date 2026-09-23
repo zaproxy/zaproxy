@@ -32,15 +32,8 @@ public final class KeyStrokeDisplay {
 
     private KeyStrokeDisplay() {}
 
-    public static String formatHtmlSymbols(KeyStroke keyStroke) {
-        StringBuilder sb = new StringBuilder();
-        appendHtmlSymbols(sb, keyStroke);
-        return sb.toString();
-    }
-
     /**
-     * Appends the HTML symbols of the given key stroke directly to the given {@code StringBuilder},
-     * avoiding the intermediate string allocated by {@link #formatHtmlSymbols(KeyStroke)}.
+     * Appends the HTML symbols of the given key stroke directly to the given {@code StringBuilder}.
      *
      * @param sb the builder to append to.
      * @param keyStroke the key stroke to format, might be {@code null}.
@@ -114,13 +107,9 @@ public final class KeyStrokeDisplay {
     }
 
     private static String getKeySymbol(int keyCode) {
-        if (isFunctionKey(keyCode)) {
-            return formatFunctionKey(keyCode);
-        }
-        // Character-VK code collisions: treat as characters, not VK keys.
-        // Examples: '#' (35) == VK_END, '&' (38) == VK_UP.
-        if (isCharacterCollision(keyCode)) {
-            return String.valueOf((char) keyCode);
+        int functionKeyNumber = getFunctionKeyNumber(keyCode);
+        if (functionKeyNumber > 0) {
+            return "F" + functionKeyNumber;
         }
         return switch (keyCode) {
             case KeyEvent.VK_UP -> "↑";
@@ -129,24 +118,10 @@ public final class KeyStrokeDisplay {
             case KeyEvent.VK_RIGHT -> "→";
                 // Any other code is one of ZAP's own symbol/letter/digit keys (see
                 // DialogEditShortcut#getKeyList), not a real AWT virtual-key constant, so it must
-                // be
-                // treated as a plain character rather than passed to KeyEvent.getKeyText, which
-                // would
-                // misinterpret coincidental matches.
+                // be treated as a plain character rather than passed to KeyEvent.getKeyText, which
+                // would misinterpret coincidental matches.
             default -> String.valueOf((char) keyCode);
         };
-    }
-
-    private static boolean isCharacterCollision(int keyCode) {
-        return keyCode == 35 || keyCode == 38; // '#' and '&'
-    }
-
-    private static boolean isFunctionKey(int keyCode) {
-        return getFunctionKeyNumber(keyCode) > 0;
-    }
-
-    private static String formatFunctionKey(int keyCode) {
-        return "F" + getFunctionKeyNumber(keyCode);
     }
 
     private static int getFunctionKeyNumber(int keyCode) {
