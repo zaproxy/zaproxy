@@ -37,21 +37,9 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
     private List<KeyboardShortcut> shortcuts = new ArrayList<>(0);
-    private boolean showSymbols = true;
 
     public KeyboardShortcutTableModel() {
         super();
-    }
-
-    public void setShowSymbols(boolean showSymbols) {
-        if (this.showSymbols != showSymbols) {
-            this.showSymbols = showSymbols;
-            fireTableDataChanged();
-        }
-    }
-
-    public boolean isShowSymbols() {
-        return showSymbols;
     }
 
     protected List<KeyboardShortcut> getElements() {
@@ -102,8 +90,7 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
             case 0:
                 return shortcuts.get(rowIndex).getName();
             case 1:
-                return KeyStrokeDisplay.formatPlain(
-                        shortcuts.get(rowIndex).getKeyStroke(), showSymbols);
+                return KeyStrokeDisplay.formatPlain(shortcuts.get(rowIndex).getKeyStroke());
         }
         return null;
     }

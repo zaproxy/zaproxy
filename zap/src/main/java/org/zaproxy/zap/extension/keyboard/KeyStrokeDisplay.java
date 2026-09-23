@@ -59,50 +59,37 @@ public final class KeyStrokeDisplay {
         return Integer.compare(ks1.getModifiers(), ks2.getModifiers());
     }
 
-    public static String formatPlain(KeyStroke keyStroke, boolean showSymbols) {
+    public static String formatPlain(KeyStroke keyStroke) {
         // Space delimited, to match the format used elsewhere for shortcuts (e.g. in menus).
-        return String.join(" ", showSymbols ? getSymbolParts(keyStroke) : getNameParts(keyStroke));
+        return String.join(" ", getSymbolParts(keyStroke));
     }
 
-    private static List<String> getNameParts(KeyStroke keyStroke) {
-        List<String> parts = new ArrayList<>();
-        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
-            return parts;
-        }
-        if (isMetaSet(keyStroke.getModifiers())) {
-            parts.add(getMetaName());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
-            parts.add(Constant.messages.getString("keyboard.key.control"));
-        }
-        if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
-            parts.add(getAltName());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
-            parts.add(Constant.messages.getString("keyboard.key.shift"));
-        }
-        parts.add(getKeyName(keyStroke.getKeyCode()));
-        return parts;
-    }
-
-    private static String getMetaName() {
-        if (Constant.isMacOsX()) {
-            return Constant.messages.getString("keyboard.key.command");
-        }
-        if (Constant.isWindows()) {
-            return Constant.messages.getString("keyboard.key.win");
-        }
-        return Constant.messages.getString("keyboard.key.super");
-    }
-
-    private static String getAltName() {
-        return Constant.isMacOsX()
-                ? Constant.messages.getString("keyboard.key.option")
-                : Constant.messages.getString("keyboard.key.alt");
+    /**
+     * Formats the given key stroke like {@link #formatPlain(KeyStroke)}, but using the given label
+     * for the key itself instead of the one {@link #getKeySymbol(int)} would compute.
+     *
+     * <p>Used only for live key stroke capture, where the actual character produced by the key
+     * (from a {@code KEY_TYPED} event) is known and is more accurate than the static, US-QWERTY
+     * based guess in {@link #getKeyName(int)} — e.g. on non-US layouts with keys that have no US
+     * equivalent.
+     *
+     * @param keyStroke the key stroke being captured, never {@code null}.
+     * @param keyLabel the label to use for the key, instead of computing one from its key code.
+     * @return the formatted key stroke.
+     */
+    static String formatPlain(KeyStroke keyStroke, String keyLabel) {
+        List<String> parts = getModifierSymbolParts(keyStroke.getModifiers());
+        parts.add(keyLabel);
+        return String.join(" ", parts);
     }
 
     /**
      * Gets the name of the given key code, as shown in the UI.
+     *
+     * <p>This is a best-effort, US-QWERTY based guess used only for already-saved shortcuts (e.g.
+     * the options table, the HTML cheatsheet), where there's no live {@code KeyEvent} to consult
+     * for the character actually produced by the user's keyboard layout. Live capture instead uses
+     * the character reported by the {@code KEY_TYPED} event, see {@code KeyStrokeCaptureField}.
      *
      * @param keyCode the key code.
      * @return the name of the key.
@@ -132,7 +119,7 @@ public final class KeyStrokeDisplay {
     }
 
     /**
-     * Gets the symbol of the given key code, as shown in the UI when symbols are enabled.
+     * Gets the symbol of the given key code, as shown in the UI.
      *
      * @param keyCode the key code.
      * @return the symbol of the key.
@@ -241,23 +228,28 @@ public final class KeyStrokeDisplay {
     }
 
     private static List<String> getSymbolParts(KeyStroke keyStroke) {
-        List<String> parts = new ArrayList<>();
         if (keyStroke == null || keyStroke.getKeyCode() == 0) {
-            return parts;
+            return new ArrayList<>();
         }
-        if (isMetaSet(keyStroke.getModifiers())) {
+        List<String> parts = getModifierSymbolParts(keyStroke.getModifiers());
+        parts.add(getKeySymbol(keyStroke.getKeyCode()));
+        return parts;
+    }
+
+    private static List<String> getModifierSymbolParts(int modifiers) {
+        List<String> parts = new ArrayList<>();
+        if (isMetaSet(modifiers)) {
             parts.add(getMetaSymbol());
         }
-        if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
+        if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
             parts.add(getControlSymbol());
         }
-        if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
+        if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0) {
             parts.add(getAltSymbol());
         }
-        if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+        if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
             parts.add(getShiftSymbol());
         }
-        parts.add(getKeySymbol(keyStroke.getKeyCode()));
         return parts;
     }
 

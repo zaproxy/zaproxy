@@ -35,7 +35,6 @@ import javax.swing.KeyStroke;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.I18N;
@@ -48,7 +47,7 @@ class KeyStrokeCaptureFieldUnitTest {
     @BeforeEach
     void setUp() {
         Constant.messages = new I18N(Locale.ENGLISH);
-        field = new KeyStrokeCaptureField(null, false);
+        field = new KeyStrokeCaptureField(null);
     }
 
     @Test
@@ -61,37 +60,32 @@ class KeyStrokeCaptureFieldUnitTest {
     @Test
     void shouldNotHaveKeyStrokeByDefault() {
         // Given / When
-        KeyStrokeCaptureField freshField = new KeyStrokeCaptureField(null, false);
+        KeyStrokeCaptureField freshField = new KeyStrokeCaptureField(null);
         // Then
         assertThat(freshField.getKeyStroke(), is(nullValue()));
         assertThat(freshField.getText(), is(equalTo("")));
     }
 
-    @ParameterizedTest
-    @CsvSource({"true, ⌃ K", "false, Control K"})
-    void shouldShowKeyStrokeAccordingToShowSymbolsSetting(
-            boolean showSymbols, String expectedText) {
+    @Test
+    void shouldShowKeyStrokeAsSymbols() {
         // Given
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK);
         // When
-        KeyStrokeCaptureField fieldWithKeyStroke =
-                new KeyStrokeCaptureField(keyStroke, showSymbols);
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke);
         // Then
         assertThat(fieldWithKeyStroke.getKeyStroke(), is(equalTo(keyStroke)));
-        assertThat(fieldWithKeyStroke.getText(), is(equalTo(expectedText)));
+        assertThat(fieldWithKeyStroke.getText(), is(equalTo("⌃ K")));
     }
 
-    @ParameterizedTest
-    @CsvSource({"true, ⌃ K", "false, Control K"})
-    void shouldShowCapturedKeyStrokeAccordingToShowSymbolsSetting(
-            boolean showSymbols, String expectedText) {
+    @Test
+    void shouldShowCapturedKeyStrokeAsSymbols() {
         // Given
-        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null, showSymbols);
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null);
         // When
         fieldWithKeyStroke.processKeyEvent(
                 keyPressed(fieldWithKeyStroke, KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK));
         // Then
-        assertThat(fieldWithKeyStroke.getText(), is(equalTo(expectedText)));
+        assertThat(fieldWithKeyStroke.getText(), is(equalTo("⌃ K")));
     }
 
     @Test
@@ -127,11 +121,11 @@ class KeyStrokeCaptureFieldUnitTest {
         // stored/read as characters. The toolkit reports '#' as Shift+3 and the End key as VK_END,
         // which are captured as distinct key strokes, shown as themselves.
         // Given
-        KeyStrokeCaptureField fieldWithEnd = new KeyStrokeCaptureField(null, false);
+        KeyStrokeCaptureField fieldWithEnd = new KeyStrokeCaptureField(null);
         // When
         fieldWithEnd.processKeyEvent(keyPressed(fieldWithEnd, KeyEvent.VK_END, 0));
         KeyStroke endKeyStroke = fieldWithEnd.getKeyStroke();
-        KeyStrokeCaptureField fieldWithHash = new KeyStrokeCaptureField(null, false);
+        KeyStrokeCaptureField fieldWithHash = new KeyStrokeCaptureField(null);
         fieldWithHash.processKeyEvent(
                 keyPressed(fieldWithHash, KeyEvent.VK_3, InputEvent.SHIFT_DOWN_MASK));
         // Then
@@ -143,7 +137,7 @@ class KeyStrokeCaptureFieldUnitTest {
                         equalTo(
                                 KeyStroke.getKeyStroke(
                                         KeyEvent.VK_3, InputEvent.SHIFT_DOWN_MASK, false))));
-        assertThat(fieldWithHash.getText(), is(equalTo("Shift 3")));
+        assertThat(fieldWithHash.getText(), is(equalTo("⇧ 3")));
         assertThat(fieldWithHash.getKeyStroke(), is(not(equalTo(endKeyStroke))));
     }
 
@@ -184,7 +178,7 @@ class KeyStrokeCaptureFieldUnitTest {
     void shouldNotCaptureModifierKeysAlone(int keyCode) {
         // Given
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_K, 0, false);
-        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke, false);
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke);
         KeyEvent event = keyPressed(fieldWithKeyStroke, keyCode, 0);
         // When
         fieldWithKeyStroke.processKeyEvent(event);
@@ -248,8 +242,7 @@ class KeyStrokeCaptureFieldUnitTest {
         // Given
         KeyStrokeCaptureField fieldWithKeyStroke =
                 new KeyStrokeCaptureField(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK, false),
-                        false);
+                        KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK, false));
         KeyEvent event = keyPressed(fieldWithKeyStroke, keyCode, 0);
         // When
         fieldWithKeyStroke.processKeyEvent(event);
@@ -264,7 +257,7 @@ class KeyStrokeCaptureFieldUnitTest {
         // Given
         KeyStroke keyStroke =
                 KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK, false);
-        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke, false);
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke);
         KeyEvent event = keyPressed(fieldWithKeyStroke, KeyEvent.VK_ESCAPE, 0);
         // When
         fieldWithKeyStroke.processKeyEvent(event);
@@ -279,7 +272,7 @@ class KeyStrokeCaptureFieldUnitTest {
     void shouldIgnoreNonPressedEvents(int eventId) {
         // Given
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_K, 0, false);
-        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke, false);
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(keyStroke);
         // Key typed events must have an undefined key code, other events a valid one.
         boolean keyTyped = eventId == KeyEvent.KEY_TYPED;
         KeyEvent event =
@@ -313,6 +306,81 @@ class KeyStrokeCaptureFieldUnitTest {
         assertThat(capturedKeyStrokes.get(1), is(nullValue()));
     }
 
+    @Test
+    void shouldUseKeyTypedCharWhenAvailable() {
+        // On non-US layouts a punctuation key code (e.g. VK_SEMICOLON) can produce a different
+        // character than the US-QWERTY guess, e.g. "ç" on a Portuguese layout.
+        // Given
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null);
+        // When
+        fieldWithKeyStroke.processKeyEvent(
+                keyPressed(fieldWithKeyStroke, KeyEvent.VK_SEMICOLON, 0));
+        fieldWithKeyStroke.processKeyEvent(keyTyped(fieldWithKeyStroke, 'ç'));
+        // Then
+        assertThat(
+                fieldWithKeyStroke.getKeyStroke(),
+                is(equalTo(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, 0, false))));
+        assertThat(fieldWithKeyStroke.getText(), is(equalTo("ç")));
+    }
+
+    @Test
+    void shouldKeepKeyCodeFallbackWhenKeyTypedCharIsAControlCharacter() {
+        // A control character reaching KEY_TYPED (e.g. from a dead key) is not a usable label, so
+        // the fallback computed from the key code alone (";" for VK_SEMICOLON) is kept as-is,
+        // rather than being replaced by anything derived from the typed character.
+        // Given
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null);
+        // When
+        fieldWithKeyStroke.processKeyEvent(
+                keyPressed(fieldWithKeyStroke, KeyEvent.VK_SEMICOLON, 0));
+        fieldWithKeyStroke.processKeyEvent(keyTyped(fieldWithKeyStroke, '\n'));
+        // Then
+        assertThat(fieldWithKeyStroke.getText(), is(equalTo(";")));
+    }
+
+    @Test
+    void shouldFallBackWhenNoKeyTypedFollows() {
+        // Given
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null);
+        // When
+        fieldWithKeyStroke.processKeyEvent(
+                keyPressed(fieldWithKeyStroke, KeyEvent.VK_SEMICOLON, InputEvent.CTRL_DOWN_MASK));
+        // Then
+        assertThat(fieldWithKeyStroke.getText(), is(equalTo("⌃ ;")));
+    }
+
+    @Test
+    void shouldNotConfuseNewPressWithPriorUnconfirmedOne() {
+        // A modifier combo (e.g. Ctrl+;) typically generates no KEY_TYPED at all. A later,
+        // unrelated key press must not be refined by a KEY_TYPED left over from that one.
+        // Given
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null);
+        // When
+        fieldWithKeyStroke.processKeyEvent(
+                keyPressed(fieldWithKeyStroke, KeyEvent.VK_SEMICOLON, InputEvent.CTRL_DOWN_MASK));
+        fieldWithKeyStroke.processKeyEvent(keyPressed(fieldWithKeyStroke, KeyEvent.VK_A, 0));
+        fieldWithKeyStroke.processKeyEvent(keyTyped(fieldWithKeyStroke, 'a'));
+        // Then
+        assertThat(
+                fieldWithKeyStroke.getKeyStroke(),
+                is(equalTo(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false))));
+        assertThat(fieldWithKeyStroke.getText(), is(equalTo("a")));
+    }
+
+    @Test
+    void shouldNotifyActionListenersWhenDisplayRefinedByKeyTyped() {
+        // Given
+        KeyStrokeCaptureField fieldWithKeyStroke = new KeyStrokeCaptureField(null);
+        List<String> texts = new ArrayList<>();
+        fieldWithKeyStroke.addActionListener(e -> texts.add(fieldWithKeyStroke.getText()));
+        // When
+        fieldWithKeyStroke.processKeyEvent(
+                keyPressed(fieldWithKeyStroke, KeyEvent.VK_SEMICOLON, 0));
+        fieldWithKeyStroke.processKeyEvent(keyTyped(fieldWithKeyStroke, 'ç'));
+        // Then
+        assertThat(texts, is(equalTo(List.of(";", "ç"))));
+    }
+
     private static KeyEvent keyPressed(Component source, int keyCode, int modifiers) {
         return new KeyEvent(
                 source,
@@ -321,5 +389,15 @@ class KeyStrokeCaptureFieldUnitTest {
                 modifiers,
                 keyCode,
                 KeyEvent.CHAR_UNDEFINED);
+    }
+
+    private static KeyEvent keyTyped(Component source, char keyChar) {
+        return new KeyEvent(
+                source,
+                KeyEvent.KEY_TYPED,
+                System.currentTimeMillis(),
+                0,
+                KeyEvent.VK_UNDEFINED,
+                keyChar);
     }
 }

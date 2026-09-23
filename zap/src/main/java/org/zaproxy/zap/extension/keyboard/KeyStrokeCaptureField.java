@@ -28,8 +28,10 @@ import javax.swing.SwingConstants;
  * A read-only text field that captures the key stroke of the key pressed while it has focus.
  *
  * <p>Both the key code and the modifiers are taken from the {@link KeyEvent} reported by the
- * toolkit, so the key stroke is captured as-is, without any conversion between key codes and their
- * textual representation.
+ * toolkit, so the key stroke itself is captured as-is. Its displayed label, however, is refined
+ * using the character reported by the following {@code KEY_TYPED} event when available, since it
+ * reflects the user's actual keyboard layout, unlike the static, US-QWERTY based guess otherwise
+ * used for the key's key code (see {@link KeyStrokeDisplay}).
  *
  * <p>Key presses that report no key code (e.g. the fn/Globe key on macOS) and modifier keys on
  * their own are ignored, waiting for the actual key to be pressed.
@@ -42,19 +44,16 @@ class KeyStrokeCaptureField extends JTextField {
     private static final long serialVersionUID = 1L;
 
     private KeyStroke keyStroke;
-    private final boolean showSymbols;
+    private boolean awaitingTypedChar;
 
     /**
      * Constructs a {@code KeyStrokeCaptureField} showing the given key stroke.
      *
      * @param keyStroke the key stroke to show, might be {@code null} (meaning no key is set).
-     * @param showSymbols whether the key stroke is shown with symbols (e.g. {@code ⌃ K}) or with
-     *     their names (e.g. {@code Control K}).
      */
-    KeyStrokeCaptureField(KeyStroke keyStroke, boolean showSymbols) {
-        super(KeyStrokeDisplay.formatPlain(keyStroke, showSymbols));
+    KeyStrokeCaptureField(KeyStroke keyStroke) {
+        super(KeyStrokeDisplay.formatPlain(keyStroke));
         this.keyStroke = keyStroke;
-        this.showSymbols = showSymbols;
         setEditable(false);
         setHorizontalAlignment(SwingConstants.CENTER);
     }
@@ -70,11 +69,19 @@ class KeyStrokeCaptureField extends JTextField {
 
     @Override
     protected void processKeyEvent(KeyEvent e) {
+        if (e.getID() == KeyEvent.KEY_TYPED) {
+            handleKeyTyped(e);
+            return;
+        }
+
         if (e.getID() != KeyEvent.KEY_PRESSED) {
-            // Never let released/typed events reach the text field.
+            // Never let released events reach the text field.
             e.consume();
             return;
         }
+
+        // Any new key press invalidates a pending refinement from a previous one.
+        awaitingTypedChar = false;
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
@@ -107,12 +114,37 @@ class KeyStrokeCaptureField extends JTextField {
 
         // Also consumed, so that e.g. mnemonics don't act on the key stroke being captured.
         applyKeyStroke(KeyStroke.getKeyStroke(e.getKeyCode(), e.getModifiersEx(), false));
+        awaitingTypedChar = true;
         e.consume();
+    }
+
+    private void handleKeyTyped(KeyEvent e) {
+        e.consume();
+        if (!awaitingTypedChar) {
+            // Nothing pending, e.g. no KEY_TYPED is generated for most Ctrl/Alt combinations, or
+            // the key just pressed was Escape/Backspace/Delete/ignored.
+            return;
+        }
+        // One-shot: only the first KEY_TYPED after a press can refine the label, so a dead key's
+        // second, composed KEY_TYPED (e.g. after typing the accent then the letter) is ignored.
+        awaitingTypedChar = false;
+
+        char c = e.getKeyChar();
+        if (c == KeyEvent.CHAR_UNDEFINED || Character.isISOControl(c)) {
+            // No usable character (e.g. a dead key on its own), keep the existing label.
+            return;
+        }
+
+        // Reflects the character actually produced by the user's keyboard layout, which can
+        // differ from the label KeyStrokeDisplay would otherwise guess from the key code alone
+        // (a layout-independent, US-QWERTY based identifier for punctuation keys).
+        setText(KeyStrokeDisplay.formatPlain(keyStroke, String.valueOf(c)));
+        fireActionPerformed();
     }
 
     private void applyKeyStroke(KeyStroke keyStroke) {
         this.keyStroke = keyStroke;
-        setText(KeyStrokeDisplay.formatPlain(keyStroke, showSymbols));
+        setText(KeyStrokeDisplay.formatPlain(keyStroke));
         fireActionPerformed();
     }
 

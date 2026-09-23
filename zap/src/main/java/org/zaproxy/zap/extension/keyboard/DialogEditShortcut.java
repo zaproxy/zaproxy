@@ -71,14 +71,11 @@ public class DialogEditShortcut extends StandardFieldsDialog {
                     }
                 };
 
+        KeyStrokeCaptureField captureField = new KeyStrokeCaptureField(shortcut.getKeyStroke());
+
         this.addReadOnlyField(FIELD_ACTION, shortcut.getName(), false);
-        this.addReadOnlyField(
-                FIELD_PREVIEW,
-                KeyStrokeDisplay.formatPlain(shortcut.getKeyStroke(), model.isShowSymbols()),
-                false);
-        this.addCustomComponent(
-                FIELD_KEY,
-                new KeyStrokeCaptureField(shortcut.getKeyStroke(), model.isShowSymbols()));
+        this.addReadOnlyField(FIELD_PREVIEW, captureField.getText(), false);
+        this.addCustomComponent(FIELD_KEY, captureField);
         this.addFieldListener(FIELD_KEY, listener);
         this.addReadOnlyField(FIELD_INFO, "", true);
 
@@ -97,7 +94,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
 
     private void updatePreview() {
         this.setFieldValue(
-                FIELD_PREVIEW, KeyStrokeDisplay.formatPlain(getKeyStroke(), model.isShowSymbols()));
+                FIELD_PREVIEW, ((KeyStrokeCaptureField) this.getField(FIELD_KEY)).getText());
     }
 
     /**
