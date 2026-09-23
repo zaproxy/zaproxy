@@ -58,6 +58,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
     private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
     private ContentSplitter contentSplitter;
+    private boolean completeBody = true;
 
     public HttpRequestBodyPanelSyntaxHighlightTextView(RequestBodyStringHttpPanelViewModel model) {
         super(model);
@@ -74,12 +75,9 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
                                     getHttpPanelTextArea().requestFocusInWindow();
                                 }
 
-                                View.getSingleton()
-                                        .getPopupMenu()
-                                        .show(
-                                                HttpRequestBodyPanelSyntaxHighlightTextView.this,
-                                                x,
-                                                y);
+                                var popup = View.getSingleton().getPopupMenu();
+                                popup.add(createConvertBodyToCrlfMenuItem(completeBody));
+                                popup.show(HttpRequestBodyPanelSyntaxHighlightTextView.this, x, y);
                             }
                         });
     }
@@ -100,7 +98,9 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
     @Override
     protected void setModelData(String data) {
-        super.setModelData(contentSplitter.process(data));
+        String body = contentSplitter.process(data);
+        completeBody = body.equals(data);
+        super.setModelData(body);
     }
 
     private static class HttpRequestBodyPanelSyntaxHighlightTextArea

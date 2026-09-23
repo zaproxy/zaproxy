@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -38,6 +39,8 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
@@ -186,6 +189,45 @@ public abstract class HttpPanelSyntaxHighlightTextView
 
     protected void setModelData(String data) {
         httpPanelTextArea.setText(data);
+    }
+
+    /** Creates an explicit body conversion action for editable request text views. */
+    protected JMenuItem createConvertBodyToCrlfMenuItem(boolean completeBody) {
+        JMenuItem item = new JMenuItem(Constant.messages.getString("http.panel.body.crlf"));
+        item.setToolTipText(Constant.messages.getString("http.panel.body.crlf.tooltip"));
+        item.setEnabled(completeBody && canConvertBodyToCrlf());
+        item.addActionListener(
+                e -> {
+                    if (!completeBody || !canConvertBodyToCrlf()) {
+                        return;
+                    }
+                    String text = httpPanelTextArea.getText();
+                    int start = getRequestBodyStart(text);
+                    httpPanelTextArea.setText(
+                            text.substring(0, start)
+                                    + text.substring(start).replaceAll("(?<!\r)\n", "\r\n"));
+                });
+        return item;
+    }
+
+    private boolean canConvertBodyToCrlf() {
+        if (!isEditable()) {
+            return false;
+        }
+        String text = httpPanelTextArea.getText();
+        int start = getRequestBodyStart(text);
+        return start >= 0 && Pattern.compile("(?<!\r)\n").matcher(text.substring(start)).find();
+    }
+
+    private int getRequestBodyStart(String text) {
+        if (model instanceof RequestBodyStringHttpPanelViewModel) {
+            return 0;
+        }
+        if (model instanceof RequestStringHttpPanelViewModel) {
+            int separator = text.indexOf("\n\n");
+            return separator < 0 ? -1 : separator + 2;
+        }
+        return -1;
     }
 
     @Override
