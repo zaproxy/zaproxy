@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -46,10 +47,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.db.TableAlertTag;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.utils.I18N;
@@ -601,6 +606,46 @@ class ExtensionAlertUnitTest {
             assertThat(alertTags, hasEntry("III", ""));
             assertThat(alertTags, hasEntry("Original Key", "Original Value"));
         }
+    }
+
+    @Test
+    void shouldDeleteAllAlertsForHistoryReference() throws Exception {
+        // Given
+        Constant.messages = new I18N(Locale.ENGLISH);
+
+        TableAlert tableAlert = mock(TableAlert.class);
+        TableAlertTag tableAlertTag = mock(TableAlertTag.class);
+        Database database = mock(Database.class);
+        given(database.getTableAlert()).willReturn(tableAlert);
+        given(database.getTableAlertTag()).willReturn(tableAlertTag);
+
+        Session session = mock(Session.class);
+        Model model = mock(Model.class);
+        given(model.getDb()).willReturn(database);
+        given(model.getSession()).willReturn(session);
+        extAlert.initModel(model);
+
+        Alert alert1 = newAlert(1);
+        alert1.setAlertId(1);
+        Alert alert2 = newAlert(1);
+        alert2.setAlertId(2);
+        List<Alert> alerts = List.of(alert1, alert2);
+
+        SiteNode siteNode = mock(SiteNode.class);
+        HistoryReference historyReference = mock(HistoryReference.class);
+        given(historyReference.getAlerts()).willReturn(alerts);
+        given(historyReference.getSiteNode()).willReturn(siteNode);
+
+        // When
+        extAlert.deleteHistoryReferenceAlerts(historyReference);
+
+        // Then
+        verify(tableAlert).deleteAlert(1);
+        verify(tableAlert).deleteAlert(2);
+        verify(tableAlertTag).deleteAllTagsForAlert(1);
+        verify(tableAlertTag).deleteAllTagsForAlert(2);
+        verify(siteNode).deleteAlerts(alerts);
+        verify(historyReference).deleteAllAlerts();
     }
 
     private static Stream<Arguments> alertTagsMethodSource() {

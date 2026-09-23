@@ -918,7 +918,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             if (node != null) {
                 node.deleteAlerts(alerts);
             }
-            alerts.clear();
+            hRef.deleteAllAlerts();
             this.recalcAlerts();
         }
 

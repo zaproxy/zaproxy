@@ -95,6 +95,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.extension.alert.AlertSet;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.ErrorUtils;
 
@@ -341,7 +342,7 @@ public class HistoryReference {
     private ArrayList<Boolean> clearIfManual = null;
 
     // ZAP: Support for linking Alerts to Hrefs
-    private Set<Alert> alerts;
+    private AlertSet alerts = new AlertSet();
 
     private List<String> tags = new ArrayList<>();
     private boolean webSocketUpgrade;
@@ -668,15 +669,9 @@ public class HistoryReference {
     }
 
     public synchronized boolean addAlert(Alert alert) {
-        // If this is the first alert
-        if (alerts == null) {
-            alerts = new HashSet<>();
-        }
-
-        boolean added = false;
-        if (alerts.add(alert)) {
+        boolean added = alerts.add(alert);
+        if (added) {
             alert.setHistoryRef(this);
-            added = true;
         }
         // Try to add to the SiteNode anyway - that will also check if its already added
         if (this.siteNode != null) {
@@ -686,16 +681,15 @@ public class HistoryReference {
     }
 
     private Alert getAlert(int alertId) {
-        if (alerts == null) {
-            return null;
-        }
-        return alerts.stream().filter(a -> a.getAlertId() == alertId).findFirst().orElse(null);
+        return alerts.getAll().stream()
+                .filter(a -> a.getAlertId() == alertId)
+                .findFirst()
+                .orElse(null);
     }
 
     public synchronized void updateAlert(Alert alert) {
         Alert a = getAlert(alert.getAlertId());
         if (a != null) {
-            this.alerts.remove(a);
             this.alerts.add(alert);
             if (this.siteNode != null) {
                 siteNode.updateAlert(alert);
@@ -714,9 +708,7 @@ public class HistoryReference {
     }
 
     public synchronized void deleteAllAlerts() {
-        if (alerts != null) {
-            alerts.clear();
-        }
+        alerts.clear();
     }
 
     /**
@@ -741,17 +733,12 @@ public class HistoryReference {
      * @see #addAlert(Alert)
      */
     public synchronized boolean hasAlerts() {
-        if (alerts == null) {
-            return false;
-        }
         return !alerts.isEmpty();
     }
 
     public int getHighestAlert() {
         int i = -1;
-        // If there are no alerts
-        if (alerts == null) return i;
-        for (Alert a : alerts) {
+        for (Alert a : alerts.getAll()) {
             if (a.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE && a.getRisk() > i) {
                 i = a.getRisk();
             }
@@ -772,10 +759,7 @@ public class HistoryReference {
      * @see #hasAlert(Alert)
      */
     public synchronized List<Alert> getAlerts() {
-        if (alerts == null) {
-            return Collections.emptyList();
-        }
-        return new ArrayList<>(this.alerts);
+        return alerts.getAll();
     }
 
     public String getMethod() {
