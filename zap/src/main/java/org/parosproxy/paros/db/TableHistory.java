@@ -183,5 +183,7 @@ public interface TableHistory extends DatabaseListener {
 
     void updateNote(int historyId, String note) throws DatabaseException;
 
+    String readNote(int historyId) throws DatabaseException;
+
     int lastIndex();
 }

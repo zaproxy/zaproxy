@@ -110,6 +110,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     // private PreparedStatement psAlterTable = null;
     //    private PreparedStatement psUpdateTag = null;
     private PreparedStatement psUpdateNote = null;
+    private PreparedStatement psReadNote = null;
 
     private int lastInsertedIndex;
 
@@ -227,6 +228,9 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             // HISTORYID = ?");
 
             psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
+            psReadNote =
+                    conn.prepareStatement(
+                            "SELECT " + NOTE + " FROM HISTORY WHERE " + HISTORYID + " = ?");
 
             int currentIndex = 0;
             PreparedStatement stmt = null;
@@ -1069,6 +1073,22 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             psUpdateNote.setString(1, note);
             psUpdateNote.setInt(2, historyId);
             psUpdateNote.execute();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public synchronized String readNote(int historyId) throws DatabaseException {
+        try {
+            psReadNote.setInt(1, historyId);
+            try (ResultSet rs = psReadNote.executeQuery()) {
+                if (rs.next()) {
+                    String note = rs.getString(NOTE);
+                    return note != null ? note : "";
+                }
+            }
+            return "";
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
