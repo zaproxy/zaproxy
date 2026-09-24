@@ -24,6 +24,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SortOrder;
@@ -68,7 +69,11 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 5;
+        // REMAINDER rather than a fixed column count: the button row below may span more
+        // columns than expected (e.g. the cheatsheet buttons are only added conditionally), and
+        // this row must always span the same full width or it won't get its share of extra space
+        // when the dialog is resized.
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -185,12 +190,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         for (KeyboardShortcut ks : getShortcutModel().getElements()) {
             boolean setShortcut = ks.isChanged();
             if (reset) {
-                // check to see if it is the same as the defaults
-                KeyboardShortcut tmpKs =
-                        new KeyboardShortcut(
-                                "temp", "temp", extension.getShortcut(ks.getIdentifier()));
-                if (!ks.getKeyStrokeString().equals(tmpKs.getKeyStrokeString())) {
-                    // Its different to the default
+                if (!Objects.equals(ks.getKeyStroke(), extension.getShortcut(ks.getIdentifier()))) {
                     setShortcut = true;
                 }
             }
@@ -272,9 +272,9 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
         public void showModifyDialogue(KeyboardShortcut shortcut) {
             if (modifyDialog == null) {
                 modifyDialog = new DialogEditShortcut(View.getSingleton().getOptionsDialog(null));
-                modifyDialog.pack();
             }
             modifyDialog.init(shortcut, model);
+            modifyDialog.pack();
             modifyDialog.setVisible(true);
         }
     }
