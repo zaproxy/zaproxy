@@ -192,11 +192,79 @@ public class Alert implements Comparable<Alert> {
     public static final int CONFIDENCE_HIGH = 3;
     public static final int CONFIDENCE_USER_CONFIRMED = 4;
 
+    /**
+     * Hardcoded risk labels for API responses (locale-independent, stable for API consumers).
+     *
+     * @see #getRiskLabel(int) for internationalised labels
+     */
     public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
 
+    /**
+     * Hardcoded confidence labels for API responses (locale-independent, stable for API consumers).
+     *
+     * @see #getConfidenceLabel(int) for internationalised labels
+     */
     public static final String[] MSG_CONFIDENCE = {
         "False Positive", "Low", "Medium", "High", "Confirmed"
     };
+
+    private static final String[] RISK_I18N_KEYS = {
+        "alert.risk.info", "alert.risk.low", "alert.risk.medium", "alert.risk.high"
+    };
+
+    private static final String[] CONFIDENCE_I18N_KEYS = {
+        "alert.confidence.falsePositive",
+        "alert.confidence.low",
+        "alert.confidence.medium",
+        "alert.confidence.high",
+        "alert.confidence.confirmed"
+    };
+
+    /**
+     * Returns the internationalised risk labels.
+     *
+     * @return array of risk labels in order: Informational, Low, Medium, High
+     */
+    public static String[] getMsgRiskLabels() {
+        String[] labels = new String[RISK_I18N_KEYS.length];
+        for (int i = 0; i < RISK_I18N_KEYS.length; i++) {
+            labels[i] = Constant.messages.getString(RISK_I18N_KEYS[i]);
+        }
+        return labels;
+    }
+
+    /**
+     * Returns the internationalised confidence labels.
+     *
+     * @return array of confidence labels in order: False Positive, Low, Medium, High, Confirmed
+     */
+    public static String[] getMsgConfidenceLabels() {
+        String[] labels = new String[CONFIDENCE_I18N_KEYS.length];
+        for (int i = 0; i < CONFIDENCE_I18N_KEYS.length; i++) {
+            labels[i] = Constant.messages.getString(CONFIDENCE_I18N_KEYS[i]);
+        }
+        return labels;
+    }
+
+    /**
+     * Returns the internationalised label for the given risk level.
+     *
+     * @param risk the risk level (0-3)
+     * @return the internationalised risk label
+     */
+    public static String getRiskLabel(int risk) {
+        return Constant.messages.getString(RISK_I18N_KEYS[risk]);
+    }
+
+    /**
+     * Returns the internationalised label for the given confidence level.
+     *
+     * @param confidence the confidence level (0-4)
+     * @return the internationalised confidence label
+     */
+    public static String getConfidenceLabel(int confidence) {
+        return Constant.messages.getString(CONFIDENCE_I18N_KEYS[confidence]);
+    }
 
     private static final String CWE_KEY = "CWE-";
     private static final String CWE_URL_BASE = "https://cwe.mitre.org/data/definitions/";
@@ -666,7 +734,9 @@ public class Alert implements Comparable<Alert> {
         sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
         sb.append("  <confidence>").append(confidence).append("</confidence>\r\n");
         sb.append("  <riskdesc>")
-                .append(replaceEntity(MSG_RISK[risk] + " (" + MSG_CONFIDENCE[confidence] + ")"))
+                .append(
+                        replaceEntity(
+                                getRiskLabel(risk) + " (" + getConfidenceLabel(confidence) + ")"))
                 .append("</riskdesc>\r\n");
         sb.append("  <desc>").append(replaceEntity(paragraph(description))).append("</desc>\r\n");
 
