@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.ZapStatsKey;
 
 public class BreakpointMessageHandler2 {
 
@@ -69,6 +70,12 @@ public class BreakpointMessageHandler2 {
      * @param onlyIfInScope
      * @return False if message should be dropped.
      */
+    @ZapStatsKey(
+            name = "stats.break.hit",
+            scope = "global",
+            type = "counter",
+            description = "The number of times a break point has been hit",
+            version = "2.11.0")
     public boolean handleMessageReceivedFromClient(Message aMessage, boolean onlyIfInScope) {
         if (!isBreakpoint(aMessage, true, onlyIfInScope)) {
             return true;
