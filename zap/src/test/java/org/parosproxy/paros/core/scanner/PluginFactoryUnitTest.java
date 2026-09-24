@@ -30,9 +30,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +62,79 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         Constant.messages = i18n;
 
         PluginFactory.init(false);
+    }
+
+    @AfterEach
+    void tearDown() {
+        loaderListeners.forEach(PluginFactory::removePluginLoaderListener);
+    }
+
+    private final List<PluginFactory.PluginLoaderListener> loaderListeners = new ArrayList<>();
+
+    private PluginFactory.PluginLoaderListener addMockLoaderListener() {
+        PluginFactory.PluginLoaderListener listener = mock();
+        loaderListeners.add(listener);
+        PluginFactory.addPluginLoaderListener(listener);
+        return listener;
+    }
+
+    @Test
+    void shouldNotifyListenerWhenPluginLoaded() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        PluginFactory.PluginLoaderListener listener = addMockLoaderListener();
+        // When
+        PluginFactory.loadedPlugin(plugin);
+        // Then
+        verify(listener).pluginLoaded(plugin);
+        verify(listener, never()).pluginUnloaded(any());
+    }
+
+    @Test
+    void shouldNotifyListenerWhenPluginUnloaded() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        PluginFactory.loadedPlugin(plugin);
+        PluginFactory.PluginLoaderListener listener = addMockLoaderListener();
+        // When
+        PluginFactory.unloadedPlugin(plugin);
+        // Then
+        verify(listener).pluginUnloaded(plugin);
+    }
+
+    @Test
+    void shouldNotNotifyListenerWhenLoadingAnAlreadyLoadedPlugin() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        PluginFactory.loadedPlugin(plugin);
+        PluginFactory.PluginLoaderListener listener = addMockLoaderListener();
+        // When
+        PluginFactory.loadedPlugin(plugin);
+        // Then
+        verify(listener, never()).pluginLoaded(any());
+    }
+
+    @Test
+    void shouldNotNotifyListenerWhenUnloadingANotYetLoadedPlugin() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        PluginFactory.PluginLoaderListener listener = addMockLoaderListener();
+        // When
+        PluginFactory.unloadedPlugin(plugin);
+        // Then
+        verify(listener, never()).pluginUnloaded(any());
+    }
+
+    @Test
+    void shouldNotNotifyRemovedListener() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        PluginFactory.PluginLoaderListener listener = addMockLoaderListener();
+        PluginFactory.removePluginLoaderListener(listener);
+        // When
+        PluginFactory.loadedPlugin(plugin);
+        // Then
+        verify(listener, never()).pluginLoaded(any());
     }
 
     @Test
