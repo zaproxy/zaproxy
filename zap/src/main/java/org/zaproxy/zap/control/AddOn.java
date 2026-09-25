@@ -279,6 +279,7 @@ public class AddOn {
     private String notFromVersion = null;
     private String hash = null;
     private String releaseDate;
+    private List<String> aliases = List.of();
 
     /**
      * The installation status of the add-on.
@@ -538,6 +539,7 @@ public class AddOn {
         this.pscanrules = zapAddOnXml.getPscanrules();
 
         this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
+        this.aliases = zapAddOnXml.getAliases();
 
         String bundleBaseName = zapAddOnXml.getBundleBaseName();
         if (!bundleBaseName.isEmpty()) {
@@ -592,6 +594,7 @@ public class AddOn {
         this.repo = createUrl(addOnData.getRepo());
         this.releaseDate = addOnData.getDate();
         this.hash = addOnData.getHash();
+        this.aliases = addOnData.getAliases();
 
         loadManifestFile();
     }
@@ -1068,7 +1071,9 @@ public class AddOn {
     }
 
     public boolean isSameAddOn(AddOn addOn) {
-        return this.getId().equals(addOn.getId());
+        return getId().equals(addOn.getId())
+                || aliases.contains(addOn.getId())
+                || addOn.getAliases().contains(getId());
     }
 
     public boolean isUpdateTo(AddOn addOn) throws IllegalArgumentException {
@@ -1615,6 +1620,16 @@ public class AddOn {
      */
     public String getReleaseDate() {
         return releaseDate;
+    }
+
+    /**
+     * Gets the aliases (former IDs) of this add-on.
+     *
+     * @return the aliases, never {@code null}.
+     * @since 2.18.0
+     */
+    public List<String> getAliases() {
+        return aliases;
     }
 
     /**
