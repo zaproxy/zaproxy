@@ -176,6 +176,40 @@ class TestZapBaselinePlan(unittest.TestCase):
             self.assertTrue(any("-n" in message for message in log_capture.output))
             self.assertFalse(os.path.exists(plan_path))
 
+    def test_plan_only_rejects_sub_rule_config(self):
+        for config_content in [
+            "10055-7\tIGNORE\t(script-src unsafe-hashes)\n",
+            "10055-7\tOUTOFSCOPE\thttps://example\\.com/ignored\n",
+        ]:
+            with self.subTest(config_content=config_content):
+                zap_baseline = self.load_module()
+                args = ["--plan-only", "-t", self.target, "-c", "config.conf"]
+
+                with tempfile.TemporaryDirectory() as home_dir:
+                    plan_path = os.path.join(home_dir, "zap.yaml")
+                    config_path = os.path.join(home_dir, "config.conf")
+                    Path(config_path).write_text(config_content, encoding="utf-8")
+                    original_cwd = os.getcwd()
+                    os.chdir(home_dir)
+                    try:
+                        with patch.dict(os.environ, {"HOME": home_dir}, clear=True):
+                            with patch.object(zap_baseline, "check_zap_client_version"):
+                                with patch.object(zap_baseline, "running_in_docker", return_value=False):
+                                    with patch.object(
+                                            zap_baseline.Path,
+                                            "home",
+                                            return_value=Path(home_dir)):
+                                        with self.assertLogs(level="WARNING") as log_capture:
+                                            with self.assertRaises(SystemExit) as exc:
+                                                zap_baseline.main(args)
+                                        self.assertEqual(3, exc.exception.code)
+                    finally:
+                        os.chdir(original_cwd)
+
+                    self.assertTrue(
+                        any("sub-rule IDs" in message for message in log_capture.output))
+                    self.assertFalse(os.path.exists(plan_path))
+
     def test_plan_only_requires_mounted_workdir_in_docker(self):
         zap_baseline = self.load_module()
         args = ["--plan-only", "-t", self.target]
