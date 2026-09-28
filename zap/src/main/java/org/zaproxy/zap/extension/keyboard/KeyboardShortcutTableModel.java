@@ -90,7 +90,12 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
             case 0:
                 return shortcuts.get(rowIndex).getName();
             case 1:
-                return KeyStrokeDisplay.formatPlain(shortcuts.get(rowIndex).getKeyStroke());
+                KeyboardShortcut shortcut = shortcuts.get(rowIndex);
+                Character keyChar = shortcut.getKeyChar();
+                return keyChar != null
+                        ? KeyStrokeDisplay.formatPlain(
+                                shortcut.getKeyStroke(), String.valueOf(keyChar))
+                        : KeyStrokeDisplay.formatPlain(shortcut.getKeyStroke());
         }
         return null;
     }

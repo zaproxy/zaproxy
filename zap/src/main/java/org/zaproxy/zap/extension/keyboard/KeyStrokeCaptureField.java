@@ -44,6 +44,7 @@ class KeyStrokeCaptureField extends JTextField {
     private static final long serialVersionUID = 1L;
 
     private KeyStroke keyStroke;
+    private Character keyChar;
     private boolean awaitingTypedChar;
 
     /**
@@ -52,8 +53,24 @@ class KeyStrokeCaptureField extends JTextField {
      * @param keyStroke the key stroke to show, might be {@code null} (meaning no key is set).
      */
     KeyStrokeCaptureField(KeyStroke keyStroke) {
-        super(KeyStrokeDisplay.formatPlain(keyStroke));
+        this(keyStroke, null);
+    }
+
+    /**
+     * Constructs a {@code KeyStrokeCaptureField} showing the given key stroke, using the given
+     * previously-captured character for its label when available.
+     *
+     * @param keyStroke the key stroke to show, might be {@code null} (meaning no key is set).
+     * @param keyChar the character previously captured for this key stroke, or {@code null} if not
+     *     known (e.g. a default shortcut never re-captured through this dialogue).
+     */
+    KeyStrokeCaptureField(KeyStroke keyStroke, Character keyChar) {
+        super(
+                keyStroke != null && keyChar != null
+                        ? KeyStrokeDisplay.formatPlain(keyStroke, String.valueOf(keyChar))
+                        : KeyStrokeDisplay.formatPlain(keyStroke));
         this.keyStroke = keyStroke;
+        this.keyChar = keyStroke != null ? keyChar : null;
         setEditable(false);
         setHorizontalAlignment(SwingConstants.CENTER);
     }
@@ -65,6 +82,17 @@ class KeyStrokeCaptureField extends JTextField {
      */
     KeyStroke getKeyStroke() {
         return keyStroke;
+    }
+
+    /**
+     * Gets the character actually produced by the captured key, as reported by the {@code
+     * KEY_TYPED} event, if the capture was refined by one.
+     *
+     * @return the character, or {@code null} if not known (e.g. no key captured yet, or no usable
+     *     {@code KEY_TYPED} followed the key press).
+     */
+    Character getKeyChar() {
+        return keyChar;
     }
 
     @Override
@@ -138,12 +166,14 @@ class KeyStrokeCaptureField extends JTextField {
         // Reflects the character actually produced by the user's keyboard layout, which can
         // differ from the label KeyStrokeDisplay would otherwise guess from the key code alone
         // (a layout-independent, US-QWERTY based identifier for punctuation keys).
+        keyChar = c;
         setText(KeyStrokeDisplay.formatPlain(keyStroke, String.valueOf(c)));
         fireActionPerformed();
     }
 
     private void applyKeyStroke(KeyStroke keyStroke) {
         this.keyStroke = keyStroke;
+        this.keyChar = null;
         setText(KeyStrokeDisplay.formatPlain(keyStroke));
         fireActionPerformed();
     }

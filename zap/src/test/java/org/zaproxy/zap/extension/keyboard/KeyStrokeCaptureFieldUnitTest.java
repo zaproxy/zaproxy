@@ -59,11 +59,9 @@ class KeyStrokeCaptureFieldUnitTest {
 
     @Test
     void shouldNotHaveKeyStrokeByDefault() {
-        // Given / When
-        KeyStrokeCaptureField freshField = new KeyStrokeCaptureField(null);
-        // Then
-        assertThat(freshField.getKeyStroke(), is(nullValue()));
-        assertThat(freshField.getText(), is(equalTo("")));
+        // Given / When / Then
+        assertThat(field.getKeyStroke(), is(nullValue()));
+        assertThat(field.getText(), is(equalTo("")));
     }
 
     @Test
@@ -321,6 +319,7 @@ class KeyStrokeCaptureFieldUnitTest {
                 fieldWithKeyStroke.getKeyStroke(),
                 is(equalTo(KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, 0, false))));
         assertThat(fieldWithKeyStroke.getText(), is(equalTo("ç")));
+        assertThat(fieldWithKeyStroke.getKeyChar(), is(equalTo('ç')));
     }
 
     @Test
@@ -336,6 +335,31 @@ class KeyStrokeCaptureFieldUnitTest {
         fieldWithKeyStroke.processKeyEvent(keyTyped(fieldWithKeyStroke, '\n'));
         // Then
         assertThat(fieldWithKeyStroke.getText(), is(equalTo(";")));
+        assertThat(fieldWithKeyStroke.getKeyChar(), is(nullValue()));
+    }
+
+    @Test
+    void shouldSeedTextAndCharFromPreviouslyCapturedChar() {
+        // Given / When
+        KeyStrokeCaptureField fieldWithKeyChar =
+                new KeyStrokeCaptureField(
+                        KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, 0, false), 'ç');
+        // Then
+        assertThat(fieldWithKeyChar.getText(), is(equalTo("ç")));
+        assertThat(fieldWithKeyChar.getKeyChar(), is(equalTo('ç')));
+    }
+
+    @Test
+    void shouldClearKeyCharWhenKeyStrokeIsClearedByBackspace() {
+        // Given
+        KeyStrokeCaptureField fieldWithKeyChar =
+                new KeyStrokeCaptureField(
+                        KeyStroke.getKeyStroke(KeyEvent.VK_SEMICOLON, 0, false), 'ç');
+        // When
+        fieldWithKeyChar.processKeyEvent(keyPressed(fieldWithKeyChar, KeyEvent.VK_BACK_SPACE, 0));
+        // Then
+        assertThat(fieldWithKeyChar.getKeyStroke(), is(nullValue()));
+        assertThat(fieldWithKeyChar.getKeyChar(), is(nullValue()));
     }
 
     @Test

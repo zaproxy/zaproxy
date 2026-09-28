@@ -42,6 +42,25 @@ public final class KeyStrokeDisplay {
         wrapPartsHtml(sb, getSymbolParts(keyStroke));
     }
 
+    /**
+     * Appends the HTML symbols of the given key stroke like {@link
+     * #appendHtmlSymbols(StringBuilder, KeyStroke)}, but using the given label for the key itself
+     * instead of the one {@link #getKeySymbol(int)} would compute.
+     *
+     * <p>Used when the character actually captured for this key stroke is known (see {@link
+     * KeyboardShortcut#getKeyChar()}), so it can be shown instead of the static, US-QWERTY based
+     * guess.
+     *
+     * @param sb the builder to append to.
+     * @param keyStroke the key stroke to format, never {@code null}.
+     * @param keyLabel the label to use for the key, instead of computing one from its key code.
+     */
+    public static void appendHtmlSymbols(StringBuilder sb, KeyStroke keyStroke, String keyLabel) {
+        List<String> parts = getModifierSymbolParts(keyStroke.getModifiers());
+        parts.add(keyLabel);
+        wrapPartsHtml(sb, parts);
+    }
+
     public static int compare(KeyStroke ks1, KeyStroke ks2) {
         if (ks1 == null && ks2 == null) {
             return 0;

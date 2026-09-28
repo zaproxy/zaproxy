@@ -71,7 +71,8 @@ public class DialogEditShortcut extends StandardFieldsDialog {
                     }
                 };
 
-        KeyStrokeCaptureField captureField = new KeyStrokeCaptureField(shortcut.getKeyStroke());
+        KeyStrokeCaptureField captureField =
+                new KeyStrokeCaptureField(shortcut.getKeyStroke(), shortcut.getKeyChar());
 
         this.addReadOnlyField(FIELD_ACTION, shortcut.getName(), false);
         this.addReadOnlyField(FIELD_PREVIEW, captureField.getText(), false);
@@ -140,8 +141,9 @@ public class DialogEditShortcut extends StandardFieldsDialog {
             // used for another shortcut, so remove it from that
             ksDup.setKeyStroke(null);
         }
-        KeyStroke ks = getKeyStroke();
-        shortcut.setKeyStroke(ks);
+        KeyStrokeCaptureField captureField = (KeyStrokeCaptureField) this.getField(FIELD_KEY);
+        shortcut.setKeyStroke(captureField.getKeyStroke());
+        shortcut.setKeyChar(captureField.getKeyChar());
     }
 
     @Override

@@ -221,22 +221,19 @@ class KeyStrokeDisplayUnitTest {
         assertThat(KeyStrokeDisplay.formatPlain(ctrlShiftF), is(equalTo("⌃ ⇧ F")));
     }
 
-    @Test
-    void shouldFormatPlainWithGivenKeyLabel() {
+    @ParameterizedTest
+    @MethodSource("keyLabelModifiers")
+    void shouldFormatPlainWithGivenKeyLabel(int modifiers, String expected) {
         // Given
-        KeyStroke ctrlShiftF =
-                KeyStroke.getKeyStroke(
-                        KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_F, modifiers);
         // When / Then
-        assertThat(KeyStrokeDisplay.formatPlain(ctrlShiftF, "ç"), is(equalTo("⌃ ⇧ ç")));
+        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, "ç"), is(equalTo(expected)));
     }
 
-    @Test
-    void shouldFormatPlainWithGivenKeyLabelAndNoModifiers() {
-        // Given
-        KeyStroke plainF = KeyStroke.getKeyStroke(KeyEvent.VK_F, 0);
-        // When / Then
-        assertThat(KeyStrokeDisplay.formatPlain(plainF, "ç"), is(equalTo("ç")));
+    private static Stream<Arguments> keyLabelModifiers() {
+        return Stream.of(
+                Arguments.of(0, "ç"),
+                Arguments.of(InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, "⌃ ⇧ ç"));
     }
 
     @Test
