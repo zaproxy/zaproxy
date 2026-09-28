@@ -85,13 +85,12 @@ class KeyStrokeDisplayUnitTest {
     @ParameterizedTest
     @MethodSource("namedKeys")
     void shouldFormatNamedKeysAsTheirName(int keyCode, String expectedName) {
-        // Keys which have no character of their own, e.g. End or Page Up, are shown by name in
-        // both the plain and symbol formats.
+        // Keys which have no character or symbol of their own, e.g. End or Page Up, are shown by
+        // name.
         // Given
         KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, 0, false);
         // When / Then
-        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, false), is(equalTo(expectedName)));
-        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, true), is(equalTo(expectedName)));
+        assertThat(KeyStrokeDisplay.formatPlain(keyStroke), is(equalTo(expectedName)));
         assertThat(htmlSymbols(keyStroke), is(equalTo("<kbd>" + expectedName + "</kbd>")));
     }
 
@@ -116,14 +115,12 @@ class KeyStrokeDisplayUnitTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"37, ←, Left", "38, ↑, Up", "39, →, Right", "40, ↓, Down"})
-    void shouldFormatArrowKeysWithSymbolsAndNames(
-            int keyCode, String expectedSymbol, String expectedName) {
+    @CsvSource({"37, ←", "38, ↑", "39, →", "40, ↓"})
+    void shouldFormatArrowKeysAsSymbols(int keyCode, String expectedSymbol) {
         // Given
         KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, 0, false);
         // When / Then
-        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, true), is(equalTo(expectedSymbol)));
-        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, false), is(equalTo(expectedName)));
+        assertThat(KeyStrokeDisplay.formatPlain(keyStroke), is(equalTo(expectedSymbol)));
     }
 
     @Test
@@ -131,32 +128,28 @@ class KeyStrokeDisplayUnitTest {
         // NumPad keys have no character of their own, they are shown as their label.
         // Given / When / Then
         assertThat(
-                KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0, false), false),
+                KeyStrokeDisplay.formatPlain(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0, false)),
                 is(equalTo("7")));
         assertThat(
-                KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_ADD, 0, false), true),
+                KeyStrokeDisplay.formatPlain(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, 0, false)),
                 is(equalTo("+")));
         assertThat(
                 KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, 0, false), false),
+                        KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, 0, false)),
                 is(equalTo("-")));
         assertThat(
                 KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_MULTIPLY, 0, false), false),
+                        KeyStroke.getKeyStroke(KeyEvent.VK_MULTIPLY, 0, false)),
                 is(equalTo("*")));
         assertThat(
-                KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_DIVIDE, 0, false), false),
+                KeyStrokeDisplay.formatPlain(KeyStroke.getKeyStroke(KeyEvent.VK_DIVIDE, 0, false)),
                 is(equalTo("/")));
         assertThat(
-                KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_DECIMAL, 0, false), false),
+                KeyStrokeDisplay.formatPlain(KeyStroke.getKeyStroke(KeyEvent.VK_DECIMAL, 0, false)),
                 is(equalTo(".")));
         assertThat(
                 KeyStrokeDisplay.formatPlain(
-                        KeyStroke.getKeyStroke(KeyEvent.VK_SEPARATOR, 0, false), false),
+                        KeyStroke.getKeyStroke(KeyEvent.VK_SEPARATOR, 0, false)),
                 is(equalTo("Enter")));
     }
 
@@ -180,10 +173,9 @@ class KeyStrokeDisplayUnitTest {
         // Given
         KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, 0, false);
         // When / Then
-        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, false), is(equalTo(expectedCharacter)));
         // Note some punctuation key codes (e.g. VK_BACK_QUOTE 192) don't match their character in
         // Latin-1, so they are mapped explicitly, not cast.
-        assertThat(KeyStrokeDisplay.formatPlain(keyStroke, true), is(equalTo(expectedCharacter)));
+        assertThat(KeyStrokeDisplay.formatPlain(keyStroke), is(equalTo(expectedCharacter)));
     }
 
     private static Stream<Arguments> punctuationKeys() {
@@ -215,95 +207,36 @@ class KeyStrokeDisplayUnitTest {
         int keyCode = KeyEvent.VK_F24 + 1;
 
         assertThat(
-                htmlSymbols(KeyStroke.getKeyStroke(keyCode, 0, false)),
-                is(equalTo("<kbd>" + (char) keyCode + "</kbd>")));
+                KeyStrokeDisplay.formatPlain(KeyStroke.getKeyStroke(keyCode, 0, false)),
+                is(equalTo(String.valueOf((char) keyCode))));
     }
 
-    @ParameterizedTest
-    @MethodSource("namedKeys")
-    void shouldFormatNamedKeysAsTheirName(int keyCode, String expectedName) {
-        // Keys which have no character of their own, e.g. End or Page Up, are shown by name.
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, 0, false);
-
-        assertThat(htmlSymbols(keyStroke), is(equalTo("<kbd>" + expectedName + "</kbd>")));
-    }
-
-    private static Stream<Arguments> namedKeys() {
-        return Stream.of(
-                Arguments.of(KeyEvent.VK_BACK_SPACE, "Backspace"),
-                Arguments.of(KeyEvent.VK_TAB, "Tab"),
-                Arguments.of(KeyEvent.VK_ENTER, "Enter"),
-                Arguments.of(KeyEvent.VK_ESCAPE, "Escape"),
-                Arguments.of(KeyEvent.VK_SPACE, "Space"),
-                Arguments.of(KeyEvent.VK_PAGE_UP, "Page Up"),
-                Arguments.of(KeyEvent.VK_PAGE_DOWN, "Page Down"),
-                Arguments.of(KeyEvent.VK_END, "End"),
-                Arguments.of(KeyEvent.VK_HOME, "Home"),
-                Arguments.of(KeyEvent.VK_INSERT, "Insert"),
-                Arguments.of(KeyEvent.VK_DELETE, "Delete"),
-                Arguments.of(KeyEvent.VK_PRINTSCREEN, "Print Screen"),
-                Arguments.of(KeyEvent.VK_SCROLL_LOCK, "Scroll Lock"),
-                Arguments.of(KeyEvent.VK_PAUSE, "Pause"),
-                Arguments.of(KeyEvent.VK_CAPS_LOCK, "Caps Lock"),
-                Arguments.of(KeyEvent.VK_NUM_LOCK, "Num Lock"));
-    }
-
-    @ParameterizedTest
-    @MethodSource("numPadKeys")
-    void shouldFormatNumPadKeysAsTheirLabel(int keyCode, String expectedLabel) {
-        // NumPad keys have no character of their own, they are shown as their label.
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, 0, false);
-
-        assertThat(htmlSymbols(keyStroke), is(equalTo("<kbd>" + expectedLabel + "</kbd>")));
-    }
-
-    private static Stream<Arguments> numPadKeys() {
-        return Stream.of(
-                Arguments.of(KeyEvent.VK_NUMPAD7, "7"),
-                Arguments.of(KeyEvent.VK_ADD, "+"),
-                Arguments.of(KeyEvent.VK_SUBTRACT, "-"),
-                Arguments.of(KeyEvent.VK_MULTIPLY, "*"),
-                Arguments.of(KeyEvent.VK_DIVIDE, "/"),
-                Arguments.of(KeyEvent.VK_DECIMAL, "."));
-    }
-
-    @ParameterizedTest
-    @MethodSource("punctuationKeys")
-    void shouldFormatPunctuationKeysAsTheirCharacter(int keyCode, String expectedCharacter) {
-        // Note some punctuation key codes (e.g. VK_BACK_QUOTE 192) don't match their character in
-        // Latin-1, so they are mapped explicitly, not cast.
-        KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, 0, false);
-
-        assertThat(htmlSymbols(keyStroke), is(equalTo("<kbd>" + expectedCharacter + "</kbd>")));
-    }
-
-    private static Stream<Arguments> punctuationKeys() {
-        return Stream.of(
-                Arguments.of(KeyEvent.VK_BACK_QUOTE, "`"),
-                Arguments.of(KeyEvent.VK_QUOTE, "'"),
-                Arguments.of(KeyEvent.VK_MINUS, "-"),
-                Arguments.of(KeyEvent.VK_EQUALS, "="),
-                Arguments.of(KeyEvent.VK_COMMA, ","),
-                Arguments.of(KeyEvent.VK_PERIOD, "."),
-                Arguments.of(KeyEvent.VK_SLASH, "/"),
-                Arguments.of(KeyEvent.VK_SEMICOLON, ";"),
-                Arguments.of(KeyEvent.VK_OPEN_BRACKET, "["),
-                Arguments.of(KeyEvent.VK_BACK_SLASH, "\\"),
-                Arguments.of(KeyEvent.VK_CLOSE_BRACKET, "]"));
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-        "false, Control Shift F",
-        "true, ⌃ ⇧ F",
-    })
-    void shouldFormatPlainKeyStrokeSpaceDelimited(boolean showSymbols, String expected) {
+    @Test
+    void shouldFormatPlainKeyStrokeSpaceDelimited() {
         // Given
         KeyStroke ctrlShiftF =
                 KeyStroke.getKeyStroke(
                         KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
         // When / Then
-        assertThat(KeyStrokeDisplay.formatPlain(ctrlShiftF, showSymbols), is(equalTo(expected)));
+        assertThat(KeyStrokeDisplay.formatPlain(ctrlShiftF), is(equalTo("⌃ ⇧ F")));
+    }
+
+    @Test
+    void shouldFormatPlainWithGivenKeyLabel() {
+        // Given
+        KeyStroke ctrlShiftF =
+                KeyStroke.getKeyStroke(
+                        KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
+        // When / Then
+        assertThat(KeyStrokeDisplay.formatPlain(ctrlShiftF, "ç"), is(equalTo("⌃ ⇧ ç")));
+    }
+
+    @Test
+    void shouldFormatPlainWithGivenKeyLabelAndNoModifiers() {
+        // Given
+        KeyStroke plainF = KeyStroke.getKeyStroke(KeyEvent.VK_F, 0);
+        // When / Then
+        assertThat(KeyStrokeDisplay.formatPlain(plainF, "ç"), is(equalTo("ç")));
     }
 
     @Test

@@ -42,10 +42,7 @@ public class KeyboardParam extends AbstractParam {
     private static final String KEYCODE_KEY = "keycode";
     private static final String MODIFIERS_KEY = "modifiers";
 
-    private static final String DISPLAY_SYMBOLS_KEY = KEYBOARD_BASE_KEY + ".displaySymbols";
-
     private Map<String, KeyStroke> map = null;
-    private boolean displaySymbols = true;
 
     public KeyboardParam() {}
 
@@ -66,18 +63,9 @@ public class KeyboardParam extends AbstractParam {
                                     false));
                 }
             }
-            displaySymbols = getBoolean(DISPLAY_SYMBOLS_KEY, true);
         } catch (ConversionException e) {
             logger.error("Error while loading keyboard shortcuts {}", e.getMessage(), e);
         }
-    }
-
-    public boolean isDisplaySymbols() {
-        return displaySymbols;
-    }
-
-    public void setDisplaySymbols(boolean displaySymbols) {
-        this.displaySymbols = displaySymbols;
     }
 
     public KeyStroke getShortcut(String i18nKey) {
@@ -90,7 +78,6 @@ public class KeyboardParam extends AbstractParam {
 
     protected void setConfigs() {
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_SHORTCUTS_KEY);
-        getConfig().setProperty(DISPLAY_SYMBOLS_KEY, displaySymbols);
 
         int i = 0;
         for (Entry<String, KeyStroke> entry : map.entrySet()) {
