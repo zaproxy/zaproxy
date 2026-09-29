@@ -26,7 +26,10 @@ import java.util.zip.GZIPOutputStream;
  * The {@link HttpEncoding} for the {@code gzip}/{@code x-gzip} coding.
  *
  * @since 2.10.0
+ * @deprecated (2.18.0) No longer in use, it will be removed in a future release.
  */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class HttpEncodingGzip extends AbstractStreamHttpEncoding {
 
     private static final HttpEncodingGzip SINGLETON = new HttpEncodingGzip();

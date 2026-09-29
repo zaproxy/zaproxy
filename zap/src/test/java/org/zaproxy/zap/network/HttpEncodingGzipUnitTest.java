@@ -32,6 +32,7 @@ import java.util.zip.GZIPOutputStream;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpEncodingGzip}. */
+@SuppressWarnings({"deprecation", "removal"})
 class HttpEncodingGzipUnitTest {
 
     private static final byte[] CONTENT = "Content 123 ABC".getBytes(StandardCharsets.UTF_8);

@@ -28,7 +28,10 @@ import java.util.zip.InflaterInputStream;
  * The {@link HttpEncoding} for the {@code deflate} coding.
  *
  * @since 2.10.0
+ * @deprecated (2.18.0) No longer in use, it will be removed in a future release.
  */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.18.0", forRemoval = true)
 public class HttpEncodingDeflate extends AbstractStreamHttpEncoding {
 
     private static final HttpEncodingDeflate SINGLETON = new HttpEncodingDeflate();

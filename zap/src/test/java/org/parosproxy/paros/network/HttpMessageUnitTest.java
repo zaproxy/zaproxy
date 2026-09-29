@@ -19,11 +19,9 @@
  */
 package org.parosproxy.paros.network;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -58,8 +56,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage.HttpEncodingsHandler;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpEncoding;
-import org.zaproxy.zap.network.HttpEncodingDeflate;
-import org.zaproxy.zap.network.HttpEncodingGzip;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.testutils.Log4jTestAppender;
@@ -369,6 +365,8 @@ class HttpMessageUnitTest {
     @Test
     void shouldSetContentEncodingsWhenSettingRequestBodyByte() {
         // Given
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        HttpMessage.setContentEncodingsHandler(gzipHandler(encoding));
         HttpRequestHeader header = mock(HttpRequestHeader.class);
         given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
         HttpRequestBody body = mock(HttpRequestBody.class);
@@ -376,12 +374,14 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody(new byte[0]);
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body), is(equalTo(List.of(encoding))));
     }
 
     @Test
     void shouldSetContentEncodingsWhenSettingRequestBodyString() {
         // Given
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        HttpMessage.setContentEncodingsHandler(gzipHandler(encoding));
         HttpRequestHeader header = mock(HttpRequestHeader.class);
         given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
         HttpRequestBody body = mock(HttpRequestBody.class);
@@ -389,7 +389,7 @@ class HttpMessageUnitTest {
         // When
         message.setRequestBody("Body");
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body), is(equalTo(List.of(encoding))));
     }
 
     @Test
@@ -410,6 +410,8 @@ class HttpMessageUnitTest {
     @Test
     void shouldSetContentEncodingsWhenSettingResponseBodyByte() {
         // Given
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        HttpMessage.setContentEncodingsHandler(gzipHandler(encoding));
         HttpResponseHeader header = mock(HttpResponseHeader.class);
         given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
         HttpResponseBody body = mock(HttpResponseBody.class);
@@ -419,12 +421,14 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody(new byte[0]);
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body), is(equalTo(List.of(encoding))));
     }
 
     @Test
     void shouldSetContentEncodingsWhenSettingResponseBodyString() {
         // Given
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        HttpMessage.setContentEncodingsHandler(gzipHandler(encoding));
         HttpResponseHeader header = mock(HttpResponseHeader.class);
         given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
         HttpResponseBody body = mock(HttpResponseBody.class);
@@ -434,12 +438,13 @@ class HttpMessageUnitTest {
         // When
         message.setResponseBody("Body");
         // Then
-        assertThat(encodings(body), is(not(empty())));
+        assertThat(encodings(body), is(equalTo(List.of(encoding))));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {HttpHeader.GZIP, "x-gzip"})
-    void shouldSetGzipEncodingToBody(String contentEncodingHeader) {
+    @ValueSource(
+            strings = {HttpHeader.GZIP, "x-gzip", HttpHeader.DEFLATE, "Encoding Not Supported"})
+    void shouldNotSetContentEncodingToBodyByDefault(String contentEncodingHeader) {
         // Given
         HttpHeader header = mock(HttpHeader.class);
         given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(contentEncodingHeader);
@@ -447,19 +452,7 @@ class HttpMessageUnitTest {
         // When
         HttpMessage.setContentEncodings(header, body);
         // Then
-        verify(body).setContentEncodings(asList(HttpEncodingGzip.getSingleton()));
-    }
-
-    @Test
-    void shouldSetDeflateEncodingToBody() {
-        // Given
-        HttpHeader header = mock(HttpHeader.class);
-        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.DEFLATE);
-        HttpBody body = mock(HttpBody.class);
-        // When
-        HttpMessage.setContentEncodings(header, body);
-        // Then
-        verify(body).setContentEncodings(asList(HttpEncodingDeflate.getSingleton()));
+        verify(body).setContentEncodings(List.of());
     }
 
     @ParameterizedTest
@@ -469,18 +462,6 @@ class HttpMessageUnitTest {
         // Given
         HttpHeader header = mock(HttpHeader.class);
         given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(contentEncoding);
-        HttpBody body = mock(HttpBody.class);
-        // When
-        HttpMessage.setContentEncodings(header, body);
-        // Then
-        verify(body).setContentEncodings(Collections.emptyList());
-    }
-
-    @Test
-    void shouldNotSetContentEncodingToBodyIfContentEncodingNotSupported() {
-        // Given
-        HttpHeader header = mock(HttpHeader.class);
-        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn("Encoding Not Supported");
         HttpBody body = mock(HttpBody.class);
         // When
         HttpMessage.setContentEncodings(header, body);
@@ -845,6 +826,14 @@ class HttpMessageUnitTest {
         ArgumentCaptor<List<HttpEncoding>> arg = ArgumentCaptor.forClass(List.class);
         verify(body).setContentEncodings(arg.capture());
         return arg.getValue();
+    }
+
+    private static HttpEncodingsHandler gzipHandler(HttpEncoding encoding) {
+        return (header, body) -> {
+            if (HttpHeader.GZIP.equals(header.getHeader(HttpHeader.CONTENT_ENCODING))) {
+                body.setContentEncodings(List.of(encoding));
+            }
+        };
     }
 
     private void withLoggerAppender() {

@@ -32,6 +32,7 @@ import java.util.zip.DeflaterOutputStream;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpEncodingDeflate}. */
+@SuppressWarnings({"deprecation", "removal"})
 class HttpEncodingDeflateUnitTest {
 
     private static final byte[] CONTENT = "Content 123 ABC".getBytes(StandardCharsets.UTF_8);
