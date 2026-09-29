@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * @deprecated (2.18.0) No longer in use, it will be removed in a future release.
+ */
+@Deprecated(since = "2.18.0", forRemoval = true)
 abstract class AbstractStreamHttpEncoding implements HttpEncoding {
 
     private static final int BUFFER_SIZE = 2048;

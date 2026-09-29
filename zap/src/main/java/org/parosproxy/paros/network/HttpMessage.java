@@ -91,9 +91,6 @@ import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.NameValuePair;
-import org.zaproxy.zap.network.HttpEncoding;
-import org.zaproxy.zap.network.HttpEncodingDeflate;
-import org.zaproxy.zap.network.HttpEncodingGzip;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
@@ -112,22 +109,7 @@ public class HttpMessage implements Message {
     public static final String MESSAGE_TYPE = "HTTP";
 
     private static final HttpEncodingsHandler DEFAULT_CONTENT_ENCODINGS_HANDLER =
-            (header, body) -> {
-                String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
-                if (encoding == null || encoding.isEmpty()) {
-                    body.setContentEncodings(List.of());
-                    return;
-                }
-
-                List<HttpEncoding> encodings = List.of();
-                if (encoding.contains(HttpHeader.DEFLATE)) {
-                    encodings = List.of(HttpEncodingDeflate.getSingleton());
-                } else if (encoding.contains(HttpHeader.GZIP)) {
-                    encodings = List.of(HttpEncodingGzip.getSingleton());
-                }
-
-                body.setContentEncodings(encodings);
-            };
+            (header, body) -> body.setContentEncodings(List.of());
 
     private static final CharsetProvider DEFAULT_CHARSET_PROVIDER =
             (header, body) -> header.getCharset();
@@ -454,7 +436,7 @@ public class HttpMessage implements Message {
     /**
      * Sets the content encodings defined in the header into the body.
      *
-     * <p><strong>Note:</strong> By default supports only {@code gzip} and {@code deflate}.
+     * <p><strong>Note:</strong> Default content encodings are provided by an add-on.
      *
      * @param header the header.
      * @param body the body.
