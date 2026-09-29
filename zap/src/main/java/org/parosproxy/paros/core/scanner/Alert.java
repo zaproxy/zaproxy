@@ -1004,6 +1004,8 @@ public class Alert implements Comparable<Alert> {
     public void setTags(Map<String, String> tags) {
         if (tags != null) {
             this.tags = tags;
+            // The tags changed, the value cached might no longer be correct
+            this.systemic = null;
         }
     }
 
