@@ -211,23 +211,9 @@ public class AlertAPI extends ApiImplementor {
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
         ApiResponse result = null;
         if (VIEW_ALERT.equals(name)) {
-            TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
-            TableAlertTag tableAlertTag = Model.getSingleton().getDb().getTableAlertTag();
-            RecordAlert recordAlert;
-            Map<String, String> alertTags;
-            try {
-                recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
-                alertTags = tableAlertTag.getTagsByAlertId(this.getParam(params, PARAM_ID, -1));
-            } catch (DatabaseException e) {
-                LOGGER.error("Failed to read the alert from the session:", e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-            }
-            if (recordAlert == null) {
-                throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-            }
-            Alert alert = new Alert(recordAlert);
-            alert.setTags(alertTags);
-            result = new ApiResponseElement(alertToSet(alert));
+            result =
+                    new ApiResponseElement(
+                            alertToSet(getAlertFromDb(this.getParam(params, PARAM_ID, -1))));
         } else if (VIEW_ALERTS.equals(name)) {
             final ApiResponseList resultList = new ApiResponseList(name);
             String contextName = this.getParam(params, PARAM_CONTEXT_NAME, "");
@@ -663,19 +649,17 @@ public class AlertAPI extends ApiImplementor {
         return idsList;
     }
 
-    private static Alert getAlertFromDb(int alertId) throws ApiException {
-        RecordAlert recAlert;
+    private Alert getAlertFromDb(int alertId) throws ApiException {
         try {
-            recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
+            Alert alert = extension.getAlert(alertId);
+            if (alert == null) {
+                throw new ApiException(ApiException.Type.DOES_NOT_EXIST, String.valueOf(alertId));
+            }
+            return alert;
         } catch (DatabaseException e) {
             LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
-
-        if (recAlert == null) {
-            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, String.valueOf(alertId));
-        }
-        return new Alert(recAlert);
     }
 
     private void processAlertUpdate(Alert updatedAlert) throws ApiException {

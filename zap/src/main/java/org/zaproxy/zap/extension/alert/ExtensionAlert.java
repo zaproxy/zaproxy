@@ -33,10 +33,9 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -96,9 +95,6 @@ public class ExtensionAlert extends ExtensionAdaptor
     private OptionsAlertPanel optionsPanel = null;
     private Properties alertOverrides = new Properties();
     private AlertAddDialog dialogAlertAdd;
-
-    private Map<String, Map<String, AtomicInteger>> siteToSystemicAlertMap =
-            new ConcurrentHashMap<>();
 
     public ExtensionAlert() {
         super(NAME);
@@ -247,8 +243,10 @@ public class ExtensionAlert extends ExtensionAdaptor
 
     private void alertFoundEventHandler(Alert alert, HistoryReference ref) {
         try {
+            boolean added = false;
             synchronized (this.getTreeModel()) {
                 if (this.getTreeModel().addPathEventHandler(alert) != null) {
+                    added = true;
                     if (isInFilter(alert)) {
                         this.getFilteredTreeModel().addPath(alert);
                     }
@@ -256,21 +254,25 @@ public class ExtensionAlert extends ExtensionAdaptor
                         getAlertPanel().expandRoot();
                         this.recalcAlerts();
                     }
-                } else {
-                    return;
                 }
             }
 
-            try {
-                SessionStructure.addPath(Model.getSingleton(), ref, alert.getMessage());
-                ref.addAlert(alert);
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+            if (added) {
+                try {
+                    SessionStructure.addPath(Model.getSingleton(), ref, alert.getMessage());
+                    ref.addAlert(alert);
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
             }
 
             // Clear the message so that it can be GC'ed
             alert.setMessage(null);
 
+            // Publish the event even when the alert was not added to the tree (it was
+            // de-duplicated or is over the systemic limit) so that consumers, e.g. alert filters,
+            // can act on it, otherwise the alert could be left in the database with its original
+            // risk/confidence while everything shown to the user has the new values.
             publishAlertEvent(alert, AlertEventPublisher.ALERT_ADDED_EVENT);
 
         } catch (Exception e) {
@@ -519,7 +521,8 @@ public class ExtensionAlert extends ExtensionAdaptor
 
     private AlertTreeModel getFilteredTreeModel() {
         if (filteredTreeModel == null) {
-            filteredTreeModel = new AlertTreeModel(this);
+            // The filtered tree is a subset of the main tree, it does not apply the systemic limit
+            filteredTreeModel = new AlertTreeModel(this, false);
         }
         return filteredTreeModel;
     }
@@ -689,7 +692,6 @@ public class ExtensionAlert extends ExtensionAdaptor
         treeModel = null;
         filteredTreeModel = null;
         hrefs = new HashMap<>();
-        siteToSystemicAlertMap = new ConcurrentHashMap<>();
 
         if (session == null) {
             // Null session indicated we're shutting down
@@ -975,11 +977,32 @@ public class ExtensionAlert extends ExtensionAdaptor
         footer.setAlertHigh(totalHigh);
     }
 
+    /**
+     * Returns the alert with the given ID, as stored in the database, with the tags loaded, or
+     * {@code null} if there is no alert with the given ID.
+     *
+     * @param alertId the ID of the alert.
+     * @return the alert, or {@code null} if there is no alert with the given ID.
+     * @throws DatabaseException if an error occurred while reading the alert.
+     * @since 2.18.0
+     */
+    public Alert getAlert(int alertId) throws DatabaseException {
+        RecordAlert recAlert = getModel().getDb().getTableAlert().read(alertId);
+        if (recAlert == null) {
+            return null;
+        }
+        Alert alert = new Alert(recAlert);
+        Map<String, String> tags = getModel().getDb().getTableAlertTag().getTagsByAlertId(alertId);
+        if (tags != null) {
+            alert.setTags(tags);
+        }
+        return alert;
+    }
+
     public List<Alert> getAllAlerts() {
         List<Alert> allAlerts = new ArrayList<>();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
         Vector<Integer> v;
         try {
             // TODO this doesn't work, but should be used when its fixed :/
@@ -988,13 +1011,13 @@ public class ExtensionAlert extends ExtensionAdaptor
             v = tableAlert.getAlertList();
 
             for (int i = 0; i < v.size(); i++) {
-                int alertId = v.get(i);
-                RecordAlert recAlert = tableAlert.read(alertId);
-                Alert alert = new Alert(recAlert);
+                Alert alert = getAlert(v.get(i));
+                if (alert == null) {
+                    continue;
+                }
                 if (alert.getHistoryRef() != null) {
                     // Only use the alert if it has a history reference.
                     if (!allAlerts.contains(alert)) {
-                        alert.setTags(tableAlertTag.getTagsByAlertId(alertId));
                         allAlerts.add(alert);
                     }
                 }
@@ -1257,29 +1280,111 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     /**
-     * Returns true if the given alert is over the systemic limit. If the alert is systemic then it
-     * will increment the count of that type of alert.
+     * Returns true if the given alert would be over the systemic limit if added to the given group
+     * of alerts, that is, if the group already has the maximum number of alerts of the same host.
      *
+     * <p>If the alert is systemic then it counts towards the limit for its risk/confidence, alerts
+     * of the same host sharing the same budget.
+     *
+     * <p>The alerts already in the group are counted, thus the given alert does not count more than
+     * once no matter how many times this is called for it, e.g. because it is reprocessed by an
+     * alert filter.
+     *
+     * @param alert the alert, might be {@code null}.
+     * @param parent the node of the group of alerts the alert is, or would be, added to.
+     * @return {@code true} if the alert is over the systemic limit, {@code false} otherwise.
+     */
+    protected boolean isOverSystemicLimit(Alert alert, AlertNode parent) {
+        if (alert == null || parent == null || !alert.isSystemic()) {
+            return false;
+        }
+        int limit = getAlertParam().getSystemicLimit();
+        if (limit <= 0) {
+            return false;
+        }
+        String host = getAlertHost(alert);
+        int count = 0;
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            AlertNode node = parent.getChildAt(i);
+            // Group nodes have no alerts of their own
+            if (node.getChildCount() > 0) {
+                continue;
+            }
+            Alert counted = node.getAlert();
+            // Alerts that are not systemic do not count towards the limit
+            if (counted == null || !counted.isSystemic()) {
+                continue;
+            }
+            if (host.equals(getAlertHost(counted))) {
+                count++;
+                if (count >= limit) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the given alert would be over the systemic limit if added to the alerts tree.
+     *
+     * @param alert the alert, might be {@code null}.
+     * @return {@code true} if the alert is over the systemic limit, {@code false} otherwise.
      * @since 2.17.0
      */
     public boolean isOverSystemicLimit(Alert alert) {
-        if (alert == null || !alert.isSystemic()) {
+        if (alert == null) {
             return false;
         }
-        try {
-            // Always count locally, even if the systemicLimit is zero as that could be changed
-            Map<String, AtomicInteger> m =
-                    siteToSystemicAlertMap.computeIfAbsent(
-                            SessionStructure.getHostName(alert.getMsgUri()),
-                            a -> new ConcurrentHashMap<>());
-            int count =
-                    m.computeIfAbsent(alert.getAlertRef(), a -> new AtomicInteger())
-                            .incrementAndGet();
-            int limit = getAlertParam().getSystemicLimit();
-            return limit > 0 && count > limit;
-        } catch (URIException e) {
-            // Ignore
+        return isOverSystemicLimit(alert, getTreeModel().getGroupNode(alert));
+    }
+
+    /**
+     * Returns the host of the given alert, used to count the alerts towards the systemic limit,
+     * which is the host of the message that raised it, falling back to the host of the alert URI.
+     *
+     * @param alert the alert, might be {@code null}.
+     * @return the host, or an empty string if not known.
+     */
+    private static String getAlertHost(Alert alert) {
+        if (alert == null) {
+            return "";
         }
-        return false;
+        URI uri = getSystemicLimitUri(alert);
+        if (uri == null) {
+            return "";
+        }
+        try {
+            return SessionStructure.getHostName(uri);
+        } catch (URIException e) {
+            return "";
+        }
+    }
+
+    /**
+     * Returns the URI used to tell the host of the given alert for the systemic limit, which is the
+     * URI of the message that raised it, falling back to the URI of the alert.
+     *
+     * <p>Alerts rebuilt from the database might not have the message (nor the history reference)
+     * that raised them set, in which case the URI of the alert is used, otherwise the alert is not
+     * attributed to any host.
+     *
+     * @param alert the alert.
+     * @return the URI of the alert, or {@code null} if not available.
+     */
+    private static URI getSystemicLimitUri(Alert alert) {
+        URI msgUri = alert.getMsgUri();
+        if (msgUri != null) {
+            return msgUri;
+        }
+        String uri = alert.getUri();
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
+        try {
+            return new URI(uri, true);
+        } catch (URIException e) {
+            return null;
+        }
     }
 }

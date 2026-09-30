@@ -42,14 +42,28 @@ class AlertTreeModel extends DefaultTreeModel {
     private static final Logger LOGGER = LogManager.getLogger(AlertTreeModel.class);
 
     private ExtensionAlert ext;
+    private boolean mainTreeModel;
 
     AlertTreeModel(ExtensionAlert ext) {
+        this(ext, true);
+    }
+
+    /**
+     * Creates a tree model.
+     *
+     * @param ext the extension.
+     * @param mainTreeModel whether the model is the main alerts tree, the systemic limit is only
+     *     applied to it, the other models (e.g. the filtered alerts tree) are a subset of it and
+     *     thus do not need to apply the limit.
+     */
+    AlertTreeModel(ExtensionAlert ext, boolean mainTreeModel) {
         super(
                 new AlertNode(
                         -1,
                         Constant.messages.getString("alerts.tree.title"),
                         GROUP_ALERT_CHILD_COMPARATOR));
         this.ext = ext;
+        this.mainTreeModel = mainTreeModel;
     }
 
     void addPath(final Alert alert) {
@@ -90,26 +104,58 @@ class AlertTreeModel extends DefaultTreeModel {
                         + (StringUtils.isNotEmpty(alert.getNodeName())
                                 ? alert.getNodeName()
                                 : alert.getUri());
-        return addLeaf(parent, name, alert);
+        AlertNode node = addLeaf(parent, name, alert);
+        if (node == null && parent.getChildCount() == 0) {
+            // The alert was not added (e.g. it's over the systemic limit) so remove the group
+            // node added for it, otherwise an empty node is left behind in the tree.
+            this.removeNodeFromParent(parent);
+            nodeStructureChanged(getRoot());
+        }
+        return node;
     }
 
+    /**
+     * Finds the node for the given alert, preferring the node of the alert itself, falling back to
+     * an equivalent alert (i.e. an alert de-duplicated with the given one).
+     */
     private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert) {
+        AlertNode node = findLeafNodeForAlert(parent, alert, true);
+        if (node == null) {
+            node = findLeafNodeForAlert(parent, alert, false);
+        }
+        return node;
+    }
+
+    /**
+     * Finds the node for the given alert, matching the alert itself if {@code exactMatch},
+     * otherwise any equivalent alert. Note that the returned node can be a group node with no
+     * alerts (i.e. it has no children but its parent is the root).
+     */
+    private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert, boolean exactMatch) {
         for (int i = 0; i < parent.getChildCount(); i++) {
             AlertNode child = parent.getChildAt(i);
             if (child.getChildCount() == 0) {
-                // Its a leaf node
-                if (child.getAlert() != null && child.getAlert().compareTo(alert) == 0) {
+                // Its a leaf node, or a group node with no alerts
+                Alert childAlert = child.getAlert();
+                if (childAlert != null && matches(childAlert, alert, exactMatch)) {
                     return child;
                 }
             } else {
                 // check its children
-                AlertNode node = findLeafNodeForAlert(child, alert);
+                AlertNode node = findLeafNodeForAlert(child, alert, exactMatch);
                 if (node != null) {
                     return node;
                 }
             }
         }
         return null;
+    }
+
+    private static boolean matches(Alert alert, Alert otherAlert, boolean exactMatch) {
+        if (exactMatch) {
+            return alert.getAlertId() == otherAlert.getAlertId();
+        }
+        return alert.compareTo(otherAlert) == 0;
     }
 
     public AlertNode getAlertNode(Alert alert) {
@@ -157,13 +203,24 @@ class AlertTreeModel extends DefaultTreeModel {
     private synchronized void updatePathEventHandler(Alert alert) {
 
         AlertNode node = findLeafNodeForAlert(getRoot(), alert);
-        if (node != null) {
+        if (node == null) {
+            // The alert is not shown in the tree, e.g. it was not added when raised (because it was
+            // de-duplicated or over the systemic limit), add it now that it changed.
+            this.addPath(alert);
+            return;
+        }
 
-            // Remove the old version
-            AlertNode parent = node.getParent();
+        // Remove the old version
+        AlertNode parent = node.getParent();
 
+        if (parent.isRoot()) {
+            // The node is a group node with no alerts, it represents the alert so remove it,
+            // it will be added back as needed below.
+            this.removeNodeFromParent(node);
+            nodeStructureChanged(this.getRoot());
+        } else {
             // Cannot use removeNodeFromParent as the risk or name might have changed
-            removeChildById(parent, alert.getAlertId());
+            removeChildNode(parent, node);
             nodeStructureChanged(parent);
 
             if (parent.getChildCount() == 0) {
@@ -172,14 +229,21 @@ class AlertTreeModel extends DefaultTreeModel {
                 nodeStructureChanged(this.getRoot());
             }
         }
+
         // Add it back in again
         this.addPath(alert);
     }
 
-    private void removeChildById(AlertNode parent, int alertId) {
+    /**
+     * Removes the given child node from the given parent node.
+     *
+     * <p>The node is removed by identity, not by alert ID, as the node found for an alert can be an
+     * equivalent (de-duplicated) alert.
+     */
+    private static void removeChildNode(AlertNode parent, AlertNode node) {
         int idx = -1;
         for (int i = 0; i < parent.getChildCount(); i++) {
-            if (parent.getChildAt(i).getAlert().getAlertId() == alertId) {
+            if (parent.getChildAt(i) == node) {
                 idx = i;
                 break;
             }
@@ -190,13 +254,9 @@ class AlertTreeModel extends DefaultTreeModel {
     }
 
     private AlertNode findAndAddGroup(AlertNode parent, String nodeName, Alert alert) {
-        int risk = alert.getRisk();
-        if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
-            // Special case!
-            risk = -1;
-        }
-
-        AlertNode node = new AlertNode(risk, nodeName, alert.getAlertRef(), ALERT_CHILD_COMPARATOR);
+        AlertNode node =
+                new AlertNode(
+                        getRisk(alert), nodeName, alert.getAlertRef(), ALERT_CHILD_COMPARATOR);
         int idx = parent.findIndex(node);
         if (idx < 0) {
             idx = -(idx + 1);
@@ -209,12 +269,37 @@ class AlertTreeModel extends DefaultTreeModel {
         return parent.getChildAt(idx);
     }
 
-    private AlertNode addLeaf(AlertNode parent, String nodeName, Alert alert) {
-        int risk = alert.getRisk();
+    /**
+     * Returns the node of the group of alerts the given alert is, or would be, added to, or {@code
+     * null} if the tree has no such group.
+     *
+     * @param alert the alert.
+     * @return the node of the group of alerts, or {@code null} if not shown in the tree.
+     */
+    AlertNode getGroupNode(Alert alert) {
+        AlertNode node =
+                new AlertNode(
+                        getRisk(alert),
+                        alert.getName(),
+                        alert.getAlertRef(),
+                        ALERT_CHILD_COMPARATOR);
+        int idx = getRoot().findIndex(node);
+        if (idx < 0) {
+            return null;
+        }
+        return getRoot().getChildAt(idx);
+    }
+
+    private static int getRisk(Alert alert) {
         if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
-            risk = -1;
+            return -1;
         }
+        return alert.getRisk();
+    }
+
+    private AlertNode addLeaf(AlertNode parent, String nodeName, Alert alert) {
+        int risk = getRisk(alert);
 
         AlertNode needle =
                 new AlertNode(risk, nodeName, alert.getAlertRef(), ALERT_CHILD_COMPARATOR);
@@ -222,7 +307,9 @@ class AlertTreeModel extends DefaultTreeModel {
         int idx = parent.findIndex(needle);
         if (idx < 0) {
             // Not a duplicate alert
-            if (ext.isOverSystemicLimit(alert)) {
+            // The limit is applied to the main tree model only, the other models (e.g. the filtered
+            // alerts tree) are a subset of it and thus are not subject to it.
+            if (mainTreeModel && ext.isOverSystemicLimit(alert, parent)) {
                 if (!parent.isSystemic()) {
                     parent.setSystemic(true);
                     nodeChanged(parent);
@@ -239,10 +326,15 @@ class AlertTreeModel extends DefaultTreeModel {
     }
 
     public synchronized void deletePath(Alert alert) {
-
         AlertNode node = findLeafNodeForAlert(getRoot(), alert);
         if (node != null) {
             AlertNode parent = node.getParent();
+            if (parent.isRoot()) {
+                // The node is a group node with no alerts, just remove it
+                this.removeNodeFromParent(node);
+                this.nodeStructureChanged(parent);
+                return;
+            }
             if (parent.getChildCount() == 1) {
                 // Parent has no other children, remove it also
                 parent.remove(0);

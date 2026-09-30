@@ -47,13 +47,22 @@ public class TextAlertTree {
 
     private static void dumpAlert(AlertNode node, StringBuilder sb) {
         sb.append("  - ");
-        sb.append(Alert.MSG_RISK[node.getRisk()]);
+        sb.append(riskName(node));
         sb.append(": ");
         sb.append(node.getNodeName());
         sb.append("\n");
         node.children()
                 .asIterator()
                 .forEachRemaining(child -> dumpAlertInstance((AlertNode) child, sb));
+    }
+
+    private static String riskName(AlertNode node) {
+        int risk = node.getRisk();
+        if (risk < 0) {
+            // Nodes for false positives don't have a risk
+            return Alert.MSG_CONFIDENCE[Alert.CONFIDENCE_FALSE_POSITIVE];
+        }
+        return Alert.MSG_RISK[risk];
     }
 
     private static void dumpAlertInstance(AlertNode node, StringBuilder sb) {

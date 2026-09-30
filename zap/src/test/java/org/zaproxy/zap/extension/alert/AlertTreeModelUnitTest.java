@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.alert;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -434,6 +436,306 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
     }
 
     @Test
+    void shouldNotAddNodeWhenAlertOverSystemicLimit() {
+        // Given
+        given(extAlert.isOverSystemicLimit(any(), any())).willReturn(true);
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+
+        // When
+        atModel.addPath(a1);
+
+        // Then
+        assertEquals(0, atModel.getRoot().getChildCount());
+    }
+
+    @Test
+    void shouldNotLeaveOldNodeWhenUpdatingAlertOverSystemicLimit() {
+        // Given
+        ExtensionHistory extHistory = mock(ExtensionHistory.class);
+        given(extensionLoader.getExtension(ExtensionHistory.class)).willReturn(extHistory);
+        given(extAlert.isOverSystemicLimit(any(), any()))
+                .willAnswer(
+                        invocation -> {
+                            Alert alert = invocation.getArgument(0);
+                            return alert.getUri().endsWith("/a2");
+                        });
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com/a1",
+                        "https://www.example.com/a1",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        Alert a2 =
+                newAlert(
+                        1,
+                        1,
+                        "Alert A",
+                        "https://www.example.com/a2",
+                        "https://www.example.com/a2",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+        updatePathToFalsePositive(a1);
+
+        atModel.addPath(a2);
+        assertNoEmptyGroupNodes(atModel);
+
+        // When
+        updatePathToFalsePositive(a2);
+
+        // Then
+        assertEquals(
+                """
+                - Alerts
+                  - False Positive: Alert A
+                    - GET:https://www.example.com/a1
+                """,
+                TextAlertTree.toString(atModel));
+        assertNoEmptyGroupNodes(atModel);
+    }
+
+    @Test
+    void shouldNotApplySystemicLimitToFilteredTreeModel() {
+        // Given - the limit is reached
+        given(extAlert.isOverSystemicLimit(any(), any())).willReturn(true);
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com/a1",
+                        "https://www.example.com/a1",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+
+        // When - the alert is added to the filtered tree, which is a subset of the main tree
+        AlertTreeModel filteredModel = new AlertTreeModel(extAlert, false);
+        filteredModel.addPath(a1);
+
+        // Then - it is added, the limit is applied to the main tree model only
+        assertEquals(1, filteredModel.getRoot().getChildCount());
+        assertEquals(1, filteredModel.getRoot().getChildAt(0).getChildCount());
+
+        // ...while the main tree model does apply it
+        atModel.addPath(a1);
+        assertEquals(0, atModel.getRoot().getChildCount());
+    }
+
+    @Test
+    void shouldNotAddUpdatedAlertToNewGroupWhenOverSystemicLimit() {
+        // Given - the alert is shown but the group of alerts it now belongs to is over the systemic
+        // limit
+        given(extAlert.isOverSystemicLimit(any(), any()))
+                .willAnswer(
+                        invocation ->
+                                ((Alert) invocation.getArgument(0)).getConfidence()
+                                        != Alert.CONFIDENCE_MEDIUM);
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com/a1",
+                        "https://www.example.com/a1",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+
+        // When - the alert is changed to a false positive, as an alert filter would do
+        updatePathToFalsePositive(a1);
+
+        // Then - the alert is not shown, the systemic limit is still honoured, and no node is left
+        // behind in the tree
+        assertEquals(0, atModel.getRoot().getChildCount());
+    }
+
+    @Test
+    void shouldNotLeaveOldNodeWhenUpdatingDeDuplicatedAlerts() {
+        // Given - two equivalent alerts (e.g. the same URL scanned twice), only one is added
+        ExtensionHistory extHistory = mock(ExtensionHistory.class);
+        given(extensionLoader.getExtension(ExtensionHistory.class)).willReturn(extHistory);
+
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        Alert a2 =
+                newAlert(
+                        1,
+                        1,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+        atModel.addPath(a2);
+
+        // When - both alerts are changed to false positives and the tree updated
+        updatePathToFalsePositive(a1);
+        updatePathToFalsePositive(a2);
+
+        // Then - only the false positive node is left, no node with the old risk
+        assertEquals(
+                """
+                - Alerts
+                  - False Positive: Alert A
+                    - GET:https://www.example.com
+                """,
+                TextAlertTree.toString(atModel));
+        assertNoEmptyGroupNodes(atModel);
+    }
+
+    @Test
+    void shouldNotLeaveOldNodeWhenAlertOverSystemicLimitIsNotUpdated() {
+        // Given - the first alert is added and changed to a false positive, the second alert is
+        // over the systemic limit so no node is added for it (and no alert added event is published
+        // for it, i.e. it is never updated in the tree)
+        given(extAlert.isOverSystemicLimit(any(), any()))
+                .willAnswer(
+                        invocation -> {
+                            Alert alert = invocation.getArgument(0);
+                            return alert.getUri().endsWith("/a2");
+                        });
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com/a1",
+                        "https://www.example.com/a1",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        Alert a2 =
+                newAlert(
+                        1,
+                        1,
+                        "Alert A",
+                        "https://www.example.com/a2",
+                        "https://www.example.com/a2",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+        updatePathToFalsePositive(a1);
+        atModel.addPath(a2);
+
+        // Then - no node with the old risk is left in the tree, the node that is shown represents
+        // the false positive alert
+        assertEquals(
+                """
+                - Alerts
+                  - False Positive: Alert A
+                    - GET:https://www.example.com/a1
+                """,
+                TextAlertTree.toString(atModel));
+        assertNoEmptyGroupNodes(atModel);
+        assertEquals(
+                Alert.CONFIDENCE_FALSE_POSITIVE,
+                atModel.getRoot().getChildAt(0).getAlert().getConfidence());
+    }
+
+    @Test
+    void shouldAddFalsePositiveNodeWhenAlertOverSystemicLimitChangedToFalsePositive() {
+        // Given - the alert is over the systemic limit so no node is added for it
+        given(extAlert.isOverSystemicLimit(any(), any()))
+                .willAnswer(
+                        invocation -> {
+                            Alert alert = invocation.getArgument(0);
+                            return alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE;
+                        });
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+
+        // When - the alert filter changes it to a false positive
+        updatePathToFalsePositive(a1);
+
+        // Then - the false positive node is added, no node with the old risk
+        assertEquals(
+                """
+                - Alerts
+                  - False Positive: Alert A
+                    - GET:https://www.example.com
+                """,
+                TextAlertTree.toString(atModel));
+        assertNoEmptyGroupNodes(atModel);
+    }
+
+    @Test
+    void shouldRemoveEmptyGroupNodeWhenAlertUpdated() {
+        // Given - a group node without alerts, which should not be in the tree
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+        atModel.getRoot().getChildAt(0).remove(0);
+
+        // When
+        updatePathToFalsePositive(a1);
+
+        // Then - the group node with the old risk is replaced by the false positive node
+        assertEquals(
+                """
+                - Alerts
+                  - False Positive: Alert A
+                    - GET:https://www.example.com
+                """,
+                TextAlertTree.toString(atModel));
+        assertNoEmptyGroupNodes(atModel);
+    }
+
+    @Test
+    void shouldRemoveEmptyGroupNodeWhenAlertDeleted() {
+        // Given - a group node without alerts, which should not be in the tree
+        Alert a1 =
+                newAlert(
+                        1,
+                        0,
+                        "Alert A",
+                        "https://www.example.com",
+                        "https://www.example.com",
+                        Alert.RISK_LOW,
+                        Alert.CONFIDENCE_MEDIUM);
+        atModel.addPath(a1);
+        atModel.getRoot().getChildAt(0).remove(0);
+
+        // When
+        atModel.deletePath(a1);
+
+        // Then - the group node without alerts is removed and no other nodes are affected
+        assertEquals(0, atModel.getRoot().getChildCount());
+    }
+
+    @Test
     void shouldDeleteNodeWhenNoAlertsLeft() {
         // Given
         Alert a1 =
@@ -487,6 +789,42 @@ public class AlertTreeModelUnitTest extends WithConfigsTest {
         // Then
         assertEquals(1, atModel.getRoot().getChildCount());
         assertEquals(a4, atModel.getRoot().getChildAt(0).getChildAt(0).getAlert());
+    }
+
+    /**
+     * Updates the given alert in the tree as the alert filter does, i.e. with a new alert instance
+     * with false positive confidence, calling the update twice as done by {@code ExtensionAlert}
+     * and the {@code alertFilters} add-on.
+     */
+    private void updatePathToFalsePositive(Alert alert) {
+        atModel.updatePath(falsePositive(alert));
+        atModel.updatePath(falsePositive(alert));
+    }
+
+    private static Alert falsePositive(Alert alert) {
+        Alert fp =
+                new Alert(
+                        alert.getPluginId(),
+                        alert.getRisk(),
+                        Alert.CONFIDENCE_FALSE_POSITIVE,
+                        alert.getName());
+        fp.setAlertRef(alert.getAlertRef());
+        fp.setUri(alert.getUri());
+        fp.setNodeName(alert.getNodeName());
+        fp.setAlertId(alert.getAlertId());
+        fp.setHistoryRef(alert.getHistoryRef());
+        return fp;
+    }
+
+    /** Asserts that every group node (i.e. every node below the root) has alerts. */
+    private static void assertNoEmptyGroupNodes(AlertTreeModel model) {
+        AlertNode root = model.getRoot();
+        for (int i = 0; i < root.getChildCount(); i++) {
+            AlertNode groupNode = root.getChildAt(i);
+            assertTrue(
+                    groupNode.getChildCount() > 0,
+                    "Group node without alerts in the tree: " + groupNode.getNodeName());
+        }
     }
 
     private static Alert newAlert(

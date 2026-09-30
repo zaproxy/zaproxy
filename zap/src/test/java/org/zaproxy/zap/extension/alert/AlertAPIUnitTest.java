@@ -29,6 +29,7 @@ import static org.mockito.Mockito.withSettings;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import net.sf.json.JSONObject;
@@ -116,7 +117,10 @@ public class AlertAPIUnitTest {
         given(recordAlert.getSourceId()).willReturn(2);
         given(recordAlert.getAlertRef()).willReturn("1234-1");
 
-        given(tableAlert.read(alertId)).willReturn(recordAlert);
+        // The alert must be built before the stubbing starts, as building it interacts with the
+        // recordAlert mock.
+        Alert alert = new Alert(recordAlert);
+        given(extensionAlert.getAlert(alertId)).willReturn(alert);
         // When
         ApiResponse response = api.handleApiView(name, params);
         // Then
@@ -127,6 +131,33 @@ public class AlertAPIUnitTest {
                 is(
                         equalTo(
                                 "{\"alert\":{\"sourceid\":\"2\",\"other\":\"other info\",\"method\":\"\",\"evidence\":\"evidence\",\"pluginId\":\"1234\",\"cweid\":\"10\",\"confidence\":\"Medium\",\"sourceMessageId\":1234,\"wascid\":\"11\",\"description\":\"Alert Description\",\"messageId\":\"123\",\"inputVector\":\"input Vector\",\"url\":\"uri\",\"tags\":{},\"reference\":\"reference\",\"solution\":\"solution\",\"alert\":\"Alert Name\",\"param\":\"param\",\"attack\":\"attack\",\"name\":\"Alert Name\",\"risk\":\"Low\",\"id\":\"1\",\"alertRef\":\"1234-1\"}}")));
+    }
+
+    @Test
+    void shouldReturnAlertDataWithTags() throws Exception {
+        // Given
+        String name = "alert";
+        JSONObject params = new JSONObject();
+        int alertId = 1;
+        params.put("id", alertId);
+        RecordAlert recordAlert = mock(RecordAlert.class);
+        given(recordAlert.getAlertId()).willReturn(alertId);
+        given(recordAlert.getPluginId()).willReturn(1234);
+        given(recordAlert.getAlert()).willReturn("Alert Name");
+        given(recordAlert.getAlertRef()).willReturn("1234-1");
+
+        Alert alert = new Alert(recordAlert);
+        alert.setTags(Map.of("SYSTEMIC", "true"));
+        given(extensionAlert.getAlert(alertId)).willReturn(alert);
+
+        // When
+        ApiResponse response = api.handleApiView(name, params);
+
+        // Then
+        assertThat(response, is(instanceOf(ApiResponseElement.class)));
+        assertThat(
+                ((JSONObject) response.toJSON()).getJSONObject("alert").get("tags").toString(),
+                is(equalTo("{\"SYSTEMIC\":\"true\"}")));
     }
 
     @Test
