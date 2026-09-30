@@ -156,7 +156,12 @@ public class KeyboardAPI extends ApiImplementor {
                 sb.append("<tr><td>")
                         .append(StringEscapeUtils.escapeHtml4(shortcut.getName()))
                         .append("</td><td>");
-                KeyStrokeDisplay.appendHtmlSymbols(sb, keyStroke);
+                Character keyChar = shortcut.getKeyChar();
+                if (keyChar != null) {
+                    KeyStrokeDisplay.appendHtmlSymbols(sb, keyStroke, String.valueOf(keyChar));
+                } else {
+                    KeyStrokeDisplay.appendHtmlSymbols(sb, keyStroke);
+                }
                 sb.append("</td></tr>\n");
             }
         }
