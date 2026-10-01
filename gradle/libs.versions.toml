@@ -43,7 +43,7 @@ assertj-swing = "org.assertj:assertj-swing:3.17.1"
 hamcrest-core = "org.hamcrest:hamcrest-core:3.0"
 junit-jupiter = "org.junit.jupiter:junit-jupiter:6.1.3"
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher" }
-mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
+mockito = "org.mockito:mockito-junit-jupiter:5.24.0"
 
 [plugins]
 crowdin = "org.zaproxy.crowdin:0.6.0"
