@@ -21,6 +21,8 @@ package org.zaproxy.zap.users;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,6 +77,10 @@ public class User extends Enableable {
     private Context context;
 
     private AuthenticationState authenticationState = new AuthenticationState();
+
+    /** The authentication listeners notified of authentication attempt outcomes. */
+    private static final List<AuthenticationListener> AUTHENTICATION_LISTENERS =
+            new CopyOnWriteArrayList<>();
 
     /**
      * Instantiates a new user.
@@ -169,19 +175,69 @@ public class User extends Enableable {
 
         // If the user is not yet authenticated, authenticate now
         // Make sure there are no simultaneous authentications for the same user
+        Boolean authenticationSucceeded = null;
         synchronized (this) {
             if (this.requiresAuthentication()) {
                 if (interrupted()) {
                     return;
                 }
+                notifyAuthenticationListeners(
+                        listener -> listener.onAuthenticationRequestStart(this, message));
                 this.authenticate();
-                if (this.requiresAuthentication()) {
-                    LOGGER.info("Authentication failed for user: {}", name);
-                    return;
+                authenticationSucceeded = !this.requiresAuthentication();
+                if (authenticationSucceeded) {
+                    this.getAuthenticationState().setLastAuthFailure(null);
+                } else {
+                    String failureMessage = "Authentication failed for user: " + name;
+                    LOGGER.info(failureMessage);
+                    this.getAuthenticationState().setLastAuthFailure(failureMessage);
                 }
             }
         }
+        if (authenticationSucceeded == null) {
+            processMessageToMatchAuthenticatedSession(message);
+            return;
+        }
+        if (!authenticationSucceeded) {
+            notifyAuthenticationListeners(
+                    listener -> listener.onAuthenticationRequestFailure(this, message));
+            return;
+        }
+        notifyAuthenticationListeners(
+                listener -> listener.onAuthenticationRequestSuccess(this, message));
         processMessageToMatchAuthenticatedSession(message);
+    }
+
+    /**
+     * Adds the given listener, to be notified of the outcome of authentication attempts performed
+     * by {@link #processMessageToMatchUser(HttpMessage)}, for all users.
+     *
+     * @param listener the listener to add
+     * @since 2.18.0
+     */
+    public static void addAuthenticationListener(AuthenticationListener listener) {
+        AUTHENTICATION_LISTENERS.add(listener);
+    }
+
+    /**
+     * Removes the given authentication listener.
+     *
+     * @param listener the listener to remove
+     * @since 2.18.0
+     */
+    public static void removeAuthenticationListener(AuthenticationListener listener) {
+        AUTHENTICATION_LISTENERS.remove(listener);
+    }
+
+    private static void notifyAuthenticationListeners(
+            Consumer<AuthenticationListener> notification) {
+        for (AuthenticationListener listener : AUTHENTICATION_LISTENERS) {
+            try {
+                notification.accept(listener);
+            } catch (Exception e) {
+                LOGGER.error("Error while notifying authentication listener:", e);
+            }
+        }
     }
 
     private boolean interrupted() {
