@@ -1,0 +1,88 @@
+---
+env:
+  contexts:
+  - name: "oauth2-simulate-error-malformed"
+    urls:
+    - "https://api.oauth2.zap"
+    includePaths:
+    - "https://api\\.oauth2\\.zap.*"
+    excludePaths: []
+    authentication:
+      method: "oauth2"
+      parameters:
+        grantType: "client_credentials"
+        tokenEndpoint: "https://authserver.oauth2.zap/token"
+        clientId: "test-client"
+        clientSecret: "test-secret"
+        extraTokenParams:
+          simulate_error: "malformed"
+      verification:
+        method: "autodetect"
+    sessionManagement:
+      method: "headers"
+      parameters:
+        Authorization: "Bearer {%json:access_token%}"
+    technology:
+      exclude: []
+    users:
+    - name: "m2m client"
+      credentials: {}
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    continueOnFailure: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    maxAlertsPerRule: 0
+    scanOnlyInScope: true
+    maxBodySizeInBytesToScan: 0
+    enableTags: false
+    disableAllRules: true
+  rules:
+  - id: 10111
+    name: "Authentication Request Identified"
+    threshold: "medium"
+  - id: 10112
+    name: "Session Management Response Identified"
+    threshold: "medium"
+  - id: 10113
+    name: "Verification Request Identified"
+    threshold: "medium"
+  name: "passiveScan-config"
+  type: "passiveScan-config"
+- parameters:
+    user: "m2m client"
+  requests:
+  - url: "https://api.oauth2.zap/userinfo"
+    name: ""
+    method: ""
+    httpVersion: ""
+    headers: []
+    data: ""
+    responseCode: 401
+  name: "requestor"
+  type: "requestor"
+  tests:
+  - type: "stats"
+    statistic: "stats.auth.failure"
+    site: "https://authserver.oauth2.zap"
+    operator: ">="
+    value: 1
+    onFail: "error"
+- parameters:
+    action: "add"
+    type: "standalone"
+    engine: "ECMAScript : Graal.js"
+    name: "af-diags.js"
+    target: ""
+    source: "../scripts/standalone/af-diags.js"
+  name: "script"
+  type: "script"
+- parameters:
+    action: "run"
+    type: "standalone"
+    name: "af-diags.js"
+  name: "script"
+  type: "script"
