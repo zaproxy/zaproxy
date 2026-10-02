@@ -305,7 +305,7 @@ public class HttpRequestHeader extends HttpHeader {
         } catch (Exception e) {
             LOGGER.error("Failed to parse:\n{}", data, e);
             mMalformedHeader = true;
-            throw new HttpMalformedHeaderException(e.getMessage());
+            throw new HttpMalformedHeaderException(e.getMessage(), 1);
         }
     }
 
@@ -454,7 +454,7 @@ public class HttpRequestHeader extends HttpHeader {
         if (!matcher.find()) {
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException(
-                    "Failed to find pattern " + patternRequestLine + " in: " + mStartLine);
+                    "Failed to find pattern " + patternRequestLine + " in: " + mStartLine, 1);
         }
 
         mMethod = matcher.group(1);

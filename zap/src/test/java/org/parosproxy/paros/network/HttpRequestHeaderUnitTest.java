@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -73,6 +74,18 @@ class HttpRequestHeaderUnitTest {
         boolean empty = header.isEmpty();
         // Then
         assertThat(empty, is(equalTo(false)));
+    }
+
+    @Test
+    void shouldReportMalformedRequestLine() {
+        // Given
+        String value = "Not a request line\r\nHost: example.com\r\n\r\n";
+        // When
+        HttpMalformedHeaderException exception =
+                assertThrows(
+                        HttpMalformedHeaderException.class, () -> new HttpRequestHeader(value));
+        // Then
+        assertThat(exception.getLineNumber(), is(equalTo(1)));
     }
 
     @ParameterizedTest
