@@ -61,6 +61,7 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         PLACE_HOLDER_VALUES[Column.HIGHEST_ALERT.ordinal()] =
                 AlertRiskTableCellItem.NO_RISK_CELL_ITEM;
         PLACE_HOLDER_VALUES[Column.NOTE.ordinal()] = Boolean.FALSE;
+        PLACE_HOLDER_VALUES[Column.ADV_NOTES.ordinal()] = EMPTY_STRING;
         PLACE_HOLDER_VALUES[Column.TAGS.ordinal()] = EMPTY_STRING;
         PLACE_HOLDER_VALUES[Column.CUSTOM.ordinal()] = null;
     }
@@ -156,6 +157,10 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         return Boolean.FALSE;
     }
 
+    public String getNoteText() {
+        return EMPTY_STRING;
+    }
+
     public String getTags() {
         return EMPTY_STRING;
     }
@@ -203,6 +208,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return this.getHighestAlert();
             case NOTE:
                 return this.hasNote();
+            case ADV_NOTES:
+                return this.getNoteText();
             case TAGS:
                 return this.getTags();
             case CUSTOM:
@@ -250,6 +257,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return AlertRiskTableCellItem.getItemForRisk(Alert.RISK_MEDIUM);
             case NOTE:
                 return Boolean.FALSE;
+            case ADV_NOTES:
+                return "Short note text...";
             case TAGS:
                 return "Tag1, Tag2, Tag3";
             case CUSTOM:
@@ -295,6 +304,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return AlertRiskTableCellItem.class;
             case NOTE:
                 return Boolean.class;
+            case ADV_NOTES:
+                return String.class;
             case TAGS:
                 return String.class;
             case CUSTOM:
