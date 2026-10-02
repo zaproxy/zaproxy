@@ -143,10 +143,33 @@ then
   echo "Setting debug: $JAVADEBUG"
 fi
 
+# OpenJFX is shipped next to ZAP (not inside the signed runtime bundle).
+# javafx.swing needs jdk.unsupported.desktop, which is in the bundled JDK
+# (Temurin JRE omits it).
+JAVAFX_ARGS=()
+if [ "$OS" = "Darwin" ]; then
+  JAVAFX_LIB=""
+  for JAVAFX_CANDIDATE in "$BASEDIR/javafx/lib" "$BASEDIR/javafx"; do
+    if [ -f "$JAVAFX_CANDIDATE/javafx.web.jar" ]; then
+      JAVAFX_LIB="$JAVAFX_CANDIDATE"
+      break
+    fi
+  done
+  if [ -n "$JAVAFX_LIB" ]; then
+    JAVAFX_NATIVE_PATH="$JAVAFX_LIB"
+    if [ -n "$JAVA_PATH" ]; then
+      JAVAFX_NATIVE_PATH="$JAVAFX_LIB:$JAVA_PATH/../lib"
+    fi
+    JAVAFX_ARGS=(--module-path "$JAVAFX_LIB" --add-modules javafx.swing,javafx.web,jdk.unsupported.desktop -Djava.library.path="$JAVAFX_NATIVE_PATH")
+    echo "Using bundled OpenJFX: $JAVAFX_LIB"
+  else
+    echo "Bundled OpenJFX not found under $BASEDIR/javafx"
+  fi
+fi
+
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
-  # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
-  exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
+  exec java "${JAVAFX_ARGS[@]}" ${JMEM} ${JAVAGC} ${JAVADEBUG} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 else
   exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 fi
