@@ -41,8 +41,10 @@ public class KeyboardParam extends AbstractParam {
     private static final String MENU_ITEM_KEY = "menu";
     private static final String KEYCODE_KEY = "keycode";
     private static final String MODIFIERS_KEY = "modifiers";
+    private static final String KEYCHAR_KEY = "keychar";
 
     private Map<String, KeyStroke> map = null;
+    private Map<String, Character> charMap = null;
 
     public KeyboardParam() {}
 
@@ -52,6 +54,7 @@ public class KeyboardParam extends AbstractParam {
             List<HierarchicalConfiguration> fields =
                     ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_SHORTCUTS_KEY);
             map = new HashMap<>(fields.size());
+            charMap = new HashMap<>(fields.size());
             for (HierarchicalConfiguration sub : fields) {
                 String name = sub.getString(MENU_ITEM_KEY, "");
                 if (name.length() > 0) {
@@ -61,6 +64,10 @@ public class KeyboardParam extends AbstractParam {
                                     sub.getInt(KEYCODE_KEY, 0),
                                     sub.getInt(MODIFIERS_KEY, 0),
                                     false));
+                    String keyChar = sub.getString(KEYCHAR_KEY, "");
+                    if (!keyChar.isEmpty()) {
+                        charMap.put(name, keyChar.charAt(0));
+                    }
                 }
             }
         } catch (ConversionException e) {
@@ -76,6 +83,30 @@ public class KeyboardParam extends AbstractParam {
         map.put(i18nKey, keyStroke);
     }
 
+    /**
+     * Gets the character actually captured for the given shortcut's key stroke, if known.
+     *
+     * @param i18nKey the shortcut's identifier.
+     * @return the character, or {@code null} if not known.
+     */
+    public Character getShortcutChar(String i18nKey) {
+        return charMap.get(i18nKey);
+    }
+
+    /**
+     * Sets the character actually captured for the given shortcut's key stroke.
+     *
+     * @param i18nKey the shortcut's identifier.
+     * @param keyChar the character, or {@code null} if not known.
+     */
+    public void setShortcutChar(String i18nKey, Character keyChar) {
+        if (keyChar == null) {
+            charMap.remove(i18nKey);
+        } else {
+            charMap.put(i18nKey, keyChar);
+        }
+    }
+
     protected void setConfigs() {
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_SHORTCUTS_KEY);
 
@@ -89,6 +120,10 @@ public class KeyboardParam extends AbstractParam {
                 getConfig()
                         .setProperty(
                                 elementBaseKey + MODIFIERS_KEY, entry.getValue().getModifiers());
+                Character keyChar = charMap.get(entry.getKey());
+                if (keyChar != null) {
+                    getConfig().setProperty(elementBaseKey + KEYCHAR_KEY, String.valueOf(keyChar));
+                }
             } else {
                 getConfig().setProperty(elementBaseKey + KEYCODE_KEY, 0);
                 getConfig().setProperty(elementBaseKey + MODIFIERS_KEY, 0);
