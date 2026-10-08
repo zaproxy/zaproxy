@@ -189,6 +189,9 @@ public abstract class HttpHeader implements java.io.Serializable {
             if (!this.parse(data)) {
                 mMalformedHeader = true;
             }
+        } catch (HttpMalformedHeaderException e) {
+            mMalformedHeader = true;
+            throw e;
         } catch (Exception e) {
             mMalformedHeader = true;
         }
@@ -450,7 +453,8 @@ public abstract class HttpHeader implements java.io.Serializable {
 
             if ((pos = token.indexOf(":")) < 0) {
                 mMalformedHeader = true;
-                return false;
+                throw new HttpMalformedHeaderException(
+                        "Header field does not contain a colon: " + token, i + 1);
             }
             name = token.substring(0, pos).trim();
             value = token.substring(pos + 1).trim();

@@ -31,14 +31,49 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
+import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link HttpPanelViewModelUtils}. */
 class HttpPanelViewModelUtilsUnitTest {
+
+    @Test
+    void shouldGetMalformedHeaderMessageWithLineNumber() {
+        // Given
+        I18N messages = mock(I18N.class);
+        Constant.messages = messages;
+        String expectedMessage = "Failed to parse the header at line 3.";
+        given(messages.getString("http.panel.model.header.warn.malformed.line", 3))
+                .willReturn(expectedMessage);
+        HttpMalformedHeaderException exception =
+                new HttpMalformedHeaderException("Malformed header field.", 3);
+        // When
+        String message = HttpPanelViewModelUtils.getMalformedHeaderMessage(exception);
+        // Then
+        assertThat(message, is(equalTo(expectedMessage)));
+    }
+
+    @Test
+    void shouldGetGenericMalformedHeaderMessageIfLineNumberNotKnown() {
+        // Given
+        I18N messages = mock(I18N.class);
+        Constant.messages = messages;
+        String expectedMessage = "Failed to parse the header.";
+        given(messages.getString("http.panel.model.header.warn.malformed"))
+                .willReturn(expectedMessage);
+        HttpMalformedHeaderException exception =
+                new HttpMalformedHeaderException("Malformed header.");
+        // When
+        String message = HttpPanelViewModelUtils.getMalformedHeaderMessage(exception);
+        // Then
+        assertThat(message, is(equalTo(expectedMessage)));
+    }
 
     @Test
     void shouldUpdateRequestContentLength() {
