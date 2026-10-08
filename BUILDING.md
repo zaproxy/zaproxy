@@ -54,7 +54,7 @@ A tar.gz package, the macOS/Windows specific add-ons are excluded from this dist
 To build it run the task `:zap:distLinux`.
 
 ### macOS
-A dmg bundling ZAP, its dependencies, and a JRE. The Linux/Windows specific add-ons are excluded from this distribution.
+A dmg bundling ZAP, its dependencies, a JDK (needed for `jdk.unsupported.desktop` / JavaFX Swing), and OpenJFX (for the Browser View add-on, under `ZAP.app/Contents/Java/javafx`). The Linux/Windows specific add-ons are excluded from this distribution.
 
 To build the macOS distributions run the tasks `:zap:distMac` and `:zap:distMacArm64`, for the architectures `x64` and `aarch64` respectively.
 
