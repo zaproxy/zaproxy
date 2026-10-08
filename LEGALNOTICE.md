@@ -39,7 +39,7 @@ and subject to their respective licenses.
 | commons-httpclient-3.1.jar          | Apache 2.0                |
 | commons-io-2.22.0.jar               | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
-| commons-lang3-3.20.0.jar            | Apache 2.0                |
+| commons-lang3-3.21.0.jar            | Apache 2.0                |
 | commons-logging-1.4.0.jar           | Apache 2.0                |
 | commons-text-1.15.0.jar             | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
