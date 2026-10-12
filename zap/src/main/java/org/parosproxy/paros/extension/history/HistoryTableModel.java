@@ -19,6 +19,7 @@
  */
 package org.parosproxy.paros.extension.history;
 
+import java.util.Objects;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableModel;
 
 /** A {@code DefaultHistoryReferencesTableModel} for History tab. */
@@ -47,7 +48,23 @@ class HistoryTableModel extends DefaultHistoryReferencesTableModel {
                     Column.SIZE_RESPONSE_BODY,
                     Column.HIGHEST_ALERT,
                     Column.NOTE,
+                    Column.ADV_NOTES,
                     Column.TAGS
                 });
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return getColumn(columnIndex) == Column.ADV_NOTES;
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        if (getColumn(columnIndex) != Column.ADV_NOTES) {
+            return;
+        }
+        getEntry(rowIndex).getHistoryReference().setNote(Objects.toString(aValue, ""));
+        getEntry(rowIndex).refreshCachedValues();
+        fireTableRowsUpdated(rowIndex, rowIndex);
     }
 }

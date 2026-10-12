@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.HrefTypeInfo;
@@ -60,6 +61,8 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final boolean highestAlertColumn;
     private Boolean note;
     private final boolean noteColumn;
+    private String advNoteText;
+    private final boolean advNoteColumn;
     private String tags;
     private final boolean tagsColumn;
 
@@ -130,6 +133,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
         highestAlertColumn = hasColumn(sortedColumns, Column.HIGHEST_ALERT);
         noteColumn = hasColumn(sortedColumns, Column.NOTE);
+        advNoteColumn = hasColumn(sortedColumns, Column.ADV_NOTES);
         tagsColumn = hasColumn(sortedColumns, Column.TAGS);
 
         alertRiskCellItem = super.getHighestAlert();
@@ -262,6 +266,20 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     }
 
     @Override
+    public String getNoteText() {
+        if (advNoteColumn && advNoteText == null) {
+            // Short-circuit: if the NOTE boolean column is included and its cached flag
+            // is false, there is definitely no note — skip the DB read.
+            if (noteColumn && Boolean.FALSE.equals(hasNote())) {
+                advNoteText = "";
+            } else {
+                advNoteText = Objects.toString(getHistoryReference().getNote(), "");
+            }
+        }
+        return advNoteText != null ? advNoteText : super.getNoteText();
+    }
+
+    @Override
     public String getTags() {
         return tags;
     }
@@ -275,6 +293,9 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     public void refreshCachedValues() {
         if (noteColumn) {
             note = getHistoryReference().hasNote();
+        }
+        if (advNoteColumn) {
+            advNoteText = null; // invalidate; re-read lazily on next getNoteText() call
         }
         if (tagsColumn) {
             tags = listToCsv(getHistoryReference().getTags());
