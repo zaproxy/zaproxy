@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.ascan;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1024,7 +1023,9 @@ public class ActiveScanAPI extends ApiImplementor {
                         if (pc >= 100) {
                             pc = 99;
                         }
-                        long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
+                        long timeTaken =
+                                hp.getPluginStats(plugin.getId())
+                                        .getTotalTimeMillis(hp.getEffectiveInstant());
                         int reqs = hp.getPluginRequestCount(plugin.getId());
                         int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
                         hpList.addItem(

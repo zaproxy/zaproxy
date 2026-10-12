@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Locale;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
@@ -98,8 +98,17 @@ public class ScanProgressItem {
             return -1;
         }
 
-        Date end = (plugin.getTimeFinished() == null) ? new Date() : plugin.getTimeFinished();
-        return (end.getTime() - plugin.getTimeStarted().getTime());
+        // If finished, use recorded finish time (Date-based compatibility)
+        if (plugin.getTimeFinished() != null) {
+            return plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
+        }
+
+        // Running plugin: compute elapsed using scanner-aligned Instant so paused time is excluded.
+        Instant effNow =
+                (hProcess != null && hProcess.getEffectiveInstant() != null)
+                        ? hProcess.getEffectiveInstant()
+                        : Instant.now();
+        return pluginStats.getTotalTimeMillis(effNow);
     }
 
     /**
