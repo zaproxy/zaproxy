@@ -35,11 +35,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.util.internal.PatternSetFactory;
 
 /**
  * A task that changes a JFlex's generated class to be a {@code RSyntaxTextArea}'s {@code
@@ -63,11 +65,19 @@ import org.gradle.api.tasks.TaskAction;
 public class JFlexToRstaTokenMaker extends SourceTask {
 
     private final DirectoryProperty outputDirectory;
+    private final PatternSetFactory patternSetFactory;
 
-    public JFlexToRstaTokenMaker() {
+    @Inject
+    public JFlexToRstaTokenMaker(PatternSetFactory patternSetFactory) {
+        this.patternSetFactory = patternSetFactory;
         this.outputDirectory = getProject().getObjects().directoryProperty();
 
         include("**/*.java");
+    }
+
+    @Override
+    protected PatternSetFactory getPatternSetFactory() {
+        return patternSetFactory;
     }
 
     @OutputDirectory
