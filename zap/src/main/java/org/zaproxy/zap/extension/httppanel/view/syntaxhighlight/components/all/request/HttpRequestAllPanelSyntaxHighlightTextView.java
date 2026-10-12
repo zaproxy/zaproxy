@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -112,11 +113,12 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 
         private static final long serialVersionUID = 923466158533211593L;
 
-        // private static final String HTTP_REQUEST_HEADER_AND_BODY = "HTTP Request Header and
-        // Body";
+        private static final String HTTP_REQUEST_HEADER_AND_BODY =
+                Constant.messages.getString(
+                        "http.panel.view.syntaxtext.syntax.httpRequestHeaderAndBody");
 
-        // private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY =
-        // "text/http-request-header-body";
+        private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY =
+                "text/http-request-header-body";
 
         private static RequestAllTokenMakerFactory tokenMakerFactory = null;
 
@@ -131,8 +133,8 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
         public HttpRequestAllPanelSyntaxHighlightTextArea(ContentSplitter contentSplitter) {
             this.contentSplitter = contentSplitter;
 
-            // addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY,
-            // SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
+            addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
+            setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
 
             caretVisibilityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
         }
@@ -284,10 +286,9 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
         private static class RequestAllTokenMakerFactory extends CustomTokenMakerFactory {
 
             public RequestAllTokenMakerFactory() {
-                // String pkg = "";
-
-                // putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY, pkg +
-                // "HttpRequestHeaderAndBodyTokenMaker");
+                String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+                putMapping(
+                        SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY, pkg + "HttpRequestTokenMaker");
             }
         }
     }
