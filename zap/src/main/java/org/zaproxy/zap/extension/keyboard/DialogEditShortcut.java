@@ -152,7 +152,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
         list.add(".");
         list.add("/");
         // Function keys
-        for (int i = 1; i <= 12; i++) {
+        for (int i = 1; i <= 24; i++) {
             list.add("F" + i);
         }
         // Arrow keys
