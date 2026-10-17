@@ -72,7 +72,7 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
                 LOGGER.warn("Could not Save Header: {}", new String(data, 0, pos), e);
             }
             throw new InvalidMessageDataException(
-                    Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
+                    HttpPanelViewModelUtils.getMalformedHeaderMessage(e), e);
         }
 
         httpMessage.getRequestBody().setBody(ArrayUtils.subarray(data, pos, data.length));

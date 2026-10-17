@@ -29,11 +29,29 @@ public class HttpMalformedHeaderException extends IOException {
 
     private static final long serialVersionUID = 2328568976708794693L;
 
+    private final int lineNumber;
+
     public HttpMalformedHeaderException() {
-        super();
+        this(null);
     }
 
     public HttpMalformedHeaderException(String msg) {
         super(msg);
+        lineNumber = -1;
+    }
+
+    public HttpMalformedHeaderException(String msg, int lineNumber) {
+        super(msg);
+        this.lineNumber = lineNumber;
+    }
+
+    /**
+     * Gets the line number of the malformed header data.
+     *
+     * @return the one-based line number, or {@code -1} if not known.
+     * @since 2.18.0
+     */
+    public int getLineNumber() {
+        return lineNumber;
     }
 }
