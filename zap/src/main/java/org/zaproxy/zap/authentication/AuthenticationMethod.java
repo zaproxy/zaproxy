@@ -220,6 +220,26 @@ public abstract class AuthenticationMethod {
     public abstract void replaceUserDataInPollRequest(HttpMessage msg, User user);
 
     /**
+     * Whether poll requests sent for this method's verification should have the user's
+     * authenticated session reapplied by the HTTP-sending infrastructure, after {@link
+     * #replaceUserDataInPollRequest} has already run on the message.
+     *
+     * <p>Methods that fully authenticate their poll request themselves with credentials other than
+     * the resource owner's session (e.g. RFC 7662 introspection, authenticating as the OAuth2
+     * client) should override this to return {@code false} for such requests.
+     *
+     * @param msg the poll request, after {@link #replaceUserDataInPollRequest} has run
+     * @param user the user the poll is being sent as
+     * @return {@code true} if the session should be reapplied (the default, preserving existing
+     *     behaviour), {@code false} if this method has already fully authenticated the message
+     *     itself
+     * @since 2.18.0
+     */
+    public boolean appliesAuthenticatedSessionToPollRequest(HttpMessage msg, User user) {
+        return true;
+    }
+
+    /**
      * Called when the Authentication Method is persisted/saved in a Context. For example, in this
      * method, UI elements can be marked accordingly.Description
      */
