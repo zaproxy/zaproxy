@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.network;
 
+import java.io.IOException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 
@@ -93,4 +94,24 @@ public interface HttpSenderListener {
      * @param sender the sender of the message
      */
     void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender);
+
+    /**
+     * Notifies the listener that sending the given message failed with an I/O error, so no response
+     * was received.
+     *
+     * <p>The message has the request and no response. The exception is still propagated to the
+     * sender.
+     *
+     * <p>The default implementation does nothing.
+     *
+     * @param msg the {@code HttpMessage} that failed to be sent
+     * @param initiator the ID of the entity that's sending the message
+     * @param sender the sender of the message
+     * @param cause the I/O error that caused the failure
+     * @since 2.18.0
+     */
+    default void onHttpSendFailed(
+            HttpMessage msg, int initiator, HttpSender sender, IOException cause) {
+        // Nothing to do.
+    }
 }
