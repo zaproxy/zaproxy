@@ -130,6 +130,7 @@ Scan rules:
 20017   Source Code Disclosure - CVE-2012-1823
 20018   Remote Code Execution - CVE-2012-1823
 20019   External Redirect
+20020	Server Side Versions with Known Vulnerabilities
 
 30001  Check for buffer overflow in back end C code
 30002  Check for proper format string handling in back end c code.
@@ -185,6 +186,7 @@ Scan rules:
 40047   Text4Shell (CVE-2022-42889)
 40048   React4Shell (CVE-2025-55182, CVE-2025-66478)
 40049   Payment Amount Manipulation
+
 40100   Client-Side Data Flow (Foxhound)
 40101   Client-Side Cross-Site Scripting (Foxhound)
 40102   Stored Client-Side Cross-Site Scripting (Foxhound)
