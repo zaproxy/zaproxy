@@ -28,6 +28,24 @@ plugins {
 group = "org.zaproxy"
 val versionBC = project.property("zap.japicmp.baseversion") as String
 
+// Classpath holding the java2ts annotation processor, used only by the generateZapApiTypes task.
+val zapApiTypesProcessor: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+
+// Patched java2typescript build (../java2typescript, built with `mvn -pl core,processor -am install`).
+// The patch loads classes without initializing them (avoids ExceptionInInitializerError on ZAP
+// classes whose static initializers need a running ZAP). metainf-services/javax.json are optional
+// deps the used code path never touches, so only these two jars are required.
+val java2tsHome = rootDir.parentFile.resolve("java2typescript")
+val java2tsJars =
+    files(
+        java2tsHome.resolve("core/target/java2ts-processor-core-2.0-20241009.jar"),
+        java2tsHome.resolve("processor/target/java2ts-processor-2.0-20241009.jar"),
+    )
+
+
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
 val distDir = file("src/main/dist/")
@@ -118,6 +136,11 @@ dependencies {
     implementation(libs.flatlaf)
     implementation(libs.flatlaf.swingx)
 
+    // The processor (and the @Java2TS/@Type annotations it defines) is used only by the dedicated
+    // generateZapApiTypes task; the main compile has no dependency on java2typescript.
+    zapApiTypesProcessor(java2tsJars)
+
+
     runtimeOnly(libs.commons.logging)
     runtimeOnly(libs.xom) {
         setTransitive(false)
@@ -149,6 +172,72 @@ tasks.register<JavaExec>("run") {
     mainClass.set("org.zaproxy.zap.ZAP")
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = distDir
+}
+
+// ---------------------------------------------------------------------------------------------
+// ZAP GraalJS API TypeScript declaration generation (bsorrentino/java2typescript)
+// ---------------------------------------------------------------------------------------------
+//
+// The processor resolves the types to declare via Class.forName() at processing time, i.e. from its
+// OWN annotation-processor classpath. Custom ZAP classes therefore have to be already compiled and
+// present on that classpath. This is impossible inside the main compileJava task (it is what
+// produces those classes), so generation runs as a separate compilation that depends on the main
+// output and puts the full runtime classpath + compiled classes on the annotation-processor path.
+//
+// Which types get declared is decided by the processor's -Ats.scan option: it reads the compiled
+// bytecode and keeps the public API surface (public types whose enclosing types are public too).
+// The list of included/skipped classes lands in build/generated/zap-api-types/j2ts/zap-api-scan.txt.
+
+val zapApiTypesOutputDir = layout.buildDirectory.dir("generated/zap-api-types")
+
+tasks.register<JavaCompile>("generateZapApiTypes") {
+    group = "build"
+    description = "Generates TypeScript declarations for the ZAP GraalJS API."
+
+    val main = sourceSets["main"]
+    dependsOn(tasks.named("classes"))
+
+    // Static trigger source: it carries the @Java2TS annotation javac needs to invoke the processor
+    // at all, plus the handful of JDK types to declare. The ZAP types come from -Ats.scan below.
+    source = fileTree("src/zapApiTypes/java")
+
+    // Compiled ZAP classes + all runtime dependencies must be resolvable so that both javac (to
+    // compile the @Type(...) references) and the processor's Class.forName() can find them.
+    val resolveClasspath = files(main.output, main.runtimeClasspath, zapApiTypesProcessor)
+    classpath = resolveClasspath
+    options.annotationProcessorPath = resolveClasspath
+
+    // Roots handed to -Ats.scan below. Also declared as an input: the compiler args are only built
+    // in doFirst, so nothing else tells Gradle that the ZAP classes drive this task's output.
+    val scanRoots = main.output.classesDirs
+    inputs.files(scanRoots).withPropertyName("zapClasses")
+
+    options.generatedSourceOutputDirectory.set(zapApiTypesOutputDir)
+    // Nothing is actually compiled to .class with -proc:only, but JavaCompile still needs a target.
+    destinationDirectory.set(layout.buildDirectory.dir("classes/zap-api-types"))
+
+    // The org.zaproxy.common convention plugin sets ["-Xlint:all", "-Werror", "-parameters"] on
+    // every JavaCompile via a withType(JavaCompile).configureEach { } action. Because that runs on
+    // task realization, a config-time assignment here is unreliable. Set the args in doFirst so it
+    // wins at execution time: annotation processing emits notes and warnings of its own (and the
+    // declared JDK types include deprecated members), so -Werror + -Xlint:all would fail the build.
+    doFirst {
+        options.compilerArgs =
+            listOf(
+                "-proc:only",
+                "-processor",
+                "org.bsc.processor.TypescriptProcessor",
+                "-Ats.outfile=zap-api",
+                "-Ats.registry=zapApi",
+                // Declare every public type found in the compiled ZAP classes. The processor loads
+                // them from its own (annotation processor) classpath, which is why the same files
+                // are both scanned here and set as annotationProcessorPath above.
+                "-Ats.scan=" + scanRoots.joinToString(File.pathSeparator),
+                // Suppress all lint (deprecation/removal/processing/...) and do not fail on it.
+                "-Xlint:none",
+                "-nowarn",
+            )
+    }
 }
 
 listOf("jar", "jarDaily", "jarWithBom").forEach {
