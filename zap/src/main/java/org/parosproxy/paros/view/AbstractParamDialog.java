@@ -49,11 +49,16 @@ import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Collection;
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -178,6 +183,26 @@ public class AbstractParamDialog extends AbstractDialog {
                             GridBagConstraints.EAST,
                             new Insets(2, 2, 2, 2)));
             this.setDefaultButton(getBtnOK());
+            // Ctrl+Enter always triggers the default (OK) button, regardless of which component
+            // has focus - e.g. the panel search field claims plain Enter for itself (see
+            // AbstractParamContainerPanel), so this keeps an explicit, reliable way to accept the
+            // dialogue without first having to move focus away from it.
+            jContentPane
+                    .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                    .put(
+                            KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK),
+                            "paramDialogOk");
+            jContentPane
+                    .getActionMap()
+                    .put(
+                            "paramDialogOk",
+                            new AbstractAction() {
+
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    getBtnOK().doClick();
+                                }
+                            });
 
             jContentPane.add(footerPane, LayoutHelper.getGBC(0, 1, 1, 1.0, 0.0));
         }
