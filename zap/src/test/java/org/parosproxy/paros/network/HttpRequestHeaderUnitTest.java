@@ -342,6 +342,24 @@ class HttpRequestHeaderUnitTest {
         return urls.stream();
     }
 
+    @ParameterizedTest
+    @MethodSource("ipv6referenceUrlHostPairs")
+    void extractIpv6refereceHost(String url, String host) throws Exception {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader("GET " + url + " HTTP/1.1\r\n\r\n");
+        // When / Then
+        assertThat(header.getURI().getHost(), is(equalTo(host)));
+    }
+
+    private static Stream<Arguments> ipv6referenceUrlHostPairs() {
+        return Stream.of(
+                arguments("http://[::1]/<blah>[ ]", "[::1]"), // repaired url
+                arguments(
+                        "http://bob:[::1]@[::ffff:127.0.0.1]:1234/",
+                        "[::ffff:127.0.0.1]") // url with userinfo
+                );
+    }
+
     private static HttpRequestHeader createRequestHeader(String url) {
         HttpRequestHeader hrh = new HttpRequestHeader();
         try {
