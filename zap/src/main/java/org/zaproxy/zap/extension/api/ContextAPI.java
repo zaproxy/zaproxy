@@ -228,10 +228,10 @@ public class ContextAPI extends ApiImplementor {
                                 ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ_UNITS);
                     }
                     int freq;
-                    String pollUrl = params.getString(PARAM_POLL_URL);
-                    String pollData = params.getString(PARAM_POLL_DATA);
-                    String pollHeaders = params.getString(PARAM_POLL_HEADERS);
-                    if (pollUrl == null || pollUrl.isEmpty()) {
+                    String pollUrl = this.getParam(params, PARAM_POLL_URL, "");
+                    String pollData = this.getParam(params, PARAM_POLL_DATA, "");
+                    String pollHeaders = this.getParam(params, PARAM_POLL_HEADERS, "");
+                    if (pollUrl.isEmpty()) {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
                     }
                     try {

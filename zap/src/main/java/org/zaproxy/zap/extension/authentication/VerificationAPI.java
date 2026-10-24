@@ -176,8 +176,8 @@ public class VerificationAPI extends ApiImplementor {
                         throw new ApiException(
                                 ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ_UNITS);
                     }
-                    String pollUrl = params.getString(PARAM_POLL_URL);
-                    if (pollUrl == null || pollUrl.isEmpty()) {
+                    String pollUrl = this.getParam(params, PARAM_POLL_URL, "");
+                    if (pollUrl.isEmpty()) {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
                     }
                     try {
@@ -196,8 +196,8 @@ public class VerificationAPI extends ApiImplementor {
                         throw new ApiException(
                                 ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ);
                     }
-                    String pollData = params.getString(PARAM_POLL_DATA);
-                    String pollHeaders = params.getString(PARAM_POLL_HEADERS);
+                    String pollData = this.getParam(params, PARAM_POLL_DATA, "");
+                    String pollHeaders = this.getParam(params, PARAM_POLL_HEADERS, "");
                     context.getVerificationMethod().setPollUrl(pollUrl);
                     context.getVerificationMethod().setPollData(pollData);
                     context.getVerificationMethod().setPollHeaders(pollHeaders);
