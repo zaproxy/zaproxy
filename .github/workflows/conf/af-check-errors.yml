@@ -79,6 +79,14 @@ jobs:
         operator: '>='
         value: 3
         onFail: 'error'
+  - type: spiderClient
+    tests:
+      - name: 'At least 3 URLs found'
+        type: 'stats'
+        statistic: 'stats.client.spider.urls'
+        operator: '>='
+        value: 3
+        onFail: 'error'
   - type: spiderAjax
     tests:
       - name: 'At least 3 URLs found'
