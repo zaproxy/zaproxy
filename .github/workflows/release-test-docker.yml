@@ -61,6 +61,6 @@ jobs:
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           annotations: |
-            index:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
-            index:org.opencontainers.image.description=Test Docker image with custom add-on builds.
-            index:org.opencontainers.image.licenses=Apache-2.0
+            manifest:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
+            manifest:org.opencontainers.image.description=Test Docker image with custom add-on builds.
+            manifest:org.opencontainers.image.licenses=Apache-2.0
