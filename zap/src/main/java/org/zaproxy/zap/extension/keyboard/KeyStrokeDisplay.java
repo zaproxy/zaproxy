@@ -42,6 +42,25 @@ public final class KeyStrokeDisplay {
         wrapPartsHtml(sb, getSymbolParts(keyStroke));
     }
 
+    /**
+     * Appends the HTML symbols of the given key stroke like {@link
+     * #appendHtmlSymbols(StringBuilder, KeyStroke)}, but using the given label for the key itself
+     * instead of the one {@link #getKeySymbol(int)} would compute.
+     *
+     * <p>Used when the character actually captured for this key stroke is known (see {@link
+     * KeyboardShortcut#getKeyChar()}), so it can be shown instead of the static, US-QWERTY based
+     * guess.
+     *
+     * @param sb the builder to append to.
+     * @param keyStroke the key stroke to format, never {@code null}.
+     * @param keyLabel the label to use for the key, instead of computing one from its key code.
+     */
+    public static void appendHtmlSymbols(StringBuilder sb, KeyStroke keyStroke, String keyLabel) {
+        List<String> parts = getModifierSymbolParts(keyStroke.getModifiers());
+        parts.add(keyLabel);
+        wrapPartsHtml(sb, parts);
+    }
+
     public static int compare(KeyStroke ks1, KeyStroke ks2) {
         if (ks1 == null && ks2 == null) {
             return 0;
@@ -59,75 +78,37 @@ public final class KeyStrokeDisplay {
         return Integer.compare(ks1.getModifiers(), ks2.getModifiers());
     }
 
-    private static List<String> getSymbolParts(KeyStroke keyStroke) {
-        List<String> parts = new ArrayList<>();
-        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
-            return parts;
-        }
-        if (isMetaSet(keyStroke.getModifiers())) {
-            parts.add(getMetaSymbol());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
-            parts.add(getControlSymbol());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
-            parts.add(getAltSymbol());
-        }
-        if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
-            parts.add(getShiftSymbol());
-        }
-        parts.add(getKeySymbol(keyStroke.getKeyCode()));
-        return parts;
-    }
-
-    private static boolean isMetaSet(int modifiers) {
-        return (modifiers & InputEvent.META_DOWN_MASK) != 0;
-    }
-
-    private static String getMetaSymbol() {
-        if (Constant.isMacOsX()) {
-            return "⌘";
-        }
-        if (Constant.isWindows()) {
-            return Constant.messages.getString("keyboard.key.win");
-        }
-        return Constant.messages.getString("keyboard.key.super");
-    }
-
-    private static String getAltSymbol() {
-        return Constant.isMacOsX() ? "⌥" : Constant.messages.getString("keyboard.key.alt");
-    }
-
-    private static String getControlSymbol() {
-        return "⌃";
-    }
-
-    private static String getShiftSymbol() {
-        return "⇧";
+    public static String formatPlain(KeyStroke keyStroke) {
+        // Space delimited, to match the format used elsewhere for shortcuts (e.g. in menus).
+        return String.join(" ", getSymbolParts(keyStroke));
     }
 
     /**
-     * Gets the symbol of the given key code, as shown in the UI.
+     * Formats the given key stroke like {@link #formatPlain(KeyStroke)}, but using the given label
+     * for the key itself instead of the one {@link #getKeySymbol(int)} would compute.
      *
-     * @param keyCode the key code.
-     * @return the symbol of the key.
+     * <p>Used only for live key stroke capture, where the actual character produced by the key
+     * (from a {@code KEY_TYPED} event) is known and is more accurate than the static, US-QWERTY
+     * based guess in {@link #getKeyName(int)} — e.g. on non-US layouts with keys that have no US
+     * equivalent.
+     *
+     * @param keyStroke the key stroke being captured, never {@code null}.
+     * @param keyLabel the label to use for the key, instead of computing one from its key code.
+     * @return the formatted key stroke.
      */
-    private static String getKeySymbol(int keyCode) {
-        return switch (keyCode) {
-            case KeyEvent.VK_UP -> "↑";
-            case KeyEvent.VK_DOWN -> "↓";
-            case KeyEvent.VK_LEFT -> "←";
-            case KeyEvent.VK_RIGHT -> "→";
-            default -> getKeyName(keyCode);
-        };
+    static String formatPlain(KeyStroke keyStroke, String keyLabel) {
+        List<String> parts = getModifierSymbolParts(keyStroke.getModifiers());
+        parts.add(keyLabel);
+        return String.join(" ", parts);
     }
 
     /**
      * Gets the name of the given key code, as shown in the UI.
      *
-     * <p>This is a best-effort, US-QWERTY based guess used for already-saved shortcuts, where
-     * there's no live {@code KeyEvent} to consult for the character actually produced by the user's
-     * keyboard layout.
+     * <p>This is a best-effort, US-QWERTY based guess used only for already-saved shortcuts (e.g.
+     * the options table, the HTML cheatsheet), where there's no live {@code KeyEvent} to consult
+     * for the character actually produced by the user's keyboard layout. Live capture instead uses
+     * the character reported by the {@code KEY_TYPED} event, see {@code KeyStrokeCaptureField}.
      *
      * @param keyCode the key code.
      * @return the name of the key.
@@ -153,6 +134,22 @@ public final class KeyStrokeDisplay {
             case KeyEvent.VK_PERIOD -> ".";
             case KeyEvent.VK_SLASH -> "/";
             default -> String.valueOf((char) keyCode);
+        };
+    }
+
+    /**
+     * Gets the symbol of the given key code, as shown in the UI.
+     *
+     * @param keyCode the key code.
+     * @return the symbol of the key.
+     */
+    private static String getKeySymbol(int keyCode) {
+        return switch (keyCode) {
+            case KeyEvent.VK_UP -> "↑";
+            case KeyEvent.VK_DOWN -> "↓";
+            case KeyEvent.VK_LEFT -> "←";
+            case KeyEvent.VK_RIGHT -> "→";
+            default -> getKeyName(keyCode);
         };
     }
 
@@ -203,6 +200,102 @@ public final class KeyStrokeDisplay {
             case KeyEvent.VK_RIGHT -> Constant.messages.getString("keyboard.key.right");
             default -> null;
         };
+    }
+
+    /**
+     * Tells whether the given key code has no meaningful display, that is, it's neither a key named
+     * in the UI, nor a character key (whose character is shown), e.g. media, browser, or IME keys.
+     *
+     * <p>Such key codes are not captured as key strokes.
+     *
+     * @param keyCode the key code.
+     * @return {@code true} if the key code has no meaningful display.
+     */
+    static boolean isUnnamedKey(int keyCode) {
+        return getNamedKey(keyCode) == null && !isCharacterKey(keyCode);
+    }
+
+    /**
+     * Tells whether the given key code is that of a character key, which {@link #getKeyName(int)}
+     * displays as its character.
+     *
+     * <p>Note the key codes of the shifted symbols (e.g. {@code @} or {@code %}) either collide
+     * with the codes of the named keys, checked first, or are not reported for physical keys.
+     *
+     * @param keyCode the key code.
+     * @return {@code true} if the key code is that of a character key.
+     */
+    private static boolean isCharacterKey(int keyCode) {
+        if ((keyCode >= KeyEvent.VK_A && keyCode <= KeyEvent.VK_Z)
+                || (keyCode >= KeyEvent.VK_0 && keyCode <= KeyEvent.VK_9)) {
+            return true;
+        }
+        return switch (keyCode) {
+            case KeyEvent.VK_BACK_QUOTE,
+                    KeyEvent.VK_MINUS,
+                    KeyEvent.VK_EQUALS,
+                    KeyEvent.VK_OPEN_BRACKET,
+                    KeyEvent.VK_CLOSE_BRACKET,
+                    KeyEvent.VK_BACK_SLASH,
+                    KeyEvent.VK_SEMICOLON,
+                    KeyEvent.VK_QUOTE,
+                    KeyEvent.VK_COMMA,
+                    KeyEvent.VK_PERIOD,
+                    KeyEvent.VK_SLASH -> true;
+            default -> false;
+        };
+    }
+
+    private static List<String> getSymbolParts(KeyStroke keyStroke) {
+        if (keyStroke == null || keyStroke.getKeyCode() == 0) {
+            return new ArrayList<>();
+        }
+        List<String> parts = getModifierSymbolParts(keyStroke.getModifiers());
+        parts.add(getKeySymbol(keyStroke.getKeyCode()));
+        return parts;
+    }
+
+    private static List<String> getModifierSymbolParts(int modifiers) {
+        List<String> parts = new ArrayList<>();
+        if (isMetaSet(modifiers)) {
+            parts.add(getMetaSymbol());
+        }
+        if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
+            parts.add(getControlSymbol());
+        }
+        if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0) {
+            parts.add(getAltSymbol());
+        }
+        if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
+            parts.add(getShiftSymbol());
+        }
+        return parts;
+    }
+
+    private static boolean isMetaSet(int modifiers) {
+        return (modifiers & InputEvent.META_DOWN_MASK) != 0;
+    }
+
+    private static String getMetaSymbol() {
+        if (Constant.isMacOsX()) {
+            return "⌘";
+        }
+        if (Constant.isWindows()) {
+            return Constant.messages.getString("keyboard.key.win");
+        }
+        return Constant.messages.getString("keyboard.key.super");
+    }
+
+    private static String getAltSymbol() {
+        return Constant.isMacOsX() ? "⌥" : Constant.messages.getString("keyboard.key.alt");
+    }
+
+    private static String getControlSymbol() {
+        return "⌃";
+    }
+
+    private static String getShiftSymbol() {
+        return "⇧";
     }
 
     private static int getFunctionKeyNumber(int keyCode) {

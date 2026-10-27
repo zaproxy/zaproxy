@@ -253,8 +253,11 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
         }
 
         setConfiguredAccelerator(menuItem);
-        return new KeyboardShortcut(
-                menuItem.getIdentifier(), menuItem.getText(), menuItem.getAccelerator());
+        KeyboardShortcut shortcut =
+                new KeyboardShortcut(
+                        menuItem.getIdentifier(), menuItem.getText(), menuItem.getAccelerator());
+        shortcut.setKeyChar(getKeyboardParam().getShortcutChar(menuItem.getIdentifier()));
+        return shortcut;
     }
 
     /**
@@ -280,6 +283,19 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     }
 
     public void setShortcut(String identifier, KeyStroke ks) {
+        setShortcut(identifier, ks, null);
+    }
+
+    /**
+     * Sets the accelerator of the menu with the given identifier, along with the character actually
+     * captured for it, if known.
+     *
+     * @param identifier the menu's identifier.
+     * @param ks the key stroke to set.
+     * @param keyChar the character captured for the key stroke, or {@code null} if not known.
+     * @since 2.18.0
+     */
+    public void setShortcut(String identifier, KeyStroke ks, Character keyChar) {
         KeyboardMapping mapping = (KeyboardMapping) this.map.get(identifier);
         if (mapping == null) {
             LOGGER.error("No mapping found for keyboard shortcut: {}", identifier);
@@ -287,6 +303,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
         }
         mapping.setKeyStroke(ks);
         this.getKeyboardParam().setShortcut(identifier, ks);
+        this.getKeyboardParam().setShortcutChar(identifier, keyChar);
     }
 
     private OptionsKeyboardShortcutPanel getOptionsKeyboardPanel() {
