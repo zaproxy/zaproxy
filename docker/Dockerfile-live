@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
+# Add-ons (*.zap) to copy into the plugin directory, used for test images.
+# Empty by default, replace it with: --build-context addons=<dir containing .zap files>
+FROM scratch AS addons
+
 FROM --platform=linux/amd64 debian:trixie-slim AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -103,6 +107,7 @@ ENV LANG=C.UTF-8
 
 COPY --link --from=builder --chown=1000:1000 /zap-src/zaproxy/zap/build/distFilesWeekly/ /zap/
 COPY --link --chown=1000:1000 zap* CHANGELOG.md /zap/
+COPY --link --from=addons --chown=1000:1000 / /zap/plugin/
 COPY --link --from=builder --chown=1000:1000 /zap/webswing /zap/webswing
 COPY --link --chown=1000:1000 webswing.config /zap/webswing/
 COPY --link --chown=1000:1000 webswing.properties /zap/webswing/
