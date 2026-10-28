@@ -50,6 +50,7 @@ public final class LangImporter {
 
     public static String importLanguagePack(String languagePack) {
         Pattern includedFilesPattern = createIncludedFilesPattern();
+        Path installDir = Paths.get(Constant.getZapInstall()).toAbsolutePath().normalize();
 
         int langFileCount = 0;
         String message = "";
@@ -70,9 +71,14 @@ public final class LangImporter {
                         String name = zipEntry.getName();
 
                         if (includedFilesPattern.matcher(name).find()) {
-                            langFileCount++;
+                            Path outputFile = installDir.resolve(name).normalize();
+                            if (!outputFile.startsWith(installDir)) {
+                                LOGGER.warn(
+                                        "Ignoring language pack entry outside the installation directory.");
+                                continue;
+                            }
 
-                            Path outputFile = Paths.get(Constant.getZapInstall(), name);
+                            langFileCount++;
                             try (BufferedOutputStream bos =
                                     new BufferedOutputStream(
                                             Files.newOutputStream(outputFile), buffer.length)) {
