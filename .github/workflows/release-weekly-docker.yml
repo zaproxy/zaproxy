@@ -53,7 +53,7 @@ jobs:
             zaproxy/zap-weekly:${{ env.REL_DATE_SHORT }}
             zaproxy/zap-weekly:latest
           secrets: |
-            webswing_url=${{ secrets.WEBSWING_URL }}
+            webswing_key=${{ secrets.WEBSWING_KEY }}
           annotations: |
             index:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
             index:org.opencontainers.image.description=The weekly Docker image for the world’s most widely used web app scanner.

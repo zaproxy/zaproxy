@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2026-10-28
+- Updated to use Webswing 26.
+
 ### 2026-07-06
 - Default to the Client Spider when -j (the modern option) specified.
 
