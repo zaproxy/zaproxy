@@ -1261,9 +1261,15 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     }
 
     @Override
-    public AuthenticationMethod loadMethodFromSession(Session session, int contextId)
+    protected Class<? extends AuthenticationMethod> getAuthenticationMethodClass() {
+        return PostBasedAuthenticationMethod.class;
+    }
+
+    @Override
+    protected void doLoadMethodFromSession(
+            Session session, int contextId, AuthenticationMethod authMethod)
             throws DatabaseException {
-        PostBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
+        PostBasedAuthenticationMethod method = (PostBasedAuthenticationMethod) authMethod;
         List<String> urls =
                 session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1);
         String url = "";
@@ -1291,19 +1297,12 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         } catch (Exception e) {
             LOGGER.error("Unable to load Post based authentication method data:", e);
         }
-        return method;
     }
 
     @Override
-    public void persistMethodToSession(
+    protected void doPersistMethodToSession(
             Session session, int contextId, AuthenticationMethod authMethod)
             throws DatabaseException {
-        if (!(authMethod instanceof PostBasedAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "Post based authentication type only supports: "
-                            + PostBasedAuthenticationMethod.class);
-        }
-
         PostBasedAuthenticationMethod method = (PostBasedAuthenticationMethod) authMethod;
         session.setContextData(
                 contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.loginRequestURL);
@@ -1389,12 +1388,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     }
 
     @Override
-    public void exportData(Configuration config, AuthenticationMethod authMethod) {
-        if (!(authMethod instanceof PostBasedAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "Post based authentication type only supports: "
-                            + PostBasedAuthenticationMethod.class.getName());
-        }
+    protected void doExportData(Configuration config, AuthenticationMethod authMethod) {
         PostBasedAuthenticationMethod method = (PostBasedAuthenticationMethod) authMethod;
 
         config.setProperty(CONTEXT_CONFIG_AUTH_FORM_LOGINURL, method.loginRequestURL);
@@ -1403,13 +1397,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     }
 
     @Override
-    public void importData(Configuration config, AuthenticationMethod authMethod)
+    protected void doImportData(Configuration config, AuthenticationMethod authMethod)
             throws ConfigurationException {
-        if (!(authMethod instanceof PostBasedAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "Post based authentication type only supports: "
-                            + PostBasedAuthenticationMethod.class.getName());
-        }
         PostBasedAuthenticationMethod method = (PostBasedAuthenticationMethod) authMethod;
 
         try {

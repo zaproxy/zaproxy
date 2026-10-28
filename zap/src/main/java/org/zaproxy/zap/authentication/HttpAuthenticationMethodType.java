@@ -30,7 +30,6 @@ import java.util.Map;
 import javax.swing.JLabel;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.logging.log4j.LogManager;
@@ -321,9 +320,10 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     }
 
     @Override
-    public AuthenticationMethod loadMethodFromSession(Session session, int contextId)
+    protected void doLoadMethodFromSession(
+            Session session, int contextId, AuthenticationMethod authMethod)
             throws DatabaseException {
-        HttpAuthenticationMethod method = createAuthenticationMethod(contextId);
+        HttpAuthenticationMethod method = (HttpAuthenticationMethod) authMethod;
 
         List<String> hostnames =
                 session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1);
@@ -345,18 +345,12 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
                 LOGGER.error("Unable to load HttpAuthenticationMethod. ", ex);
             }
         }
-
-        return method;
     }
 
     @Override
-    public void persistMethodToSession(
+    protected void doPersistMethodToSession(
             Session session, int contextId, AuthenticationMethod authMethod)
-            throws UnsupportedAuthenticationMethodException, DatabaseException {
-        if (!(authMethod instanceof HttpAuthenticationMethod))
-            throw new UnsupportedAuthenticationMethodException(
-                    "Http Authentication type only supports: " + HttpAuthenticationMethod.class);
-
+            throws DatabaseException {
         HttpAuthenticationMethod method = (HttpAuthenticationMethod) authMethod;
         session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.hostname);
         session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_2, method.realm);
@@ -433,13 +427,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     }
 
     @Override
-    public void importData(Configuration config, AuthenticationMethod authMethod)
-            throws ConfigurationException {
-        if (!(authMethod instanceof HttpAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "HTTP based authentication type only supports: "
-                            + HttpAuthenticationMethod.class.getName());
-        }
+    protected void doImportData(Configuration config, AuthenticationMethod authMethod) {
         HttpAuthenticationMethod method = (HttpAuthenticationMethod) authMethod;
         method.hostname = config.getString(CONTEXT_CONFIG_AUTH_HTTP_HOSTNAME);
         method.realm = config.getString(CONTEXT_CONFIG_AUTH_HTTP_REALM);

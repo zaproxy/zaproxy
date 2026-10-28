@@ -133,27 +133,77 @@ public abstract class AuthenticationMethodType {
      * Loads an authentication method from the Session. The implementation depends on the
      * Authentication method type.
      *
+     * <p>Creates the authentication method with {@link #createAuthenticationMethod(int)} and then
+     * delegates to {@link #doLoadMethodFromSession(Session, int, AuthenticationMethod)}.
+     *
      * @param session the session
      * @param contextId the ID of the context
      * @return the authentication method
      * @throws DatabaseException if an error occurred while loading the authentication method
      */
-    public abstract AuthenticationMethod loadMethodFromSession(Session session, int contextId)
-            throws DatabaseException;
+    public AuthenticationMethod loadMethodFromSession(Session session, int contextId)
+            throws DatabaseException {
+        AuthenticationMethod method = createAuthenticationMethod(contextId);
+        doLoadMethodFromSession(session, contextId, method);
+        return method;
+    }
+
+    /**
+     * Loads the authentication method data from the Session.
+     *
+     * <p>Called by {@link #loadMethodFromSession(Session, int)} with a new authentication method,
+     * created by {@link #createAuthenticationMethod(int)}, to populate with the stored data. The
+     * default implementation does nothing; each authentication method type should override it to
+     * read its own fields.
+     *
+     * @param session the session
+     * @param contextId the ID of the context
+     * @param authMethod the authentication method to populate
+     * @throws DatabaseException if an error occurred while loading the authentication method
+     * @since TODO
+     */
+    protected void doLoadMethodFromSession(
+            Session session, int contextId, AuthenticationMethod authMethod)
+            throws DatabaseException {}
 
     /**
      * Persists the authentication method to the session.
      *
+     * <p>Validates that the authentication method is of the type supported by this type (see {@link
+     * #getAuthenticationMethodClass()}) and then delegates to {@link
+     * #doPersistMethodToSession(Session, int, AuthenticationMethod)}.
+     *
      * @param session the session
      * @param contextId the context id
      * @param authMethod the auth method to persist
-     * @throws UnsupportedAuthenticationMethodException the unsupported authentication method
-     *     exception
+     * @throws UnsupportedAuthenticationMethodException if the authentication method is not of the
+     *     supported type
      * @throws DatabaseException if an error occurred while persisting the authentication method
      */
-    public abstract void persistMethodToSession(
+    public void persistMethodToSession(
             Session session, int contextId, AuthenticationMethod authMethod)
-            throws DatabaseException;
+            throws DatabaseException {
+        AuthenticationMethod method = checkAuthenticationMethod(authMethod);
+        doPersistMethodToSession(session, contextId, method);
+    }
+
+    /**
+     * Persists the authentication method data to the session.
+     *
+     * <p>Called by {@link #persistMethodToSession(Session, int, AuthenticationMethod)} after the
+     * authentication method has been validated. The default implementation does nothing; each
+     * authentication method type should override it to write its own fields.
+     *
+     * @param session the session
+     * @param contextId the context id
+     * @param authMethod the authentication method to persist, guaranteed to be of the type returned
+     *     by {@link #getAuthenticationMethodClass()} when that method does not return {@code null}
+     * @throws DatabaseException if an error occurred while persisting the authentication method
+     * @since TODO
+     */
+    protected void doPersistMethodToSession(
+            Session session, int contextId, AuthenticationMethod authMethod)
+            throws DatabaseException {}
 
     /**
      * Export the specified method to the configuration
@@ -203,7 +253,7 @@ public abstract class AuthenticationMethodType {
      */
     protected void doExportData(Configuration config, AuthenticationMethod authMethod) {}
 
-    private AuthenticationMethod checkAuthenticationMethod(AuthenticationMethod authMethod) {
+    protected AuthenticationMethod checkAuthenticationMethod(AuthenticationMethod authMethod) {
         Class<? extends AuthenticationMethod> clazz = getAuthenticationMethodClass();
         if (clazz != null && !clazz.isInstance(authMethod)) {
             throw new UnsupportedAuthenticationMethodException(
@@ -215,13 +265,39 @@ public abstract class AuthenticationMethodType {
     /**
      * Import the method from the configuration
      *
+     * <p>Validates that the authentication method is of the type supported by this type (see {@link
+     * #getAuthenticationMethodClass()}) and then delegates to {@link #doImportData(Configuration,
+     * AuthenticationMethod)}.
+     *
      * @param config the {@code Configuration} from where to import/load the authentication method
      * @param authMethod where to set the imported authentication method data
+     * @throws UnsupportedAuthenticationMethodException if the authentication method is not of the
+     *     supported type
      * @throws ConfigurationException if an error occurred while reading the authentication method
      *     data
      */
-    public abstract void importData(Configuration config, AuthenticationMethod authMethod)
-            throws ConfigurationException;
+    public void importData(Configuration config, AuthenticationMethod authMethod)
+            throws ConfigurationException {
+        AuthenticationMethod method = checkAuthenticationMethod(authMethod);
+        doImportData(config, method);
+    }
+
+    /**
+     * Imports the authentication method from the configuration.
+     *
+     * <p>Called by {@link #importData(Configuration, AuthenticationMethod)} after the
+     * authentication method has been validated. The default implementation does nothing; each
+     * authentication method type should override it to read its own fields.
+     *
+     * @param config the {@code Configuration} from where to import/load the authentication method
+     * @param authMethod the authentication method to update, guaranteed to be of the type returned
+     *     by {@link #getAuthenticationMethodClass()} when that method does not return {@code null}
+     * @throws ConfigurationException if an error occurred while reading the authentication method
+     *     data
+     * @since TODO
+     */
+    protected void doImportData(Configuration config, AuthenticationMethod authMethod)
+            throws ConfigurationException {}
 
     @Override
     public String toString() {

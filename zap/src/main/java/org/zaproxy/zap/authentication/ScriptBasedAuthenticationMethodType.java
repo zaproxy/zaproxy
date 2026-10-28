@@ -40,7 +40,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -725,17 +724,27 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     }
 
     @Override
+    protected Class<? extends AuthenticationMethod> getAuthenticationMethodClass() {
+        return ScriptBasedAuthenticationMethod.class;
+    }
+
+    @Override
     public ScriptBasedAuthenticationMethod loadMethodFromSession(Session session, int contextId)
             throws DatabaseException {
-        ScriptBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
+        return (ScriptBasedAuthenticationMethod) super.loadMethodFromSession(session, contextId);
+    }
+
+    @Override
+    protected void doLoadMethodFromSession(
+            Session session, int contextId, AuthenticationMethod authMethod)
+            throws DatabaseException {
+        ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
 
         // Load the script and make sure it still exists and still follows the required interface
         this.loadMethod(
                 method,
                 session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1),
                 session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_2));
-
-        return method;
     }
 
     public void loadMethod(
@@ -801,11 +810,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     }
 
     @Override
-    public void persistMethodToSession(
+    protected void doPersistMethodToSession(
             Session session, int contextId, AuthenticationMethod authMethod)
-            throws UnsupportedAuthenticationMethodException, DatabaseException {
-        validateAuthenticationMethod(authMethod);
-
+            throws DatabaseException {
         ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
         session.setContextData(
                 contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.script.getName());
@@ -823,11 +830,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
      * @since 2.17.0
      */
     protected void validateAuthenticationMethod(AuthenticationMethod method) {
-        if (!(method instanceof ScriptBasedAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "Script based authentication type only supports: "
-                            + ScriptBasedAuthenticationMethod.class);
-        }
+        checkAuthenticationMethod(method);
     }
 
     @Override
@@ -1051,9 +1054,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     }
 
     @Override
-    public void exportData(Configuration config, AuthenticationMethod authMethod) {
-        validateAuthenticationMethod(authMethod);
-
+    protected void doExportData(Configuration config, AuthenticationMethod authMethod) {
         ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
         config.setProperty(CONTEXT_CONFIG_AUTH_SCRIPT_NAME, method.script.getName());
         config.setProperty(
@@ -1061,10 +1062,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     }
 
     @Override
-    public void importData(Configuration config, AuthenticationMethod authMethod)
-            throws ConfigurationException {
-        validateAuthenticationMethod(authMethod);
-
+    protected void doImportData(Configuration config, AuthenticationMethod authMethod) {
         ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
         this.loadMethod(
                 method,
