@@ -158,10 +158,59 @@ public abstract class AuthenticationMethodType {
     /**
      * Export the specified method to the configuration
      *
+     * <p>Validates that the authentication method is of the type supported by this type (see {@link
+     * #getAuthenticationMethodClass()}) and then delegates to {@link #doExportData(Configuration,
+     * AuthenticationMethod)}.
+     *
      * @param config the {@code Configuration} where to export/save the authentication method
      * @param authMethod the authentication method to be exported
+     * @throws UnsupportedAuthenticationMethodException if the authentication method is not of the
+     *     supported type
      */
-    public abstract void exportData(Configuration config, AuthenticationMethod authMethod);
+    public void exportData(Configuration config, AuthenticationMethod authMethod) {
+        AuthenticationMethod method = checkAuthenticationMethod(authMethod);
+        doExportData(config, method);
+    }   
+
+    /**
+     * Gets the class of the authentication method supported by this type.
+     *
+     * <p>Used by {@link #exportData(Configuration, AuthenticationMethod)} (and other template
+     * methods, once introduced) to validate the authentication method. The default implementation
+     * returns {@code null}, which means that no validation is performed and any authentication
+     * method is accepted.
+     *
+     * @return the class of the supported authentication method, or {@code null} if any method is
+     *     accepted
+     * @since TODO
+     */
+    protected Class<? extends AuthenticationMethod> getAuthenticationMethodClass() {
+        return null;
+    }
+
+    /**
+     * Exports the authentication method to the configuration.
+     *
+     * <p>Called by {@link #exportData(Configuration, AuthenticationMethod)} after the
+     * authentication method has been validated. The default implementation does nothing; each
+     * authentication method type should override it to write its own fields.
+     *
+     * @param config the {@code Configuration} where to export/save the authentication method
+     * @param authMethod the authentication method to be exported, guaranteed to be of the type
+     *     returned by {@link #getAuthenticationMethodClass()} when that method does not return
+     *     {@code null}
+     * @since TODO
+     */
+    protected void doExportData(Configuration config, AuthenticationMethod authMethod) {}
+
+    private AuthenticationMethod checkAuthenticationMethod(AuthenticationMethod authMethod) {
+        Class<? extends AuthenticationMethod> clazz = getAuthenticationMethodClass();
+        if (clazz != null && !clazz.isInstance(authMethod)) {
+            throw new UnsupportedAuthenticationMethodException(
+                    getName() + " authentication type only supports: " + clazz.getName());
+        }
+        return authMethod;
+    }
 
     /**
      * Import the method from the configuration
