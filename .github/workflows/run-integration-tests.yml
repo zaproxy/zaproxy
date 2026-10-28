@@ -36,7 +36,7 @@ jobs:
           tags: |
             ghcr.io/zaproxy/zaproxy-tests
           secrets: |
-            webswing_url=${{ secrets.WEBSWING_URL }}
+            webswing_key=${{ secrets.WEBSWING_KEY }}
           annotations: |
             index:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
             index:org.opencontainers.image.description=Docker image used for ZAP integration tests.

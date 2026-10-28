@@ -23,11 +23,10 @@ RUN ./zap.sh -cmd -silent -addonupdate
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
 # Setup Webswing
-ENV WEBSWING_VERSION=24.2.2
-RUN --mount=type=secret,id=webswing_url \
-	if [ -s /run/secrets/webswing_url ] ; \
-	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+ENV WEBSWING_VERSION=26.2
+RUN --mount=type=secret,id=webswing_key \
+	curl -s -L -f -o webswing.zip "https://portal.webswing.org/api/v1/files/download/webswing-standard-${WEBSWING_VERSION}.zip" \
+		-H "Authorization: Bearer $(cat /run/secrets/webswing_key)" && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
