@@ -170,7 +170,7 @@ public abstract class AuthenticationMethodType {
     public void exportData(Configuration config, AuthenticationMethod authMethod) {
         AuthenticationMethod method = checkAuthenticationMethod(authMethod);
         doExportData(config, method);
-    }   
+    }
 
     /**
      * Gets the class of the authentication method supported by this type.

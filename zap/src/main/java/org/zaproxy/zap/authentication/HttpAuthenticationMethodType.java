@@ -420,12 +420,12 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     }
 
     @Override
-    public void exportData(Configuration config, AuthenticationMethod authMethod) {
-        if (!(authMethod instanceof HttpAuthenticationMethod)) {
-            throw new UnsupportedAuthenticationMethodException(
-                    "HTTP based authentication type only supports: "
-                            + HttpAuthenticationMethod.class.getName());
-        }
+    protected Class<? extends AuthenticationMethod> getAuthenticationMethodClass() {
+        return HttpAuthenticationMethod.class;
+    }
+
+    @Override
+    protected void doExportData(Configuration config, AuthenticationMethod authMethod) {
         HttpAuthenticationMethod method = (HttpAuthenticationMethod) authMethod;
         config.setProperty(CONTEXT_CONFIG_AUTH_HTTP_HOSTNAME, method.hostname);
         config.setProperty(CONTEXT_CONFIG_AUTH_HTTP_REALM, method.realm);
