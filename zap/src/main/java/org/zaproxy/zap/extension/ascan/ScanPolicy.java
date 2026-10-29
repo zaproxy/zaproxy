@@ -150,6 +150,16 @@ public class ScanPolicy {
         this.conf.save();
     }
 
+    /**
+     * Updates the configuration with the name and defaults of the policy, for policies not backed
+     * by a configuration file, so a clone of it has them (the rules already use the configuration).
+     */
+    void updateConfiguration() {
+        conf.setProperty("policy", name);
+        conf.setProperty("scanner.level", defaultThreshold.name());
+        conf.setProperty("scanner.strength", defaultStrength.name());
+    }
+
     private AlertThreshold getAlertThresholdFromConfig() {
         String alertThreshold = conf.getString("scanner.level", "");
         if (alertThreshold.isEmpty()

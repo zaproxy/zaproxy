@@ -414,6 +414,17 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return defaultAttackPolicy;
     }
 
+    @Override
+    public void onShow() {
+        // The policies might have changed since the options were initialised, e.g. they are
+        // provided by a pluggable manager which is only available later on.
+        Object ascanPolicy = getDefaultAscanPolicyPulldown().getSelectedItem();
+        Object attackPolicy = getDefaultAttackPolicyPulldown().getSelectedItem();
+        initPolicyPulldowns();
+        getDefaultAscanPolicyPulldown().setSelectedItem(ascanPolicy);
+        getDefaultAttackPolicyPulldown().setSelectedItem(attackPolicy);
+    }
+
     private void initPolicyPulldowns() {
 
         this.getDefaultAscanPolicyPulldown().removeAllItems();
