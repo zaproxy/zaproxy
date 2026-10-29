@@ -175,7 +175,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.headerLength = -1;
         this.urlPathStart = -1;
 
-        if (scanPolicyName != null && PolicyManager.policyExists(scanPolicyName)) {
+        if (scanPolicyName != null && extension.getPolicyManager().hasPolicy(scanPolicyName)) {
             try {
                 scanPolicy = extension.getPolicyManager().getPolicy(scanPolicyName);
             } catch (ConfigurationException e) {
