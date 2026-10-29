@@ -25,6 +25,7 @@ Scan rules:
 10001   Secure page browser cache [Deprecated]
 10003   Retire JS
 10004   Technology Detection
+10005   Secrets
 
 10009   In Page Banner Info Leak
 10010   Cookie set without HttpOnly flag
