@@ -20,11 +20,13 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Locale;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,13 +34,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.RowFilter;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
@@ -79,8 +87,15 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     private JButton policyButton = null;
     private JButton scanButton = null;
     private JButton progressButton;
+    private JButton clearFilterButton;
     private JLabel numRequests;
     private JLabel numNewAlerts;
+    private JLabel filterStatusLabel;
+    private JTextField methodFilterField;
+    private JTextField urlFilterField;
+    private JTextField statusFilterField;
+    private JTextField sizeMinFilterField;
+    private JTextField sizeMaxFilterField;
     private JPanel mainPanel;
     private JTabbedPane tabbedPane;
     private TableExportButton<ZapTable> exportButton;
@@ -139,9 +154,276 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                     getGBC(x++, 0));
             panelToolbar.add(getNumNewAlerts(), getGBC(x++, 0));
             panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
+            panelToolbar.add(
+                    new JLabel(Constant.messages.getString("ascan.filter.label")), getGBC(x++, 0));
+            panelToolbar.add(getMethodFilterField(), getGBC(x++, 0));
+            panelToolbar.add(getUrlFilterField(), getGBC(x++, 0));
+            panelToolbar.add(getStatusFilterField(), getGBC(x++, 0));
+            panelToolbar.add(getSizeMinFilterField(), getGBC(x++, 0));
+            panelToolbar.add(getSizeMaxFilterField(), getGBC(x++, 0));
+            panelToolbar.add(getClearFilterButton(), getGBC(x++, 0));
+            panelToolbar.add(getFilterStatusLabel(), getGBC(x++, 0));
+            panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
             panelToolbar.add(getExportButton(), getGBC(x++, 0));
         }
         return x;
+    }
+
+    private JTextField getMethodFilterField() {
+        if (methodFilterField == null) {
+            methodFilterField = new JTextField(6);
+            methodFilterField.setToolTipText(
+                    Constant.messages.getString("ascan.filter.method.tooltip"));
+            methodFilterField.getDocument().addDocumentListener(new MessagesFilterDocumentListener());
+        }
+        return methodFilterField;
+    }
+
+    private JTextField getUrlFilterField() {
+        if (urlFilterField == null) {
+            urlFilterField = new JTextField(14);
+            urlFilterField.setToolTipText(Constant.messages.getString("ascan.filter.url.tooltip"));
+            urlFilterField.getDocument().addDocumentListener(new MessagesFilterDocumentListener());
+        }
+        return urlFilterField;
+    }
+
+    private JTextField getStatusFilterField() {
+        if (statusFilterField == null) {
+            statusFilterField = new JTextField(5);
+            statusFilterField.setToolTipText(
+                    Constant.messages.getString("ascan.filter.status.tooltip"));
+            statusFilterField
+                    .getDocument()
+                    .addDocumentListener(new MessagesFilterDocumentListener());
+        }
+        return statusFilterField;
+    }
+
+    private JTextField getSizeMinFilterField() {
+        if (sizeMinFilterField == null) {
+            sizeMinFilterField = new JTextField(5);
+            sizeMinFilterField.setToolTipText(
+                    Constant.messages.getString("ascan.filter.sizemin.tooltip"));
+            sizeMinFilterField
+                    .getDocument()
+                    .addDocumentListener(new MessagesFilterDocumentListener());
+        }
+        return sizeMinFilterField;
+    }
+
+    private JTextField getSizeMaxFilterField() {
+        if (sizeMaxFilterField == null) {
+            sizeMaxFilterField = new JTextField(5);
+            sizeMaxFilterField.setToolTipText(
+                    Constant.messages.getString("ascan.filter.sizemax.tooltip"));
+            sizeMaxFilterField
+                    .getDocument()
+                    .addDocumentListener(new MessagesFilterDocumentListener());
+        }
+        return sizeMaxFilterField;
+    }
+
+    private JButton getClearFilterButton() {
+        if (clearFilterButton == null) {
+            clearFilterButton = new JButton();
+            clearFilterButton.setIcon(
+                    DisplayUtils.getScaledIcon(
+                            ActiveScanPanel.class.getResource("/resource/icon/fugue/broom.png")));
+            clearFilterButton.setToolTipText(
+                    Constant.messages.getString("ascan.filter.clear.tooltip"));
+            clearFilterButton.addActionListener(
+                    e -> {
+                        getMethodFilterField().setText("");
+                        getUrlFilterField().setText("");
+                        getStatusFilterField().setText("");
+                        getSizeMinFilterField().setText("");
+                        getSizeMaxFilterField().setText("");
+                        applyMessagesFilter();
+                    });
+        }
+        return clearFilterButton;
+    }
+
+    private JLabel getFilterStatusLabel() {
+        if (filterStatusLabel == null) {
+            filterStatusLabel = new JLabel();
+            updateFilterStatusLabel(false, false);
+        }
+        return filterStatusLabel;
+    }
+
+    private void applyMessagesFilter() {
+        String method = getMethodFilterField().getText().trim();
+        String url = getUrlFilterField().getText().trim();
+        String status = getStatusFilterField().getText().trim();
+
+        if (hasInvalidNumericFilterInputs()) {
+            getMessagesTable().setRowFilter(null);
+            updateFilterStatusLabel(true, true);
+            return;
+        }
+
+        Long sizeMin = parsePositiveLong(getSizeMinFilterField());
+        Long sizeMax = parsePositiveLong(getSizeMaxFilterField());
+
+        if (sizeMin != null && sizeMax != null && sizeMin.longValue() > sizeMax.longValue()) {
+            getMessagesTable().setRowFilter(null);
+            updateFilterStatusLabel(false, true);
+            return;
+        }
+
+        boolean hasFilter =
+                !method.isEmpty()
+                        || !url.isEmpty()
+                        || !status.isEmpty()
+                        || sizeMin != null
+                        || sizeMax != null;
+        if (!hasFilter) {
+            getMessagesTable().setRowFilter(null);
+            updateFilterStatusLabel(false, false);
+            return;
+        }
+
+        final String methodFilter = method.toLowerCase(Locale.ROOT);
+        final String urlFilter = url.toLowerCase(Locale.ROOT);
+        final String statusFilter = status.toLowerCase(Locale.ROOT);
+        final Long minResponseSize = sizeMin;
+        final Long maxResponseSize = sizeMax;
+
+        getMessagesTable()
+                .setRowFilter(
+                new RowFilter<Object, Integer>() {
+                            @Override
+                    public boolean include(Entry<? extends Object, ? extends Integer> entry) {
+                    if (!(getMessagesTable().getModel() instanceof ActiveScanTableModel)) {
+                                    return true;
+                                }
+
+                    ActiveScanTableModel model =
+                        (ActiveScanTableModel) getMessagesTable().getModel();
+                                HistoryReference historyReference =
+                                        model.getEntry(entry.getIdentifier()).getHistoryReference();
+
+                                if (!methodFilter.isEmpty()
+                                        && !containsIgnoreCase(
+                                                historyReference.getMethod(), methodFilter)) {
+                                    return false;
+                                }
+                                if (!urlFilter.isEmpty()
+                                        && !containsIgnoreCase(
+                                                historyReference.getURI().toString(), urlFilter)) {
+                                    return false;
+                                }
+
+                                String statusCode =
+                                    Integer.toString(historyReference.getStatusCode())
+                                        .toLowerCase(Locale.ROOT);
+                                if (!statusFilter.isEmpty() && !statusCode.contains(statusFilter)) {
+                                    return false;
+                                }
+
+                                long responseSize =
+                                        (long) historyReference.getResponseHeaderLength()
+                                                + historyReference.getResponseBodyLength();
+                                if (minResponseSize != null
+                                        && responseSize < minResponseSize.longValue()) {
+                                    return false;
+                                }
+                                if (maxResponseSize != null
+                                        && responseSize > maxResponseSize.longValue()) {
+                                    return false;
+                                }
+
+                                return true;
+                            }
+                        });
+        updateFilterStatusLabel(false, false);
+    }
+
+    private static boolean containsIgnoreCase(String value, String lowercaseTerm) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(lowercaseTerm);
+    }
+
+    private static Long parsePositiveLong(JTextField field) {
+        String value = field.getText().trim();
+        if (value.isEmpty()) {
+            field.setForeground(UIManager.getColor("TextField.foreground"));
+            return null;
+        }
+
+        try {
+            long parsed = Long.parseLong(value);
+            if (parsed < 0) {
+                throw new NumberFormatException();
+            }
+            field.setForeground(UIManager.getColor("TextField.foreground"));
+            return parsed;
+        } catch (NumberFormatException e) {
+            field.setForeground(Color.RED);
+            return null;
+        }
+    }
+
+    private boolean hasInvalidNumericFilterInputs() {
+        return hasInvalidNumericFilterInput(getSizeMinFilterField())
+                || hasInvalidNumericFilterInput(getSizeMaxFilterField());
+    }
+
+    private static boolean hasInvalidNumericFilterInput(JTextField field) {
+        String value = field.getText().trim();
+        if (value.isEmpty()) {
+            return false;
+        }
+
+        try {
+            return Long.parseLong(value) < 0;
+        } catch (NumberFormatException e) {
+            return true;
+        }
+    }
+
+    private void updateFilterStatusLabel(boolean invalidNumber, boolean invalidRange) {
+        if (invalidNumber) {
+            getFilterStatusLabel()
+                    .setText(Constant.messages.getString("ascan.filter.status.invalidnumber"));
+            return;
+        }
+
+        if (invalidRange) {
+            getFilterStatusLabel()
+                    .setText(Constant.messages.getString("ascan.filter.status.invalidrange"));
+            return;
+        }
+
+        if (getMethodFilterField().getText().trim().isEmpty()
+                && getUrlFilterField().getText().trim().isEmpty()
+                && getStatusFilterField().getText().trim().isEmpty()
+                && getSizeMinFilterField().getText().trim().isEmpty()
+                && getSizeMaxFilterField().getText().trim().isEmpty()) {
+            getFilterStatusLabel().setText(Constant.messages.getString("ascan.filter.status.off"));
+            return;
+        }
+
+        getFilterStatusLabel().setText(Constant.messages.getString("ascan.filter.status.on"));
+    }
+
+    private class MessagesFilterDocumentListener implements DocumentListener {
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            applyMessagesFilter();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            applyMessagesFilter();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            applyMessagesFilter();
+        }
     }
 
     private JButton getPolicyManagerButton() {
@@ -315,6 +597,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
         if (scanner != null) {
             getMessagesTable().setModel(scanner.getMessagesTableModel());
+            applyMessagesFilter();
             getFilterMessageTable().setModel(scanner.getFilterMessageTableModel());
             this.getNumRequests().setText(Integer.toString(scanner.getTotalRequests()));
             this.getNumNewAlerts().setText(Integer.toString(scanner.getTotalNewAlerts()));
@@ -329,6 +612,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             }
         } else {
             resetMessagesTable();
+            applyMessagesFilter();
             resetFilterMessageTable();
             this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
             this.getNumNewAlerts().setText(ZERO_NEW_ALERTS_LABEL_TEXT);
