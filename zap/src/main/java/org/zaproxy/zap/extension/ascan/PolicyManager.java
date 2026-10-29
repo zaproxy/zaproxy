@@ -28,6 +28,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class PolicyManager {
@@ -53,6 +55,12 @@ public class PolicyManager {
     }
 
     public synchronized List<String> getAllPolicyNames() {
+        PluggableScanPolicyManager pluggable = getPluggableManager();
+        if (pluggable != null) {
+            List<String> names = new ArrayList<>(pluggable.getPolicyNames());
+            Collections.sort(names);
+            return names;
+        }
         if (allPolicyNames == null) {
             allPolicyNames = new ArrayList<>();
             String[] files = Constant.getPoliciesDir().list();
@@ -88,11 +96,68 @@ public class PolicyManager {
         return allPolicyNames;
     }
 
+    /**
+     * Gets the pluggable manager providing the policies, if any.
+     *
+     * <p>Only the case in dev mode, when a manager has been registered and it provides at least one
+     * policy, otherwise the policies are the ones saved in the policies directory.
+     *
+     * @return the manager, or {@code null} if the policies are the core ones.
+     */
+    PluggableScanPolicyManager getPluggableManager() {
+        PluggableScanPolicyManager pluggable = extension.getActivePluggableScanPolicyManager();
+        if (pluggable == null) {
+            return null;
+        }
+        return pluggable.getPolicyNames().isEmpty() ? null : pluggable;
+    }
+
+    private ScanPolicy loadPluggablePolicy(PluggableScanPolicyManager pluggable, String name)
+            throws ConfigurationException {
+        ScanPolicy policy = new ScanPolicy();
+        policy.setName(name);
+        AlertThreshold threshold = pluggable.getDefaultThreshold(name);
+        if (threshold != null && threshold != AlertThreshold.DEFAULT) {
+            policy.setDefaultThreshold(threshold);
+        }
+        AttackStrength strength = pluggable.getDefaultStrength(name);
+        if (strength != null && strength != AttackStrength.DEFAULT) {
+            policy.setDefaultStrength(strength);
+        }
+        if (!pluggable.applyPolicy(name, policy.getPluginFactory())) {
+            throw new ConfigurationException("Unknown scan policy: " + name);
+        }
+        policy.updateConfiguration();
+        return policy;
+    }
+
+    /**
+     * Gets the policy with the preferred name, or the manager's default policy, or the first one
+     * provided.
+     */
+    private ScanPolicy getPluggableScanPolicy(
+            PluggableScanPolicyManager pluggable, String preferredName)
+            throws ConfigurationException {
+        List<String> names = pluggable.getPolicyNames();
+        if (preferredName != null && names.contains(preferredName)) {
+            return loadPluggablePolicy(pluggable, preferredName);
+        }
+        String defaultName = pluggable.getDefaultPolicyName();
+        if (defaultName != null && names.contains(defaultName)) {
+            return loadPluggablePolicy(pluggable, defaultName);
+        }
+        return loadPluggablePolicy(pluggable, names.get(0));
+    }
+
     public void savePolicy(ScanPolicy policy) throws ConfigurationException {
         this.savePolicy(policy, null);
     }
 
     public void savePolicy(ScanPolicy policy, String previousName) throws ConfigurationException {
+        if (getPluggableManager() != null) {
+            throw new UnsupportedOperationException(
+                    "The scan policies can not be saved, they are managed elsewhere.");
+        }
         LOGGER.debug("Save policy {}", policy.getName());
 
         File file = new File(Constant.getPoliciesDir(), policy.getName() + POLICY_EXTENSION);
@@ -121,19 +186,47 @@ public class PolicyManager {
     /**
      * Tells whether or not a scan policy with the given {@code name} exists.
      *
+     * <p>Only takes into account the policies saved in the policies directory, use {@link
+     * #hasPolicy(String)} to also take into account the policies provided by a pluggable manager.
+     *
      * @param name the name of the scan policy
      * @return {@code true} if the scan policy exists, {@code false} otherwise
      * @since 2.4.3
+     * @see #hasPolicy(String)
      */
     public static boolean policyExists(String name) {
         return (new File(Constant.getPoliciesDir(), name + POLICY_EXTENSION)).exists();
     }
 
+    /**
+     * Tells whether or not a scan policy with the given {@code name} exists, taking into account
+     * the policies provided by the pluggable manager, if any.
+     *
+     * @param name the name of the scan policy
+     * @return {@code true} if the scan policy exists, {@code false} otherwise
+     * @since 2.18.0
+     */
+    boolean hasPolicy(String name) {
+        PluggableScanPolicyManager pluggable = getPluggableManager();
+        if (pluggable != null) {
+            return pluggable.getPolicyNames().contains(name);
+        }
+        return policyExists(name);
+    }
+
     public ScanPolicy getPolicy(String name) throws ConfigurationException {
+        PluggableScanPolicyManager pluggable = getPluggableManager();
+        if (pluggable != null) {
+            return loadPluggablePolicy(pluggable, name);
+        }
         return this.loadPolicy(new File(Constant.getPoliciesDir(), name + POLICY_EXTENSION));
     }
 
     public ScanPolicy loadPolicy(String name) throws ConfigurationException {
+        PluggableScanPolicyManager pluggable = getPluggableManager();
+        if (pluggable != null) {
+            return loadPluggablePolicy(pluggable, name);
+        }
         return this.loadPolicy(new File(Constant.getPoliciesDir(), name + POLICY_EXTENSION));
     }
 
@@ -163,6 +256,10 @@ public class PolicyManager {
     }
 
     public void importPolicy(File file) throws ConfigurationException, IOException {
+        if (getPluggableManager() != null) {
+            throw new UnsupportedOperationException(
+                    "The scan policies can not be imported, they are managed elsewhere.");
+        }
         LOGGER.debug("Import policy from {}", file.getAbsolutePath());
         ScanPolicy policy = new ScanPolicy(new ZapXmlConfiguration(file));
         String baseName = file.getName();
@@ -198,6 +295,10 @@ public class PolicyManager {
     }
 
     public void deletePolicy(String name) {
+        if (getPluggableManager() != null) {
+            throw new UnsupportedOperationException(
+                    "The scan policies can not be deleted, they are managed elsewhere.");
+        }
         LOGGER.debug("Delete policy {}", name);
         File file = new File(Constant.getPoliciesDir(), name + POLICY_EXTENSION);
         if (file.exists()) {
@@ -208,14 +309,19 @@ public class PolicyManager {
 
     public ScanPolicy getDefaultScanPolicy() {
         try {
+            PluggableScanPolicyManager pluggable = getPluggableManager();
+            if (pluggable != null) {
+                return getPluggableScanPolicy(
+                        pluggable, extension.getScannerParam().getDefaultPolicy());
+            }
             String policyName = extension.getScannerParam().getDefaultPolicy();
-            if (policyExists(policyName)) {
+            if (hasPolicy(policyName)) {
                 LOGGER.debug("getDefaultScanPolicy: {}", policyName);
                 return this.loadPolicy(policyName);
             }
             // No good, try the default name
             policyName = DEFAULT_POLICY_NAME;
-            if (policyExists(policyName)) {
+            if (hasPolicy(policyName)) {
                 LOGGER.debug("getDefaultScanPolicy (default name): {}", policyName);
                 return this.loadPolicy(policyName);
             }
@@ -235,13 +341,18 @@ public class PolicyManager {
 
     public ScanPolicy getAttackScanPolicy() {
         try {
+            PluggableScanPolicyManager pluggable = getPluggableManager();
+            if (pluggable != null) {
+                return getPluggableScanPolicy(
+                        pluggable, extension.getScannerParam().getAttackPolicy());
+            }
             String policyName = extension.getScannerParam().getAttackPolicy();
-            if (policyExists(policyName)) {
+            if (hasPolicy(policyName)) {
                 return this.loadPolicy(policyName);
             }
             // No good, try the default name
             policyName = DEFAULT_POLICY_NAME;
-            if (policyExists(policyName)) {
+            if (hasPolicy(policyName)) {
                 return this.loadPolicy(policyName);
             }
             if (this.allPolicyNames.size() > 0) {
