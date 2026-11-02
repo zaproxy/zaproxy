@@ -23,7 +23,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link LangImporter}. */
@@ -40,11 +39,11 @@ class LangImporterUnitTest {
             "Messages_fil_PH.properties",
             "Messages_zh_CN.properties",
         };
+        var pattern = LangImporter.createIncludedFilesPattern();
         // When
-        Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(true)));
+            assertThat(file, LangImporter.isIncludedFile(pattern, file), is(equalTo(true)));
         }
     }
 
@@ -52,11 +51,26 @@ class LangImporterUnitTest {
     void shouldNotMatchOtherFilesThanMessagesFiles() {
         // Given
         String[] resourceFiles = {"OtherFile_ar_SA.properties", "messages.properties"};
+        var pattern = LangImporter.createIncludedFilesPattern();
         // When
-        Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then
         for (String file : resourceFiles) {
-            assertThat(file, pattern.matcher(file).matches(), is(equalTo(false)));
+            assertThat(file, LangImporter.isIncludedFile(pattern, file), is(equalTo(false)));
+        }
+    }
+
+    @Test
+    void shouldNotIncludeMessagesFilesWithPathPrefixes() {
+        // Given
+        String[] resourceFiles = {
+            "../Messages.properties",
+            "../../existing/Messages.properties",
+            "directory/Messages_en.properties",
+        };
+        var pattern = LangImporter.createIncludedFilesPattern();
+        // When / Then
+        for (String file : resourceFiles) {
+            assertThat(file, LangImporter.isIncludedFile(pattern, file), is(equalTo(false)));
         }
     }
 }

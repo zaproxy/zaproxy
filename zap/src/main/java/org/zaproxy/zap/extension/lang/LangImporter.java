@@ -50,7 +50,6 @@ public final class LangImporter {
 
     public static String importLanguagePack(String languagePack) {
         Pattern includedFilesPattern = createIncludedFilesPattern();
-
         int langFileCount = 0;
         String message = "";
 
@@ -69,7 +68,7 @@ public final class LangImporter {
                         byte[] buffer = new byte[2048];
                         String name = zipEntry.getName();
 
-                        if (includedFilesPattern.matcher(name).find()) {
+                        if (isIncludedFile(includedFilesPattern, name)) {
                             langFileCount++;
 
                             Path outputFile = Paths.get(Constant.getZapInstall(), name);
@@ -121,5 +120,9 @@ public final class LangImporter {
                 LocaleUtils.createResourceFilesRegex(
                         Constant.MESSAGES_PREFIX, Constant.MESSAGES_EXTENSION);
         return Pattern.compile(messagesFilesRegex);
+    }
+
+    static boolean isIncludedFile(Pattern includedFilesPattern, String name) {
+        return includedFilesPattern.matcher(name).matches();
     }
 }
