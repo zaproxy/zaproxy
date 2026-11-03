@@ -36,7 +36,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.configuration.Configuration;
@@ -2203,5 +2205,125 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         ArgumentCaptor<Alert> arg = ArgumentCaptor.forClass(Alert.class);
         verify(hostProcess).alertFound(arg.capture());
         return arg.getValue();
+    }
+
+    @Test
+    void shouldSetTimeStartedUsingEffectiveInstantFromParent() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        long epochMillis = 12345L;
+        Date effectiveInstant = new Date(epochMillis);
+        given(hostProcess.getEffectiveInstant()).willReturn(Instant.ofEpochMilli(epochMillis));
+        scanRule.init(new HttpMessage(), hostProcess);
+        // When
+        scanRule.setTimeStarted();
+        // Then
+        assertThat(scanRule.getTimeStarted(), is(equalTo(effectiveInstant)));
+    }
+
+    @Test
+    void shouldSetTimeStartedUsingNewDateWhenParentReturnsNull() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        given(hostProcess.getEffectiveInstant()).willReturn(null);
+        scanRule.init(new HttpMessage(), hostProcess);
+        // When
+        long before = System.currentTimeMillis();
+        scanRule.setTimeStarted();
+        long after = System.currentTimeMillis();
+        // Then
+        Date started = scanRule.getTimeStarted();
+        assertThat(started.getTime() >= before, is(true));
+        assertThat(started.getTime() <= after, is(true));
+    }
+
+    @Test
+    void shouldSetTimeStartedUsingNewDateWhenNoParent() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        // Note: parent is null when plugin is not initialized
+        // When
+        long before = System.currentTimeMillis();
+        scanRule.setTimeStarted();
+        long after = System.currentTimeMillis();
+        // Then
+        Date started = scanRule.getTimeStarted();
+        assertThat(started.getTime() >= before, is(true));
+        assertThat(started.getTime() <= after, is(true));
+    }
+
+    @Test
+    void shouldSetTimeFinishedUsingEffectiveInstantFromParent() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        long epochMillis = 54321L;
+        Date effectiveInstant = new Date(epochMillis);
+        given(hostProcess.getEffectiveInstant()).willReturn(Instant.ofEpochMilli(epochMillis));
+        scanRule.init(new HttpMessage(), hostProcess);
+        // When
+        scanRule.setTimeFinished();
+        // Then
+        assertThat(scanRule.getTimeFinished(), is(equalTo(effectiveInstant)));
+    }
+
+    @Test
+    void shouldSetTimeFinishedUsingNewDateWhenParentReturnsNull() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        given(hostProcess.getEffectiveInstant()).willReturn(null);
+        scanRule.init(new HttpMessage(), hostProcess);
+        // When
+        long before = System.currentTimeMillis();
+        scanRule.setTimeFinished();
+        long after = System.currentTimeMillis();
+        // Then
+        Date finished = scanRule.getTimeFinished();
+        assertThat(finished.getTime() >= before, is(true));
+        assertThat(finished.getTime() <= after, is(true));
+    }
+
+    @Test
+    void shouldSetTimeFinishedUsingNewDateWhenNoParent() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        // Note: parent is null when plugin is not initialized
+        // When
+        long before = System.currentTimeMillis();
+        scanRule.setTimeFinished();
+        long after = System.currentTimeMillis();
+        // Then
+        Date finished = scanRule.getTimeFinished();
+        assertThat(finished.getTime() >= before, is(true));
+        assertThat(finished.getTime() <= after, is(true));
+    }
+
+    @Test
+    void shouldClearTimeFinishedWhenTimeStartedIsSet() {
+        // Given
+        AbstractPlugin scanRule = createAbstractPlugin();
+        scanRule.setTimeFinished(); // Set a finish time first
+        assertThat(scanRule.getTimeFinished(), is(org.hamcrest.Matchers.notNullValue()));
+        // When
+        scanRule.setTimeStarted();
+        // Then
+        assertThat(scanRule.getTimeFinished(), is(nullValue()));
+    }
+
+    @Test
+    void abstractPluginShouldUseParentEffectiveInstant() {
+        AbstractPlugin scanRule = createAbstractPlugin();
+        HostProcess host = mock(HostProcess.class);
+        Instant eff = Instant.ofEpochMilli(42_000L);
+        when(host.getEffectiveInstant()).thenReturn(eff);
+        // Use init to set the parent
+        scanRule.init(new HttpMessage(), host);
+        scanRule.setTimeStarted();
+        assertThat(eff.toEpochMilli(), is(equalTo(scanRule.getTimeStarted().getTime())));
+        scanRule.setTimeFinished();
+        assertThat(eff.toEpochMilli(), is(equalTo(scanRule.getTimeFinished().getTime())));
     }
 }
