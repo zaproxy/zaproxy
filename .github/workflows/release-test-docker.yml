@@ -59,7 +59,7 @@ jobs:
           tags: |
             ghcr.io/zaproxy/zaproxy:test
           secrets: |
-            webswing_url=${{ secrets.WEBSWING_URL }}
+            webswing_key=${{ secrets.WEBSWING_KEY }}
           annotations: |
             manifest:org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
             manifest:org.opencontainers.image.description=Test Docker image with custom add-on builds.
