@@ -85,6 +85,7 @@ import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapLabel;
@@ -142,6 +143,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     private JButton uninstallButton = null;
     private JButton installAllButton;
     private JButton installButton = null;
+    private JButton installedAddOnHelpButton = null;
     private JButton close1Button = null;
     private JButton close2Button = null;
 
@@ -373,24 +375,33 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                                     }
 
                                     addonDetailsPanel.setDetails(addOn);
+                                    getInstalledAddOnHelpButton()
+                                            .setEnabled(
+                                                    getInstalledAddOnsTable().getSelectedRowCount()
+                                                                    == 1
+                                                            && ExtensionHelp.hasHelp(
+                                                                    aow.getAddOn()));
                                 } else {
                                     addonDetailsPanel.clearDetails();
+                                    getInstalledAddOnHelpButton().setEnabled(false);
                                 }
                             });
 
             int row = 0;
             installedAddOnsPanel.add(
-                    installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 5, 0.0D));
+                    installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 6, 0.0D));
             JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             split.setTopComponent(scrollPane);
             split.setBottomComponent(addonDetailsPanel);
             split.setResizeWeight(ADD_ON_DETAILS_RESIZE_WEIGHT);
-            installedAddOnsPanel.add(split, LayoutHelper.getGBC(0, row++, 5, 1.0D, 1.0D));
+            installedAddOnsPanel.add(split, LayoutHelper.getGBC(0, row++, 6, 1.0D, 1.0D));
             installedAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
             installedAddOnsPanel.add(getUninstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
             installedAddOnsPanel.add(getUpdateButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
             installedAddOnsPanel.add(getUpdateAllButton(), LayoutHelper.getGBC(3, row, 1, 0.0D));
-            installedAddOnsPanel.add(getClose1Button(), LayoutHelper.getGBC(4, row, 1, 0.0D));
+            installedAddOnsPanel.add(
+                    getInstalledAddOnHelpButton(), LayoutHelper.getGBC(4, row, 1, 0.0D));
+            installedAddOnsPanel.add(getClose1Button(), LayoutHelper.getGBC(5, row, 1, 0.0D));
         }
         return installedAddOnsPanel;
     }
@@ -1136,6 +1147,31 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     });
         }
         return addOnInfoButton;
+    }
+
+    private JButton getInstalledAddOnHelpButton() {
+        if (installedAddOnHelpButton == null) {
+            installedAddOnHelpButton = new JButton();
+            installedAddOnHelpButton.setText(Constant.messages.getString("cfu.button.addons.help"));
+            installedAddOnHelpButton.setEnabled(false);
+            installedAddOnHelpButton.addActionListener(
+                    e -> {
+                        if (getInstalledAddOnsTable().getSelectedRowCount() == 1) {
+                            AddOnWrapper aow =
+                                    (AddOnWrapper)
+                                            installedAddOnsModel.getValueAt(
+                                                    getInstalledAddOnsTable()
+                                                            .convertRowIndexToModel(
+                                                                    getInstalledAddOnsTable()
+                                                                            .getSelectedRow()),
+                                                    AddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
+                            if (aow != null) {
+                                ExtensionHelp.showHelp(aow.getAddOn());
+                            }
+                        }
+                    });
+        }
+        return installedAddOnHelpButton;
     }
 
     public void showProgress() {
