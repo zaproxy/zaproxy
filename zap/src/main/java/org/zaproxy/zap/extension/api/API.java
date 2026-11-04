@@ -754,15 +754,43 @@ public class API {
      */
     public String getBaseURL(
             API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
+        return getBaseURL(format, prefix, type, name, proxy, false);
+    }
+
+    /**
+     * Returns a URI for the specified parameters.
+     *
+     * <p>A nonce query parameter is added to the resulting URL, if required (that is, not a view).
+     * In this case the URL is ended with an ampersand (for example, {@code
+     * https://zap/format/prefix/action/name/?apinonce=xyz&}), otherwise it has a trailing slash
+     * (for example, {@code http://zap/format/prefix/view/name/}).
+     *
+     * @param format the format of the API response
+     * @param prefix the prefix of the API implementor
+     * @param type the request type
+     * @param name the name of the endpoint
+     * @param proxy if true then the URI returned will only work if proxying via ZAP, i.e. it will
+     *     start with http://zap/..
+     * @param longLivedNonce if true a {@link #getLongLivedNonce(String) long lived nonce} is used
+     *     instead of a {@link #getOneTimeNonce(String) one time nonce}, for URLs that are meant to
+     *     be used more than once, for example, opened directly in a browser.
+     * @return the URL to access the defined endpoint
+     * @see #getBaseURL(boolean)
+     */
+    public String getBaseURL(
+            API.Format format,
+            String prefix,
+            API.RequestType type,
+            String name,
+            boolean proxy,
+            boolean longLivedNonce) {
         String apiPath = format.name() + "/" + prefix + "/" + type.name() + "/" + name + "/";
         if (!RequestType.view.equals(type)) {
-            return getBaseURL(proxy)
-                    + apiPath
-                    + "?"
-                    + API_NONCE_PARAM
-                    + "="
-                    + this.getOneTimeNonce("/" + apiPath)
-                    + "&";
+            String nonce =
+                    longLivedNonce
+                            ? this.getLongLivedNonce("/" + apiPath)
+                            : this.getOneTimeNonce("/" + apiPath);
+            return getBaseURL(proxy) + apiPath + "?" + API_NONCE_PARAM + "=" + nonce + "&";
         }
         return getBaseURL(proxy) + apiPath;
     }
