@@ -379,7 +379,12 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
         User forceUser = ctx.getUser(msg);
         if (forceUser != null) {
             if (ctx.getInitiator() == HttpSender.AUTHENTICATION_POLL_INITIATOR) {
-                forceUser.processMessageToMatchAuthenticatedSession(msg);
+                if (forceUser
+                        .getContext()
+                        .getAuthenticationMethod()
+                        .appliesAuthenticatedSessionToPollRequest(msg, forceUser)) {
+                    forceUser.processMessageToMatchAuthenticatedSession(msg);
+                }
             } else if (ctx.getInitiator() != HttpSender.AUTHENTICATION_INITIATOR) {
                 forceUser.processMessageToMatchUser(msg);
             }
