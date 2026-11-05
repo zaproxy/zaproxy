@@ -5,7 +5,7 @@ log4j = "2.26.1"
 
 [libraries]
 bndAnnotation = "biz.aQute.bnd:biz.aQute.bnd.annotation:7.4.0"
-bytebuddy = "net.bytebuddy:byte-buddy:1.18.16"
+bytebuddy = "net.bytebuddy:byte-buddy:1.18.17"
 commons-beanutils = "commons-beanutils:commons-beanutils:1.11.0"
 commons-codec = "commons-codec:commons-codec:1.23.0"
 commons-collections = "commons-collections:commons-collections:3.2.2"
@@ -48,7 +48,7 @@ mockito = "org.mockito:mockito-junit-jupiter:5.24.0"
 [plugins]
 crowdin = "org.zaproxy.crowdin:0.6.0"
 cyclonedx.id = "org.cyclonedx.bom"
-errorprone = "net.ltgt.errorprone:5.1.1"
+errorprone = "net.ltgt.errorprone:5.2.0"
 japicmp.id = "me.champeau.gradle.japicmp"
 sonarqube = "org.sonarqube:7.5.0.8588"
 spotless.id = "com.diffplug.spotless"
