@@ -144,6 +144,7 @@ public class HttpRequestConfig {
             this.followRedirects = config.isFollowRedirects();
             this.redirectionValidator = config.getRedirectionValidator();
             this.notifyListeners = config.isNotifyListeners();
+            this.soTimeout = config.getSoTimeout();
         }
 
         /**
