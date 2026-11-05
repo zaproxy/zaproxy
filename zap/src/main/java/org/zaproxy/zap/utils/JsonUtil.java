@@ -128,7 +128,7 @@ public final class JsonUtil {
             if (sb.length() > SessionStructure.MAX_NODE_NAME_SIZE) {
                 break;
             }
-            if (oa[i].getClass().isPrimitive() || oa[i] instanceof String) {
+            if (!(oa[i] instanceof JSONObject || oa[i] instanceof JSONArray)) {
                 continue;
             }
             StringBuilder sb2 = new StringBuilder();
