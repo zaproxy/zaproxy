@@ -85,6 +85,21 @@ class VariantJSONQueryUnitTest {
         assertLogEvent(Level.WARN, "EOF reached while reading JSON field name");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"[", "[1,", "{\"a\":[", "[["})
+    void shouldNotFindParametersFromUnclosedJsonArray(String body)
+            throws HttpMalformedHeaderException {
+        // Given
+        withLoggerAppender();
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody(body));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+        assertLogEvent(Level.WARN, "EOF reached while reading array");
+    }
+
     @Test
     void shouldNotThrowExceptionIfResponseIsEmpty() throws HttpMalformedHeaderException {
         // Given

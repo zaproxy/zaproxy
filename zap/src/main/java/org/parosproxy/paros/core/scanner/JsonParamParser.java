@@ -303,7 +303,10 @@ public class JsonParamParser {
         int chr;
         int idx = 0;
         while (true) {
-            sr.skipWhitespaceRead();
+            chr = sr.skipWhitespaceRead();
+            if (chr == -1) {
+                throw new IllegalArgumentException("EOF reached while reading array");
+            }
             sr.unreadLastCharacter();
             parseValue(false, fieldName + "[" + (idx++) + "]", list);
 
