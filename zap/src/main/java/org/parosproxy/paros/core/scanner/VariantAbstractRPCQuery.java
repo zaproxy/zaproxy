@@ -59,7 +59,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
             try {
                 setRequestContent(msg.getRequestBody().toString());
             } catch (Exception e) {
-                logger.warn(
+                logger.debug(
                         "Failed to parse the request body for url {} : {}",
                         msg.getRequestHeader().getURI(),
                         e.getMessage(),
