@@ -8,7 +8,7 @@ These tasks use checkboxes so that they can be copied into an issue.
 
 - [ ] Update dependencies - these can be checked using the [zaproxy](https://github.com/zaproxy/zaproxy) `dependencyUpdates` gradle task
 - [ ] Update the [gettingStarted](https://github.com/zaproxy/zap-extensions/tree/main/addOns/gettingStarted) ODT document and regenerate the PDF.
-- [ ] Update the [MacOS JRE](https://github.com/zaproxy/zaproxy/blob/main/buildSrc/src/main/kotlin/org/zaproxy/zap/distributions.gradle.kts).
+- [ ] Update the [MacOS JDK and OpenJFX](https://github.com/zaproxy/zaproxy/blob/main/buildSrc/src/main/kotlin/org/zaproxy/zap/distributions.gradle.kts).
 - [ ] Update the [MacOS Copyright statement](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/macOS/ZAP.app/Contents/Info.plist).
 - [ ] Update [Constant](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/java/org/parosproxy/paros/Constant.java)#VERSION_TAG.
 - [ ] Add and use a [Constant](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/java/org/parosproxy/paros/Constant.java).upgradeFrom`<version>`() method.
