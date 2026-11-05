@@ -318,6 +318,7 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
                                 ;
                         }
                     });
+            return;
         }
 
         sendAndReceive(ctx, message, effectiveConfig, DEFAULT_BODY_CONSUMER);
