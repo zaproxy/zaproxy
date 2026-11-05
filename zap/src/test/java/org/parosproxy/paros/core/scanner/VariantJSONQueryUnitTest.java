@@ -20,6 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -82,7 +83,46 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
         assertThat(parameters, is(empty()));
-        assertLogEvent(Level.WARN, "EOF reached while reading JSON field name");
+        assertLogEvent(Level.DEBUG, "EOF reached while reading JSON field name");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "[",
+                "[ ",
+                "[1,",
+                "[1, ",
+                "[\"a\"",
+                "[[",
+                "{\"a\":[",
+                "{\"a\":[1,",
+                "{\"a\":[\"b\""
+            })
+    void shouldNotFindParametersFromTruncatedJsonArray(String body)
+            throws HttpMalformedHeaderException {
+        // Given
+        withLoggerAppender();
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        // When
+        variantJSONQuery.setMessage(getMessageWithBody(body));
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+        assertLogEvent(Level.DEBUG, "Failed to parse the request body");
+    }
+
+    @Test
+    void shouldFindParametersFromValidJsonArray() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody("{\"a\":[\"b\", \"c\"]}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(
+                parameters.stream().map(NameValuePair::getName).toList(), contains("a[0]", "a[1]"));
+        assertThat(parameters.stream().map(NameValuePair::getValue).toList(), contains("b", "c"));
     }
 
     @Test
@@ -214,7 +254,7 @@ class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
         assertThat(parameters, is(empty()));
-        assertLogEvent(Level.WARN, "Unknown value type '115' for field 'foo' at position 8");
+        assertLogEvent(Level.DEBUG, "Unknown value type '115' for field 'foo' at position 8");
     }
 
     @Test

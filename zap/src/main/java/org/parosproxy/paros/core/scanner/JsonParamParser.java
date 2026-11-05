@@ -303,7 +303,9 @@ public class JsonParamParser {
         int chr;
         int idx = 0;
         while (true) {
-            sr.skipWhitespaceRead();
+            if (sr.skipWhitespaceRead() == -1) {
+                throw new IllegalArgumentException("EOF reached while reading JSON array");
+            }
             sr.unreadLastCharacter();
             parseValue(false, fieldName + "[" + (idx++) + "]", list);
 
@@ -362,6 +364,7 @@ public class JsonParamParser {
         private String str;
         private int length;
         private int next = 0;
+        private boolean eof;
 
         /**
          * Creates a new string reader.
@@ -393,12 +396,19 @@ public class JsonParamParser {
          */
         public int read() {
             if (next >= length) {
+                eof = true;
                 return -1;
             }
+            eof = false;
             return str.charAt(next++);
         }
 
         public void unreadLastCharacter() {
+            if (eof) {
+                // Nothing was consumed by the read that hit the end of the stream.
+                eof = false;
+                return;
+            }
             next--;
         }
 
