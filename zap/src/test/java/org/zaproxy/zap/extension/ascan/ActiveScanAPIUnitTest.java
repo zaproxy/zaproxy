@@ -30,16 +30,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.util.Map;
 import net.sf.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.utils.I18N;
 
@@ -73,6 +76,66 @@ class ActiveScanAPIUnitTest {
         given(extension.getPolicyManager()).willReturn(policyManager);
 
         api = new ActiveScanAPI(extension);
+    }
+
+    @Test
+    void shouldNotDeprecatePolicyActionsIfNotInDevMode() {
+        // Given
+        String version = Constant.PROGRAM_VERSION;
+        Constant.PROGRAM_VERSION = "2.18.0";
+        Constant.setDevMode(false);
+        try {
+            // When
+            ActiveScanAPI api = new ActiveScanAPI(extension);
+            // Then
+            assertThat(api.getApiAction("addScanPolicy").isDeprecated(), is(equalTo(false)));
+            assertThat(api.getApiAction("enableScanners").isDeprecated(), is(equalTo(false)));
+        } finally {
+            Constant.PROGRAM_VERSION = version;
+        }
+    }
+
+    @Test
+    void shouldDeprecateRedirectedPolicyActionsInDevMode() {
+        // Given
+        Constant.setDevMode(true);
+        try {
+            // When
+            ActiveScanAPI api = new ActiveScanAPI(extension);
+            // Then
+            Map<String, String> redirected =
+                    Map.ofEntries(
+                            Map.entry("addScanPolicy", "addPolicy"),
+                            Map.entry("updateScanPolicy", "updatePolicy"),
+                            Map.entry("removeScanPolicy", "removePolicy"),
+                            Map.entry("importScanPolicy", "importLegacyPolicy"),
+                            Map.entry("enableAllScanners", "enableAllRules"),
+                            Map.entry("disableAllScanners", "disableAllRules"),
+                            Map.entry("enableScanners", "enableRules"),
+                            Map.entry("disableScanners", "disableRules"),
+                            Map.entry("setEnabledPolicies", "setEnabledCategories"),
+                            Map.entry("setPolicyAttackStrength", "setCategoryStrength"),
+                            Map.entry("setPolicyAlertThreshold", "setCategoryThreshold"),
+                            Map.entry("setScannerAttackStrength", "setRuleStrength"),
+                            Map.entry("setScannerAlertThreshold", "setRuleThreshold"));
+            redirected.forEach(
+                    (action, replacement) -> {
+                        ApiAction element = api.getApiAction(action);
+                        assertThat(action, element.isDeprecated(), is(equalTo(true)));
+                        assertThat(
+                                action,
+                                element.getDeprecatedDescription(),
+                                is(
+                                        equalTo(
+                                                "Use globalScanPolicy/action/"
+                                                        + replacement
+                                                        + " instead.")));
+                    });
+            assertThat(api.getApiAction("scan").isDeprecated(), is(equalTo(false)));
+            assertThat(api.getApiAction("stop").isDeprecated(), is(equalTo(false)));
+        } finally {
+            Constant.setDevMode(false);
+        }
     }
 
     @ParameterizedTest

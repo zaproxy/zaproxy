@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.PatternSyntaxException;
 import net.sf.json.JSON;
 import net.sf.json.JSONException;
@@ -53,6 +54,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -149,7 +151,27 @@ public class ActiveScanAPI extends ApiImplementor {
     private static final String PARAM_TYPE = "type";
     private static final String PARAM_NAME = "name";
 
+    private static final String GLOBAL_SCAN_POLICY_API_PREFIX = "globalScanPolicy";
+
+    /** The tool of the active scan rules, in the Global Scan Policy Manager. */
+    private static final String GLOBAL_SCAN_POLICY_TOOL = "ascan";
+
+    // The parameters of the Global Scan Policy Manager API actions the policy actions are
+    // redirected to.
+    private static final String GSPM_PARAM_POLICY_NAME = "policyName";
+    private static final String GSPM_PARAM_TOOL = "tool";
+    private static final String GSPM_PARAM_RULE_IDS = "ruleIds";
+    private static final String GSPM_PARAM_RULE_ID = "ruleId";
+    private static final String GSPM_PARAM_CATEGORY_KEYS = "categoryKeys";
+    private static final String GSPM_PARAM_CATEGORY_KEY = "categoryKey";
+    private static final String GSPM_PARAM_ALERT_THRESHOLD = "alertThreshold";
+    private static final String GSPM_PARAM_ATTACK_STRENGTH = "attackStrength";
+    private static final String GSPM_PARAM_PATH = "path";
+
     private ExtensionActiveScan controller = null;
+
+    private Supplier<ApiImplementor> globalScanPolicyApiSupplier =
+            ActiveScanAPI::getGlobalScanPolicyApiImplementor;
 
     public ActiveScanAPI(ExtensionActiveScan controller) {
         this.controller = controller;
@@ -283,6 +305,34 @@ public class ActiveScanAPI extends ApiImplementor {
         view.setDeprecated(true);
         this.addApiView(view);
         this.addApiView(new ApiView(VIEW_EXCLUDED_PARAM_TYPES));
+
+        if (Constant.isDevMode()) {
+            Map.ofEntries(
+                            Map.entry(ACTION_ADD_SCAN_POLICY, "addPolicy"),
+                            Map.entry(ACTION_UPDATE_SCAN_POLICY, "updatePolicy"),
+                            Map.entry(ACTION_REMOVE_SCAN_POLICY, "removePolicy"),
+                            Map.entry(ACTION_IMPORT_SCAN_POLICY, "importLegacyPolicy"),
+                            Map.entry(ACTION_ENABLE_ALL_SCANNERS, "enableAllRules"),
+                            Map.entry(ACTION_DISABLE_ALL_SCANNERS, "disableAllRules"),
+                            Map.entry(ACTION_ENABLE_SCANNERS, "enableRules"),
+                            Map.entry(ACTION_DISABLE_SCANNERS, "disableRules"),
+                            Map.entry(ACTION_SET_ENABLED_POLICIES, "setEnabledCategories"),
+                            Map.entry(ACTION_SET_POLICY_ATTACK_STRENGTH, "setCategoryStrength"),
+                            Map.entry(ACTION_SET_POLICY_ALERT_THRESHOLD, "setCategoryThreshold"),
+                            Map.entry(ACTION_SET_SCANNER_ATTACK_STRENGTH, "setRuleStrength"),
+                            Map.entry(ACTION_SET_SCANNER_ALERT_THRESHOLD, "setRuleThreshold"))
+                    .forEach(
+                            (action, replacement) -> {
+                                ApiAction element = getApiAction(action);
+                                element.setDeprecated(true);
+                                element.setDeprecatedDescription(
+                                        "Use "
+                                                + GLOBAL_SCAN_POLICY_API_PREFIX
+                                                + "/action/"
+                                                + replacement
+                                                + " instead.");
+                            });
+        }
     }
 
     @Override
@@ -429,26 +479,73 @@ public class ActiveScanAPI extends ApiImplementor {
                     break;
                 case ACTION_ENABLE_ALL_SCANNERS:
                     policy = getScanPolicyFromParams(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "enableAllRules",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL)) {
+                        break;
+                    }
                     policy.getPluginFactory().setAllPluginEnabled(true);
                     policy.save();
                     break;
                 case ACTION_DISABLE_ALL_SCANNERS:
                     policy = getScanPolicyFromParams(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "disableAllRules",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL)) {
+                        break;
+                    }
                     policy.getPluginFactory().setAllPluginEnabled(false);
                     policy.save();
                     break;
                 case ACTION_ENABLE_SCANNERS:
                     policy = getScanPolicyFromParams(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "enableRules",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_RULE_IDS,
+                            getParam(params, PARAM_IDS, ""))) {
+                        break;
+                    }
                     setScannersEnabled(policy, getParam(params, PARAM_IDS, "").split(","), true);
                     policy.save();
                     break;
                 case ACTION_DISABLE_SCANNERS:
                     policy = getScanPolicyFromParams(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "disableRules",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_RULE_IDS,
+                            getParam(params, PARAM_IDS, ""))) {
+                        break;
+                    }
                     setScannersEnabled(policy, getParam(params, PARAM_IDS, "").split(","), false);
                     policy.save();
                     break;
                 case ACTION_SET_ENABLED_POLICIES:
                     policy = getScanPolicyFromParams(params);
+                    if (isGlobalScanPolicyApiUsed()
+                            && redirectToGlobalScanPolicyApi(
+                                    "setEnabledCategories",
+                                    GSPM_PARAM_POLICY_NAME,
+                                    policy.getName(),
+                                    GSPM_PARAM_TOOL,
+                                    GLOBAL_SCAN_POLICY_TOOL,
+                                    GSPM_PARAM_CATEGORY_KEYS,
+                                    getCategoryKeys(getParam(params, PARAM_IDS, "")))) {
+                        break;
+                    }
                     setEnabledCategories(policy, getParam(params, PARAM_IDS, "").split(","));
                     policy.save();
                     break;
@@ -457,6 +554,18 @@ public class ActiveScanAPI extends ApiImplementor {
                     verifyCategoryId(categoryId, PARAM_ID);
                     policy = getScanPolicyFromParams(params);
                     Plugin.AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "setCategoryStrength",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_CATEGORY_KEY,
+                            Category.getKey(categoryId),
+                            GSPM_PARAM_ATTACK_STRENGTH,
+                            attackStrength.name())) {
+                        break;
+                    }
                     updateRulesOfCategoryInPolicy(
                             categoryId, policy, s -> s.setAttackStrength(attackStrength));
                     break;
@@ -466,6 +575,18 @@ public class ActiveScanAPI extends ApiImplementor {
                     policy = getScanPolicyFromParams(params);
                     Plugin.AlertThreshold alertThreshold1 =
                             getAlertThresholdFromParamAlertThreshold(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "setCategoryThreshold",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_CATEGORY_KEY,
+                            Category.getKey(categoryId),
+                            GSPM_PARAM_ALERT_THRESHOLD,
+                            alertThreshold1.name())) {
+                        break;
+                    }
                     updateRulesOfCategoryInPolicy(
                             categoryId, policy, s -> s.setAlertThreshold(alertThreshold1));
                     break;
@@ -473,15 +594,42 @@ public class ActiveScanAPI extends ApiImplementor {
                     policy = getScanPolicyFromParams(params);
                     Plugin scanner =
                             getScannerFromId(policy, getParam(params, PARAM_ID, -1), PARAM_ID);
-                    scanner.setAttackStrength(getAttackStrengthFromParamAttack(params));
+                    Plugin.AttackStrength scannerStrength =
+                            getAttackStrengthFromParamAttack(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "setRuleStrength",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_RULE_ID,
+                            String.valueOf(scanner.getId()),
+                            GSPM_PARAM_ATTACK_STRENGTH,
+                            scannerStrength.name())) {
+                        break;
+                    }
+                    scanner.setAttackStrength(scannerStrength);
                     policy.save();
                     break;
                 case ACTION_SET_SCANNER_ALERT_THRESHOLD:
                     policy = getScanPolicyFromParams(params);
                     AlertThreshold alertThreshold2 =
                             getAlertThresholdFromParamAlertThreshold(params);
-                    getScannerFromId(policy, getParam(params, PARAM_ID, -1), PARAM_ID)
-                            .setAlertThreshold(alertThreshold2);
+                    Plugin thresholdScanner =
+                            getScannerFromId(policy, getParam(params, PARAM_ID, -1), PARAM_ID);
+                    if (redirectToGlobalScanPolicyApi(
+                            "setRuleThreshold",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_RULE_ID,
+                            String.valueOf(thresholdScanner.getId()),
+                            GSPM_PARAM_ALERT_THRESHOLD,
+                            alertThreshold2.name())) {
+                        break;
+                    }
+                    thresholdScanner.setAlertThreshold(alertThreshold2);
                     policy.save();
                     break;
                 case ACTION_ADD_SCAN_POLICY:
@@ -493,6 +641,18 @@ public class ActiveScanAPI extends ApiImplementor {
                     if (!controller.getPolicyManager().isLegalPolicyName(newPolicyName)) {
                         throw new ApiException(
                                 ApiException.Type.ILLEGAL_PARAMETER, PARAM_SCAN_POLICY_NAME);
+                    }
+                    if (redirectToGlobalScanPolicyApi(
+                            "addPolicy",
+                            GSPM_PARAM_POLICY_NAME,
+                            newPolicyName,
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_ALERT_THRESHOLD,
+                            getParamOrNull(params, PARAM_ALERT_THRESHOLD),
+                            GSPM_PARAM_ATTACK_STRENGTH,
+                            getParamOrNull(params, PARAM_ATTACK_STRENGTH))) {
+                        break;
                     }
                     policy = controller.getPolicyManager().getTemplatePolicy();
                     policy.setName(newPolicyName);
@@ -509,10 +669,26 @@ public class ActiveScanAPI extends ApiImplementor {
                                 ApiException.Type.ILLEGAL_PARAMETER,
                                 "You are not allowed to remove the last scan policy");
                     }
+                    if (redirectToGlobalScanPolicyApi(
+                            "removePolicy", GSPM_PARAM_POLICY_NAME, policy.getName())) {
+                        break;
+                    }
                     controller.getPolicyManager().deletePolicy(policy.getName());
                     break;
                 case ACTION_UPDATE_SCAN_POLICY:
                     policy = getScanPolicyFromParams(params);
+                    if (redirectToGlobalScanPolicyApi(
+                            "updatePolicy",
+                            GSPM_PARAM_POLICY_NAME,
+                            policy.getName(),
+                            GSPM_PARAM_TOOL,
+                            GLOBAL_SCAN_POLICY_TOOL,
+                            GSPM_PARAM_ALERT_THRESHOLD,
+                            getParamOrNull(params, PARAM_ALERT_THRESHOLD),
+                            GSPM_PARAM_ATTACK_STRENGTH,
+                            getParamOrNull(params, PARAM_ATTACK_STRENGTH))) {
+                        break;
+                    }
                     if (!isParamsChanged(policy, params)) {
                         break;
                     }
@@ -527,6 +703,11 @@ public class ActiveScanAPI extends ApiImplementor {
                     }
                     if (!file.isFile()) {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PATH);
+                    }
+
+                    if (redirectToGlobalScanPolicyApi(
+                            "importLegacyPolicy", GSPM_PARAM_PATH, file.getAbsolutePath())) {
+                        break;
                     }
 
                     ScanPolicy scanPolicy;
@@ -662,6 +843,76 @@ public class ActiveScanAPI extends ApiImplementor {
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
         return ApiResponseElement.OK;
+    }
+
+    /**
+     * Sets how to get the API of the Global Scan Policy Manager, to which the policy related
+     * actions are redirected when the policies are provided by it.
+     *
+     * @param supplier the supplier of the API, might supply {@code null} if not available.
+     */
+    void setGlobalScanPolicyApiSupplier(Supplier<ApiImplementor> supplier) {
+        globalScanPolicyApiSupplier = supplier;
+    }
+
+    private static ApiImplementor getGlobalScanPolicyApiImplementor() {
+        return API.getInstance().getImplementors().get(GLOBAL_SCAN_POLICY_API_PREFIX);
+    }
+
+    private boolean isGlobalScanPolicyApiUsed() {
+        return controller.getPolicyManager().getPluggableManager() != null;
+    }
+
+    /**
+     * Redirects the action to the Global Scan Policy Manager API, if the policies are provided by
+     * it.
+     *
+     * @param action the name of the action of the API.
+     * @param keysAndValues the names and values of the parameters, those with {@code null} values
+     *     are not sent.
+     * @return {@code true} if the action was redirected, {@code false} if the policies are not
+     *     provided by the Global Scan Policy Manager.
+     * @throws ApiException if the redirected action failed, or the API is not available.
+     */
+    private boolean redirectToGlobalScanPolicyApi(String action, String... keysAndValues)
+            throws ApiException {
+        if (!isGlobalScanPolicyApiUsed()) {
+            return false;
+        }
+        ApiImplementor api = globalScanPolicyApiSupplier.get();
+        if (api == null) {
+            throw new ApiException(
+                    ApiException.Type.INTERNAL_ERROR,
+                    "The " + GLOBAL_SCAN_POLICY_API_PREFIX + " API is not available.");
+        }
+        JSONObject params = new JSONObject();
+        for (int i = 0; i < keysAndValues.length; i += 2) {
+            if (keysAndValues[i + 1] != null) {
+                params.put(keysAndValues[i], keysAndValues[i + 1]);
+            }
+        }
+        api.handleApiAction(action, params);
+        return true;
+    }
+
+    /** Gets the (comma separated) keys of the categories with the given (comma separated) IDs. */
+    private static String getCategoryKeys(String ids) throws ApiException {
+        List<String> keys = new ArrayList<>();
+        try {
+            for (String id : ids.split(",")) {
+                int categoryId = Integer.parseInt(id.trim());
+                verifyCategoryId(categoryId, id.trim());
+                keys.add(Category.getKey(categoryId));
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Failed to parse category ID: ", e);
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+        }
+        return String.join(",", keys);
+    }
+
+    private String getParamOrNull(JSONObject params, String key) {
+        return isParamExists(params, key) ? params.getString(key) : null;
     }
 
     private void setAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
