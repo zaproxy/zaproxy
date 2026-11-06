@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
  * Abstract class for HTTP RPC request handling
@@ -54,8 +54,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     public void setMessage(HttpMessage msg) {
         // First check if it's a gwt rpc form data request
         // Otherwise give back an empty param list
-        String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        if (contentType != null && isValidContentType(contentType)) {
+        if (isValidContentType(msg.getRequestHeader())) {
             try {
                 setRequestContent(msg.getRequestBody().toString());
             } catch (Exception e) {
@@ -188,7 +187,26 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         return result.toString();
     }
 
-    public abstract boolean isValidContentType(String contentType);
+    /**
+     * Tells whether or not the given header has a valid content type for this variant.
+     *
+     * @param header the header to check.
+     * @return {@code true} if valid, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public abstract boolean isValidContentType(HttpRequestHeader header);
+
+    /**
+     * Tells whether or not the given content type is valid for this variant.
+     *
+     * @param contentType the content type to check.
+     * @return {@code true} if valid, {@code false} otherwise.
+     * @deprecated (2.18.0) No longer used, will be removed in a future release.
+     */
+    @Deprecated
+    public boolean isValidContentType(String contentType) {
+        return false;
+    }
 
     public abstract void parseContent(String content);
 

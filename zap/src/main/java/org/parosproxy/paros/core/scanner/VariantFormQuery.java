@@ -35,7 +35,6 @@ package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HtmlParameter.Type;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
 public class VariantFormQuery extends VariantAbstractQuery {
@@ -55,9 +54,7 @@ public class VariantFormQuery extends VariantAbstractQuery {
 
     @Override
     public void setMessage(HttpMessage msg) {
-        String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        // ZAP: added control for null contentType
-        if (contentType != null && contentType.startsWith(WWW_APP_URL_ENCODED)) {
+        if (msg.getRequestHeader().hasContentType(WWW_APP_URL_ENCODED)) {
             this.setParameters(
                     NameValuePair.TYPE_POST_DATA,
                     Model.getSingleton().getSession().getParameters(msg, Type.form));
