@@ -20,9 +20,11 @@
 package org.parosproxy.paros.core.scanner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -627,5 +629,154 @@ class VariantMultipartFormParametersUnitTest {
         bodySb.append("--------------------------d74496d66958873e--").append(CRLF);
         message.setRequestBody(bodySb.toString());
         return message;
+    }
+
+    @Test
+    void shouldHaveUniquePositionsForParametersAfterFileUpload() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createBaseMessage();
+        message.setRequestBody(
+                """
+                --------------------------d74496d66958873e\r
+                Content-Disposition: form-data; name="field1"\r
+                \r
+                val1\r
+                --------------------------d74496d66958873e\r
+                Content-Disposition: form-data; name="somefile"; filename="file.ext"\r
+                Content-Type: text/plain\r
+                \r
+                filecontent\r
+                --------------------------d74496d66958873e\r
+                Content-Disposition: form-data; name="field2"\r
+                \r
+                val2\r
+                --------------------------d74496d66958873e--\r
+                """);
+
+        // When
+        variant.setMessage(message);
+
+        // Then
+        List<NameValuePair> params = variant.getParamList();
+        assertThat(params.get(4).getPosition(), is(equalTo(5)));
+        variant.setParameter(message, params.get(4), "field2", "injected_val");
+        assertThat(message.getRequestBody().toString(), containsString("filecontent"));
+        assertThat(message.getRequestBody().toString(), containsString("injected_val"));
+        assertThat(message.getRequestBody().toString(), not(containsString("val2")));
+    }
+
+    @Test
+    void shouldExtractParametersWhenContentTypeBeforeContentDisposition() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createBaseMessage();
+        message.setRequestBody(
+                """
+                --------------------------d74496d66958873e\r
+                Content-Type: text/plain\r
+                Content-Disposition: form-data; name="somefile"; filename="file.ext"\r
+                \r
+                contents of the file\r
+                --------------------------d74496d66958873e--\r
+                """);
+        // When
+        variant.setMessage(message);
+        // Then
+        assertThat(variant.getParamList(), is(not(empty())));
+    }
+
+    @Test
+    void shouldExtractParametersFromFilePartWithoutContentType() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createBaseMessage();
+        message.setRequestBody(
+                """
+                --------------------------d74496d66958873e\r
+                Content-Disposition: form-data; name="somefile"; filename="file.ext"\r
+                \r
+                contents of the file\r
+                --------------------------d74496d66958873e--\r
+                """);
+        // When
+        variant.setMessage(message);
+        // Then
+        assertThat(variant.getParamList(), is(not(empty())));
+    }
+
+    @Test
+    void shouldResetParametersWhenMessageChanges() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        variant.setMessage(createMessage());
+        assertThat(variant.getParamList().size(), is(equalTo(4)));
+
+        HttpMessage message2 = createBaseMessage();
+        message2.setRequestBody(
+                """
+                --------------------------d74496d66958873e\r
+                Content-Disposition: form-data; name="field2"\r
+                \r
+                val2\r
+                --------------------------d74496d66958873e--\r
+                """);
+
+        // When
+        variant.setMessage(message2);
+
+        // Then
+        assertThat(variant.getParamList().size(), is(equalTo(1)));
+        assertThat(variant.getParamList().get(0).getName(), is(equalTo("field2")));
+        variant.setParameter(message2, variant.getParamList().get(0), "field2", "injected2");
+        assertThat(message2.getRequestBody().toString(), containsString("injected2"));
+    }
+
+    @Test
+    void shouldClearParametersOnNonMultipartMessage() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        variant.setMessage(createMessage());
+        assertThat(variant.getParamList().size(), is(equalTo(4)));
+
+        HttpMessage nonMultipartMessage = new HttpMessage();
+        try {
+            nonMultipartMessage.setRequestHeader(
+                    "GET / HTTP/1.1\r\nContent-Type: application/json\r\n\r\n");
+        } catch (HttpMalformedHeaderException e) {
+            throw new RuntimeException(e);
+        }
+
+        // When
+        variant.setMessage(nonMultipartMessage);
+
+        // Then
+        assertThat(variant.getParamList(), is(empty()));
+    }
+
+    @Test
+    void shouldInjectFileNameWhenFileNameMatchesFieldName() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createBaseMessage();
+        message.setRequestBody(
+                """
+                --------------------------d74496d66958873e\r
+                Content-Disposition: form-data; name="upload"; filename="upload"\r
+                Content-Type: text/plain\r
+                \r
+                contents\r
+                --------------------------d74496d66958873e--\r
+                """);
+        variant.setMessage(message);
+
+        // When
+        NameValuePair fileNameParam = variant.getParamList().get(0);
+        variant.setParameter(message, fileNameParam, "upload", "injected.txt");
+
+        // Then
+        assertThat(message.getRequestBody().toString(), containsString("name=\"upload\""));
+        assertThat(
+                message.getRequestBody().toString(), containsString("filename=\"injected.txt\""));
     }
 }
