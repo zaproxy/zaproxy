@@ -685,6 +685,13 @@ def get_af_spiderClient(target, mins):
         }
 
 def get_af_report(template, dir, file, title, description):
+    if os.path.isabs(file):
+        # The Automation Framework report job resolves reportFile relative to
+        # reportDir (java.io.File(dir, file)), so an absolute file path would
+        # be appended under reportDir (e.g. /zap/wrk/zap/wrk/report.json).
+        # Split it so the job writes exactly where the user asked.
+        dir = os.path.dirname(file)
+        file = os.path.basename(file)
     return {
         'type': 'report',
         'parameters': {
