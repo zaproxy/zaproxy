@@ -134,9 +134,19 @@ public class VariantURLPath implements Variant {
         for (int i = 0; i < bytes.length; i++) {
             byte b = bytes[i];
             if (b == ESCAPE) {
-                int u = Character.digit(bytes[++i], 16);
-                int l = Character.digit(bytes[++i], 16);
-                baos.write((u << 4) + l);
+                if (i + 2 < bytes.length) {
+                    int u = Character.digit(bytes[++i], 16);
+                    int l = Character.digit(bytes[++i], 16);
+                    if (u != -1 && l != -1) {
+                        baos.write((u << 4) + l);
+                    } else {
+                        baos.write(ESCAPE);
+                        baos.write(bytes[i - 1]);
+                        baos.write(bytes[i]);
+                    }
+                } else {
+                    baos.write(b);
+                }
             } else {
                 baos.write(b);
             }
@@ -201,14 +211,14 @@ public class VariantURLPath implements Variant {
                 throw new IllegalArgumentException("Invalid position " + position);
             }
             String path;
+            String encodedValue = escaped ? value : encode(value);
             if (position < segments.length) {
-                String encodedValue = escaped ? value : encode(value);
                 String originalValue = segments[position];
                 segments[position] = encodedValue;
                 path = StringUtils.join(segments, "/");
                 segments[position] = originalValue;
             } else {
-                path = StringUtils.join(segments, "/") + "/" + value;
+                path = StringUtils.join(segments, "/") + "/" + encodedValue;
             }
             try {
                 uri.setEscapedPath(path);
