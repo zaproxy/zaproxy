@@ -167,7 +167,7 @@ public class PolicyManager {
         ScanPolicy policy = new ScanPolicy(new ZapXmlConfiguration(file));
         String baseName = file.getName();
         if (baseName.endsWith(POLICY_EXTENSION)) {
-            // Stip off the extension for the 'friendly name' and if we need to prevent overwriting
+            // Strip off the extension for the 'friendly name' and if we need to prevent overwriting
             // an existing one
             baseName = baseName.substring(0, baseName.indexOf(POLICY_EXTENSION));
         }

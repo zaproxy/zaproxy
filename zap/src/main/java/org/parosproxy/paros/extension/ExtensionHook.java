@@ -34,7 +34,7 @@
 // ZAP: 2017/11/23 Add an add method for OverrideMessageProxyListener.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2020/08/27 Added support for plugable variants
+// ZAP: 2020/08/27 Added support for pluggable variants
 // ZAP: 2022/06/13 Allow to add HrefTypeInfo.
 package org.parosproxy.paros.extension;
 
