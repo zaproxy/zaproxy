@@ -229,7 +229,8 @@ public class AlertAPI extends ApiImplementor {
                             resultList.addItem(alertToSet(alert));
                         }
                     },
-                    this.getParam(params, PARAM_FALSE_POSITIVE, false));
+                    this.getParam(params, PARAM_FALSE_POSITIVE, false),
+                    true);
             result = resultList;
         } else if (VIEW_NUMBER_OF_ALERTS.equals(name)) {
             CounterProcessor<Alert> counter = new CounterProcessor<>();
@@ -349,12 +350,16 @@ public class AlertAPI extends ApiImplementor {
                         }
                     };
 
+            // Do not deduplicate, all matching alerts (including duplicates) must be
+            // deleted.
             processAlerts(
                     this.getParam(params, PARAM_BASE_URL, (String) null),
                     -1,
                     -1,
                     getRiskId(params),
-                    counter);
+                    counter,
+                    false,
+                    false);
             return new ApiResponseElement(ACTION_DELETE_ALERTS, String.valueOf(count[0]));
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
@@ -464,7 +469,7 @@ public class AlertAPI extends ApiImplementor {
     private static void processAlerts(
             String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
             throws ApiException {
-        processAlerts(baseUrl, start, count, riskId, processor, false);
+        processAlerts(baseUrl, start, count, riskId, processor, false, true);
     }
 
     private static void processAlerts(
@@ -473,7 +478,8 @@ public class AlertAPI extends ApiImplementor {
             int count,
             int riskId,
             Processor<Alert> processor,
-            boolean falsePositive)
+            boolean falsePositive,
+            boolean deduplicate)
             throws ApiException {
         List<Alert> alerts = new ArrayList<>();
         try {
@@ -490,7 +496,7 @@ public class AlertAPI extends ApiImplementor {
                 Alert alert = new Alert(recAlert);
 
                 if ((falsePositive || alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE)
-                        && !alerts.contains(alert)) {
+                        && (!deduplicate || !alerts.contains(alert))) {
                     if (baseUrl != null && !alert.getUri().startsWith(baseUrl)) {
                         // Not subordinate to the specified URL
                         continue;
@@ -500,7 +506,9 @@ public class AlertAPI extends ApiImplementor {
                     }
 
                     pcc.recordProcessed();
-                    alerts.add(alert);
+                    if (deduplicate) {
+                        alerts.add(alert);
+                    }
 
                     if (!pcc.hasPageStarted()) {
                         continue;

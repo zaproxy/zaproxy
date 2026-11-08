@@ -54,10 +54,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.TableAlert;
+import org.parosproxy.paros.extension.ExtensionLoader;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -1107,6 +1110,34 @@ class ExtensionAlertUnitTest {
             assertEquals(1, root.getChildAt(0).getChildCount());
             // ...but both alerts were published so consumers, e.g. alert filters, can act on them
             assertEquals(2, events.size());
+        } finally {
+            ZAP.getEventBus().unregisterConsumer(consumer, publisherName);
+        }
+    }
+
+    @Test
+    void shouldDeleteAlertWithoutHistoryReference() throws Exception {
+        // Given an alert whose history id has no history reference (e.g. site node deleted)
+        setUpExtensionWithDb();
+        ExtensionLoader extensionLoader = mock(ExtensionLoader.class);
+        Control.initSingletonForTesting(Model.getSingleton(), extensionLoader);
+        ExtensionHistory extensionHistory = mock(ExtensionHistory.class);
+        given(extensionLoader.getExtension(ExtensionHistory.class)).willReturn(extensionHistory);
+        given(extensionHistory.getHistoryReference(anyInt())).willReturn(null);
+        Alert alert = newAlertToRaise("https://www.example.com/");
+        alert.setAlertId(1);
+        List<Event> events = new ArrayList<>();
+        EventConsumer consumer = events::add;
+        String publisherName = AlertEventPublisher.getPublisher().getPublisherName();
+        ZAP.getEventBus()
+                .registerConsumer(consumer, publisherName, AlertEventPublisher.ALERT_REMOVED_EVENT);
+        try {
+            // When
+            extAlert.deleteAlert(alert);
+            // Then the alert is deleted and the removal published without target
+            verify(tableAlert).deleteAlert(1);
+            assertEquals(1, events.size());
+            assertNull(events.get(0).getTarget());
         } finally {
             ZAP.getEventBus().unregisterConsumer(consumer, publisherName);
         }

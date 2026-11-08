@@ -439,13 +439,14 @@ public class ExtensionAlert extends ExtensionAdaptor
         map.put(AlertEventPublisher.CONFIDENCE, Integer.toString(alert.getConfidence()));
         map.put(AlertEventPublisher.CONFIDENCE_STRING, Alert.MSG_CONFIDENCE[alert.getConfidence()]);
         map.put(AlertEventPublisher.SOURCE, Integer.toString(alert.getSource().getId()));
+        SiteNode siteNode = historyReference != null ? historyReference.getSiteNode() : null;
         ZAP.getEventBus()
                 .publishSyncEvent(
                         AlertEventPublisher.getPublisher(),
                         new Event(
                                 AlertEventPublisher.getPublisher(),
                                 event,
-                                new Target(historyReference.getSiteNode()),
+                                siteNode != null ? new Target(siteNode) : null,
                                 map));
     }
 

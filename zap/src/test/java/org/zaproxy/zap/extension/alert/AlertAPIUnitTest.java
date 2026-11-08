@@ -23,8 +23,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
 import java.util.Arrays;
@@ -198,6 +201,51 @@ public class AlertAPIUnitTest {
                         equalTo(
                                 "{\"alerts\":[{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"High\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Informational\",\"id\":\"1\",\"alertRef\":\"0\"},"
                                         + "{\"sourceid\":\"0\",\"other\":\"\",\"method\":\"\",\"evidence\":\"\",\"pluginId\":\"0\",\"cweid\":\"0\",\"confidence\":\"False Positive\",\"sourceMessageId\":0,\"wascid\":\"0\",\"description\":\"\",\"messageId\":\"0\",\"inputVector\":\"\",\"url\":\"\",\"tags\":{},\"reference\":\"\",\"solution\":\"\",\"alert\":\"\",\"param\":\"\",\"attack\":\"\",\"name\":\"\",\"risk\":\"Informational\",\"id\":\"2\",\"alertRef\":\"0\"}]}")));
+    }
+
+    @Test
+    void shouldDeleteDuplicateAlerts() throws Exception {
+        // Given two alerts with the same content but different ids
+        duplicateAlerts();
+        // When
+        ApiResponse response = api.handleApiAction("deleteAlerts", new JSONObject());
+        // Then both are deleted
+        assertThat(response.getName(), is(equalTo("deleteAlerts")));
+        assertThat(((ApiResponseElement) response).getValue(), is(equalTo("2")));
+        verify(extensionAlert, times(2)).deleteAlert(any(Alert.class));
+    }
+
+    @Test
+    void shouldNotReturnDuplicateAlertsInView() throws Exception {
+        // Given two alerts with the same content but different ids
+        duplicateAlerts();
+        // When
+        ApiResponse response = api.handleApiView("alerts", new JSONObject());
+        // Then only one is returned
+        assertThat(response, is(instanceOf(ApiResponseList.class)));
+        assertThat(((ApiResponseList) response).getItems().size(), is(equalTo(1)));
+    }
+
+    private void duplicateAlerts() throws DatabaseException {
+        List<RecordAlert> alerts = List.of(duplicateRecordAlert(), duplicateRecordAlert());
+        Vector<Integer> alertIds =
+                alerts.stream()
+                        .map(RecordAlert::getAlertId)
+                        .collect(Collectors.toCollection(Vector::new));
+        given(tableAlert.getAlertList()).willReturn(alertIds);
+        for (RecordAlert alert : alerts) {
+            given(tableAlert.read(alert.getAlertId())).willReturn(alert);
+        }
+    }
+
+    private RecordAlert duplicateRecordAlert() {
+        RecordAlert recordAlert = mock();
+        given(recordAlert.getAlertId()).willReturn(alertIdCount++);
+        given(recordAlert.getConfidence()).willReturn(Alert.CONFIDENCE_HIGH);
+        given(recordAlert.getAlertRef()).willReturn("0-1");
+        given(recordAlert.getAlert()).willReturn("name");
+        given(recordAlert.getInputVector()).willReturn("input vector");
+        return recordAlert;
     }
 
     private void alertsWithConfidence(int... confidences) throws DatabaseException {
