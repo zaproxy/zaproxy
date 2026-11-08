@@ -28,6 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.authentication.VerificationMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -195,7 +196,13 @@ public class AuthenticationAPI extends ApiImplementor {
                 AuthenticationMethodType oldMethodType =
                         context.getAuthenticationMethod().getType();
                 AuthMethodEntry authEntry = getSetMethodActionImplementor(params);
+                // Preserve the current verification method (e.g. the logged in/out
+                // indicators), setting the new authentication method replaces it.
+                VerificationMethod verificationMethod = context.getVerificationMethod();
                 authEntry.getApi().handleAction(actionParams);
+                if (verificationMethod != null) {
+                    context.setVerificationMethod(verificationMethod);
+                }
                 resetUsersCredentials(context.getId(), oldMethodType, authEntry.getMethodType());
                 context.save();
                 return ApiResponseElement.OK;
