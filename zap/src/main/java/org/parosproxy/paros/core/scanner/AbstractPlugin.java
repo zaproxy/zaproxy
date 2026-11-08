@@ -42,7 +42,7 @@
 // ZAP: 2014/05/15 Issue 1196: AbstractPlugin.bingo incorrectly sets evidence to attack
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
-// ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandrecieve also invoke scanner
+// ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandreceive also invoke scanner
 // hook before and after message update
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
