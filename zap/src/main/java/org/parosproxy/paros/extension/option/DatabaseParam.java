@@ -31,6 +31,8 @@ import org.parosproxy.paros.common.AbstractParam;
  *   <li>Request Body Size - the size of the request body in the 'History' database table.
  *   <li>Response Body Size - the size of the response body in the 'History' database table.
  *   <li>Recovery Log - if the recovery log should be enabled (HSQLDB option only).
+ *   <li>Defrag - the percentage of unused space that triggers an automatic defrag (HSQLDB option
+ *       only).
  * </ul>
  */
 public class DatabaseParam extends AbstractParam {
@@ -68,10 +70,14 @@ public class DatabaseParam extends AbstractParam {
     /** The configuration key for database's recovery log option. */
     private static final String PARAM_RECOVERY_LOG_ENABLED = PARAM_BASE_KEY + ".recoverylog";
 
+    /** The configuration key for the defrag percentage option. */
+    private static final String PARAM_DEFRAG_PERCENTAGE = PARAM_BASE_KEY + ".defrag";
+
     private static final boolean DEFAULT_COMPACT_DATABASE = false;
     private static final int DEFAULT_NEW_SESSION_OPTION = NEW_SESSION_NOT_SPECIFIED;
     private static final boolean DEFAULT_NEW_SESSION_PROMPT = true;
     private static final boolean DEFAULT_RECOVERY_LOG_ENABLED = true;
+    static final int DEFAULT_DEFRAG_PERCENTAGE = 30;
 
     /**
      * The compact option, whether the database should be compacted on exit. Default is {@code
@@ -104,6 +110,15 @@ public class DatabaseParam extends AbstractParam {
      */
     private boolean recoveryLogEnabled;
 
+    /**
+     * The percentage of unused database space that triggers an automatic defrag.
+     *
+     * <p>Default is {@value #DEFAULT_DEFRAG_PERCENTAGE}, 0 disables the automatic defrag.
+     *
+     * @see #getDefragPercentage()
+     */
+    private int defragPercentage;
+
     public DatabaseParam() {
         super();
 
@@ -113,6 +128,7 @@ public class DatabaseParam extends AbstractParam {
         newSessionOption = DEFAULT_NEW_SESSION_OPTION;
         newSessionPrompt = DEFAULT_NEW_SESSION_PROMPT;
         recoveryLogEnabled = DEFAULT_RECOVERY_LOG_ENABLED;
+        defragPercentage = DEFAULT_DEFRAG_PERCENTAGE;
     }
 
     /**
@@ -125,6 +141,8 @@ public class DatabaseParam extends AbstractParam {
      *   <li>Request Body Size - the size of the request body in the 'History' database table.
      *   <li>Response Body Size - the size of the response body in the 'History' database table.
      *   <li>Recovery Log - if the recovery log should be enabled (HSQLDB option only).
+     *   <li>Defrag - the percentage of unused space that triggers an automatic defrag (HSQLDB
+     *       option only).
      * </ul>
      */
     @Override
@@ -135,6 +153,8 @@ public class DatabaseParam extends AbstractParam {
         newSessionOption = getInt(PARAM_NEW_SESSION_OPTION, DEFAULT_NEW_SESSION_OPTION);
         newSessionPrompt = getBoolean(PARAM_NEW_SESSION_PROMPT, DEFAULT_NEW_SESSION_PROMPT);
         recoveryLogEnabled = getBoolean(PARAM_RECOVERY_LOG_ENABLED, DEFAULT_RECOVERY_LOG_ENABLED);
+        defragPercentage =
+                clampDefragPercentage(getInt(PARAM_DEFRAG_PERCENTAGE, DEFAULT_DEFRAG_PERCENTAGE));
     }
 
     /**
@@ -254,5 +274,35 @@ public class DatabaseParam extends AbstractParam {
     public void setRecoveryLogEnabled(boolean enabled) {
         this.recoveryLogEnabled = enabled;
         getConfig().setProperty(PARAM_RECOVERY_LOG_ENABLED, recoveryLogEnabled);
+    }
+
+    /**
+     * Gets the percentage of unused database space that triggers an automatic defrag.
+     *
+     * @return the defrag percentage, 0 if the automatic defrag is disabled
+     * @see #setDefragPercentage(int)
+     * @since 2.18.0
+     */
+    public int getDefragPercentage() {
+        return defragPercentage;
+    }
+
+    /**
+     * Sets the percentage of unused database space that triggers an automatic defrag.
+     *
+     * <p>Values outside the range 0-100 are clamped, 0 disables the automatic defrag. Takes effect
+     * on new and reopened sessions.
+     *
+     * @param defragPercentage the defrag percentage
+     * @see #getDefragPercentage()
+     * @since 2.18.0
+     */
+    public void setDefragPercentage(int defragPercentage) {
+        this.defragPercentage = clampDefragPercentage(defragPercentage);
+        getConfig().setProperty(PARAM_DEFRAG_PERCENTAGE, this.defragPercentage);
+    }
+
+    private static int clampDefragPercentage(int defragPercentage) {
+        return Math.min(100, Math.max(0, defragPercentage));
     }
 }
