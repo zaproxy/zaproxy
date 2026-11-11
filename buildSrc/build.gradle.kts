@@ -32,7 +32,7 @@ dependencies {
     val jgitVersion = "7.1.0.202411261347-r"
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")
-    implementation("org.kohsuke:github-api:1.326")
+    implementation("org.kohsuke:github-api:1.330")
     // Include annotations used by the above library to avoid compiler warnings.
     compileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
     compileOnly("com.infradna.tool:bridge-method-annotation:1.24") {
