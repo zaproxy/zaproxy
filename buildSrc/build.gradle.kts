@@ -27,7 +27,7 @@ dependencies {
     implementation("commons-codec:commons-codec:1.23.0")
     implementation("commons-configuration:commons-configuration:1.10")
     implementation("commons-collections:commons-collections:3.2.2")
-    implementation("commons-io:commons-io:2.13.0")
+    implementation("commons-io:commons-io:2.22.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.22.4")
     val jgitVersion = "7.8.1.202611041320-r"
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
