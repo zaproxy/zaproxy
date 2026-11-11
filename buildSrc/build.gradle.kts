@@ -35,7 +35,7 @@ dependencies {
     implementation("org.kohsuke:github-api:1.326")
     // Include annotations used by the above library to avoid compiler warnings.
     compileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
-    compileOnly("com.infradna.tool:bridge-method-annotation:1.18") {
+    compileOnly("com.infradna.tool:bridge-method-annotation:1.24") {
         exclude(group = "org.jenkins-ci")
     }
     // Gradle Plugins
