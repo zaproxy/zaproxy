@@ -118,17 +118,35 @@ public abstract class PopupMenuItemSiteNodeContainer
     }
 
     /**
-     * Calls the method {@code performAction(SiteNode)} passing as parameter the {@code SiteNode}
-     * extracted from the given {@code historyReference}.
+     * Calls the method {@code performAction(SiteNode, HistoryReference)} passing as parameters the
+     * {@code SiteNode} extracted from the given {@code historyReference} and the {@code
+     * historyReference} itself.
      *
-     * @see #performAction(SiteNode)
+     * @see #performAction(SiteNode, HistoryReference)
      */
     @Override
     protected final void performAction(HistoryReference historyReference) {
         final SiteNode siteNode = getSiteNode(historyReference);
         if (siteNode != null) {
-            performAction(siteNode);
+            performAction(siteNode, historyReference);
         }
+    }
+
+    /**
+     * Performs an action on the given site node, for the given selected message.
+     *
+     * <p>The selected message might not be the one the site node currently has, for example, if
+     * selected in the History tab.
+     *
+     * <p>By default, it calls the method {@code performAction(SiteNode)}.
+     *
+     * @param siteNode the site node, never {@code null}
+     * @param historyReference the selected message, never {@code null}
+     * @since 2.18.0
+     * @see #performAction(SiteNode)
+     */
+    protected void performAction(SiteNode siteNode, HistoryReference historyReference) {
+        performAction(siteNode);
     }
 
     /**
