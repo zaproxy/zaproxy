@@ -1,6 +1,6 @@
 [versions]
 errorprone = "2.42.0"
-flatlaf = "3.7.2"
+flatlaf = "3.8"
 log4j = "2.26.1"
 
 [libraries]
