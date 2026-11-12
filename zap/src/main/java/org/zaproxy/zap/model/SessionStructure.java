@@ -132,6 +132,14 @@ public class SessionStructure {
         return model.getSession().getUrlParamParser(uri.toString()).getTreePath(msg);
     }
 
+    public static List<String> getTreePath(Model model, URI uri, String method, String postData)
+            throws URIException, HttpMalformedHeaderException {
+        if (method == null) {
+            return getTreePath(model, uri);
+        }
+        return getTreePath(model, getMsg(uri, method, postData, null));
+    }
+
     /**
      * @param model
      * @param msg
