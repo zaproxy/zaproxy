@@ -269,11 +269,15 @@ public class AddOnCollection {
 
     public AddOn getAddOn(String id) {
         for (AddOn addOn : addOns) {
-            if (addOn.getId().equals(id)) {
+            if (hasId(id, addOn)) {
                 return addOn;
             }
         }
         return null;
+    }
+
+    private boolean hasId(String id, AddOn addOn) {
+        return addOn.getId().equals(id) || addOn.getAliases().contains(id);
     }
 
     /**
@@ -337,13 +341,12 @@ public class AddOnCollection {
     }
 
     public boolean includesAddOn(String id) {
-        boolean inc = false;
         for (AddOn addOn : addOns) {
-            if (addOn.getId().equals(id)) {
+            if (hasId(id, addOn)) {
                 return true;
             }
         }
-        return inc;
+        return false;
     }
 
     public boolean addAddOn(AddOn ao) {

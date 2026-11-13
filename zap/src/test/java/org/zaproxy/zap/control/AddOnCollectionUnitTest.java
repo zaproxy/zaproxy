@@ -140,6 +140,45 @@ class AddOnCollectionUnitTest {
                     + "	</addon_bbb>\n"
                     + "</ZAP>";
 
+    private static final String CONF_ALIASES_REMOTE =
+            """
+            <ZAP>
+              <addon>newid</addon>
+              <addon_newid>
+                <name>New Addon</name>
+                <version>2</version>
+                <file>newid-release-2.zap</file>
+                <status>release</status>
+                <description>Description for newid</description>
+                <changes>Changes for newid</changes>
+                <url>https://example.com/newid-release-2.zap</url>
+                <size>12345</size>
+                <not-before-version>2.14.0</not-before-version>
+                <aliases>
+                  <alias>oldid</alias>
+                </aliases>
+              </addon_newid>
+            </ZAP>
+            """;
+
+    private static final String CONF_ALIASES_LOCAL =
+            """
+            <ZAP>
+              <addon>oldid</addon>
+              <addon_oldid>
+                <name>Old Addon</name>
+                <version>1</version>
+                <file>oldid-release-1.zap</file>
+                <status>release</status>
+                <description>Description for oldid</description>
+                <changes>Changes for oldid</changes>
+                <url>https://example.com/oldid-release-1.zap</url>
+                <size>12345</size>
+                <not-before-version>2.14.0</not-before-version>
+              </addon_oldid>
+            </ZAP>
+            """;
+
     @BeforeEach
     void setUp() throws Exception {
         configA = new ZapXmlConfiguration();
@@ -313,6 +352,61 @@ class AddOnCollectionUnitTest {
         coll.addAddOn(addOn);
         // Then
         assertThat(coll.getAddOn("bbb").isMandatory(), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldReturnAddOnByAliasId() throws Exception {
+        // Given
+        ZapXmlConfiguration config = loadConfig(CONF_ALIASES_REMOTE);
+        AddOnCollection coll = new AddOnCollection(config, Platform.daily);
+        // When
+        AddOn addOn = coll.getAddOn("oldid");
+        // Then
+        assertThat(addOn, is(notNullValue()));
+        assertThat(addOn.getId(), is(equalTo("newid")));
+    }
+
+    @Test
+    void shouldIncludeAddOnByAliasId() throws Exception {
+        // Given
+        ZapXmlConfiguration config = loadConfig(CONF_ALIASES_REMOTE);
+        AddOnCollection coll = new AddOnCollection(config, Platform.daily);
+        // When / Then
+        assertThat(coll.includesAddOn("oldid"), is(true));
+    }
+
+    @Test
+    void shouldTreatAliasedAddOnAsUpdate() throws Exception {
+        // Given
+        AddOnCollection localColl =
+                new AddOnCollection(loadConfig(CONF_ALIASES_LOCAL), Platform.daily);
+        AddOnCollection remoteColl =
+                new AddOnCollection(loadConfig(CONF_ALIASES_REMOTE), Platform.daily);
+        // When
+        List<AddOn> updatedAddOns = localColl.getUpdatedAddOns(remoteColl);
+        // Then
+        assertThat(updatedAddOns.size(), is(1));
+        assertThat(updatedAddOns.get(0).getId(), is(equalTo("newid")));
+    }
+
+    @Test
+    void shouldNotTreatAliasedAddOnAsNew() throws Exception {
+        // Given
+        AddOnCollection localColl =
+                new AddOnCollection(loadConfig(CONF_ALIASES_LOCAL), Platform.daily);
+        AddOnCollection remoteColl =
+                new AddOnCollection(loadConfig(CONF_ALIASES_REMOTE), Platform.daily);
+        // When
+        List<AddOn> newAddOns = localColl.getNewAddOns(remoteColl);
+        // Then
+        assertThat(newAddOns.size(), is(0));
+    }
+
+    private static ZapXmlConfiguration loadConfig(String xml) throws Exception {
+        ZapXmlConfiguration config = new ZapXmlConfiguration();
+        config.setDelimiterParsingDisabled(true);
+        config.load(new StringReader(xml));
+        return config;
     }
 
     private ZapXmlConfiguration createConfiguration(String file) throws ConfigurationException {
