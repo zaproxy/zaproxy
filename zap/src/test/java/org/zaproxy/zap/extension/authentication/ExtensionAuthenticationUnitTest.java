@@ -22,14 +22,18 @@ package org.zaproxy.zap.extension.authentication;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.TableContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.WithConfigsTest;
@@ -38,6 +42,8 @@ import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -243,5 +249,71 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
                 context.getVerificationMethod().getAuthCheckingStrategy(),
                 is(AuthCheckingStrategy.POLL_URL));
         assertThat(context.getVerificationMethod().getPollUrl(), is(pollUrl));
+    }
+
+    @Test
+    void shouldPreserveIndicatorsWhenSettingAuthenticationMethodViaApi() throws Exception {
+        // Given
+        setupDatabaseMock();
+        ExtensionHook hook = new ExtensionHook(model, null);
+        extensionAuthentication.hook(hook);
+
+        Context context = model.getSession().getNewContext("Test Auth Indicators");
+        context.getVerificationMethod().setLoggedInIndicatorPattern("\\QloggedIn\\E");
+        context.getVerificationMethod().setLoggedOutIndicatorPattern("\\QloggedOut\\E");
+
+        JSONObject params = new JSONObject();
+        params.put("contextId", Integer.toString(context.getId()));
+        params.put("authMethodName", "manualAuthentication");
+
+        // When
+        ApiResponse response =
+                extensionAuthentication.api.handleApiAction("setAuthenticationMethod", params);
+
+        // Then
+        assertThat(response, is(ApiResponseElement.OK));
+        assertThat(
+                context.getVerificationMethod().getLoggedInIndicatorPattern().pattern(),
+                is("\\QloggedIn\\E"));
+        assertThat(
+                context.getVerificationMethod().getLoggedOutIndicatorPattern().pattern(),
+                is("\\QloggedOut\\E"));
+    }
+
+    @Test
+    void shouldPreserveIndicatorsWhenSwitchingAuthenticationMethodViaApi() throws Exception {
+        // Given
+        setupDatabaseMock();
+        ExtensionHook hook = new ExtensionHook(model, null);
+        extensionAuthentication.hook(hook);
+
+        Context context = model.getSession().getNewContext("Test Switch Auth");
+        context.getVerificationMethod().setLoggedInIndicatorPattern("welcome");
+        context.getVerificationMethod().setLoggedOutIndicatorPattern("goodbye");
+
+        JSONObject params = new JSONObject();
+        params.put("contextId", Integer.toString(context.getId()));
+        params.put("authMethodName", "httpAuthentication");
+        params.put("authMethodConfigParams", "hostname=example.com&port=8080&realm=test");
+
+        // When
+        ApiResponse response =
+                extensionAuthentication.api.handleApiAction("setAuthenticationMethod", params);
+
+        // Then
+        assertThat(response, is(ApiResponseElement.OK));
+        assertThat(
+                context.getVerificationMethod().getLoggedInIndicatorPattern().pattern(),
+                is("welcome"));
+        assertThat(
+                context.getVerificationMethod().getLoggedOutIndicatorPattern().pattern(),
+                is("goodbye"));
+    }
+
+    private void setupDatabaseMock() {
+        Database database = mock(Database.class);
+        given(model.getDb()).willReturn(database);
+        TableContext tableContext = mock(TableContext.class);
+        given(database.getTableContext()).willReturn(tableContext);
     }
 }

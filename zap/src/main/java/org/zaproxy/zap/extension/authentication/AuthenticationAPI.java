@@ -27,7 +27,9 @@ import net.sf.json.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.authentication.VerificationMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -192,10 +194,31 @@ public class AuthenticationAPI extends ApiImplementor {
                 context = getContext(params);
                 actionParams.put(PARAM_CONTEXT_ID, context.getId());
 
+                VerificationMethod currentVm = context.getVerificationMethod();
                 AuthenticationMethodType oldMethodType =
                         context.getAuthenticationMethod().getType();
                 AuthMethodEntry authEntry = getSetMethodActionImplementor(params);
                 authEntry.getApi().handleAction(actionParams);
+                if (currentVm != null) {
+                    AuthenticationMethod newMethod = context.getAuthenticationMethod();
+                    if (newMethod != null) {
+                        VerificationMethod newVm = newMethod.getVerificationMethod();
+                        if (currentVm.getLoggedInIndicatorPattern() == null
+                                && newVm != null
+                                && newVm.getLoggedInIndicatorPattern() != null) {
+                            currentVm.setLoggedInIndicatorPattern(
+                                    newVm.getLoggedInIndicatorPattern().pattern());
+                        }
+                        if (currentVm.getLoggedOutIndicatorPattern() == null
+                                && newVm != null
+                                && newVm.getLoggedOutIndicatorPattern() != null) {
+                            currentVm.setLoggedOutIndicatorPattern(
+                                    newVm.getLoggedOutIndicatorPattern().pattern());
+                        }
+                        newMethod.setVerificationMethod(currentVm);
+                    }
+                    context.setVerificationMethod(currentVm);
+                }
                 resetUsersCredentials(context.getId(), oldMethodType, authEntry.getMethodType());
                 context.save();
                 return ApiResponseElement.OK;
