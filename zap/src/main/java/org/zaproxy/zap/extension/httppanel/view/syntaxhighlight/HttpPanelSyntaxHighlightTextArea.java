@@ -20,9 +20,12 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.io.IOException;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import javax.swing.Action;
@@ -30,7 +33,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 import org.apache.commons.configuration.FileConfiguration;
@@ -39,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextArea;
@@ -100,6 +107,8 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     private Boolean darkLaF;
 
+    private Map<FontMetrics, FontMetrics> carriageReturnMetrics;
+
     public HttpPanelSyntaxHighlightTextArea() {
         ((RSyntaxDocument) getDocument()).setTokenMakerFactory(getTokenMakerFactory());
         setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
@@ -145,6 +154,33 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
             setFont();
         }
         initHighlighter();
+        installCarriageReturnEditing();
+    }
+
+    /**
+     * Shows every carriage return and, when Enter is pressed on a line that already ends with CRLF,
+     * inserts CRLF. Lines that end with LF are left alone.
+     */
+    private void installCarriageReturnEditing() {
+        setTokenPainterFactory(textArea -> CarriageReturnSupport.newTokenPainter());
+        getActionMap().put(DefaultEditorKit.insertBreakAction, new CrlfAwareInsertBreakAction());
+    }
+
+    @Override
+    public FontMetrics getFontMetricsForTokenType(int type) {
+        FontMetrics delegate = super.getFontMetricsForTokenType(type);
+        if (delegate == null) {
+            return null;
+        }
+        if (carriageReturnMetrics == null) {
+            carriageReturnMetrics = new IdentityHashMap<>();
+        }
+        FontMetrics wrapped = carriageReturnMetrics.get(delegate);
+        if (wrapped == null) {
+            wrapped = CarriageReturnSupport.wrap(delegate);
+            carriageReturnMetrics.put(delegate, wrapped);
+        }
+        return wrapped;
     }
 
     private void setLookAndFeel(boolean dark) {
@@ -175,6 +211,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
         darkLaF = DisplayUtils.isDarkLookAndFeel();
         setLookAndFeel(darkLaF);
+        installCarriageReturnEditing();
     }
 
     /**
@@ -497,6 +534,68 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
         protected void initTokenMakerMap() {
             String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
             putMapping(SYNTAX_STYLE_NONE, pkg + "PlainTextTokenMaker");
+        }
+    }
+
+    /**
+     * Inserts CRLF when the current line already ends with CRLF, and LF otherwise.
+     *
+     * <p>The document stores the CR as a real character before the line's LF. A caret that sits
+     * after that CR (where End lands) would duplicate it if CRLF were inserted at the caret, so the
+     * break is inserted in front of the existing CR and a new CR is added to the break.
+     */
+    private static final class CrlfAwareInsertBreakAction
+            extends RSyntaxTextAreaEditorKit.InsertBreakAction {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void handleInsertBreak(RSyntaxTextArea textArea, boolean noSelection) {
+            int crOffset = carriageReturnBeforeLineFeed(textArea);
+            if (crOffset < 0) {
+                super.handleInsertBreak(textArea, noSelection);
+                return;
+            }
+
+            int insertAt = textArea.getSelectionStart();
+            if (noSelection && textArea.getCaretPosition() > crOffset) {
+                textArea.setCaretPosition(crOffset);
+                insertAt = crOffset;
+            } else if (insertAt > crOffset) {
+                super.handleInsertBreak(textArea, noSelection);
+                return;
+            }
+
+            textArea.beginAtomicEdit();
+            try {
+                super.handleInsertBreak(
+                        textArea, textArea.getSelectionStart() == textArea.getSelectionEnd());
+                textArea.insert(String.valueOf(CarriageReturnSupport.CARRIAGE_RETURN), insertAt);
+            } finally {
+                textArea.endAtomicEdit();
+            }
+        }
+
+        private static int carriageReturnBeforeLineFeed(RSyntaxTextArea textArea) {
+            try {
+                Document document = textArea.getDocument();
+                Element root = document.getDefaultRootElement();
+                Element line = root.getElement(root.getElementIndex(textArea.getSelectionStart()));
+                int start = line.getStartOffset();
+                int length = line.getEndOffset() - start;
+                if (length < 2) {
+                    return -1;
+                }
+                String text = document.getText(start, length);
+                int newline = text.lastIndexOf('\n');
+                if (newline > 0
+                        && text.charAt(newline - 1) == CarriageReturnSupport.CARRIAGE_RETURN) {
+                    return start + newline - 1;
+                }
+            } catch (BadLocationException e) {
+                LOGGER.debug("Could not read the line ending at the caret", e);
+            }
+            return -1;
         }
     }
 
