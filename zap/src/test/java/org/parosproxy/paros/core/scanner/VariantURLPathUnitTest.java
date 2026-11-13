@@ -275,4 +275,32 @@ class VariantURLPathUnitTest {
             }
         };
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/X/%/", "/X/%2/", "/X/%ZZ/"})
+    void shouldNotFailOnDanglingOrIncompletePercentEscape(String path) {
+        // Given
+        VariantURLPath variantUrlPath = new VariantURLPath();
+        HttpMessage message = createMessageWithPath(path);
+
+        // When / Then
+        variantUrlPath.setMessage(message);
+        assertThat(variantUrlPath.getParamList().size(), is(equalTo(3)));
+    }
+
+    @Test
+    void shouldEncodeTrailingSegmentWhenNotEscaped() {
+        // Given
+        VariantURLPath variantUrlPath = new VariantURLPath();
+        HttpMessage message = createMessageWithPath("/X/Y/Z/");
+        variantUrlPath.setMessage(message);
+
+        // When
+        String injectedValue =
+                variantUrlPath.setParameter(message, parameter("", 4), "", "val ue?#");
+
+        // Then
+        assertThat(injectedValue, is(equalTo("val ue?#")));
+        assertThat(message, containsPath("/X/Y/Z/val%20ue%3F%23"));
+    }
 }
