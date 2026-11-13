@@ -383,3 +383,24 @@ class TestZapCommon(unittest.TestCase):
 
         self.assertEqual(None, zap_common.scan_user)
 
+    def test_get_af_report_absolute_file(self):
+        """An absolute report file is split into dir + basename (issue #8113)."""
+        job = zap_common.get_af_report('traditional-json', '/zap/wrk/', '/zap/wrk/report.json', 'ZAP Scanning Report', '')
+
+        self.assertEqual('/zap/wrk', job['parameters']['reportDir'])
+        self.assertEqual('report.json', job['parameters']['reportFile'])
+
+    def test_get_af_report_absolute_file_in_subdir(self):
+        """An absolute report file in a subdirectory keeps that subdirectory."""
+        job = zap_common.get_af_report('traditional-json', '/zap/wrk/', '/zap/wrk/sub/report.json', 'ZAP Scanning Report', '')
+
+        self.assertEqual('/zap/wrk/sub', job['parameters']['reportDir'])
+        self.assertEqual('report.json', job['parameters']['reportFile'])
+
+    def test_get_af_report_relative_file_unchanged(self):
+        """A relative report file keeps the given reportDir unchanged."""
+        job = zap_common.get_af_report('traditional-json', '/zap/wrk/', 'report.json', 'ZAP Scanning Report', '')
+
+        self.assertEqual('/zap/wrk/', job['parameters']['reportDir'])
+        self.assertEqual('report.json', job['parameters']['reportFile'])
+
