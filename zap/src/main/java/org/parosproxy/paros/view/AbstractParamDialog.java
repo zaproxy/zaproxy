@@ -107,8 +107,8 @@ public class AbstractParamDialog extends AbstractDialog {
     /** This method initializes this */
     private void initialize() {
         // enables the options dialog to be in front, but an modal dialog
-        // stays on top of the main application window, but doesn't block childs
-        // Examples of childs: help window and client certificate viewer
+        // stays on top of the main application window, but doesn't block children
+        // Examples of children: help window and client certificate viewer
         this.setModalityType(ModalityType.DOCUMENT_MODAL);
 
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

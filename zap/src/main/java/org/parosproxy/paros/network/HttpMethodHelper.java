@@ -133,7 +133,7 @@ public class HttpMethodHelper {
 
     //  This is the currently in use method.
     // may be replaced by the New method - however the New method is not yet fully tested so this is
-    // stil used.
+    // still used.
     public HttpMethod createRequestMethod(HttpRequestHeader header, HttpBody body)
             throws URIException {
         return createRequestMethod(header, body, null);
