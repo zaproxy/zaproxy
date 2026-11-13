@@ -452,6 +452,46 @@ public class ExtensionHelp extends ExtensionAdaptor {
         }
     }
 
+    /**
+     * Tells whether or not the given add-on has help.
+     *
+     * @param addOn the add-on to check, may be {@code null}.
+     * @return {@code true} if the add-on has help, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public static boolean hasHelp(AddOn addOn) {
+        if (addOn == null) {
+            return false;
+        }
+        List<HelpSet> helpsets = addOnHelpSets.get(addOn);
+        return helpsets != null && !helpsets.isEmpty();
+    }
+
+    /**
+     * Shows the help for the given add-on.
+     *
+     * @param addOn the add-on to show help for.
+     * @since 2.18.0
+     */
+    public static void showHelp(AddOn addOn) {
+        if (addOn == null) {
+            return;
+        }
+        List<HelpSet> helpsets = addOnHelpSets.get(addOn);
+        if (helpsets != null && !helpsets.isEmpty()) {
+            HelpSet helpSet = helpsets.get(0);
+            try {
+                javax.help.Map.ID homeId = helpSet.getHomeID();
+                if (homeId != null && getHelpBroker() != null) {
+                    getHelpBroker().setCurrentID(homeId);
+                    getHelpBroker().setDisplayed(true);
+                }
+            } catch (Exception e) {
+                LOGGER.error("error loading help for add-on: {}", addOn.getId(), e);
+            }
+        }
+    }
+
     private ZapMenuItem getMenuHelpZapUserGuide() {
         if (menuHelpZap == null) {
             menuHelpZap =
