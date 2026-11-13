@@ -109,8 +109,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor
 
     private ActiveScanAPI activeScanApi;
 
-    private PluggableScanPolicyManager pluggableScanPolicyManager;
-    private boolean postInitCalled;
+    private volatile PluggableScanPolicyManager pluggableScanPolicyManager;
+    private volatile boolean postInitCalled;
 
     public ExtensionActiveScan() {
         super(NAME);
@@ -173,6 +173,30 @@ public class ExtensionActiveScan extends ExtensionAdaptor
         }
     }
 
+    /**
+     * Tells whether or not the scan policies are provided by the registered {@link
+     * PluggableScanPolicyManager}, instead of the core scan policies.
+     *
+     * <p>Only the case in {@link Constant#isDevMode() dev mode}, once a manager has been registered
+     * and the active scan rules are available.
+     *
+     * @return {@code true} if the policies are provided by the pluggable manager, {@code false}
+     *     otherwise.
+     */
+    boolean isPluggablePolicyActive() {
+        return Constant.isDevMode() && postInitCalled && pluggableScanPolicyManager != null;
+    }
+
+    /**
+     * Gets the registered {@link PluggableScanPolicyManager} if it is providing the scan policies.
+     *
+     * @return the manager, or {@code null} if the core scan policies are in use.
+     * @see #isPluggablePolicyActive()
+     */
+    PluggableScanPolicyManager getActivePluggableScanPolicyManager() {
+        return isPluggablePolicyActive() ? pluggableScanPolicyManager : null;
+    }
+
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
@@ -180,7 +204,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor
         attackModeScanner = new AttackModeScanner(this);
 
         if (getView() != null) {
-            extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
+            if (!Constant.isDevMode()) {
+                // In dev mode the scan policies are managed by the Global Scan Policy Manager.
+                extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
+            }
             extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustomWithContext());
@@ -189,7 +216,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
-            extensionHook.getHookView().addMainToolBarComponent(this.getPolicyButton());
+            if (!Constant.isDevMode()) {
+                extensionHook.getHookView().addMainToolBarComponent(this.getPolicyButton());
+            }
             getView()
                     .getMainFrame()
                     .getMainFooterPanel()
@@ -696,6 +725,12 @@ public class ExtensionActiveScan extends ExtensionAdaptor
     }
 
     public void showPolicyManagerDialog() {
+        PluggableScanPolicyManager pluggable = policyManager.getPluggableManager();
+        if (pluggable != null) {
+            // The policies are managed elsewhere, e.g. by the Global Scan Policy Manager.
+            pluggable.showPolicyManager();
+            return;
+        }
         if (policyManagerDialog == null) {
             policyManagerDialog = new PolicyManagerDialog(getView().getMainFrame());
             policyManagerDialog.init(this);
