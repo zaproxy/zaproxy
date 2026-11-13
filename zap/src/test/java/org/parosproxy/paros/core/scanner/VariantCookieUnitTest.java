@@ -32,6 +32,8 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -92,11 +94,20 @@ class VariantCookieUnitTest {
         assertThat(variantCookie.getParamList(), is(empty()));
     }
 
-    @Test
-    void shouldExtractParametersFromWellformedCookieHeader() {
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "a=b; c=\"d\"; e=f",
+                "a=b;   c=\"d\";    e=f",
+                "a=b;\tc=\"d\";\te=f",
+                "a=b; c=\"d\"; e=f; ",
+                "a=b;; c=\"d\"; e=f",
+                "a=b; ;  ; c=\"d\"; e=f; "
+            })
+    void shouldExtractParametersFromWellformedCookieHeader(String cookieHeader) {
         // Given
         VariantCookie variantCookie = new VariantCookie();
-        HttpMessage messageWithCookies = createMessageWithCookies("a=b; c=\"d\"; e=f");
+        HttpMessage messageWithCookies = createMessageWithCookies(cookieHeader);
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
