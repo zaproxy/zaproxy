@@ -23,3 +23,6 @@ methodExcludes:
  - "org.parosproxy.paros.model.OptionsParam#setCertificateParam(org.parosproxy.paros.extension.option.OptionsParamCertificate)"
  - "org.parosproxy.paros.control.Control#exit(boolean,java.io.File)"
  - "org.parosproxy.paros.control.MenuFileControl#exit()"
+ - "org.zaproxy.zap.extension.keyboard.KeyboardShortcut#getKeyStrokeKeyCodeString()"
+ - "org.zaproxy.zap.extension.keyboard.KeyboardShortcut#getKeyStrokeModifiersString()"
+ - "org.zaproxy.zap.extension.keyboard.KeyboardShortcut#getKeyStrokeString()"
