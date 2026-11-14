@@ -63,10 +63,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
@@ -1491,8 +1493,17 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
      */
     protected static String getTargetText(Target target) {
         if (target != null) {
-            if (target.getStartNode() != null) {
-                return getNodeText(target.getStartNode());
+            SiteNode startNode = target.getStartNode();
+            if (startNode != null) {
+                // Use the history reference of the structural start node, which may be a
+                // specific message the user selected (e.g. in the History tab) rather than
+                // the one the site node currently holds.
+                List<StructuralNode> startNodes = target.getStartNodes();
+                HistoryReference href =
+                        startNodes != null && !startNodes.isEmpty()
+                                ? startNodes.get(0).getHistoryReference()
+                                : startNode.getHistoryReference();
+                return getNodeText(startNode, href);
             } else if (target.getContext() != null) {
                 return Constant.messages.getString(
                         "context.prefixName", target.getContext().getName());
@@ -1504,8 +1515,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
     }
 
     private static String getNodeText(SiteNode node) {
-        if (node != null && node.getHistoryReference() != null) {
-            String url = node.getHistoryReference().getURI().toString();
+        return getNodeText(node, node != null ? node.getHistoryReference() : null);
+    }
+
+    private static String getNodeText(SiteNode node, HistoryReference href) {
+        if (node != null && href != null) {
+            String url = href.getURI().toString();
             if (!node.isLeaf() && url.endsWith("/")) {
                 // Strip off the slash so we don't match a leaf
                 // node with the same name

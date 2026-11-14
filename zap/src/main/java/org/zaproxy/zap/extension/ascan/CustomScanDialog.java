@@ -60,6 +60,7 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -275,7 +276,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         if (target != null) {
             // Set up the fields if a node has been specified, otherwise leave as previously set
-            this.populateRequestField(this.target.getStartNode());
+            this.populateRequestField(this.target);
             this.targetSelected(FIELD_START, this.target);
             this.setUsers();
             this.setTech();
@@ -337,16 +338,33 @@ public class CustomScanDialog extends StandardFieldsDialog {
         extension.getScannerParam().setShowAdvancedDialog(adv);
     }
 
-    private void populateRequestField(SiteNode node) {
+    /**
+     * Gets the history reference of the start node of the given target, which might not be the one
+     * the corresponding site node currently has (e.g. a specific message selected in the History
+     * tab).
+     *
+     * @param target the target, might be {@code null}.
+     * @return the history reference, or {@code null} if none.
+     */
+    private static HistoryReference getStartHistoryReference(Target target) {
+        if (target == null || target.getStartNode() == null) {
+            return null;
+        }
+        return target.getStartNodes().get(0).getHistoryReference();
+    }
+
+    private void populateRequestField(Target target) {
         try {
+            SiteNode node = target != null ? target.getStartNode() : null;
+            HistoryReference historyReference = getStartHistoryReference(target);
             if (node == null
-                    || node.getHistoryReference() == null
-                    || node.getHistoryReference().getHttpMessage() == null) {
+                    || historyReference == null
+                    || historyReference.getHttpMessage() == null) {
                 this.getRequestField().setText("");
 
             } else {
                 // Populate the custom vectors http pane
-                HttpMessage msg = node.getHistoryReference().getHttpMessage();
+                HttpMessage msg = historyReference.getHttpMessage();
                 String header = msg.getRequestHeader().toString();
                 StringBuilder sb = new StringBuilder();
                 sb.append(header);
@@ -378,7 +396,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             // The user has selected a new node
             this.target = node;
             if (node.getStartNode() != null) {
-                populateRequestField(node.getStartNode());
+                populateRequestField(node);
 
                 Session session = Model.getSingleton().getSession();
                 List<Context> contexts = session.getContextsForNode(node.getStartNode());
@@ -846,14 +864,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 }
 
                 try {
-                    if (target != null && target.getStartNode() != null) {
+                    HistoryReference startHistoryReference = getStartHistoryReference(target);
+                    if (startHistoryReference != null) {
                         VariantUserDefined.setInjectionPoints(
-                                this.target
-                                        .getStartNode()
-                                        .getHistoryReference()
-                                        .getURI()
-                                        .toString(),
-                                injPoints);
+                                startHistoryReference.getURI().toString(), injPoints);
 
                         enableUserDefinedRPC();
                     }

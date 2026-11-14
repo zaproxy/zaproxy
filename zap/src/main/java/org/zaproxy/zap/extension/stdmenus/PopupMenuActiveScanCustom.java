@@ -22,8 +22,11 @@ package org.zaproxy.zap.extension.stdmenus;
 import javax.swing.ImageIcon;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.model.StructuralSiteNode;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
@@ -79,6 +82,14 @@ public class PopupMenuActiveScanCustom extends PopupMenuItemSiteNodeContainer {
         if (node != null) {
             extension.showCustomScanDialog(node);
         }
+    }
+
+    @Override
+    protected void performAction(SiteNode node, HistoryReference historyReference) {
+        // Scan the selected message, the node might have a different one (e.g. a 200 when the
+        // selected message is a 404 from the History tab).
+        getExtensionActiveScan()
+                .showCustomScanDialog(new Target(new StructuralSiteNode(node, historyReference)));
     }
 
     @Override

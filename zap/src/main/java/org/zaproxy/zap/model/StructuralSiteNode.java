@@ -29,6 +29,7 @@ import org.parosproxy.paros.model.SiteNode;
 public class StructuralSiteNode implements StructuralNode {
 
     private SiteNode node;
+    private final HistoryReference historyReference;
     private StructuralNode parent = null;
 
     /**
@@ -38,7 +39,26 @@ public class StructuralSiteNode implements StructuralNode {
      * @throws NullPointerException (since 2.10.0) if the given {@code node} is {@code null}.
      */
     public StructuralSiteNode(SiteNode node) {
+        this(node, null);
+    }
+
+    /**
+     * Constructs a {@code StructuralSiteNode} with the given node, using the given history
+     * reference instead of the one of the node.
+     *
+     * <p>Allows to use a specific message of the node (for example, one selected in the History
+     * tab) instead of the one the node currently has, which might be a different message (e.g. a
+     * more recent or a more successful one).
+     *
+     * @param node the node to wrap.
+     * @param historyReference the history reference to use, or {@code null} to use the one of the
+     *     node.
+     * @throws NullPointerException if the given {@code node} is {@code null}.
+     * @since 2.18.0
+     */
+    public StructuralSiteNode(SiteNode node, HistoryReference historyReference) {
         this.node = Objects.requireNonNull(node);
+        this.historyReference = historyReference;
     }
 
     @Override
@@ -61,6 +81,9 @@ public class StructuralSiteNode implements StructuralNode {
 
     @Override
     public HistoryReference getHistoryReference() {
+        if (historyReference != null) {
+            return historyReference;
+        }
         return this.node.getHistoryReference();
     }
 
