@@ -55,7 +55,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -65,14 +64,17 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -947,16 +949,26 @@ public class AbstractParamContainerPanel extends JSplitPane {
                     Constant.messages.getString("paramcontainer.panel.searchbar.prompt"));
             searchTextField.setToolTipText(
                     Constant.messages.getString("paramcontainer.panel.searchbar.tooltip"));
-            searchTextField.addKeyListener(
-                    new KeyAdapter() {
+            // Bound at WHEN_FOCUSED (rather than a plain KeyListener) so this also claims the
+            // Enter keystroke while the field has focus, stopping it from falling through to the
+            // dialog's default button (e.g. "OK") the way a KeyListener alone wouldn't. Ctrl+Enter
+            // is a different keystroke, so it's untouched here and still reaches
+            // AbstractParamDialog's explicit Ctrl+Enter-always-means-OK binding.
+            searchTextField
+                    .getInputMap(JComponent.WHEN_FOCUSED)
+                    .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "search");
+            searchTextField
+                    .getActionMap()
+                    .put(
+                            "search",
+                            new AbstractAction() {
 
-                        @Override
-                        public void keyPressed(KeyEvent e) {
-                            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                                searchAndHighlight.searchAndHighlight(searchTextField.getText());
-                            }
-                        }
-                    });
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    searchAndHighlight.searchAndHighlight(
+                                            searchTextField.getText());
+                                }
+                            });
         }
         return searchTextField;
     }
