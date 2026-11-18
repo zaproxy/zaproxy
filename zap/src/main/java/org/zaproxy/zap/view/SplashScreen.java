@@ -346,7 +346,7 @@ public class SplashScreen extends JFrame {
             super(
                     "ZAP-SplashScreenAppender",
                     new LevelFilter(),
-                    PatternLayout.newBuilder().withPattern("%p: %m%n").build(),
+                    PatternLayout.newBuilder().setPattern("%p: %m%n").build(),
                     true,
                     NO_PROPERTIES);
             this.logConsumer = logConsumer;

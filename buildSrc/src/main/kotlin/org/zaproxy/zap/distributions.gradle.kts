@@ -188,8 +188,8 @@ tasks.register<Tar>("distLinux") {
 }
 
 listOf(
-    MacArch("", "", "", "x64", "0fe26252c258ec239ea6d39a6a1f42b75025bff0d237e9ab3acb4782cef29439"),
-    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "b37759cce74d3104da243c5a4ca1f8a73d6d8811b4a1711028744ec5559f7eb0")
+    MacArch("", "", "", "x64", "x86_64", "false", "0fe26252c258ec239ea6d39a6a1f42b75025bff0d237e9ab3acb4782cef29439"),
+    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "arm64", "true", "b37759cce74d3104da243c5a4ca1f8a73d6d8811b4a1711028744ec5559f7eb0")
 ).forEach { it ->
 
     val volumeName = "ZAP"
@@ -249,7 +249,9 @@ listOf(
                         "JREDIR" to macOsJreUnpackDir.listFiles()[0].name,
                         "SHORT_VERSION_STRING" to "$version",
                         "VERSION_STRING" to "2",
-                        "ZAPJAR" to jarWithBom.get().archiveFileName.get()
+                        "ZAPJAR" to jarWithBom.get().archiveFileName.get(),
+                        "LS_ARCHITECTURE" to it.lsArchitecture,
+                        "LS_REQUIRES_NATIVE_EXECUTION" to it.lsRequiresNativeExecution
                     )
                 )
             }
@@ -407,4 +409,12 @@ tasks.register<Zip>("distWeekly") {
     }
 }
 
-data class MacArch(val suffix: String, val fileNameSuffix: String, val taskDesc: String, val arch: String, val checksum: String)
+data class MacArch(
+    val suffix: String,
+    val fileNameSuffix: String,
+    val taskDesc: String,
+    val arch: String,
+    val lsArchitecture: String,
+    val lsRequiresNativeExecution: String,
+    val checksum: String
+)
