@@ -3,7 +3,6 @@ import net.ltgt.gradle.errorprone.errorprone
 plugins {
     alias(libs.plugins.spotless)
     alias(libs.plugins.sonarqube)
-    alias(libs.plugins.dependencyUpdates)
     alias(libs.plugins.errorprone)
 }
 
