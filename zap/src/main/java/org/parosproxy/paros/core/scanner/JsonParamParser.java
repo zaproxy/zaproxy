@@ -379,7 +379,7 @@ public class JsonParamParser {
         /**
          * Read until non-whitespace character and then return it. This saves extra read/pushback.
          *
-         * @return int repesenting the next non-whitespace character in the stream.
+         * @return int representing the next non-whitespace character in the stream.
          */
         public int skipWhitespaceRead() {
             int c = read();

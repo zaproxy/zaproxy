@@ -166,7 +166,7 @@ public abstract class HttpHeader implements java.io.Serializable {
         setMessage(data);
     }
 
-    /** Inititialization. */
+    /** Initialization. */
     private void init() {
         mHeaderFields = new Hashtable<>();
         mStartLine = "";

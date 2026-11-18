@@ -683,9 +683,9 @@ public class SiteMapPanel extends AbstractPanel {
         }
     }
 
-    // ZAP: Added addSiteMapListenners
-    public void addSiteMapListener(SiteMapListener listenner) {
-        this.listeners.add(listenner);
+    // ZAP: Added addSiteMapListeners
+    public void addSiteMapListener(SiteMapListener listener) {
+        this.listeners.add(listener);
     }
 
     public void removeSiteMapListener(SiteMapListener listener) {

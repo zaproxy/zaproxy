@@ -545,7 +545,7 @@ public class ProxyThread implements Runnable {
                             // Normally the response is empty.
                             // The only reason it wont be is if a script or other ext has
                             // deliberately 'hijacked' this request
-                            // We dont jsut set send=false as this then means it wont appear in the
+                            // We dont just set send=false as this then means it wont appear in the
                             // History tab
                             getHttpSender().sendAndReceive(msg);
                         }
