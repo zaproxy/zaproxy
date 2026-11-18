@@ -46,6 +46,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.NameValuePair;
+import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
@@ -178,6 +180,19 @@ class SiteMapUnitTest {
         SiteNode node = siteMap.findNode(createUri(uri), "POST", "");
         // Then
         assertThat(node, is(nullValue()));
+    }
+
+    @Test
+    void shouldFindNodeWithUriMethodAndDataUsingVariantTreePath() {
+        // Given
+        factory.addVariant(TestSiteModifyingVariant.class);
+        String uri = "http://example.com/soap";
+        siteMap.addPath(createHistoryReference(uri, "POST", "<op/>"));
+        // When
+        SiteNode node = siteMap.findNode(createUri(uri), "POST", "<op/>");
+        // Then
+        assertThat(node, is(notNullValue()));
+        assertThat(node.getNodeName(), is(equalTo("operation")));
     }
 
     @ParameterizedTest
@@ -435,6 +450,22 @@ class SiteMapUnitTest {
         return historyReference;
     }
 
+    private static HistoryReference createHistoryReference(String uri, String method, String body) {
+        URI requestUri = createUri(uri);
+        HistoryReference historyReference = mock(HistoryReference.class);
+        given(historyReference.getURI()).willReturn(requestUri);
+        try {
+            HttpMessage httpMessage = new HttpMessage(requestUri);
+            httpMessage.getRequestHeader().setMethod(method);
+            httpMessage.setRequestBody(body);
+            httpMessage.getResponseHeader().addHeader("content-type", "text/html");
+            given(historyReference.getHttpMessage()).willReturn(httpMessage);
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            throw new RuntimeException(e);
+        }
+        return historyReference;
+    }
+
     private static URI createUri(String uri) {
         try {
             return new URI(uri, true);
@@ -450,6 +481,42 @@ class SiteMapUnitTest {
         @Override
         public void eventReceived(Event event) {
             events.add(event);
+        }
+    }
+
+    public static class TestSiteModifyingVariant implements Variant {
+
+        @Override
+        public void setMessage(HttpMessage msg) {}
+
+        @Override
+        public List<NameValuePair> getParamList() {
+            return List.of();
+        }
+
+        @Override
+        public String setParameter(
+                HttpMessage msg, NameValuePair originalPair, String param, String value) {
+            return null;
+        }
+
+        @Override
+        public String setEscapedParameter(
+                HttpMessage msg, NameValuePair originalPair, String param, String value) {
+            return null;
+        }
+
+        @Override
+        public List<String> getTreePath(HttpMessage msg) {
+            if (msg.getRequestBody().length() == 0) {
+                return null;
+            }
+            return List.of("soap", "operation");
+        }
+
+        @Override
+        public String getLeafName(String nodeName, HttpMessage msg) {
+            return msg.getRequestBody().length() == 0 ? null : "operation";
         }
     }
 }
