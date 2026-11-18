@@ -63,6 +63,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/10/17 Allow to set content encodings handler.
+// ZAP: 2026/11/18 Preserve request body when changing method from POST to PUT (Issue 8278).
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -1067,11 +1068,12 @@ public class HttpMessage implements Message {
             URI uri = getRequestHeader().getURI();
             String body = getRequestBody().toString();
             String prevMethod = getRequestHeader().getMethod();
+            boolean bodyChanged = false;
 
             if (prevMethod.equalsIgnoreCase(method)) {
                 return;
             }
-            if (prevMethod.equals(HttpRequestHeader.POST)) {
+            if (prevMethod.equals(HttpRequestHeader.POST) && !isMethodWithBody(method)) {
                 // Was POST, move all params onto the URL
                 if (body != null && body.length() > 0) {
                     StringBuilder sb = new StringBuilder();
@@ -1097,6 +1099,7 @@ public class HttpMessage implements Message {
                 }
                 // Clear the body
                 body = "";
+                bodyChanged = true;
                 // Remove Content-Type if present
                 getRequestHeader().setHeader(HttpRequestHeader.CONTENT_TYPE, null);
 
@@ -1123,6 +1126,7 @@ public class HttpMessage implements Message {
                                     HttpRequestHeader.CONTENT_TYPE,
                                     HttpRequestHeader.FORM_URLENCODED_CONTENT_TYPE);
                     body = sb.toString();
+                    bodyChanged = true;
                     uri.setQuery(null);
                 }
             }
@@ -1146,13 +1150,20 @@ public class HttpMessage implements Message {
                                     + getRequestHeader().getVersion()
                                     + "\r\n"
                                     + getRequestHeader().getHeadersAsString());
-            getRequestBody().setBody(body);
+            if (bodyChanged) {
+                getRequestBody().setBody(body);
+            }
         } catch (HttpMalformedHeaderException e) {
             // Ignore?
             LOGGER.error(e.getMessage(), e);
         } catch (URIException e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    private static boolean isMethodWithBody(String method) {
+        return HttpRequestHeader.PUT.equalsIgnoreCase(method)
+                || HttpRequestHeader.PATCH.equalsIgnoreCase(method);
     }
 
     // Construct new POST Body from parameter in the postParams argument
