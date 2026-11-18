@@ -85,6 +85,9 @@ class KeyboardMapping {
         if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F12) {
             // Function key
             return "F" + (keyCode - KeyEvent.VK_F1 + 1);
+        } else if (keyCode >= KeyEvent.VK_F13 && keyCode <= KeyEvent.VK_F24) {
+            // Function key, F13-F24 are not contiguous with F1-F12
+            return "F" + (keyCode - KeyEvent.VK_F13 + 13);
         } else if (keyCode == KeyEvent.VK_UP) {
             return Constant.messages.getString("keyboard.key.up");
         } else if (keyCode == KeyEvent.VK_DOWN) {
@@ -103,8 +106,11 @@ class KeyboardMapping {
         if (keyStr.length() == 1) {
             return keyStr.charAt(0);
         } else if (keyStr.startsWith("F")) {
-            // Function keys
-            return (char) (KeyEvent.VK_F1 + Integer.parseInt(keyStr.substring(1)) - 1);
+            // Function keys, F13-F24 are not contiguous with F1-F12
+            int num = Integer.parseInt(keyStr.substring(1));
+            return num <= 12
+                    ? (char) (KeyEvent.VK_F1 + num - 1)
+                    : (char) (KeyEvent.VK_F13 + num - 13);
         } else if (keyStr.equals(Constant.messages.getString("keyboard.key.up"))) {
             return KeyEvent.VK_UP;
         } else if (keyStr.equals(Constant.messages.getString("keyboard.key.down"))) {
