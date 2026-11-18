@@ -30,19 +30,27 @@ public class ByteBuilder {
 
     private static final Logger LOGGER = LogManager.getLogger(ByteBuilder.class);
 
+    private static final int DEFAULT_CAPACITY = 10;
+
     private byte[] array;
     private int size;
 
     public ByteBuilder() {
-        this(10);
+        this(DEFAULT_CAPACITY);
     }
 
     public ByteBuilder(int capacity) {
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("The capacity must be greater than 0: " + capacity);
+        }
         array = new byte[capacity];
         size = 0;
     }
 
     public ByteBuilder(byte[] array) {
+        if (array == null || array.length == 0) {
+            throw new IllegalArgumentException("The array must not be null or empty.");
+        }
         this.array = Arrays.copyOf(array, array.length * 2);
         size = array.length;
     }
@@ -55,7 +63,11 @@ public class ByteBuilder {
 
     private void testAddition(int addition) {
         while (size + addition >= this.array.length) {
-            this.array = Arrays.copyOf(array, this.array.length * 2);
+            int newCapacity = this.array.length * 2;
+            if (newCapacity <= size + addition) {
+                newCapacity = size + addition + 1;
+            }
+            this.array = Arrays.copyOf(array, newCapacity);
         }
     }
 
@@ -75,7 +87,15 @@ public class ByteBuilder {
     }
 
     public void truncate(int size) {
+        if (size <= 0 || size > this.size) {
+            throw new IllegalArgumentException(
+                    "The size must be greater than 0 and less than or equal to current size ("
+                            + this.size
+                            + "): "
+                            + size);
+        }
         array = Arrays.copyOf(array, size);
+        this.size = size;
     }
 
     public byte[] subSequence(int start, int end) {

@@ -27,6 +27,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ByteBuilderUnitTest {
 
@@ -398,6 +400,73 @@ class ByteBuilderUnitTest {
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
         assertThat(toByteArray, is(new byte[] {1, 2, 3, -106, 126, -21}));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, -1, -10})
+    void shouldThrowExceptionWhenInitializedWithZeroOrNegativeCapacity(int capacity) {
+        // when / then
+        assertThrows(IllegalArgumentException.class, () -> new ByteBuilder(capacity));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenInitializedWithNullOrEmptyByteArray() {
+        assertThrows(IllegalArgumentException.class, () -> new ByteBuilder((byte[]) null));
+        assertThrows(IllegalArgumentException.class, () -> new ByteBuilder(new byte[0]));
+    }
+
+    @Test
+    void shouldGrowWhenAdditionIsLargerThanDoubleCapacity() {
+        // given
+        byteBuilder = new ByteBuilder(2);
+        byte[] payload = new byte[50];
+        payload[49] = (byte) 7;
+        // when
+        byteBuilder.append(payload);
+        // then
+        assertThat(byteBuilder.size(), is(50));
+        assertThat(byteBuilder.toByteArray(), is(payload));
+    }
+
+    @Test
+    void shouldTruncateAndUpdateSize() {
+        // given
+        byteBuilder = new ByteBuilder(new byte[] {1, 2, 3, 4, 5});
+        // when
+        byteBuilder.truncate(2);
+        // then
+        assertThat(byteBuilder.size(), is(2));
+        assertThat(byteBuilder.capacity(), is(2));
+        assertThat(byteBuilder.toByteArray(), is(new byte[] {1, 2}));
+    }
+
+    @Test
+    void shouldAllowAppendAfterTruncate() {
+        // given
+        byteBuilder = new ByteBuilder(new byte[] {1, 2, 3, 4, 5});
+        byteBuilder.truncate(2);
+        // when
+        byteBuilder.append((byte) 9);
+        // then
+        assertThat(byteBuilder.size(), is(3));
+        assertThat(byteBuilder.toByteArray(), is(new byte[] {1, 2, 9}));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, -1})
+    void shouldThrowExceptionWhenTruncatingWithNonPositiveSize(int size) {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when / then
+        assertThrows(IllegalArgumentException.class, () -> byteBuilder.truncate(size));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTruncatingWithSizeLargerThanCurrentSize() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when / then
+        assertThrows(IllegalArgumentException.class, () -> byteBuilder.truncate(10));
     }
 
     private static byte[] lengthAndBytesOf(String value) {
