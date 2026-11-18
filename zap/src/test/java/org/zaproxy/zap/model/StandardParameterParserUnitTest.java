@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -28,16 +29,20 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link StandardParameterParser}. */
 class StandardParameterParserUnitTest {
@@ -78,6 +83,40 @@ class StandardParameterParserUnitTest {
         assertEquals(res2.get(2).getValue(), "f");
         assertEquals(res2.get(3).getName(), "d");
         assertEquals(res2.get(3).getValue(), "g");
+    }
+
+    @ParameterizedTest
+    @MethodSource("treePathProvider")
+    void defaultTreePath(
+            String method, String queryString, String requestBody, List<String> expected)
+            throws HttpMalformedHeaderException, URIException {
+        spp.setStructuralParameters(asList("page"));
+
+        HttpMessage msg = new HttpMessage();
+        String header =
+                String.format(
+                        "%s %s HTTP/1.1\r\nHost: example.com\r\n",
+                        method, String.join("?", "/app/aaa", queryString));
+        msg.setRequestHeader(header);
+        msg.setRequestBody(requestBody);
+
+        List<String> treePath = spp.getTreePath(msg);
+        assertEquals(expected, treePath);
+    }
+
+    static Stream<Arguments> treePathProvider() {
+        return Stream.of(
+                Arguments.of("GET", "page=p1&ddd=eee", "", asList("app", "aaa", "p1")),
+                Arguments.of("GET", "page=p2&ddd=fff", "", asList("app", "aaa", "p2")),
+                Arguments.of("POST", "", "page=p1&ddd=eee", asList("app", "aaa", "p1")),
+                Arguments.of("POST", "", "page=p2&ddd=fff", asList("app", "aaa", "p2")),
+                Arguments.of("POST", "page=p1", "ddd=fff", asList("app", "aaa", "p1")),
+                Arguments.of("POST", "ddd=fff", "page=p1", asList("app", "aaa", "p1")),
+                Arguments.of(
+                        "POST",
+                        "page=p1&ddd=fff",
+                        "page=p2&ddd=fff",
+                        asList("app", "aaa", "p1", "p2")));
     }
 
     @Test
@@ -251,7 +290,7 @@ class StandardParameterParserUnitTest {
     void shouldInitWithNullAndEmptyConfig(String config) {
         // Given
         StandardParameterParser parser = new StandardParameterParser("A", "B");
-        parser.setStructuralParameters(Arrays.asList("C", "D"));
+        parser.setStructuralParameters(asList("C", "D"));
         // When
         parser.init(config);
         // Then
