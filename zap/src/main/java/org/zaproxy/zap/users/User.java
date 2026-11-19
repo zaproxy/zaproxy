@@ -182,6 +182,7 @@ public class User extends Enableable {
                 }
                 notifyAuthenticationListeners(
                         listener -> listener.onAuthenticationRequestStart(this, message));
+                getAuthenticationState().setLastAuthFailure("");
                 this.authenticate();
                 if (this.requiresAuthentication()) {
                     LOGGER.info("Authentication failed for user: {}", name);
@@ -189,8 +190,19 @@ public class User extends Enableable {
                             listener -> listener.onAuthenticationRequestFailure(this, message));
                     return;
                 }
-                notifyAuthenticationListeners(
-                        listener -> listener.onAuthenticationRequestSuccess(this, message));
+                String lastAuthFailure = getAuthenticationState().getLastAuthFailure();
+                if (lastAuthFailure != null && !lastAuthFailure.isEmpty()) {
+                    // The method returned a session but the verification failed.
+                    LOGGER.info(
+                            "Authentication failed for user: {}, reason: {}",
+                            name,
+                            lastAuthFailure);
+                    notifyAuthenticationListeners(
+                            listener -> listener.onAuthenticationRequestFailure(this, message));
+                } else {
+                    notifyAuthenticationListeners(
+                            listener -> listener.onAuthenticationRequestSuccess(this, message));
+                }
             }
         }
         processMessageToMatchAuthenticatedSession(message);
