@@ -112,6 +112,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.swing.tree.TreeNode;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
@@ -135,6 +136,7 @@ import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.Stats;
@@ -878,6 +880,120 @@ public class Session {
         for (Context context : contexts) {
             if (context.isInScope() && context.isExcluded(url)) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Tells whether or not the given site node is excluded from the active scanner.
+     *
+     * @param sn the site node to check.
+     * @return {@code true} if the site node is excluded, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public boolean isExcludedFromScan(SiteNode sn) {
+        return isExcluded(sn, excludeFromScanRegexs);
+    }
+
+    /**
+     * Tells whether or not the given URL is excluded from the active scanner.
+     *
+     * @param url the URL to check.
+     * @return {@code true} if the URL is excluded, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public boolean isExcludedFromScan(String url) {
+        return isUrlExcluded(url, excludeFromScanRegexs);
+    }
+
+    /**
+     * Tells whether or not the given site node is excluded from the proxy.
+     *
+     * @param sn the site node to check.
+     * @return {@code true} if the site node is excluded, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public boolean isExcludedFromProxy(SiteNode sn) {
+        return isExcluded(sn, excludeFromProxyRegexs);
+    }
+
+    /**
+     * Tells whether or not the given URL is excluded from the proxy.
+     *
+     * @param url the URL to check.
+     * @return {@code true} if the URL is excluded, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public boolean isExcludedFromProxy(String url) {
+        return isUrlExcluded(url, excludeFromProxyRegexs);
+    }
+
+    /**
+     * Tells whether or not the given site node is excluded from the spiders.
+     *
+     * @param sn the site node to check.
+     * @return {@code true} if the site node is excluded, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public boolean isExcludedFromSpider(SiteNode sn) {
+        return isExcluded(sn, excludeFromSpiderRegexs);
+    }
+
+    /**
+     * Tells whether or not the given URL is excluded from the spiders.
+     *
+     * @param url the URL to check.
+     * @return {@code true} if the URL is excluded, {@code false} otherwise.
+     * @since 2.18.0
+     */
+    public boolean isExcludedFromSpider(String url) {
+        return isUrlExcluded(url, excludeFromSpiderRegexs);
+    }
+
+    private boolean isExcluded(SiteNode sn, List<String> regexs) {
+        if (sn == null || regexs == null || regexs.isEmpty() || sn.isRoot()) {
+            return false;
+        }
+        try {
+            if (regexs.contains(new StructuralSiteNode(sn).getRegexPattern())) {
+                return true;
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        if (isUrlExcluded(sn.getHierarchicNodeName(false), regexs)) {
+            return true;
+        }
+        if (sn.getHistoryReference() != null) {
+            try {
+                URI uri = sn.getHistoryReference().getURI();
+                if (uri != null && isUrlExcluded(uri.toString(), regexs)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+        return false;
+    }
+
+    private static boolean isUrlExcluded(String url, List<String> regexs) {
+        if (url == null || url.isEmpty() || regexs == null || regexs.isEmpty()) {
+            return false;
+        }
+        for (String regex : regexs) {
+            try {
+                Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+                if (pattern.matcher(url).matches()) {
+                    return true;
+                }
+                int queryIdx = url.indexOf('?');
+                if (queryIdx > 0 && pattern.matcher(url.substring(0, queryIdx)).matches()) {
+                    return true;
+                }
+            } catch (PatternSyntaxException e) {
+                // Ignore invalid regex
             }
         }
         return false;

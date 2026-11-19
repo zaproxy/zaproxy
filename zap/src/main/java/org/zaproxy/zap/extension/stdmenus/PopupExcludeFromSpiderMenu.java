@@ -70,6 +70,11 @@ public class PopupExcludeFromSpiderMenu extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
+    protected boolean isButtonEnabledForSiteNode(SiteNode sn) {
+        return !Model.getSingleton().getSession().isExcludedFromSpider(sn);
+    }
+
+    @Override
     public boolean isSafe() {
         return true;
     }
