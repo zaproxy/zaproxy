@@ -223,4 +223,83 @@ class SessionUnitTest {
         // When / Then
         assertThat(session.getContextsForNode(endNode), is(List.of(context)));
     }
+
+    @Test
+    void shouldExcludeFromScanByUrl() {
+        // Given
+        session.getExcludeFromScanRegexs().add("https://example\\.com/path.*");
+        // When / Then
+        assertThat(session.isExcludedFromScan("https://example.com/path"), is(true));
+        assertThat(session.isExcludedFromScan("https://example.com/path/child"), is(true));
+        assertThat(session.isExcludedFromScan("https://example.com/path?param=val"), is(true));
+        assertThat(session.isExcludedFromScan("https://example.com/other"), is(false));
+        assertThat(session.isExcludedFromScan((String) null), is(false));
+    }
+
+    @Test
+    void shouldExcludeFromProxyByUrl() {
+        // Given
+        session.getExcludeFromProxyRegexs().add("https://example\\.com/proxy.*");
+        // When / Then
+        assertThat(session.isExcludedFromProxy("https://example.com/proxy"), is(true));
+        assertThat(session.isExcludedFromProxy("https://example.com/proxy/child"), is(true));
+        assertThat(session.isExcludedFromProxy("https://example.com/other"), is(false));
+        assertThat(session.isExcludedFromProxy((String) null), is(false));
+    }
+
+    @Test
+    void shouldExcludeFromSpiderByUrl() {
+        // Given
+        session.getExcludeFromSpiderRegexs().add("https://example\\.com/spider.*");
+        // When / Then
+        assertThat(session.isExcludedFromSpider("https://example.com/spider"), is(true));
+        assertThat(session.isExcludedFromSpider("https://example.com/spider/child"), is(true));
+        assertThat(session.isExcludedFromSpider("https://example.com/other"), is(false));
+        assertThat(session.isExcludedFromSpider((String) null), is(false));
+    }
+
+    @Test
+    void shouldExcludeFromScanBySiteNode() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(model);
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var childNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "child");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(childNode);
+        session.getExcludeFromScanRegexs().add("https://example\\.com/child.*");
+        // When / Then
+        assertThat(session.isExcludedFromScan(childNode), is(true));
+        assertThat(session.isExcludedFromScan(hostNode), is(false));
+        assertThat(session.isExcludedFromScan((SiteNode) null), is(false));
+    }
+
+    @Test
+    void shouldExcludeFromProxyBySiteNode() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(model);
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var childNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "child");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(childNode);
+        session.getExcludeFromProxyRegexs().add("https://example\\.com/child.*");
+        // When / Then
+        assertThat(session.isExcludedFromProxy(childNode), is(true));
+        assertThat(session.isExcludedFromProxy(hostNode), is(false));
+        assertThat(session.isExcludedFromProxy((SiteNode) null), is(false));
+    }
+
+    @Test
+    void shouldExcludeFromSpiderBySiteNode() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(model);
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var childNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "child");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(childNode);
+        session.getExcludeFromSpiderRegexs().add("https://example\\.com/child.*");
+        // When / Then
+        assertThat(session.isExcludedFromSpider(childNode), is(true));
+        assertThat(session.isExcludedFromSpider(hostNode), is(false));
+        assertThat(session.isExcludedFromSpider((SiteNode) null), is(false));
+    }
 }

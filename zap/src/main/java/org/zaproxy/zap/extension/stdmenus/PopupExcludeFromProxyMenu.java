@@ -83,6 +83,11 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
+    protected boolean isButtonEnabledForSiteNode(SiteNode sn) {
+        return !Model.getSingleton().getSession().isExcludedFromProxy(sn);
+    }
+
+    @Override
     public boolean isSafe() {
         return true;
     }
