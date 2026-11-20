@@ -151,6 +151,41 @@ tasks.register<JavaExec>("run") {
     workingDir = distDir
 }
 
+tasks.register<JavaExec>("runAddOnTests") {
+    group = ApplicationPlugin.APPLICATION_GROUP
+    description =
+        "Runs ZAP from source, running all of the integration test plans of an add-on " +
+        "(-PaddOn=<id>, optionally -PtestDir=<dir> and -Pcmd for command line mode)."
+
+    mainClass.set("org.zaproxy.zap.ZAP")
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = distDir
+
+    val addOn = providers.gradleProperty("addOn")
+    val testDir = providers.gradleProperty("testDir")
+    val cmd = providers.gradleProperty("cmd")
+    val extensionsDir = file("$rootDir/../zap-extensions/addOns")
+    doFirst {
+        if (!addOn.isPresent && !testDir.isPresent) {
+            throw GradleException("Specify the add-on with -PaddOn=<id> or the directory with -PtestDir=<dir>.")
+        }
+        val dir =
+            if (testDir.isPresent) {
+                file(testDir.get())
+            } else {
+                val id = addOn.get()
+                File(extensionsDir, "$id/${id}Test/src/main/zapHomeFiles/integration-tests/$id/plans")
+            }
+        if (!dir.isDirectory) {
+            throw GradleException("The integration tests directory does not exist: $dir")
+        }
+        if (cmd.isPresent && cmd.get() != "false") {
+            args("-cmd")
+        }
+        args("-autorundir", dir.absolutePath)
+    }
+}
+
 listOf("jar", "jarDaily", "jarWithBom").forEach {
     tasks.named<Jar>(it) {
         isPreserveFileTimestamps = false
