@@ -76,8 +76,8 @@ addOns:
   url: "https://github.com/zaproxy/zap-extensions/releases/download/graphql-v0.35.0/graphql-alpha-0.35.0.zap"
   hash: "SHA-256:7bbf1607228556063825964ac842863a97f01b21fbe11013e94f8fe80aa935e6"
 - id: "help"
-  url: "https://github.com/zaproxy/zap-core-help/releases/download/help-v22/help-release-22.zap"
-  hash: "SHA-256:a99fcf18187ae3e232fafbe8150d3d65cbdd328c2284bd04016d82f2d2a5c945"
+  url: "https://github.com/zaproxy/zap-core-help/releases/download/help-v23/help-release-23.zap"
+  hash: "SHA-256:e004513e6ffbeb66a361a7130355cd13425d1b39bded1b2c20d1007dca592dba"
   core: true
 - id: "hud"
   url: "https://github.com/zaproxy/zap-hud/releases/download/v0.19.0/hud-beta-0.19.0.zap"
@@ -112,8 +112,8 @@ addOns:
   hash: "SHA-256:269ff66f0d8a8012f156e90e13238606a8d503b99521170649b62c9aa7295927"
   core: true
 - id: "pscanrules"
-  url: "https://github.com/zaproxy/zap-extensions/releases/download/pscanrules-v78/pscanrules-release-78.zap"
-  hash: "SHA-256:c2472baf01d667d3eb02a423a9c3e02bb578aa9b5cf8f191fb2c295c15a29506"
+  url: "https://github.com/zaproxy/zap-extensions/releases/download/pscanrules-v79/pscanrules-release-79.zap"
+  hash: "SHA-256:824545a0c66bb0525f614153e6aee80ed10ae6a133d1624deddf85c219f6ba2d"
   core: true
 - id: "quickstart"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/quickstart-v60/quickstart-release-60.zap"
