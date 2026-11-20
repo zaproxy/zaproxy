@@ -47,6 +47,7 @@
             <include>WS</include>
             <include>WS.Apache</include>
             <include>WS.IIS</include>
+            <include>WS.Nginx</include>
             <include>WS.Tomcat</include>
         </tech>
         <urlparser>
