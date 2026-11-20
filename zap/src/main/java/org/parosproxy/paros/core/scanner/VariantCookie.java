@@ -71,8 +71,12 @@ public class VariantCookie implements Variant {
                 continue;
             }
 
-            String[] cookieArray = cookieLine.split("; ?");
+            String[] cookieArray = cookieLine.split(";\\s*");
             for (String cookie : cookieArray) {
+                if (cookie.isEmpty()) {
+                    continue;
+                }
+
                 String[] nameValuePair = cookie.split("=", 2);
                 boolean hasNameValuePair = nameValuePair.length == 2;
                 String name = hasNameValuePair ? nameValuePair[0] : null;
