@@ -22,6 +22,7 @@ package org.parosproxy.paros.core.scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.text.StringEscapeUtils;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
  * Variant specialized
@@ -61,17 +62,9 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
         return SHORT_NAME;
     }
 
-    /**
-     * @param contentType
-     * @return
-     */
     @Override
-    public boolean isValidContentType(String contentType) {
-        // Could be generalized finding only the "xml" string
-        // but should become too much extended
-        return contentType.startsWith(XML_CONTENT_TYPE)
-                || contentType.startsWith(SOAP2_CONTENT_TYPE)
-                || contentType.startsWith(XML_APP_CONTENT_TYPE);
+    public boolean isValidContentType(HttpRequestHeader header) {
+        return header.hasContentType(XML_CONTENT_TYPE, SOAP2_CONTENT_TYPE, XML_APP_CONTENT_TYPE);
     }
 
     /**

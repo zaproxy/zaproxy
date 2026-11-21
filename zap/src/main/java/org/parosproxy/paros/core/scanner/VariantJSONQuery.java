@@ -20,6 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
  * @author andy
@@ -75,8 +76,8 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     }
 
     @Override
-    public boolean isValidContentType(String contentType) {
-        return contentType.startsWith(JSON_RPC_CONTENT_TYPE);
+    public boolean isValidContentType(HttpRequestHeader header) {
+        return header.hasContentType(JSON_RPC_CONTENT_TYPE);
     }
 
     @Override

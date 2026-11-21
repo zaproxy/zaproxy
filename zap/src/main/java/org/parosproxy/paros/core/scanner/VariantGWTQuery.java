@@ -19,6 +19,8 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import org.parosproxy.paros.network.HttpRequestHeader;
+
 /**
  * Simplified GWT RPC Variant only set to not-empty strings parameter... It takes the RPC call as it
  * has been retrieved, check only for java.util.String objects, and give back only the one that has
@@ -44,13 +46,9 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
         return SHORT_NAME;
     }
 
-    /**
-     * @param contentType
-     * @return
-     */
     @Override
-    public boolean isValidContentType(String contentType) {
-        return contentType.startsWith(GWT_RPC_CONTENT_TYPE);
+    public boolean isValidContentType(HttpRequestHeader header) {
+        return header.hasContentType(GWT_RPC_CONTENT_TYPE);
     }
 
     /**
