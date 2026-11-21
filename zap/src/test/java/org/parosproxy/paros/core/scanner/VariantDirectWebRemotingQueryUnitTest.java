@@ -43,7 +43,7 @@ class VariantDirectWebRemotingQueryUnitTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"text/html", "application/json", "application/xml"})
-    void shouldReturnFalseForInvalidContentType(String contentType) {
+    void shouldReturnFalseForIrrelevantContentType(String contentType) {
         // Given
         VariantDirectWebRemotingQuery variantDwr = new VariantDirectWebRemotingQuery();
         // When / Then

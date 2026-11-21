@@ -72,7 +72,7 @@ class VariantXMLQueryUnitTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"text/html", "application/json", "application/octet-stream"})
-    void shouldReturnFalseForInvalidContentType(String contentType) {
+    void shouldReturnFalseForIrrelevantContentType(String contentType) {
         // Given
         VariantXMLQuery variantXMLQuery = new VariantXMLQuery();
         // When / Then

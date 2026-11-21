@@ -49,7 +49,7 @@ class VariantGWTQueryUnitTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"text/html", "application/json", "application/xml"})
-    void shouldReturnFalseForInvalidContentType(String contentType) {
+    void shouldReturnFalseForIrrelevantContentType(String contentType) {
         // Given
         VariantGWTQuery variantGWTQuery = new VariantGWTQuery();
         // When / Then
