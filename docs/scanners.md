@@ -187,6 +187,7 @@ Scan rules:
 40047   Text4Shell (CVE-2022-42889)
 40048   React4Shell (CVE-2025-55182, CVE-2025-66478)
 40049   Payment Amount Manipulation
+40050   Java Deserialization of Untrusted Data
 
 40100   Client-Side Data Flow (Foxhound)
 40101   Client-Side Cross-Site Scripting (Foxhound)
