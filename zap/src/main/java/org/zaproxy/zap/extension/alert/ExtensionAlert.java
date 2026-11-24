@@ -416,12 +416,16 @@ public class ExtensionAlert extends ExtensionAdaptor
     private void publishAlertEvent(Alert alert, String event) {
         int historyId = alert.getHistoryId();
         HistoryReference historyReference = hrefs.get(historyId);
-        if (historyReference == null) {
-            historyReference =
+        if (historyReference == null
+                && Control.getSingleton() != null
+                && Control.getSingleton().getExtensionLoader() != null) {
+            ExtensionHistory extHistory =
                     Control.getSingleton()
                             .getExtensionLoader()
-                            .getExtension(ExtensionHistory.class)
-                            .getHistoryReference(historyId);
+                            .getExtension(ExtensionHistory.class);
+            if (extHistory != null) {
+                historyReference = extHistory.getHistoryReference(historyId);
+            }
         }
 
         Map<String, String> map = new HashMap<>();
@@ -439,14 +443,12 @@ public class ExtensionAlert extends ExtensionAdaptor
         map.put(AlertEventPublisher.CONFIDENCE, Integer.toString(alert.getConfidence()));
         map.put(AlertEventPublisher.CONFIDENCE_STRING, Alert.MSG_CONFIDENCE[alert.getConfidence()]);
         map.put(AlertEventPublisher.SOURCE, Integer.toString(alert.getSource().getId()));
+        SiteNode siteNode = historyReference != null ? historyReference.getSiteNode() : null;
+        Target target = siteNode != null ? new Target(siteNode) : null;
         ZAP.getEventBus()
                 .publishSyncEvent(
                         AlertEventPublisher.getPublisher(),
-                        new Event(
-                                AlertEventPublisher.getPublisher(),
-                                event,
-                                new Target(historyReference.getSiteNode()),
-                                map));
+                        new Event(AlertEventPublisher.getPublisher(), event, target, map));
     }
 
     private void addAlertToTree(final Alert alert) {
