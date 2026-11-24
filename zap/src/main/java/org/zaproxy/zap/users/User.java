@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -184,22 +185,31 @@ public class User extends Enableable {
                         listener -> listener.onAuthenticationRequestStart(this, message));
                 getAuthenticationState().setLastAuthFailure("");
                 this.authenticate();
-                if (this.requiresAuthentication()) {
-                    LOGGER.info("Authentication failed for user: {}", name);
-                    notifyAuthenticationListeners(
-                            listener -> listener.onAuthenticationRequestFailure(this, message));
-                    return;
-                }
+                boolean noSession = this.requiresAuthentication();
                 String lastAuthFailure = getAuthenticationState().getLastAuthFailure();
-                if (lastAuthFailure != null && !lastAuthFailure.isEmpty()) {
-                    // The method returned a session but the verification failed.
+                if (noSession || StringUtils.isNotEmpty(lastAuthFailure)) {
                     LOGGER.info(
                             "Authentication failed for user: {}, reason: {}",
                             name,
                             lastAuthFailure);
                     notifyAuthenticationListeners(
                             listener -> listener.onAuthenticationRequestFailure(this, message));
+                    // If no session was obtained OR verification failed, do not apply the session
+                    return;
                 } else {
+                    // User already has a session (requiresAuthentication() is false)
+                    // Check if there was an authentication failure - if so, notify and do not apply
+                    // session
+                    if (StringUtils.isNotEmpty(getAuthenticationState().getLastAuthFailure())) {
+                        LOGGER.info(
+                                "Authentication failed for user: {}, reason: {}",
+                                name,
+                                getAuthenticationState().getLastAuthFailure());
+                        notifyAuthenticationListeners(
+                                listener -> listener.onAuthenticationRequestFailure(this, message));
+                        return;
+                    }
+                    // No failure - notify success and proceed with existing session
                     notifyAuthenticationListeners(
                             listener -> listener.onAuthenticationRequestSuccess(this, message));
                 }

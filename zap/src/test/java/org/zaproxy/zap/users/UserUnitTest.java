@@ -49,6 +49,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
@@ -341,11 +343,12 @@ class UserUnitTest {
     }
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     void shouldNotifyListenerOnFailedVerificationAfterAuthentication() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
         doReturn(mockedContext).when(user).getContext();
-        doReturn(true, false).when(user).requiresAuthentication();
+        when(user.requiresAuthentication()).thenReturn(true).thenReturn(false);
         doAnswer(
                         invocation -> {
                             user.getAuthenticationState()
