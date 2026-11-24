@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -43,12 +44,99 @@ class HttpHeaderUnitTest {
             })
     void shouldIdentifyContentTypes(String type) {
         // Given
-        HttpResponseHeader header = new HttpResponseHeader();
+        HttpHeader header = new HttpHeaderTest();
         header.setHeader(HttpHeader.CONTENT_TYPE, type);
         String[] acceptedTypes = {"json", "xml", "yaml"};
         // When
         boolean hasType = header.hasContentType(acceptedTypes);
         // Then
         assertThat(hasType, is(equalTo(true)));
+    }
+
+    @Test
+    void shouldCloseForMalformedHeader() {
+        // Given
+        HttpHeader header = new HttpHeaderTest();
+        header.mMalformedHeader = true;
+        // When / Then
+        assertThat(header.isConnectionClose(), is(true));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"HTTP/0.2", HttpHeader.HTTP09, HttpHeader.HTTP10, HttpHeader.HTTP2})
+    void shouldDefaultToCloseForNonHttp11(String version) {
+        // Given
+        HttpHeader header = new HttpHeaderTest(version);
+        // When / Then
+        assertThat(header.isConnectionClose(), is(true));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {HttpHeader.CONNECTION, HttpHeader.PROXY_CONNECTION})
+    void shouldRecognizeKeepAliveForHttp10(String headerName) {
+        // Given
+        HttpHeader header = new HttpHeaderTest(HttpHeader.HTTP10);
+        header.setHeader(headerName, HttpHeader._KEEP_ALIVE);
+        // When / Then
+        assertThat(header.isConnectionClose(), is(false));
+    }
+
+    @Test
+    void shouldRecognizeKeepAliveForHttp10WithBothHeaders() {
+        // Given
+        HttpHeader header = new HttpHeaderTest(HttpHeader.HTTP10);
+        header.setHeader(HttpHeader.CONNECTION, HttpHeader._KEEP_ALIVE);
+        header.setHeader(HttpHeader.PROXY_CONNECTION, HttpHeader._KEEP_ALIVE);
+        // When / Then
+        assertThat(header.isConnectionClose(), is(false));
+    }
+
+    @Test
+    void shouldDefaultToKeepAliveForHttp11() {
+        // Given
+        HttpHeader header = new HttpHeaderTest(HttpHeader.HTTP11);
+        // When / Then
+        assertThat(header.isConnectionClose(), is(false));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {HttpHeader.CONNECTION, HttpHeader.PROXY_CONNECTION})
+    void shouldRecognizeCloseForHttp11(String headerName) {
+        // Given
+        HttpHeader header = new HttpHeaderTest(HttpHeader.HTTP11);
+        header.setHeader(headerName, HttpHeader._CLOSE);
+        // When / Then
+        assertThat(header.isConnectionClose(), is(true));
+    }
+
+    @Test
+    void shouldRecognizeCloseForHttp11WithBothHeaders() {
+        // Given
+        HttpHeader header = new HttpHeaderTest(HttpHeader.HTTP11);
+        header.setHeader(HttpHeader.CONNECTION, HttpHeader._CLOSE);
+        header.setHeader(HttpHeader.PROXY_CONNECTION, HttpHeader._CLOSE);
+        // When / Then
+        assertThat(header.isConnectionClose(), is(true));
+    }
+
+    private static class HttpHeaderTest extends HttpHeader {
+
+        private static final long serialVersionUID = 1L;
+
+        HttpHeaderTest() {}
+
+        HttpHeaderTest(String version) {
+            setVersion(version);
+        }
+
+        @Override
+        public void setVersion(String version) {
+            mVersion = version;
+        }
+
+        @Override
+        public String getPrimeHeader() {
+            return "";
+        }
     }
 }
