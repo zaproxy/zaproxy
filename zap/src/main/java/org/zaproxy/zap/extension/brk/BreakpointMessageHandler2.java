@@ -118,9 +118,13 @@ public class BreakpointMessageHandler2 {
                 setBreakDisplay(aMessage, false);
                 waitUntilContinue(aMessage, false);
                 BreakEventPublisher.getPublisher().publishInactiveEvent(aMessage);
+                /*
+                keindel: breakMgmt.clearAndDisableResponse() - shall be in sync
+                otherwise Race-condition: Thread1 can clear AFTER Thread2 shows its response display
+                * */
+                breakMgmt.clearAndDisableResponse();
             }
         }
-        breakMgmt.clearAndDisableResponse();
         return !breakMgmt.isToBeDropped();
     }
 

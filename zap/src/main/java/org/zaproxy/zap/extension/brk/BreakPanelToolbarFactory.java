@@ -202,7 +202,12 @@ public class BreakPanelToolbarFactory {
         }
 
         // This could have been via a breakpoint, so force the serialisation
-        resetRequestSerialization(true);
+        /*
+        keindel: breaks are serialized thanks to synch-block on SEMAPHOR of BreakpointMessageHandler2
+        - method handleMessageReceivedFromServer. Other requests shall not be serialized.
+        So the line below is commented-out for good:
+        */
+//        resetRequestSerialization(true);
 
         // Set the active icon and reset the continue button
         this.setActiveIcon(true);
@@ -467,6 +472,12 @@ public class BreakPanelToolbarFactory {
             // They've pressed the continue button, stop stepping
             stepping = false;
             resetRequestSerialization(false);
+            /*
+            keindel: cont == false is the default value and behavior.
+            It seems strange to leave cont == true AFTER processing break. It affects further breaks in line.
+             So we change that.
+            * */
+            setContinue(false);
             return false;
         }
         if (drop) {
