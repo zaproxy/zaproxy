@@ -119,8 +119,7 @@ public class HistoryFilter {
                 }
             }
             if (note != null && !note.equals(NOTES_IGNORE)) {
-                String noteStr = historyRef.getHttpMessage().getNote();
-                boolean notePresent = noteStr != null && noteStr.length() > 0;
+                boolean notePresent = !historyRef.getNote().isEmpty();
                 if (note.equals(NOTES_PRESENT) != notePresent) {
                     return false;
                 }

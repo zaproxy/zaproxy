@@ -75,6 +75,47 @@ class DefaultHistoryReferencesTableEntryUnitTest {
         assertThat(entry.getHostName(), is(equalTo("example.com")));
     }
 
+    @Test
+    void shouldHaveEmptyNoteTextWhenAdvNotesColumnNotIncluded() {
+        // Given
+        HistoryReference historyReference = mock(HistoryReference.class);
+        given(historyReference.getURI()).willReturn(createUri("https://example.com/"));
+        Column[] columns = {Column.URL};
+        // When
+        DefaultHistoryReferencesTableEntry entry =
+                new DefaultHistoryReferencesTableEntry(historyReference, columns);
+        // Then
+        assertThat(entry.getNoteText(), is(equalTo("")));
+    }
+
+    @Test
+    void shouldHaveNoteTextWhenAdvNotesColumnIncluded() {
+        // Given
+        HistoryReference historyReference = mock(HistoryReference.class);
+        given(historyReference.getURI()).willReturn(createUri("https://example.com/"));
+        given(historyReference.getNote()).willReturn("test note");
+        Column[] columns = {Column.URL, Column.ADV_NOTES};
+        // When
+        DefaultHistoryReferencesTableEntry entry =
+                new DefaultHistoryReferencesTableEntry(historyReference, columns);
+        // Then
+        assertThat(entry.getNoteText(), is(equalTo("test note")));
+    }
+
+    @Test
+    void shouldHaveEmptyNoteTextWhenAdvNotesColumnIncludedButNoteIsNull() {
+        // Given
+        HistoryReference historyReference = mock(HistoryReference.class);
+        given(historyReference.getURI()).willReturn(createUri("https://example.com/"));
+        given(historyReference.getNote()).willReturn(null);
+        Column[] columns = {Column.URL, Column.ADV_NOTES};
+        // When
+        DefaultHistoryReferencesTableEntry entry =
+                new DefaultHistoryReferencesTableEntry(historyReference, columns);
+        // Then
+        assertThat(entry.getNoteText(), is(equalTo("")));
+    }
+
     private static URI createUri(String uri) {
         try {
             return new URI(uri, true);

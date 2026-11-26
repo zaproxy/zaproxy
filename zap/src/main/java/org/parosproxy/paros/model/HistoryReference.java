@@ -840,6 +840,15 @@ public class HistoryReference {
         return httpMessageCachedData.hasNote();
     }
 
+    public String getNote() {
+        try {
+            return staticTableHistory.readNote(historyId);
+        } catch (DatabaseException e) {
+            LOGGER.error("Failed to read note: {}", e.getMessage(), e);
+            return "";
+        }
+    }
+
     public long getTimeSentMillis() {
         return httpMessageCachedData.getTimeSentMillis();
     }
