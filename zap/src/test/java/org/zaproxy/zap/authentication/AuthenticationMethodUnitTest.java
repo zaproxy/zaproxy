@@ -81,6 +81,37 @@ class AuthenticationMethodUnitTest {
         assertThat(method.replacedUser, is(sameInstance(user)));
     }
 
+    @Test
+    void shouldApplyAuthenticatedSessionToPollRequestByDefault() {
+        // Given
+        AuthenticationMethod method = new AuthenticationMethodTest();
+        HttpMessage msg = new HttpMessage();
+        User user = mock(User.class);
+        // When
+        boolean applies = method.appliesAuthenticatedSessionToPollRequest(msg, user);
+        // Then
+        assertThat(applies, is(equalTo(true)));
+    }
+
+    @Test
+    void shouldAllowOverridingWhetherAuthenticatedSessionAppliesToPollRequest() {
+        // Given
+        AuthenticationMethod method =
+                new AuthenticationMethodTest() {
+                    @Override
+                    public boolean appliesAuthenticatedSessionToPollRequest(
+                            HttpMessage msg, User user) {
+                        return false;
+                    }
+                };
+        HttpMessage msg = new HttpMessage();
+        User user = mock(User.class);
+        // When
+        boolean applies = method.appliesAuthenticatedSessionToPollRequest(msg, user);
+        // Then
+        assertThat(applies, is(equalTo(false)));
+    }
+
     private static class AuthenticationMethodTest extends AuthenticationMethod {
 
         @Override
