@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 public final class HttpPanelViewModelUtils {
@@ -31,6 +33,14 @@ public final class HttpPanelViewModelUtils {
 
     public static void updateResponseContentLength(HttpMessage message) {
         message.getResponseHeader().setContentLength(message.getResponseBody().length());
+    }
+
+    public static String getMalformedHeaderMessage(HttpMalformedHeaderException exception) {
+        if (exception.getLineNumber() > 0) {
+            return Constant.messages.getString(
+                    "http.panel.model.header.warn.malformed.line", exception.getLineNumber());
+        }
+        return Constant.messages.getString("http.panel.model.header.warn.malformed");
     }
 
     /**
