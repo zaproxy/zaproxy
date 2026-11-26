@@ -6,6 +6,7 @@ import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.api.file.RelativePath
 import org.cyclonedx.gradle.CycloneDxTask
 import org.zaproxy.zap.tasks.internal.Utils
 import org.zaproxy.zap.tasks.CreateDmg
@@ -188,20 +189,23 @@ tasks.register<Tar>("distLinux") {
 }
 
 listOf(
-    MacArch("", "", "", "x64", "x86_64", "false", "0fe26252c258ec239ea6d39a6a1f42b75025bff0d237e9ab3acb4782cef29439"),
-    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "arm64", "true", "b37759cce74d3104da243c5a4ca1f8a73d6d8811b4a1711028744ec5559f7eb0")
+    MacArch("", "", "", "x64", "x86_64", "false", "a2a7bfd3a767fcaf35a2e96cc562e6a63cd695e08c1a896222303c4e978da3d6", "d9c482a9a85d2125d935fd3569358d54cef696e79117fa73917cd5305f39d5de"),
+    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "arm64", "true", "856059de21518c2ff6eba6126ffc93390affe363c3ee205b3146a3bac3be0aa5", "bba601a450e42f06a35127a43a42f75e3454e986939836b6c4728265179ac900")
 ).forEach { it ->
 
     val volumeName = "ZAP"
     val appName = "$volumeName.app"
-    val macOsJreDir = layout.buildDirectory.dir("macOsJre${it.suffix}").get().asFile
-    val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
-    val macOsJreVersion = "17.0.17+10"
-    val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
+    val macOsJdkDir = layout.buildDirectory.dir("macOsJdk${it.suffix}").get().asFile
+    val macOsJdkUnpackDir = File(macOsJdkDir, "unpacked")
+    val macOsJdkVersion = "17.0.17+10"
+    // JDK (not JRE): javafx.swing needs jdk.unsupported.desktop, which Temurin JRE omits.
+    val macOsJdkFile = File(macOsJdkDir, "jdk$macOsJdkVersion.tar.gz")
+    val macOsOpenJfxVersion = "17.0.17"
+    val macOsOpenJfxFile = File(macOsJdkDir, "openjfx-$macOsOpenJfxVersion-osx-${it.arch}-sdk.zip")
 
-    val downloadMacOsJre = tasks.register<Download>("downloadMacOsJre${it.suffix}") {
-        src("https://api.adoptium.net/v3/binary/version/jdk-$macOsJreVersion/mac/${it.arch}/jre/hotspot/normal/eclipse?project=jdk")
-        dest(macOsJreFile)
+    val downloadMacOsJdk = tasks.register<Download>("downloadMacOsJdk${it.suffix}") {
+        src("https://api.adoptium.net/v3/binary/version/jdk-$macOsJdkVersion/mac/${it.arch}/jdk/hotspot/normal/eclipse?project=jdk")
+        dest(macOsJdkFile)
         connectTimeout(60_000)
         readTimeout(60_000)
         onlyIfModified(true)
@@ -212,41 +216,83 @@ listOf(
         }
     }
 
-    val verifyMacOsJre = tasks.register<Verify>("verifyMacOsJre${it.suffix}") {
-        dependsOn(downloadMacOsJre)
-        src(macOsJreFile)
+    val verifyMacOsJdk = tasks.register<Verify>("verifyMacOsJdk${it.suffix}") {
+        dependsOn(downloadMacOsJdk)
+        src(macOsJdkFile)
         algorithm("SHA-256")
         checksum(it.checksum)
     }
 
-    val unpackMacOSJre = tasks.register<Copy>("unpackMacOSJre${it.suffix}") {
-        dependsOn(verifyMacOsJre)
-        from(tarTree(macOsJreFile))
-        into(macOsJreUnpackDir)
+    val downloadMacOsOpenJfx = tasks.register<Download>("downloadMacOsOpenJfx${it.suffix}") {
+        src("https://download2.gluonhq.com/openjfx/$macOsOpenJfxVersion/openjfx-${macOsOpenJfxVersion}_osx-${it.arch}_bin-sdk.zip")
+        dest(macOsOpenJfxFile)
+        connectTimeout(60_000)
+        readTimeout(60_000)
+        onlyIfModified(true)
+    }
+
+    val verifyMacOsOpenJfx = tasks.register<Verify>("verifyMacOsOpenJfx${it.suffix}") {
+        dependsOn(downloadMacOsOpenJfx)
+        src(macOsOpenJfxFile)
+        algorithm("SHA-256")
+        checksum(it.openJfxChecksum)
+    }
+
+    val unpackMacOSJdk = tasks.register<Copy>("unpackMacOSJdk${it.suffix}") {
+        dependsOn(verifyMacOsJdk)
+        from(tarTree(macOsJdkFile))
+        into(macOsJdkUnpackDir)
         doFirst {
-            delete(macOsJreUnpackDir)
+            delete(macOsJdkUnpackDir)
         }
         doLast {
-            // Rename top level dir to start with "jre" to match the
+            // Rename top level dir to start with "jdk" to match the
             // expectations of zap.sh script.
-            val dirName = macOsJreUnpackDir.listFiles()[0].name
+            val dirName = macOsJdkUnpackDir.listFiles()[0].name
             ant.withGroovyBuilder {
-                "move"(mapOf("file" to "$macOsJreUnpackDir/$dirName", "tofile" to "$macOsJreUnpackDir/jre-$dirName"))
+                "move"(mapOf("file" to "$macOsJdkUnpackDir/$dirName", "tofile" to "$macOsJdkUnpackDir/jdk-$dirName"))
             }
+        }
+    }
+
+    val macOsOpenJfxUnpackDir = File(macOsJdkDir, "openjfxUnpacked")
+    val unpackMacOsOpenJfx = tasks.register<Copy>("unpackMacOsOpenJfx${it.suffix}") {
+        dependsOn(verifyMacOsOpenJfx)
+        from(zipTree(macOsOpenJfxFile)) {
+            include("**/lib/*")
+            exclude("**/src.zip", "**/javafx-swt.jar")
+            eachFile {
+                relativePath = RelativePath.parse(true, "lib/${relativePath.lastName}")
+            }
+            includeEmptyDirs = false
+        }
+        from(zipTree(macOsOpenJfxFile)) {
+            include("**/legal/**")
+            eachFile {
+                val legalIndex = relativePath.segments.indexOf("legal")
+                if (legalIndex >= 0) {
+                    relativePath = RelativePath(true, *relativePath.segments.drop(legalIndex).toTypedArray())
+                }
+            }
+            includeEmptyDirs = false
+        }
+        into(macOsOpenJfxUnpackDir)
+        doFirst {
+            delete(macOsOpenJfxUnpackDir)
         }
     }
 
     val macOsDistDataDir = layout.buildDirectory.dir("macOsDistData${it.suffix}").get().asFile
     val prepareDistMac = tasks.register<Copy>("prepareDistMac${it.suffix}") {
         destinationDir = macOsDistDataDir
-        from(unpackMacOSJre) {
+        from(unpackMacOSJdk) {
             into("$appName/Contents/PlugIns/")
         }
         from("src/main/macOS/") {
             filesMatching("**/Info.plist") {
                 filter<ReplaceTokens>(
                     "tokens" to mapOf(
-                        "JREDIR" to macOsJreUnpackDir.listFiles()[0].name,
+                        "JDKDIR" to macOsJdkUnpackDir.listFiles()[0].name,
                         "SHORT_VERSION_STRING" to "$version",
                         "VERSION_STRING" to "2",
                         "ZAPJAR" to jarWithBom.get().archiveFileName.get(),
@@ -263,6 +309,9 @@ listOf(
         from(distFiles) {
             into(zapDir)
             exclude(listOf("zap.bat", "zap.ico"))
+        }
+        from(unpackMacOsOpenJfx) {
+            into("$zapDir/javafx")
         }
         from(bundledAddOns) {
             into("$zapDir/plugin")
@@ -416,5 +465,6 @@ data class MacArch(
     val arch: String,
     val lsArchitecture: String,
     val lsRequiresNativeExecution: String,
-    val checksum: String
+    val checksum: String,
+    val openJfxChecksum: String
 )
