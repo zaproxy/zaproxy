@@ -42,6 +42,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.db.TableAlertTag;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -66,6 +67,9 @@ public class AlertAPIUnitTest {
 
         Model model = mock(Model.class, withSettings().strictness(Strictness.LENIENT));
         Model.setSingletonForTesting(model);
+        Session session = mock(Session.class);
+        given(session.getSessionId()).willReturn(1L);
+        given(model.getSession()).willReturn(session);
 
         Database db = mock(Database.class);
         given(model.getDb()).willReturn(db);
@@ -206,7 +210,7 @@ public class AlertAPIUnitTest {
                 alerts.stream()
                         .map(RecordAlert::getAlertId)
                         .collect(Collectors.toCollection(Vector::new));
-        given(tableAlert.getAlertList()).willReturn(alertIds);
+        given(tableAlert.getAlertListBySession(1L)).willReturn(alertIds);
         for (RecordAlert alert : alerts) {
             given(tableAlert.read(alert.getAlertId())).willReturn(alert);
         }
