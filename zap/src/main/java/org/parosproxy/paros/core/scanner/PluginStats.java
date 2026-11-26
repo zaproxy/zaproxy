@@ -35,6 +35,7 @@ public class PluginStats {
     private long totalTime;
     private int messageCount;
     private int alertCount;
+    private String alertKeyBase;
     private int progress;
     private boolean skipped;
     private String skippedReason;
@@ -47,6 +48,7 @@ public class PluginStats {
     PluginStats(Plugin plugin) {
         this.pluginName = plugin.getDisplayName();
         this.pluginId = plugin.getId();
+        this.alertKeyBase = Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.ALERTS_POSTFIX;
     }
 
     /**
@@ -164,9 +166,12 @@ public class PluginStats {
      *
      * <p>Should be called when the plugin notifies that an alert was found.
      */
-    void incAlertCount() {
+    void incAlertCount(String alertRef) {
         alertCount++;
-        Stats.incCounter(Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.ALERTS_POSTFIX);
+        Stats.incCounter(alertKeyBase);
+        if (!alertRef.equals(Integer.toString(this.pluginId))) {
+            Stats.incCounter(alertKeyBase + "." + alertRef);
+        }
     }
 
     /**
