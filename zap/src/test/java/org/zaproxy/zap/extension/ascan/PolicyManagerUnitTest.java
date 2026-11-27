@@ -21,12 +21,16 @@ package org.zaproxy.zap.extension.ascan;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -123,6 +127,17 @@ class PolicyManagerUnitTest extends WithConfigsTest {
         List<String> names = policyManager.getAllPolicyNames();
         // Then
         assertEquals(List.of("a", "b"), names);
+    }
+
+    @Test
+    void shouldSortNamesFromPluggableManagerIgnoringCase() {
+        // Given
+        PluggableScanPolicyManager pluggable = pluggableManager("b", "C", "A");
+        PolicyManager policyManager = new PolicyManager(activeScanWith(pluggable, "A", "A"));
+        // When
+        List<String> names = policyManager.getAllPolicyNames();
+        // Then
+        assertEquals(List.of("A", "b", "C"), names);
     }
 
     @Test
@@ -311,6 +326,53 @@ class PolicyManagerUnitTest extends WithConfigsTest {
 
         @Override
         public void scan() {}
+    }
+
+    @Test
+    void shouldCreateScanPolicyEditorFromPluggableManager() {
+        // Given
+        PluggableScanPolicyManager pluggable = pluggableManager("a");
+        ScanPolicyEditor editor = mock(ScanPolicyEditor.class);
+        when(pluggable.createScanPolicyEditor(any())).thenReturn(editor);
+        PolicyManager policyManager = new PolicyManager(activeScanWith(pluggable, "a", "a"));
+        // When
+        ScanPolicyEditor created = policyManager.createScanPolicyEditor(null);
+        // Then
+        assertSame(editor, created);
+    }
+
+    @Test
+    void shouldNotCreateScanPolicyEditorWithoutPluggableManager() {
+        // Given
+        PolicyManager policyManager = new PolicyManager(activeScanWith(null, "a", "a"));
+        // When
+        ScanPolicyEditor created = policyManager.createScanPolicyEditor(null);
+        // Then
+        assertNull(created);
+    }
+
+    @Test
+    void shouldNotCreateScanPolicyEditorIfPluggableManagerProvidesNoPolicies() {
+        // Given
+        PluggableScanPolicyManager pluggable = pluggableManager();
+        PolicyManager policyManager = new PolicyManager(activeScanWith(pluggable, "a", "a"));
+        // When
+        ScanPolicyEditor created = policyManager.createScanPolicyEditor(null);
+        // Then
+        assertNull(created);
+        verify(pluggable, never()).createScanPolicyEditor(any());
+    }
+
+    @Test
+    void shouldNotCreateScanPolicyEditorIfPluggableManagerFails() {
+        // Given
+        PluggableScanPolicyManager pluggable = pluggableManager("a");
+        when(pluggable.createScanPolicyEditor(any())).thenThrow(new RuntimeException("test"));
+        PolicyManager policyManager = new PolicyManager(activeScanWith(pluggable, "a", "a"));
+        // When
+        ScanPolicyEditor created = policyManager.createScanPolicyEditor(null);
+        // Then
+        assertNull(created);
     }
 
     private static PluggableScanPolicyManager pluggableManager(String... names) {

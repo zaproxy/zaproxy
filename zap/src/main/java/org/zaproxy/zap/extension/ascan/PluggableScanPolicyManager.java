@@ -19,19 +19,20 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Window;
 import java.util.List;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 
 /**
- * Extension point allowing add-ons to be notified when active scan rules are available and, when
- * ZAP is in {@link org.parosproxy.paros.Constant#isDevMode() dev mode}, to provide the scan
- * policies used by the active scanner.
+ * Extension point allowing add-ons to be notified when active scan rules are available and to
+ * provide the scan policies used by the active scanner.
  *
  * <p>The policy methods have default implementations so that implementations only need to override
  * what they support. The policies are only consulted once {@link #register(PolicyManager)} has been
- * called, until then (or if no manager is registered) the core scan policies are used.
+ * called, until then (or if no manager is registered, or it provides no {@link #getPolicyNames()
+ * policies}) the core scan policies are used.
  *
  * <p>Register an implementation via {@link
  * ExtensionActiveScan#registerPluggableScanPolicyManager(PluggableScanPolicyManager)}.
@@ -103,4 +104,14 @@ public interface PluggableScanPolicyManager {
 
     /** Shows the dialog used to manage the policies, if supported. */
     default void showPolicyManager() {}
+
+    /**
+     * Creates an editor for the Policy tab of the active scan dialog, if supported.
+     *
+     * @param parent the window that will contain the editor.
+     * @return the editor, or {@code null} to use the core policy panels.
+     */
+    default ScanPolicyEditor createScanPolicyEditor(Window parent) {
+        return null;
+    }
 }
