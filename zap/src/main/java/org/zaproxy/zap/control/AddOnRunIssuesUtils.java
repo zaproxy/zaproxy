@@ -265,7 +265,7 @@ public final class AddOnRunIssuesUtils {
 
     /**
      * Returns the textual representations of the running issues (Java version and dependency) of
-     * the extensions of hte add-on, if any.
+     * the extensions of the add-on, if any.
      *
      * <p>The messages are internationalised thus suitable for UI components.
      *

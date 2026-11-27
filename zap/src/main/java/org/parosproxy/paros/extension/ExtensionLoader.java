@@ -87,7 +87,7 @@
 // ZAP: 2019/08/19 Validate menu and main frame in EDT.
 // ZAP: 2019/09/30 Use instance variable for view checks.
 // ZAP: 2020/05/14 Hook HttpSenderListener when starting single extension.
-// ZAP: 2020/08/27 Added support for plugable variants
+// ZAP: 2020/08/27 Added support for pluggable variants
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/13 Issue 6536: Stop and destroy extensions being removed.
 // ZAP: 2021/08/17 Issue 6755: Extension's errors during shutdown prevent ZAP to exit.
