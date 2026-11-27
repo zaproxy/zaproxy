@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class PolicyManager {
         PluggableScanPolicyManager pluggable = getPluggableManager();
         if (pluggable != null) {
             List<String> names = new ArrayList<>(pluggable.getPolicyNames());
-            Collections.sort(names);
+            names.sort(String.CASE_INSENSITIVE_ORDER);
             return names;
         }
         if (allPolicyNames == null) {
@@ -99,8 +100,8 @@ public class PolicyManager {
     /**
      * Gets the pluggable manager providing the policies, if any.
      *
-     * <p>Only the case in dev mode, when a manager has been registered and it provides at least one
-     * policy, otherwise the policies are the ones saved in the policies directory.
+     * <p>Only the case when a manager has been registered and it provides at least one policy,
+     * otherwise the policies are the ones saved in the policies directory.
      *
      * @return the manager, or {@code null} if the policies are the core ones.
      */
@@ -110,6 +111,27 @@ public class PolicyManager {
             return null;
         }
         return pluggable.getPolicyNames().isEmpty() ? null : pluggable;
+    }
+
+    /**
+     * Creates the editor for the Policy tab of the active scan dialog, provided by the pluggable
+     * manager.
+     *
+     * @param parent the window that will contain the editor.
+     * @return the editor, or {@code null} if the core policies are in use or the manager does not
+     *     provide an editor.
+     */
+    ScanPolicyEditor createScanPolicyEditor(Window parent) {
+        PluggableScanPolicyManager pluggable = getPluggableManager();
+        if (pluggable == null) {
+            return null;
+        }
+        try {
+            return pluggable.createScanPolicyEditor(parent);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to create the scan policy editor, using the core panels:", e);
+            return null;
+        }
     }
 
     private ScanPolicy loadPluggablePolicy(PluggableScanPolicyManager pluggable, String name)

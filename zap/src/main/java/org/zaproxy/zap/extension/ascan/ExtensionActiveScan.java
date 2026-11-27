@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.security.InvalidParameterException;
@@ -156,6 +157,20 @@ public class ExtensionActiveScan extends ExtensionAdaptor
         if (postInitCalled) {
             manager.register(policyManager);
         }
+        // The manager might provide the Policy tab
+        discardCustomScanDialog();
+    }
+
+    /**
+     * Discards the active scan dialogue, to be created again when next shown, for example, to use
+     * or stop using the Policy tab of a pluggable manager.
+     */
+    private void discardCustomScanDialog() {
+        CustomScanDialog dialog = customScanDialog;
+        customScanDialog = null;
+        if (dialog != null) {
+            EventQueue.invokeLater(dialog::dispose);
+        }
     }
 
     /**
@@ -170,6 +185,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
         if (manager == this.pluggableScanPolicyManager) {
             manager.unregister();
             this.pluggableScanPolicyManager = null;
+            discardCustomScanDialog();
         }
     }
 
@@ -177,14 +193,15 @@ public class ExtensionActiveScan extends ExtensionAdaptor
      * Tells whether or not the scan policies are provided by the registered {@link
      * PluggableScanPolicyManager}, instead of the core scan policies.
      *
-     * <p>Only the case in {@link Constant#isDevMode() dev mode}, once a manager has been registered
-     * and the active scan rules are available.
+     * <p>The case once a manager has been registered and the active scan rules are available. The
+     * manager is still not used if it provides no policies, see {@link
+     * PolicyManager#getPluggableManager()}.
      *
-     * @return {@code true} if the policies are provided by the pluggable manager, {@code false}
+     * @return {@code true} if a pluggable manager can provide the policies, {@code false}
      *     otherwise.
      */
     boolean isPluggablePolicyActive() {
-        return Constant.isDevMode() && postInitCalled && pluggableScanPolicyManager != null;
+        return postInitCalled && pluggableScanPolicyManager != null;
     }
 
     /**
@@ -204,10 +221,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor
         attackModeScanner = new AttackModeScanner(this);
 
         if (getView() != null) {
-            if (!Constant.isDevMode()) {
-                // In dev mode the scan policies are managed by the Global Scan Policy Manager.
-                extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
-            }
+            // Shows the policies of the pluggable manager, if it provides them.
+            extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
             extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustomWithContext());
@@ -216,9 +231,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
-            if (!Constant.isDevMode()) {
-                extensionHook.getHookView().addMainToolBarComponent(this.getPolicyButton());
-            }
+            extensionHook.getHookView().addMainToolBarComponent(this.getPolicyButton());
             getView()
                     .getMainFrame()
                     .getMainFooterPanel()
@@ -696,7 +709,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor
                             tabs,
                             this.customScanPanels,
                             getView().getMainFrame(),
-                            new Dimension(700, 500));
+                            // Bigger if the policies are provided by the pluggable manager, as
+                            // its Policy tab shows more details.
+                            policyManager.getPluggableManager() != null
+                                    ? new Dimension(950, 650)
+                                    : new Dimension(700, 500));
         }
         if (customScanDialog.isVisible()) {
             customScanDialog.requestFocus();

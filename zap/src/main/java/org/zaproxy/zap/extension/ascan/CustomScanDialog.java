@@ -34,6 +34,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -130,10 +131,26 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private TechSet techTreeState;
     private String scanPolicyName;
     private ScanPolicy scanPolicy = null;
+
+    /**
+     * The name of the default policy when the dialog was last initialised, to use the new default
+     * policy when it changes, only with the {@link #policyEditor}.
+     */
+    private String defaultPolicyName;
+
     private OptionsVariantPanel variantPanel = null;
     private List<CustomScanPanel> customPanels = null;
     private boolean showingAdvTabs = true;
     private ScanPolicyPanel policyPanel;
+
+    /**
+     * The editor provided by the pluggable scan policy manager, used instead of the {@link
+     * #policyPanel} if not {@code null}.
+     */
+    private ScanPolicyEditor policyEditor;
+
+    /** Whether the policy has been set in the {@link #policyEditor} since created or reset. */
+    private boolean policyEditorInitialised;
 
     public CustomScanDialog(
             ExtensionActiveScan ext,
@@ -145,9 +162,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         this.extension = ext;
         this.customPanels = customPanels;
-        this.policyPanel =
-                new ScanPolicyPanel(
-                        this, extension, Constant.messages.getString("ascan.custom.tab.policy"));
+        this.policyEditor = extension.getPolicyManager().createScanPolicyEditor(this);
+        if (policyEditor == null) {
+            this.policyPanel =
+                    new ScanPolicyPanel(
+                            this,
+                            extension,
+                            Constant.messages.getString("ascan.custom.tab.policy"));
+        }
         this.filterPanel = new FilterPanel();
         addWindowListener(
                 new WindowAdapter() {
@@ -174,6 +196,20 @@ public class CustomScanDialog extends StandardFieldsDialog {
         getRequestField().getHighlighter().removeAllHighlights();
         this.headerLength = -1;
         this.urlPathStart = -1;
+
+        if (policyEditor != null) {
+            // With the editor of the pluggable manager the policy selected in the dialog is only
+            // used until the default policy changes, and while it exists.
+            String currentDefaultPolicyName = extension.getScannerParam().getDefaultPolicy();
+            if (!Objects.equals(currentDefaultPolicyName, defaultPolicyName)
+                    || (scanPolicyName != null
+                            && !extension.getPolicyManager().hasPolicy(scanPolicyName))) {
+                defaultPolicyName = currentDefaultPolicyName;
+                scanPolicyName = null;
+                scanPolicy = null;
+                policyEditorInitialised = false;
+            }
+        }
 
         if (scanPolicyName != null && extension.getPolicyManager().hasPolicy(scanPolicyName)) {
             try {
@@ -257,8 +293,16 @@ public class CustomScanDialog extends StandardFieldsDialog {
         getTechTree().refresh();
         setTechSet(techTreeState);
 
-        policyPanel.initScanPolicy(scanPolicy);
-        this.setCustomTabPanel(4, policyPanel);
+        if (policyEditor != null) {
+            if (!policyEditorInitialised) {
+                policyEditor.setScanPolicy(scanPolicy);
+                policyEditorInitialised = true;
+            }
+            this.setCustomTabPanel(4, policyEditor.getPanel());
+        } else {
+            policyPanel.initScanPolicy(scanPolicy);
+            this.setCustomTabPanel(4, policyPanel);
+        }
 
         // Filter panel
         this.filterPanel.resetFilterPanel(target);
@@ -295,7 +339,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
         String policyName = getStringValue(FIELD_POLICY);
         try {
             scanPolicy = extension.getPolicyManager().getPolicy(policyName);
-            policyPanel.setScanPolicy(scanPolicy);
+            if (policyEditor != null) {
+                policyEditor.setScanPolicy(scanPolicy);
+            } else {
+                policyPanel.setScanPolicy(scanPolicy);
+            }
 
             scanPolicyName = policyName;
         } catch (ConfigurationException e) {
@@ -770,11 +818,28 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     private void reset(boolean refreshUi) {
+        reset(refreshUi, true);
+    }
+
+    /**
+     * Resets the dialogue.
+     *
+     * @param refreshUi {@code true} if the UI should be refreshed.
+     * @param resetPolicyEditor {@code true} if the {@link #policyEditor} should be reset too, its
+     *     state is kept between ZAP sessions so it's only reset when explicitly requested.
+     */
+    private void reset(boolean refreshUi, boolean resetPolicyEditor) {
         scannerParam = (ScannerParam) extension.getScannerParam().clone();
         techTreeState = null;
 
         if (refreshUi) {
-            policyPanel.resetAndSetPolicy(scanPolicyName);
+            if (policyEditor != null) {
+                if (resetPolicyEditor) {
+                    policyEditorInitialised = false;
+                }
+            } else {
+                policyPanel.resetAndSetPolicy(scanPolicyName);
+            }
             init(target);
             repaint();
         }
@@ -814,7 +879,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
         if (!this.getBoolValue(FIELD_ADVANCED)) {
             contextSpecificObjects.add(scanPolicy);
         } else {
-            contextSpecificObjects.add(policyPanel.getScanPolicy());
+            contextSpecificObjects.add(
+                    policyEditor != null
+                            ? policyEditor.getScanPolicy()
+                            : policyPanel.getScanPolicy());
 
             if (target == null && this.customPanels != null) {
                 // One of the custom scan panels must have specified a target
@@ -1058,6 +1126,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
      */
     void reset() {
         target = null;
-        reset(true);
+        // The Policy tab's editor is kept, its state is not specific to the ZAP session.
+        reset(true, false);
     }
 }
