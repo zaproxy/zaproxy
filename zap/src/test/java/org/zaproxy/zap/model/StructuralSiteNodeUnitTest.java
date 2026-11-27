@@ -19,11 +19,18 @@
  */
 package org.zaproxy.zap.model;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 
 /** Unit test for {@link StructuralSiteNode}. */
@@ -43,5 +50,81 @@ class StructuralSiteNodeUnitTest {
         SiteNode node = mock(SiteNode.class);
         // When / Then
         assertDoesNotThrow(() -> new StructuralSiteNode(node));
+    }
+
+    @Test
+    void shouldNotAllowToConstructWithNullNodeAndHistoryReference() {
+        // Given
+        SiteNode node = null;
+        HistoryReference historyReference = mock(HistoryReference.class);
+        // When / Then
+        assertThrows(
+                NullPointerException.class, () -> new StructuralSiteNode(node, historyReference));
+    }
+
+    @Test
+    void shouldUseHistoryReferenceOfNodeByDefault() {
+        // Given
+        HistoryReference nodeHistoryReference = mock(HistoryReference.class);
+        SiteNode node = mock(SiteNode.class);
+        given(node.getHistoryReference()).willReturn(nodeHistoryReference);
+        // When
+        StructuralSiteNode structuralNode = new StructuralSiteNode(node);
+        // Then
+        assertThat(structuralNode.getHistoryReference(), is(sameInstance(nodeHistoryReference)));
+    }
+
+    @Test
+    void shouldUseHistoryReferenceOfNodeIfNullHistoryReferenceGiven() {
+        // Given
+        HistoryReference nodeHistoryReference = mock(HistoryReference.class);
+        SiteNode node = mock(SiteNode.class);
+        given(node.getHistoryReference()).willReturn(nodeHistoryReference);
+        // When
+        StructuralSiteNode structuralNode = new StructuralSiteNode(node, null);
+        // Then
+        assertThat(structuralNode.getHistoryReference(), is(sameInstance(nodeHistoryReference)));
+    }
+
+    @Test
+    void shouldUseGivenHistoryReferenceInsteadOfTheOneOfNode() throws Exception {
+        // Given
+        HistoryReference nodeHistoryReference =
+                createHistoryReference(1, "GET", "https://example.com/path");
+        SiteNode node = mock(SiteNode.class);
+        given(node.getHistoryReference()).willReturn(nodeHistoryReference);
+        HistoryReference selectedHistoryReference =
+                createHistoryReference(2, "POST", "https://example.com/path?a=b");
+        // When
+        StructuralSiteNode structuralNode = new StructuralSiteNode(node, selectedHistoryReference);
+        // Then
+        assertThat(
+                structuralNode.getHistoryReference(), is(sameInstance(selectedHistoryReference)));
+        assertThat(structuralNode.getHistoryReference().getHistoryId(), is(equalTo(2)));
+        assertThat(structuralNode.getMethod(), is(equalTo("POST")));
+        assertThat(structuralNode.getURI().toString(), is(equalTo("https://example.com/path?a=b")));
+        assertThat(structuralNode.getName(), is(equalTo("https://example.com/path?a=b")));
+        assertThat(structuralNode.getSiteNode(), is(sameInstance(node)));
+    }
+
+    @Test
+    void shouldBeSameAsNodeWrappingSameSiteNodeEvenIfDifferentHistoryReference() {
+        // Given
+        SiteNode node = mock(SiteNode.class);
+        StructuralSiteNode structuralNode = new StructuralSiteNode(node);
+        StructuralSiteNode structuralNodeWithHref =
+                new StructuralSiteNode(node, mock(HistoryReference.class));
+        // When / Then
+        assertThat(structuralNodeWithHref.isSameAs(structuralNode), is(equalTo(true)));
+        assertThat(structuralNode.isSameAs(structuralNodeWithHref), is(equalTo(true)));
+    }
+
+    private static HistoryReference createHistoryReference(int id, String method, String uri)
+            throws Exception {
+        HistoryReference historyReference = mock(HistoryReference.class);
+        given(historyReference.getHistoryId()).willReturn(id);
+        given(historyReference.getMethod()).willReturn(method);
+        given(historyReference.getURI()).willReturn(new URI(uri, true));
+        return historyReference;
     }
 }
