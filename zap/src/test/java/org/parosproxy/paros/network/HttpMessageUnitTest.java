@@ -335,7 +335,7 @@ class HttpMessageUnitTest {
     }
 
     @ParameterizedTest
-    @MethodSource(value = "getNonPostMethods")
+    @MethodSource(value = "getMethodsWithoutRequestBody")
     void shouldRemoveContentTypeWhenMutatingMethodFromPost(String method) throws Exception {
         String baseUri = "http://www.example.com:9000/";
         String authority = new URI(baseUri, false).getAuthority();
@@ -360,6 +360,51 @@ class HttpMessageUnitTest {
         }
         assertThat(
                 message.getRequestHeader().getHeader(HttpRequestHeader.CONTENT_TYPE), nullValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {HttpRequestHeader.PUT, HttpRequestHeader.PATCH})
+    void shouldKeepBodyWhenMutatingMethodFromPostToMethodWithBody(String method) throws Exception {
+        String baseUri = "http://www.example.com:9000/";
+        String authority = new URI(baseUri, false).getAuthority();
+        String requestBody = "param1=param1&param2=param2";
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "POST " + baseUri + " HTTP/1.1\r\nHost: " + authority));
+        message.getRequestHeader()
+                .setHeader(
+                        HttpRequestHeader.CONTENT_TYPE,
+                        HttpRequestHeader.FORM_URLENCODED_CONTENT_TYPE);
+        message.setRequestBody(requestBody);
+        // When
+        message.mutateHttpMethod(method);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(method));
+        assertThat(message.getRequestHeader().getURI().toString(), is(baseUri));
+        assertThat(message.getRequestHeader().getURI().getQuery(), is(nullValue()));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.CONTENT_TYPE),
+                is(HttpRequestHeader.FORM_URLENCODED_CONTENT_TYPE));
+        assertThat(message.getRequestBody().toString(), is(requestBody));
+    }
+
+    @Test
+    void shouldKeepBinaryBodyWhenMutatingMethodFromPostToPut() throws Exception {
+        byte[] requestBody = {0x00, 0x01, (byte) 0x80, (byte) 0xff};
+        String baseUri = "http://www.example.com:9000/";
+        String authority = new URI(baseUri, false).getAuthority();
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "POST " + baseUri + " HTTP/1.1\r\nHost: " + authority));
+        message.setRequestBody(requestBody);
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.PUT);
+        // Then
+        assertThat(message.getRequestBody().getBytes(), is(equalTo(requestBody)));
     }
 
     @Test
@@ -690,6 +735,14 @@ class HttpMessageUnitTest {
     static Stream<Arguments> getNonPostMethods() {
         return Stream.of(HttpRequestHeader.METHODS)
                 .filter(method -> !method.equals(HttpRequestHeader.POST))
+                .map(Arguments::arguments);
+    }
+
+    static Stream<Arguments> getMethodsWithoutRequestBody() {
+        return Stream.of(HttpRequestHeader.METHODS)
+                .filter(method -> !method.equals(HttpRequestHeader.POST))
+                .filter(method -> !method.equals(HttpRequestHeader.PUT))
+                .filter(method -> !method.equals(HttpRequestHeader.PATCH))
                 .map(Arguments::arguments);
     }
 
