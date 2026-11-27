@@ -228,17 +228,17 @@ public class HttpResponseHeader extends HttpHeader {
     public int getContentLength() {
         int len = super.getContentLength();
 
+        if (mStatusCode == 0) {
+            return len > 0 ? len : 0;
+        }
+
         if ((mStatusCode >= 100 && mStatusCode < 200)
                 || mStatusCode == HttpStatusCode.NO_CONTENT
                 || mStatusCode == HttpStatusCode.NOT_MODIFIED) {
             return 0;
-        } else if (mStatusCode >= 200 && mStatusCode < 300) {
-            return len;
-        } else if (len > 0) {
-            return len;
-        } else {
-            return 0;
         }
+
+        return len;
     }
 
     public static HttpResponseHeader getError(String msg) {
