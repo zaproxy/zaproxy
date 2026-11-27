@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -48,6 +49,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
@@ -335,6 +338,51 @@ class UserUnitTest {
         user.processMessageToMatchUser(message);
         // Then
         verify(listener).onAuthenticationRequestStart(user, message);
+        verify(listener).onAuthenticationRequestSuccess(user, message);
+        verify(listener, never()).onAuthenticationRequestFailure(user, message);
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void shouldNotifyListenerOnFailedVerificationAfterAuthentication() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        when(user.requiresAuthentication()).thenReturn(true).thenReturn(false);
+        doAnswer(
+                        invocation -> {
+                            user.getAuthenticationState()
+                                    .setLastAuthFailure("User is not authenticated");
+                            return null;
+                        })
+                .when(user)
+                .authenticate();
+        AuthenticationListener listener = mock(AuthenticationListener.class);
+        registerListener(listener);
+        HttpMessage message = mock(HttpMessage.class);
+        // When
+        user.processMessageToMatchUser(message);
+        // Then
+        verify(listener).onAuthenticationRequestStart(user, message);
+        verify(listener).onAuthenticationRequestFailure(user, message);
+        verify(listener, never()).onAuthenticationRequestSuccess(user, message);
+    }
+
+    @Test
+    void shouldResetLastAuthFailureBeforeAuthenticating() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        doReturn(true, false).when(user).requiresAuthentication();
+        doNothing().when(user).authenticate();
+        user.getAuthenticationState().setLastAuthFailure("Previous failure");
+        AuthenticationListener listener = mock(AuthenticationListener.class);
+        registerListener(listener);
+        HttpMessage message = mock(HttpMessage.class);
+        // When
+        user.processMessageToMatchUser(message);
+        // Then
+        assertEquals("", user.getAuthenticationState().getLastAuthFailure());
         verify(listener).onAuthenticationRequestSuccess(user, message);
         verify(listener, never()).onAuthenticationRequestFailure(user, message);
     }

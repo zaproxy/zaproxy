@@ -54,6 +54,11 @@ public interface AuthenticationListener {
     /**
      * Notifies the listener that an authentication attempt for the given user failed.
      *
+     * <p>Also called when the authentication method obtained a session but a non-empty {@code
+     * user.getAuthenticationState().getLastAuthFailure()} was set, for example because the
+     * verification performed after authenticating failed. In that case the session is NOT used and
+     * is discarded, so later messages will need re-authentication.
+     *
      * <p>The reason, if available, can be obtained through {@code
      * user.getAuthenticationState().getLastAuthFailure()}.
      *
