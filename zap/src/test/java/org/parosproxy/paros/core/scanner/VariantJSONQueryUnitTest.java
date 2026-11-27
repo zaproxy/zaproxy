@@ -484,6 +484,35 @@ class VariantJSONQueryUnitTest {
         assertThat(message.getRequestBody().toString(), is("\"injection\""));
     }
 
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "application/json",
+                "Application/json",
+                "APPLICATION/JSON",
+                "application/json; charset=utf-8",
+                "Application/JSON; charset=utf-8"
+            })
+    void shouldExtractParametersForCaseInsensitiveJsonContentType(String contentType)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        HttpMessage msg =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "POST / HTTP/1.1\r\nHost: www.example.com\r\nContent-Type: "
+                                        + contentType),
+                        new HttpRequestBody("{\"foo\":\"bar\"}"));
+        // When
+        variantJSONQuery.setMessage(msg);
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(variantJSONQuery.isValidContentType(msg.getRequestHeader()), is(true));
+        assertThat(parameters.size(), is(equalTo(1)));
+        assertThat(parameters.get(0).getName(), is(equalTo("foo")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("bar")));
+    }
+
     private static HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
         return new HttpMessage(
                 new HttpRequestHeader(

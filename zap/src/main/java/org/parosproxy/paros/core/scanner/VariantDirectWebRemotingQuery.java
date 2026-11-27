@@ -21,6 +21,7 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.regex.Pattern;
 import org.apache.commons.text.StringEscapeUtils;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
  * Variant to allow scanning of Direct Web Remoting (DWR) parameters
@@ -60,13 +61,9 @@ public class VariantDirectWebRemotingQuery extends VariantAbstractRPCQuery {
         return SHORT_NAME;
     }
 
-    /**
-     * @param contentType
-     * @return
-     */
     @Override
-    public boolean isValidContentType(String contentType) {
-        return contentType.startsWith(DWR_CONTENT_TYPE);
+    public boolean isValidContentType(HttpRequestHeader header) {
+        return header.hasContentType(DWR_CONTENT_TYPE);
     }
 
     @Override
