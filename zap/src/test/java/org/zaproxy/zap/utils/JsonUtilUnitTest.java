@@ -173,6 +173,49 @@ class JsonUtilUnitTest {
     }
 
     @Test
+    void shouldReturnKeyStrForJsonArrayOfNumbers() {
+        // Given
+        String json = """
+                [1, 2, 3]
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("[]")));
+    }
+
+    @Test
+    void shouldReturnKeyStrForJsonArrayOfBooleansAndNulls() {
+        // Given
+        String json = """
+                [true, false, null]
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("[]")));
+    }
+
+    @Test
+    void shouldReturnKeyStrForJsonArrayWithMixedScalarsAndObjects() {
+        // Given
+        String json =
+                """
+                [1, {"a": "b"}, "str", null, {"c": "d"}, true]
+                """;
+
+        // When
+        String res = JsonUtil.getJsonKeyString(json);
+
+        // Then
+        assertThat(res, is(equalTo("[{a},{c}]")));
+    }
+
+    @Test
     void shouldReturnKeyStrForDeepJsonObject() {
         // Given
         String json =
