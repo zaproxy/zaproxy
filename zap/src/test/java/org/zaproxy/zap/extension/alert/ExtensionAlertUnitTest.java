@@ -61,6 +61,7 @@ import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.db.TableAlertTag;
@@ -1257,5 +1258,90 @@ class ExtensionAlertUnitTest {
         alert.setHistoryRef(href);
 
         return alert;
+    }
+
+    @Test
+    void shouldPublishAlertRemovedEventWhenDeletingAlertWithoutHistoryReference() throws Exception {
+        // Given
+        setUpExtensionWithDb();
+        List<Event> events = new ArrayList<>();
+        EventConsumer consumer = events::add;
+        String publisherName = AlertEventPublisher.getPublisher().getPublisherName();
+        ZAP.getEventBus()
+                .registerConsumer(consumer, publisherName, AlertEventPublisher.ALERT_REMOVED_EVENT);
+        try {
+            Alert alert = newAlertWithoutMessage(1);
+            // When
+            extAlert.deleteAlert(alert);
+
+            // Then
+            assertEquals(1, events.size());
+            Event event = events.get(0);
+            assertNull(event.getTarget());
+            assertEquals(AlertEventPublisher.ALERT_REMOVED_EVENT, event.getEventType());
+        } finally {
+            ZAP.getEventBus().unregisterConsumer(consumer, publisherName);
+        }
+    }
+
+    @Test
+    void shouldPublishAlertRemovedEventWhenDeletingAlertWithHistoryReferenceWithoutSiteNode()
+            throws Exception {
+        // Given
+        HistoryReference href = setUpExtensionWithDb();
+        given(href.getSiteNode()).willReturn(null);
+        Alert alert = newAlertToRaise("https://www.example.com/");
+        try (MockedStatic<HistoryReference> hr = mockStatic(HistoryReference.class)) {
+            hr.when(() -> HistoryReference.getTags(anyInt())).thenReturn(List.of());
+            extAlert.alertFound(alert, href);
+        }
+        List<Event> events = new ArrayList<>();
+        EventConsumer consumer = events::add;
+        String publisherName = AlertEventPublisher.getPublisher().getPublisherName();
+        ZAP.getEventBus()
+                .registerConsumer(consumer, publisherName, AlertEventPublisher.ALERT_REMOVED_EVENT);
+        try {
+            // When
+            extAlert.deleteAlert(alert);
+
+            // Then
+            assertEquals(1, events.size());
+            Event event = events.get(0);
+            assertNull(event.getTarget());
+            assertEquals(AlertEventPublisher.ALERT_REMOVED_EVENT, event.getEventType());
+        } finally {
+            ZAP.getEventBus().unregisterConsumer(consumer, publisherName);
+        }
+    }
+
+    @Test
+    void shouldPublishAlertRemovedEventWhenDeletingAlertWithHistoryReferenceAndSiteNode()
+            throws Exception {
+        // Given
+        HistoryReference href = setUpExtensionWithDb();
+        SiteNode siteNode = mock(SiteNode.class);
+        given(href.getSiteNode()).willReturn(siteNode);
+        Alert alert = newAlertToRaise("https://www.example.com/");
+        try (MockedStatic<HistoryReference> hr = mockStatic(HistoryReference.class)) {
+            hr.when(() -> HistoryReference.getTags(anyInt())).thenReturn(List.of());
+            extAlert.alertFound(alert, href);
+        }
+        List<Event> events = new ArrayList<>();
+        EventConsumer consumer = events::add;
+        String publisherName = AlertEventPublisher.getPublisher().getPublisherName();
+        ZAP.getEventBus()
+                .registerConsumer(consumer, publisherName, AlertEventPublisher.ALERT_REMOVED_EVENT);
+        try {
+            // When
+            extAlert.deleteAlert(alert);
+
+            // Then
+            assertEquals(1, events.size());
+            Event event = events.get(0);
+            assertEquals(siteNode, event.getTarget().getStartNode());
+            assertEquals(AlertEventPublisher.ALERT_REMOVED_EVENT, event.getEventType());
+        } finally {
+            ZAP.getEventBus().unregisterConsumer(consumer, publisherName);
+        }
     }
 }
