@@ -74,7 +74,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -577,121 +576,6 @@ public class HttpMessage implements Message {
         setBodyCharset(getResponseBody(), getResponseHeader());
 
         setContentEncodings(getResponseHeader(), getResponseBody());
-    }
-
-    /**
-     * Compare if 2 message is the same. 2 messages are the same if: Host, port, path and query
-     * param and VALUEs are the same. For POST request, the body must be the same.
-     *
-     * @param object
-     * @return
-     */
-    @Override
-    public boolean equals(Object object) {
-
-        if (!(object instanceof HttpMessage)) {
-            return false;
-        }
-
-        HttpMessage msg = (HttpMessage) object;
-        boolean result = false;
-
-        // compare method
-        if (!this.getRequestHeader()
-                .getMethod()
-                .equalsIgnoreCase(msg.getRequestHeader().getMethod())) {
-            return false;
-        }
-
-        // compare host, port and URI
-        URI uri1 = this.getRequestHeader().getURI();
-        URI uri2 = msg.getRequestHeader().getURI();
-
-        if (uri1 == null) {
-            if (uri2 != null) {
-                return false;
-            }
-            return true;
-        } else if (uri2 == null) {
-            return false;
-        }
-
-        try {
-            if (uri1.getHost() == null
-                    || uri2.getHost() == null
-                    || !uri1.getHost().equalsIgnoreCase(uri2.getHost())) {
-                return false;
-            }
-
-            if (uri1.getPort() != uri2.getPort()) {
-                return false;
-            }
-
-            String pathQuery1 = uri1.getPathQuery();
-            String pathQuery2 = uri2.getPathQuery();
-
-            if (pathQuery1 == null && pathQuery2 == null) {
-                return true;
-            } else if (pathQuery1 != null && pathQuery2 != null) {
-                return pathQuery1.equalsIgnoreCase(pathQuery2);
-            } else if (pathQuery1 == null || pathQuery2 == null) {
-                return false;
-            }
-
-            if (this.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-                return this.getRequestBody().equals(msg.getRequestBody());
-            }
-
-            result = true;
-
-        } catch (URIException e) {
-            try {
-                result =
-                        this.getRequestHeader()
-                                .getURI()
-                                .toString()
-                                .equalsIgnoreCase(msg.getRequestHeader().getURI().toString());
-            } catch (Exception e1) {
-                // ZAP: log error
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result =
-                prime * result + getRequestHeader().getMethod().toLowerCase(Locale.ROOT).hashCode();
-        URI uri = getRequestHeader().getURI();
-        if (uri != null) {
-            result = prime * result + uri.getPort();
-            try {
-                result =
-                        prime * result
-                                + (uri.getRawHost() == null
-                                        ? 0
-                                        : uri.getHost().toLowerCase(Locale.ROOT).hashCode());
-            } catch (URIException e) {
-                LOGGER.error("Failed to obtain the host for hashCode calculation: {}", uri, e);
-            }
-            result =
-                    prime * result
-                            + ((uri.getRawPathQuery() == null)
-                                    ? 0
-                                    : uri.getEscapedPathQuery()
-                                            .toLowerCase(Locale.ROOT)
-                                            .hashCode());
-        }
-
-        if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-            result = prime * result + getRequestBody().hashCode();
-        }
-
-        return result;
     }
 
     /**
