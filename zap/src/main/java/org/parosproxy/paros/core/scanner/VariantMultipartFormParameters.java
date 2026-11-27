@@ -42,20 +42,16 @@ public class VariantMultipartFormParameters implements Variant {
     private static final String DOUBLE_HYPHEN = "--";
     private static final Pattern FIELD_NAME_PATTERN =
             Pattern.compile(
-                    "\\s*content-disposition\\s*:.*\\s+name\\s*\\=?\\s*\\\"?(?<name>.[^;\\\"\\n]*)\\\"?\\;?.*",
-                    Pattern.CASE_INSENSITIVE);
+                    "\\bname\\s*=\\s*\"?(?<name>[^;\"\\r\\n]*)\"?", Pattern.CASE_INSENSITIVE);
     private static final Pattern FIELD_VALUE_PATTERN = Pattern.compile("[\\r\\n]{2}(?<value>.*)");
     private static final Pattern FILENAME_PART_PATTERN =
             Pattern.compile(
-                    "\\s*content-disposition\\s*:.*filename\\s*\\=?\\s*\\\"?(?<filename>.[^;\"\\n]*)\\\"?\\;?.*",
+                    "\\bfilename\\s*=\\s*\"?(?<filename>[^;\"\\r\\n]*)\"?",
                     Pattern.CASE_INSENSITIVE);
-    // http://fiddle.re/etxbnd (Click Java, set case insensitive, and hit "test")
     private static final Pattern CONTENTTYPE_PART_PATTERN =
             Pattern.compile(
-                    "\\s*content-disposition.*content-type\\s*:\\s*\\s*\\\"?(?<contenttype>.[^;\"\\r\\n]*)\\\"?\\;?.*",
-                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    // http://www.regexplanet.com/share/index.html?share=yyyyyythear (Click Java, set case
-    // insensitive & DOTALL, and hit "test")
+                    "content-type\\s*:\\s*\"?(?<contenttype>[^;\"\\r\\n]+)\"?",
+                    Pattern.CASE_INSENSITIVE);
 
     private List<NameValuePair> params = Collections.emptyList();
     private List<MultipartFormParameter> multiPartParams = new ArrayList<>();
@@ -73,6 +69,9 @@ public class VariantMultipartFormParameters implements Variant {
             throw new IllegalArgumentException("Parameter message must not be null.");
         }
 
+        params = Collections.emptyList();
+        multiPartParams.clear();
+
         String contentType = msg.getRequestHeader().getNormalisedContentTypeValue();
         if (contentType == null || !contentType.startsWith("multipart/form-data")) {
             return;
@@ -87,7 +86,6 @@ public class VariantMultipartFormParameters implements Variant {
 
     private void parseImpl(HttpMessage msg, String contentType) {
         ArrayList<NameValuePair> extractedParameters = new ArrayList<>();
-        int position = 0;
         int offset = 0;
         String bareBoundary = getBoundary(contentType, msg);
         if (bareBoundary == null) {
@@ -106,8 +104,9 @@ public class VariantMultipartFormParameters implements Variant {
                 part = boundaryCrlf + part;
                 Matcher nameMatcher = FIELD_NAME_PATTERN.matcher(partHeaderLine);
                 Matcher valueMatcher = FIELD_VALUE_PATTERN.matcher(part);
-                nameMatcher.find();
-                valueMatcher.find();
+                if (!nameMatcher.find() || !valueMatcher.find()) {
+                    continue;
+                }
                 if (StringUtils.isBlank(valueMatcher.group("value"))) {
                     valueMatcher.find();
                     // Need to skip one find for some reason...
@@ -132,101 +131,136 @@ public class VariantMultipartFormParameters implements Variant {
                                         + HttpHeader.CRLF
                                         + ")?$",
                                 ""); // Strip final boundary
-                if (isFileParam) {
-                    position += 2;
-                    extractedParameters.add(
-                            new NameValuePair(
-                                    NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM,
-                                    name,
-                                    value,
-                                    position));
-                } else {
-                    extractedParameters.add(
-                            new NameValuePair(
-                                    NameValuePair.TYPE_MULTIPART_DATA_PARAM,
-                                    name,
-                                    value,
-                                    position));
-                }
+
                 int start =
                         offset
                                 + part.indexOf(HttpHeader.CRLF + HttpHeader.CRLF)
                                 + 4; // 4 for two CRLFs
                 int end = start + value.length();
-                LOGGER.debug(
-                        "Name: {} O: {} S: {} E: {} Pos: {}", name, offset, start, end, position);
-                multiPartParams.add(
-                        new MultipartFormParameter(
-                                name,
-                                valueMatcher.group("value"),
-                                start,
-                                end,
-                                position,
-                                MultipartFormParameter.Type.GENERAL));
-                LOGGER.debug("Name: {} value: {}", name, valueMatcher.group("value"));
+                String rawValue =
+                        valueMatcher.group("value") != null ? valueMatcher.group("value") : "";
+
                 if (isFileParam) {
-                    position -= 2;
                     // Extract the filename
                     Matcher fnValueMatcher = FILENAME_PART_PATTERN.matcher(part);
-                    fnValueMatcher.find();
-                    String fnValue = fnValueMatcher.group("filename");
-                    extractedParameters.add(
-                            extractedParameters.size() - 1,
-                            new NameValuePair(
-                                    NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
-                                    name,
-                                    fnValue,
-                                    position));
-                    int fnStart = offset + part.indexOf(fnValue);
-                    int fnEnd = fnStart + fnValue.length();
-                    LOGGER.debug(
-                            "Name: {} O: {} S: {} E: {} Pos: {}",
-                            name,
-                            offset,
-                            fnStart,
-                            fnEnd,
-                            position);
-                    multiPartParams.add(
-                            multiPartParams.size() - 1,
-                            new MultipartFormParameter(
-                                    name,
-                                    fnValue,
-                                    fnStart,
-                                    fnEnd,
-                                    position,
-                                    MultipartFormParameter.Type.FILE_NAME));
-                    // Extract the content-type
+                    String fnValue = "";
+                    int fnStart = -1;
+                    int fnEnd = -1;
+                    if (fnValueMatcher.find()) {
+                        fnValue = fnValueMatcher.group("filename");
+                        fnStart = offset + fnValueMatcher.start("filename");
+                        fnEnd = offset + fnValueMatcher.end("filename");
+                    }
+
+                    // Extract the content-type (optional)
                     Matcher ctValueMatcher = CONTENTTYPE_PART_PATTERN.matcher(part);
-                    ctValueMatcher.find();
-                    String ctValue = ctValueMatcher.group("contenttype");
+                    String ctValue = null;
+                    int ctStart = -1;
+                    int ctEnd = -1;
+                    if (ctValueMatcher.find()) {
+                        ctValue = ctValueMatcher.group("contenttype");
+                        ctStart = offset + ctValueMatcher.start("contenttype");
+                        ctEnd = offset + ctValueMatcher.end("contenttype");
+                    }
+
+                    if (ctValue == null || fnStart <= ctStart) {
+                        int pos = extractedParameters.size() + 1;
+                        extractedParameters.add(
+                                new NameValuePair(
+                                        NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
+                                        name,
+                                        fnValue,
+                                        pos));
+                        multiPartParams.add(
+                                new MultipartFormParameter(
+                                        name,
+                                        fnValue,
+                                        fnStart,
+                                        fnEnd,
+                                        pos,
+                                        MultipartFormParameter.Type.FILE_NAME));
+
+                        if (ctValue != null) {
+                            pos = extractedParameters.size() + 1;
+                            extractedParameters.add(
+                                    new NameValuePair(
+                                            NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
+                                            name,
+                                            ctValue,
+                                            pos));
+                            multiPartParams.add(
+                                    new MultipartFormParameter(
+                                            name,
+                                            ctValue,
+                                            ctStart,
+                                            ctEnd,
+                                            pos,
+                                            MultipartFormParameter.Type.FILE_CONTENT_TYPE));
+                        }
+                    } else {
+                        int pos = extractedParameters.size() + 1;
+                        extractedParameters.add(
+                                new NameValuePair(
+                                        NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
+                                        name,
+                                        ctValue,
+                                        pos));
+                        multiPartParams.add(
+                                new MultipartFormParameter(
+                                        name,
+                                        ctValue,
+                                        ctStart,
+                                        ctEnd,
+                                        pos,
+                                        MultipartFormParameter.Type.FILE_CONTENT_TYPE));
+
+                        pos = extractedParameters.size() + 1;
+                        extractedParameters.add(
+                                new NameValuePair(
+                                        NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
+                                        name,
+                                        fnValue,
+                                        pos));
+                        multiPartParams.add(
+                                new MultipartFormParameter(
+                                        name,
+                                        fnValue,
+                                        fnStart,
+                                        fnEnd,
+                                        pos,
+                                        MultipartFormParameter.Type.FILE_NAME));
+                    }
+
+                    int pos = extractedParameters.size() + 1;
                     extractedParameters.add(
-                            extractedParameters.size() - 1,
                             new NameValuePair(
-                                    NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
+                                    NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM,
                                     name,
-                                    ctValue,
-                                    ++position));
-                    int ctStart = offset + part.indexOf(ctValue);
-                    int ctEnd = ctStart + ctValue.length();
-                    LOGGER.debug(
-                            "Name: {} O: {} S: {} E: {} Pos: {}",
-                            name,
-                            offset,
-                            ctStart,
-                            ctEnd,
-                            position);
+                                    value,
+                                    pos));
                     multiPartParams.add(
-                            multiPartParams.size() - 1,
                             new MultipartFormParameter(
                                     name,
-                                    ctValue,
-                                    ctStart,
-                                    ctEnd,
-                                    position,
-                                    MultipartFormParameter.Type.FILE_CONTENT_TYPE));
+                                    rawValue,
+                                    start,
+                                    end,
+                                    pos,
+                                    MultipartFormParameter.Type.GENERAL));
+                } else {
+                    int pos = extractedParameters.size() + 1;
+                    extractedParameters.add(
+                            new NameValuePair(
+                                    NameValuePair.TYPE_MULTIPART_DATA_PARAM, name, value, pos));
+                    multiPartParams.add(
+                            new MultipartFormParameter(
+                                    name,
+                                    rawValue,
+                                    start,
+                                    end,
+                                    pos,
+                                    MultipartFormParameter.Type.GENERAL));
                 }
             }
-            position++;
             offset = offset + part.length();
         }
         params = Collections.unmodifiableList(extractedParameters);
