@@ -184,6 +184,58 @@ class HttpResponseHeaderUnitTest {
         assertTrue(hrh.isCss());
     }
 
+    @Test
+    void shouldReturnZeroContentLengthWhenEmptyAndNotSet() {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader();
+        // When / Then
+        assertThat(header.getContentLength(), is(equalTo(0)));
+    }
+
+    @Test
+    void shouldReturnConfiguredContentLengthWhenEmptyAndExplicitlySet() {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader();
+        header.setContentLength(15);
+        // When / Then
+        assertThat(header.getContentLength(), is(equalTo(15)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {100, 101, 199, 204, 304})
+    void shouldReturnZeroContentLengthForBodylessStatusCodesEvenWithHeader(int statusCode)
+            throws Exception {
+        // Given
+        HttpResponseHeader header =
+                new HttpResponseHeader("HTTP/1.1 " + statusCode + "\r\nContent-Length: 10\r\n\r\n");
+        // When / Then
+        assertThat(header.getContentLength(), is(equalTo(0)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {200, 201, 301, 302, 307, 400, 401, 403, 404, 500, 503})
+    void shouldReturnUnknownContentLengthWhenHeaderAbsentForBodyCapableStatusCodes(int statusCode)
+            throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 " + statusCode + "\r\n\r\n");
+        // When / Then
+        assertThat(header.getContentLength(), is(equalTo(-1)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {200, 302, 404, 500})
+    void shouldReturnHeaderContentLengthWhenPresentForBodyCapableStatusCodes(int statusCode)
+            throws Exception {
+        // Given
+        HttpResponseHeader headerZero =
+                new HttpResponseHeader("HTTP/1.1 " + statusCode + "\r\nContent-Length: 0\r\n\r\n");
+        HttpResponseHeader headerNonZero =
+                new HttpResponseHeader("HTTP/1.1 " + statusCode + "\r\nContent-Length: 42\r\n\r\n");
+        // When / Then
+        assertThat(headerZero.getContentLength(), is(equalTo(0)));
+        assertThat(headerNonZero.getContentLength(), is(equalTo(42)));
+    }
+
     private static HttpResponseHeader createResponseHeader(String contentType) {
         HttpResponseHeader hrh = new HttpResponseHeader();
         hrh.setHeader(HttpHeader.CONTENT_TYPE, contentType);
