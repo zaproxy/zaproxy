@@ -843,4 +843,12 @@ class HttpMessageUnitTest {
         context.getConfiguration().addLoggerAppender(logger, testAppender);
         logger.setLevel(Level.WARN);
     }
+
+    @Test
+    void shouldNotBeEqualForDistinctMessagesWithSameContent() throws Exception {
+        HttpMessage msg1 = new HttpMessage(new URI("http://example.com/test", true));
+        HttpMessage msg2 = new HttpMessage(new URI("http://example.com/test", true));
+
+        assertThat(msg1.equals(msg2), is(false));
+    }
 }
