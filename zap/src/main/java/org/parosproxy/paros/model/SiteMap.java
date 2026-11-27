@@ -283,7 +283,7 @@ public class SiteMap extends SortedTreeModel {
                 return null;
             }
 
-            List<String> path = SessionStructure.getTreePath(model, uri);
+            List<String> path = SessionStructure.getTreePath(model, uri, method, postData);
             for (int i = 0; i < path.size(); i++) {
                 folder = path.get(i);
 
